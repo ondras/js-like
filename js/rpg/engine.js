@@ -34,7 +34,7 @@ RPG.Engine.BaseAction.prototype._phrase = function(str, endchar) {
 }
 
 /**
- * Scheduler abstract class
+ * Scheduler class - manages list of actors
  */
 RPG.Engine.Scheduler = OZ.Class();
 RPG.Engine.Scheduler.prototype.init = function() {

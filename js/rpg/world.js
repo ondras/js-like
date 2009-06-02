@@ -17,6 +17,10 @@ RPG.Engine.World.prototype.init = function() {
 	this._action = null;
 	this._actionResult = null;
 }
+/**
+ * Switch to a new level
+ * @param {RPG.Engine.Level} level
+ */
 RPG.Engine.World.prototype.useLevel = function(level) {
 	if (this.level) { /* old level - let beings know that they leave the world */
 		var beings = this.level.getBeings();
@@ -41,6 +45,7 @@ RPG.Engine.World.prototype.useScheduler = function(scheduler) {
 }
 /**
  * Call this if you deferred action selection
+ * @param {RPG.Actions.BaseAction} a
  */
 RPG.Engine.World.prototype.act = function(a) {
 	this._action = a;
@@ -63,6 +68,9 @@ RPG.Engine.World.prototype.pause = function() {
 }
 /**
  * Actor requests info about itself and surroundings
+ * @param {RPG.Engine.ActorInterface} actor
+ * @param {int} infoType constant
+ * @param {any} [params]
  */
 RPG.Engine.World.prototype.info = function(actor, infoType, params) {
 	switch (infoType) {
@@ -70,7 +78,7 @@ RPG.Engine.World.prototype.info = function(actor, infoType, params) {
 			return this.level.find(actor);
 		break;
 		case RPG.INFO_CELL:
-			if (this.canSee(actor, params)) {
+			if (!actor || this.canSee(actor, params)) {
 				return this.level.at(params);
 			} else {
 				return null;
@@ -84,6 +92,9 @@ RPG.Engine.World.prototype.info = function(actor, infoType, params) {
 		break;
 	}
 }
+/**
+ * Main loop
+ */
 RPG.Engine.World.prototype._decide = function() {
 	while (1) {
 		if (this.running < 1) { return; }
@@ -120,7 +131,14 @@ RPG.Engine.World.prototype._decide = function() {
 		}
 	}
 }
+/**
+ * Can a given being see target coords?
+ * @param {RPG.Beings.BaseBeing} who
+ * @param {RPG.Misc.Coords} what
+ * @returns {bool}
+ */
 RPG.Engine.World.prototype.canSee = function(who, what) {
 	var coords = this.level.find(who);
-	return this.level.canSee(coords, what);;
+	if (coords.distance(what) > 5) { return false; } /* FIXME this should depend on perception or so */
+	return this.level.canSee(coords, what);
 }

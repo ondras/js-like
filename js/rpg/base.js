@@ -1,14 +1,14 @@
 /**
  * Feat base class
  */
-RPG.Feats.AbstractFeat = OZ.Class();
-RPG.Feats.AbstractFeat.prototype.init = function(baseValue) {
+RPG.Feats.BaseFeat = OZ.Class();
+RPG.Feats.BaseFeat.prototype.init = function(baseValue) {
 	this._value = baseValue;
 }
-RPG.Feats.AbstractFeat.prototype.baseValue = function() {
+RPG.Feats.BaseFeat.prototype.baseValue = function() {
 	return this._value;
 };
-RPG.Feats.AbstractFeat.prototype.modifiedValue = function(modifierHolder) {
+RPG.Feats.BaseFeat.prototype.modifiedValue = function(modifierHolder) {
 	var plus = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_PLUS);
 	var times = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_TIMES);
 	return (this._value + plus) * times;
@@ -87,7 +87,7 @@ RPG.Items.BaseItem.prototype.init = function() {
 RPG.Items.BaseItem.prototype.getChar = function(who) {
 	var ch = new RPG.Visual.Char();
 	ch.setChar("?");
-	ch.setColor("gray");
+	ch.setColor("#a9a9a9");
 	return ch;
 }
 RPG.Items.BaseItem.prototype.getImage = function(who) {
@@ -97,7 +97,7 @@ RPG.Items.BaseItem.prototype.describe = function(who) {
 	return "item";
 }
 
-RPG.Races.AbstractRace = OZ.Class()
+RPG.Races.BaseRace = OZ.Class()
 							.implement(RPG.Misc.ModifierInterface)
 							.implement(RPG.Visual.VisualInterface)
 							.implement(RPG.Visual.DescriptionInterface);
