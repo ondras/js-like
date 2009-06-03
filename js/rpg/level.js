@@ -46,6 +46,9 @@ RPG.Cells.BaseCell.prototype.isFree = function() {
 	if (this._being) { return false; }
 	return true;
 }
+RPG.Cells.BaseCell.prototype.getFlags = function() {
+	return this._flags;
+}
 
 /**
  * Dungeon level
@@ -136,7 +139,7 @@ RPG.Engine.Level.prototype.canSee = function(c1, c2) {
 			error -= 1;
 		}
 		if (current[major] == c2[major]) { return true; }
-		if (this.at(current)._flags & RPG.CELL_BLOCKED) { return false; }
+		if (this.at(current).getFlags() & RPG.CELL_BLOCKED) { return false; }
 	}
 	
 	return true;

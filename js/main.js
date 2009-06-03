@@ -1,12 +1,16 @@
 /* a simple level */
 var nx = 10;
-var ny = 6;
+var ny = 10;
 var size = new RPG.Misc.Coords(nx, ny);
 var l = new RPG.Engine.Level(size);
 for (var i=0;i<size.x;i++) {
 	for (var j=0;j<size.y;j++) {
 		var c = new RPG.Misc.Coords(i, j);
-		if (Math.min(i,j) == 0 || i == nx-1 || j == ny-1 || (i == 4 && j == 2)) {
+		if (Math.min(i,j) == 0 || i == nx-1 || j == ny-1) {
+			l.setCell(c, new RPG.Cells.Wall());
+		} else if (j > 5 && i < 6) {
+			l.setCell(c, new RPG.Cells.Wall());
+		} else if (j == 3 && i == 6) {
 			l.setCell(c, new RPG.Cells.Wall());
 		} else {
 			l.setCell(c, new RPG.Cells.Corridor());

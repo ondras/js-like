@@ -118,5 +118,21 @@ RPG.Engine.World.prototype.cellInfo = function(being, coords) {
 RPG.Engine.World.prototype.canSee = function(source, target) {
 	if (source.distance(target) <= 1) { return true; } /* optimalization: can see self & surroundings */
 	if (source.distance(target) > 5) { return false; } /* FIXME this should depend on perception or so */
-	return this.level.canSee(source, target);
+
+	var offsets = [
+		[0, 0],
+		[1, 0],
+		[-1, 0],
+		[0, 1],
+		[0, -1]
+	];
+	for (var i=0;i<offsets.length;i++) {
+		var s = source.clone();
+		s.x += offsets[i][0];
+		s.y += offsets[i][1];
+		if (!this.level.valid(s) || this.level.at(s).getFlags() & RPG.CELL_BLOCKED) { continue; }
+		var tmp = this.level.canSee(s, target);
+		if (tmp == true) { return true; }
+	}
+	return false;
 }

@@ -164,13 +164,10 @@ RPG.Visual.ASCIIMap.prototype._redrawCoords = function(coords) {
 	var cell = RPG.getWorld().cellInfo(this._actor, coords);
 	var span = this._data[coords.x][coords.y];
 	
-	if (cell) {
-		span.style.visibility = "visible";
-	} else {
-		span.style.visibility = "hidden";
+	if (!cell) {
+		span.innerHTML = "&nbsp;"
 		return;
 	}
-	
 
 	/* background */
 	var cellvis = cell.getChar(this._actor);

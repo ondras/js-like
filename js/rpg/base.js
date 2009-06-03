@@ -93,6 +93,9 @@ RPG.Items.BaseItem.prototype.init = function() {
 	this._modifiers = [];
 	this._flags = RPG.ITEM_PICKABLE;
 }
+RPG.Items.BaseItem.prototype.getFlags = function() {
+	return this._flags;
+}
 RPG.Items.BaseItem.prototype.getChar = function(who) {
 	var ch = new RPG.Visual.Char();
 	ch.setChar("?");
