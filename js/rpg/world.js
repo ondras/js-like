@@ -126,12 +126,12 @@ RPG.Engine.World.prototype.canSee = function(source, target) {
 		[0, 1],
 		[0, -1]
 	];
+	var c = source.clone();
 	for (var i=0;i<offsets.length;i++) {
-		var s = source.clone();
-		s.x += offsets[i][0];
-		s.y += offsets[i][1];
-		if (!this.level.valid(s) || this.level.at(s).getFlags() & RPG.CELL_BLOCKED) { continue; }
-		var tmp = this.level.canSee(s, target);
+		c.x = source.x + offsets[i][0];
+		c.y = source.y + offsets[i][1];
+		if (!this.level.valid(c) || this.level.at(c).flags & RPG.CELL_BLOCKED) { continue; }
+		var tmp = this.level.canSee(c, target);
 		if (tmp == true) { return true; }
 	}
 	return false;

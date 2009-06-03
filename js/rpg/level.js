@@ -10,7 +10,7 @@ RPG.Cells.BaseCell.prototype.init = function(level) {
 	this._modifiers = [];
 	this._being = null;
 	this._level = null;
-	this._flags = 0;
+	this.flags = 0;
 	this._coords = null;
 }
 RPG.Cells.BaseCell.prototype.addItem = function(item) {
@@ -42,12 +42,9 @@ RPG.Cells.BaseCell.prototype.getCoords = function() {
 	return this._coords;
 }
 RPG.Cells.BaseCell.prototype.isFree = function() {
-	if (this._flags & RPG.CELL_BLOCKED) { return false; }
+	if (this.flags & RPG.CELL_BLOCKED) { return false; }
 	if (this._being) { return false; }
 	return true;
-}
-RPG.Cells.BaseCell.prototype.getFlags = function() {
-	return this._flags;
 }
 
 /**
@@ -139,7 +136,7 @@ RPG.Engine.Level.prototype.canSee = function(c1, c2) {
 			error -= 1;
 		}
 		if (current[major] == c2[major]) { return true; }
-		if (this.at(current).getFlags() & RPG.CELL_BLOCKED) { return false; }
+		if (this.data[current.x][current.y].flags & RPG.CELL_BLOCKED) { return false; }
 	}
 	
 	return true;

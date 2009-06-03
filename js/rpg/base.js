@@ -91,10 +91,7 @@ RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Misc.ModifierInterface);
 RPG.Items.BaseItem.prototype.init = function() {
 	this._modifiers = [];
-	this._flags = RPG.ITEM_PICKABLE;
-}
-RPG.Items.BaseItem.prototype.getFlags = function() {
-	return this._flags;
+	this.flags = RPG.ITEM_PICKABLE;
 }
 RPG.Items.BaseItem.prototype.getChar = function(who) {
 	var ch = new RPG.Visual.Char();

@@ -27,9 +27,11 @@ RPG.Visual.BaseMap.prototype._rebuild = function() {
 	this._resize();
 }
 RPG.Visual.BaseMap.prototype._redraw = function() {
+	var c = new RPG.Misc.Coords(0, 0);
 	for (var j=0;j<this._size.y;j++) {
 		for (var i=0;i<this._size.x;i++) {
-			var c = new RPG.Misc.Coords(i, j);
+			c.x = i;
+			c.y = j;
 			this._redrawCoords(c);
 		}
 	}

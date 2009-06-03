@@ -14,7 +14,7 @@ RPG.Cells.Corridor.prototype.getImage = function(who) {
 RPG.Cells.Wall = OZ.Class().extend(RPG.Cells.BaseCell);
 RPG.Cells.Wall.prototype.init = function() {
 	this.parent();
-	this._flags = RPG.CELL_BLOCKED;
+	this.flags = RPG.CELL_BLOCKED;
 }
 RPG.Cells.Wall.prototype.describe = function(who) {
 	return "wall";

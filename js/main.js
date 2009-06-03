@@ -12,6 +12,8 @@ for (var i=0;i<size.x;i++) {
 			l.setCell(c, new RPG.Cells.Wall());
 		} else if (j == 3 && i == 6) {
 			l.setCell(c, new RPG.Cells.Wall());
+		} else if (j == 4 && i == 7) {
+			l.setCell(c, new RPG.Cells.Wall());
 		} else {
 			l.setCell(c, new RPG.Cells.Corridor());
 		}
