@@ -139,6 +139,7 @@ RPG.Engine.World.prototype._decide = function() {
  */
 RPG.Engine.World.prototype.canSee = function(who, what) {
 	var coords = this.level.find(who);
+	if (coords.distance(what) <= 1) { return true; } /* optimalization: can see self & surroundings */
 	if (coords.distance(what) > 5) { return false; } /* FIXME this should depend on perception or so */
 	return this.level.canSee(coords, what);
 }

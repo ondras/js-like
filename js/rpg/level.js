@@ -99,14 +99,30 @@ RPG.Engine.Level.prototype.valid = function(coords) {
 RPG.Engine.Level.prototype.canSee = function(c1, c2) {
 	var dx = c2.x-c1.x;
 	var dy = c2.y-c1.y;
-	var max = 3*Math.max(Math.abs(dx), Math.abs(dy));
-	for (var i=1;i<max-1;i++) {
-		var stepx = i*dx/max;
-		var stepy = i*dy/max;
-		var x = c1.x + stepx;
-		var y = c1.y + stepy;
-		var c = new RPG.Misc.Coords(Math.round(x), Math.round(y));
-		if (this.at(c)._flags & RPG.CELL_BLOCKED) { return false; }
+	if (Math.abs(dx) > Math.abs(dy)) {
+		var major = "x";
+		var minor = "y";
+		var majorstep = dx > 0 ? 1 : -1;
+		var minorstep = dy > 0 ? 1 : -1;
+		var delta = Math.abs(dy/dx);
+	} else {
+		var major = "y";
+		var minor = "x";
+		var majorstep = dy > 0 ? 1 : -1;
+		var minorstep = dx > 0 ? 1 : -1;
+		var delta = Math.abs(dx/dy);
+	}
+	var error = 0;
+	var current = c1.clone();
+	while (1) {
+		current[major] += majorstep;
+		error += delta;
+		if (error + 0.001 > 0.5) {
+			current[minor] += minorstep;
+			error -= 1;
+		}
+		if (current[major] == c2[major]) { return true; }
+		if (this.at(current)._flags & RPG.CELL_BLOCKED) { return false; }
 	}
 	
 	return true;
