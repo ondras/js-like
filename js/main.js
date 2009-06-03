@@ -33,23 +33,19 @@ l.at(new RPG.Misc.Coords(4, 4)).setBeing(orc2);
 /* setup the world */
 var world = new RPG.Engine.World();
 world.useScheduler(new RPG.Engine.Queue());
-world.useLevel(l);
 
 /* attach visualizers */
-
 var map = new RPG.Visual.ImageMap(OZ.$("map"));
 map.setActor(orc);
-map.setWorld(world);
 
 var ascii = new RPG.Visual.ASCIIMap(OZ.$("ascii"));
 ascii.setActor(orc);
-ascii.setWorld(world);
 
 var text = new RPG.Visual.TextBuffer(OZ.$("ta"));
 text.setActor(orc);
-text.setWorld(world);
 
 /* go! :-) */
+world.useLevel(l);
 world.run();
 
 
@@ -57,7 +53,7 @@ world.run();
 
 var move = function(dir) {
 	var ctor = null;
-	var coords = world.info(brain.being, RPG.INFO_POSITION);
+	var coords = brain.being.getCell().getCoords().clone();
 	switch (dir) {
 		case "up":
 			ctor = RPG.Actions.Move;
@@ -76,7 +72,7 @@ var move = function(dir) {
 			coords.y++;
 		break;
 	}
-	brain.userAct(ctor, coords);
+	brain.action(ctor, coords);
 }
 
 var domclick = function(e) {

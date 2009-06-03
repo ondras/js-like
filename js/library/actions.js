@@ -1,7 +1,6 @@
 RPG.Actions.Wait = OZ.Class().extend(RPG.Engine.BaseAction);
 RPG.Actions.Wait.prototype.init = function(source, target, params) {
 	this.parent(source, target, params);
-	this._success = true;
 }
 RPG.Actions.Wait.prototype.describe = function(who) {
 	var str = this._source.describe(who);
@@ -18,7 +17,7 @@ RPG.Actions.Move = OZ.Class().extend(RPG.Engine.BaseAction);
 RPG.Actions.Move.prototype.describe = function(who) {
 	var str = this._source.describe(who);
 	str += " ";
-	if (this._success) {
+	if (this._tookTime) {
 		if (this._source == who) {
 			str += "move to";
 		} else {
@@ -29,15 +28,13 @@ RPG.Actions.Move.prototype.describe = function(who) {
 	}
 	str += " ";
 	str += this._target.describe(who);
-	var ch = this._success ? "." : "!";
+	var ch = this._tookTime ? "." : "!";
 	return this._phrase(str, ch);
 }
 RPG.Actions.Move.prototype.execute = function() {
-	var world = this._source.getWorld();
-	var level = world.getLevel();
-	
-	var source = level.find(this._source);
-	var sourceCell = level.at(source);
+	var sourceCell = this._source.getCell();
+	var source = sourceCell.getCoords();
+	var level = sourceCell.getLevel();
 	var target = this._target;
 	var targetCell = level.at(target);
 	
@@ -45,9 +42,9 @@ RPG.Actions.Move.prototype.execute = function() {
 	if (ok) {
 		sourceCell.setBeing(null);
 		targetCell.setBeing(this._source);
-		this._success = true;
+		this._tookTime = true;
 	} else {
-		this._success = false;
+		this._tookTime = false;
 	}
-	return this._success;
+	return this._tookTime;
 }

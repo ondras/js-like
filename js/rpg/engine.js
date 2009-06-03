@@ -5,10 +5,8 @@ RPG.Engine.ActorInterface = OZ.Class();
 RPG.Engine.ActorInterface.prototype.getSpeed = function() {};
 /**
  * World asks actor to perform an action
- * @returns {RPG.Engine.Action || false} False == defer
  */ 
-RPG.Engine.ActorInterface.prototype.act = function() {
-	return false;
+RPG.Engine.ActorInterface.prototype.yourTurn = function() {
 }
 
 RPG.Engine.BaseAction = OZ.Class().implement(RPG.Visual.DescriptionInterface);
@@ -16,7 +14,7 @@ RPG.Engine.BaseAction.prototype.init = function(source, target, params) {
 	this._source = source;
 	this._target = target;
 	this._params = params;
-	this._success = false;
+	this._tookTime = true;
 }
 RPG.Engine.BaseAction.prototype.getSource = function() {
 	return this._source;
@@ -24,8 +22,14 @@ RPG.Engine.BaseAction.prototype.getSource = function() {
 RPG.Engine.BaseAction.prototype.getTarget = function() {
 	return this._target;
 }
+/**
+ * @returns {bool} Did this action took some time?
+ */
+RPG.Engine.BaseAction.prototype.tookTime = function() {
+	return this._tookTime;
+}
 RPG.Engine.BaseAction.prototype.execute = function() {
-	return this._success;
+	return this._tookTime;
 }
 RPG.Engine.BaseAction.prototype._phrase = function(str, endchar) {
 	var result = str.charAt(0).toUpperCase() + str.substring(1);
@@ -57,13 +61,10 @@ RPG.Engine.Scheduler.prototype.getActors = function() {
 RPG.Engine.Scheduler.prototype.scheduleActor = function() {}
 
 /**
- * Brain decorator
+ * Brain
  */
-RPG.Engine.Brain = OZ.Class();
+RPG.Engine.Brain = OZ.Class().implement(RPG.Engine.ActorInterface);
 RPG.Engine.Brain.prototype.init = function(being) {
 	this.being = being;
-	being.act = this.bind(this.act);
-}
-RPG.Engine.Brain.prototype.act = function() {
-	return false;
+	being.setBrain(this);
 }

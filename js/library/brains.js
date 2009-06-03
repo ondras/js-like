@@ -1,9 +1,9 @@
 RPG.Engine.AI = OZ.Class().extend(RPG.Engine.Brain);
-RPG.Engine.AI.prototype.act = function() {
+RPG.Engine.AI.prototype.yourTurn = function() {
 	var being = this.being;
-	var world = being.getWorld();
+	var world = RPG.getWorld();
 	
-	var myCoords = world.info(being, RPG.INFO_POSITION);
+	var myCoords = being.getCell().getCoords();
 	var avail = [null];
 	
 	for (var i=-1;i<=1;i++) {
@@ -12,16 +12,16 @@ RPG.Engine.AI.prototype.act = function() {
 			var coords = myCoords.clone();
 			coords.x += i;
 			coords.y += j;
-			var cell = world.info(being, RPG.INFO_CELL, coords);
+			var cell = world.cellInfo(being, coords);
 			if (cell.isFree()) { avail.push(coords); }
 		}
 	}
 	
 	var target = avail[Math.floor(Math.random() * avail.length)];
 	if (target) {
-		return new RPG.Actions.Move(being, target);
+		world.action(new RPG.Actions.Move(being, target));
 	} else {
-		return new RPG.Actions.Wait(being);
+		world.action(new RPG.Actions.Wait(being));
 	}
 }
 
@@ -31,22 +31,27 @@ RPG.Engine.AI.prototype.act = function() {
 RPG.Engine.Interactive = OZ.Class().extend(RPG.Engine.Brain);
 RPG.Engine.Interactive.prototype.init = function(being) {
 	this.parent(being);
-	this.allowed = false;
+	this._allowed = false;
+	OZ.Event.add(RPG.getWorld(), "action", this.bind(this._action));
 }
 /**
  * World requests an action from us
  */
-RPG.Engine.Interactive.prototype.act = function() {
-	this.allowed = true;
-	return false;
+RPG.Engine.Interactive.prototype.yourTurn = function() {
+	this._allowed = true;
 }
 /**
  * User decided to act somehow
  */
-RPG.Engine.Interactive.prototype.userAct = function(actionConstructor, target, params) {
-	if (!this.allowed) { return false; }
-	this.allowed = false;
+RPG.Engine.Interactive.prototype.action = function(actionConstructor, target, params) {
+	if (!this._allowed) { return false; }
 	var a = new actionConstructor(this.being, target, params);
-	this.being.getWorld().act(a);
-	return true;
+	RPG.getWorld().action(a);
+}
+/**
+ * Action happened
+ */
+RPG.Engine.Interactive.prototype._action = function(e) {
+	var action = e.data;
+	if (action.getSource() == this.being && action.tookTime() == true) { this._allowed = false; }
 }

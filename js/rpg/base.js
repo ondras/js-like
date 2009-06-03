@@ -17,25 +17,34 @@ RPG.Feats.BaseFeat.prototype.modifiedValue = function(modifierHolder) {
 RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
 						.implement(RPG.Visual.DescriptionInterface)
-						.implement(RPG.Misc.ModifierInterface)
-						.implement(RPG.Engine.ActorInterface);
+						.implement(RPG.Misc.ModifierInterface);
 RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._modifiers = [];
 	this._world = null;
 	this._race = r;
 	this._items = [];
 	this._hp = 0;
+	this._brain = null;
 	this._char = this._race.getChar(null);
 	this._maxhp = new RPG.Feats.HP(100);
 }
-RPG.Beings.BaseBeing.prototype.setWorld = function(world) {
-	this._world = world;
+/**
+ * @param {SMap.Cells.BaseCell}
+ */
+RPG.Beings.BaseBeing.prototype.setCell = function(cell) {
+	this._cell = cell;
 }
-RPG.Beings.BaseBeing.prototype.getWorld = function() {
-	return this._world;
+RPG.Beings.BaseBeing.prototype.getCell = function() {
+	return this._cell;
 }
 RPG.Beings.BaseBeing.prototype.getRace = function() {
 	return this._race;
+}
+RPG.Beings.BaseBeing.prototype.setBrain = function(brain) {
+	this._brain = brain;
+}
+RPG.Beings.BaseBeing.prototype.getBrain = function() {
+	return this._brain;
 }
 RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type) {
 	var modifierHolders = [];

@@ -5,13 +5,17 @@ RPG.Visual.BaseMap.prototype.init = function(container) {
 	}
 	this._event = null;
 	this._actor = null;
-	this._world = null;
 	this._data = null;
+	this._size = null;
+	
+	OZ.Event.add(RPG.getWorld(), "level", this.bind(this._levelChange));
+	OZ.Event.add(RPG.getWorld(), "action", this.bind(this._action));
 }
-RPG.Visual.BaseMap.prototype.setWorld = function(world) {
-	this._world = world;
-	if (this._event) { OZ.Event.remove(this._event); }
-	this._event = OZ.Event.add(world, "action", this.bind(this._action));
+RPG.Visual.BaseMap.prototype._levelChange = function(e) {
+	this._level(e.data);
+}
+RPG.Visual.BaseMap.prototype._level = function(level) {
+	this._size = level.getSize();
 	this._rebuild();
 	this._redraw();
 }
@@ -20,13 +24,11 @@ RPG.Visual.BaseMap.prototype.setActor = function(actor) {
 }
 RPG.Visual.BaseMap.prototype._rebuild = function() {
 	OZ.DOM.clear(this.dom.container);
-	var size = this._world.info(this._actor, RPG.INFO_SIZE);
-	this._resize(size);
+	this._resize();
 }
 RPG.Visual.BaseMap.prototype._redraw = function() {
-	var size = this._world.info(this._actor, RPG.INFO_SIZE);
-	for (var j=0;j<size.y;j++) {
-		for (var i=0;i<size.x;i++) {
+	for (var j=0;j<this._size.y;j++) {
+		for (var i=0;i<this._size.x;i++) {
 			var c = new RPG.Misc.Coords(i, j);
 			this._redrawCoords(c);
 		}
@@ -41,25 +43,27 @@ RPG.Visual.BaseMap.prototype._redrawCoords = function(coords) {
 RPG.Visual.ImageMap = OZ.Class().extend(RPG.Visual.BaseMap);
 RPG.Visual.ImageMap.prototype.init = function(container, options) {
 	this.parent(container);
-	this.dom.container.style.position = "relative";
 	this.options = {
 		tileSize: new RPG.Misc.Coords(32, 32)
 	}
+	this.dom.container.style.position = "relative";
 	for (var p in options) { this.options[p] = options[p]; }
+
+	var level = RPG.getWorld().currentLevel();
+	if (level) { this._level(level); }
 }
-RPG.Visual.ImageMap.prototype._resize = function(size) {
-	this.dom.container.style.width = (this.options.tileSize.x * size.x) + "px";
-	this.dom.container.style.height = (this.options.tileSize.y * size.y) + "px";
+RPG.Visual.ImageMap.prototype._resize = function() {
+	this.dom.container.style.width = (this.options.tileSize.x * this._size.x) + "px";
+	this.dom.container.style.height = (this.options.tileSize.y * this._size.y) + "px";
 }
 RPG.Visual.ImageMap.prototype._rebuild = function() {
 	this.parent();
-	var size = this._world.info(this._actor, RPG.INFO_SIZE);
-	this._data = new Array(size.x);
+	this._data = new Array(this._size.x);
 	var ts = this.options.tileSize;
 	
-	for (var i=0;i<size.x;i++) {
-		this._data[i] = new Array(size.y);
-		for (var j=0;j<size.y;j++) {
+	for (var i=0;i<this._size.x;i++) {
+		this._data[i] = new Array(this._size.y);
+		for (var j=0;j<this._size.y;j++) {
 			var pair = [];
 			for (var k=0;k<2;k++) {
 				var x = i * ts.x;
@@ -79,7 +83,7 @@ RPG.Visual.ImageMap.prototype._hide = function(img) {
 	img.style.visibility = "hidden";
 }
 RPG.Visual.ImageMap.prototype._redrawCoords = function(coords) {
-	var cell = this._world.info(this._actor, RPG.INFO_CELL, coords);
+	var cell = RPG.getWorld().cellInfo(this._actor, coords);
 	var pair = this._data[coords.x][coords.y];
 	
 	if (cell) {
@@ -126,6 +130,9 @@ RPG.Visual.ASCIIMap = OZ.Class().extend(RPG.Visual.BaseMap);
 RPG.Visual.ASCIIMap.prototype.init = function(container) {
 	this.parent(container);
 	this._computeWidth();
+
+	var level = RPG.getWorld().currentLevel();
+	if (level) { this._level(level); }
 }
 RPG.Visual.ASCIIMap.prototype._computeWidth = function() {
 	var tmp = OZ.DOM.elm("span");
@@ -134,18 +141,16 @@ RPG.Visual.ASCIIMap.prototype._computeWidth = function() {
 	this._charWidth = tmp.offsetWidth;
 	OZ.DOM.clear(this.dom.container);
 }
-RPG.Visual.ASCIIMap.prototype._resize = function(size) {
-	this._size = size;
-	this.dom.container.style.width = (this._charWidth * size.x) + "px";
+RPG.Visual.ASCIIMap.prototype._resize = function() {
+	this.dom.container.style.width = (this._charWidth * this._size.x) + "px";
 }
 RPG.Visual.ASCIIMap.prototype._rebuild = function() {
 	this.parent();
-	var size = this._world.info(this._actor, RPG.INFO_SIZE);
-	this._data = new Array(size.x);
+	this._data = new Array(this._size.x);
 	
-	for (var j=0;j<size.y;j++) {
-		for (var i=0;i<size.x;i++) {
-			if (!j) { this._data[i] = new Array(size.y); }
+	for (var j=0;j<this._size.y;j++) {
+		for (var i=0;i<this._size.x;i++) {
+			if (!j) { this._data[i] = new Array(this._size.y); }
 			var node = OZ.DOM.elm("span");
 			this.dom.container.appendChild(node);
 			this._data[i][j] = node;
@@ -156,7 +161,7 @@ RPG.Visual.ASCIIMap.prototype._rebuild = function() {
 	}
 }
 RPG.Visual.ASCIIMap.prototype._redrawCoords = function(coords) {
-	var cell = this._world.info(this._actor, RPG.INFO_CELL, coords);
+	var cell = RPG.getWorld().cellInfo(this._actor, coords);
 	var span = this._data[coords.x][coords.y];
 	
 	if (cell) {
@@ -204,17 +209,13 @@ RPG.Visual.TextBuffer.prototype.init = function(textarea) {
 		textarea: textarea
 	}
 	this.dom.textarea.value = "";
-}
-RPG.Visual.TextBuffer.prototype.setWorld = function(world) {
-	this._world = world;
-	if (this._event) { OZ.Event.remove(this._event); }
-	this._event = OZ.Event.add(world, "action", this.bind(this._action));
+	OZ.Event.add(RPG.getWorld(), "action", this.bind(this._action));
 }
 RPG.Visual.TextBuffer.prototype.setActor = function(actor) {
 	this._actor = actor;
 }
 RPG.Visual.TextBuffer.prototype._action = function(e) {
-	var action = this._world.info(this._actor, RPG.INFO_ACTION);
+	var action = e.data;
 	var description = action.describe(this._actor);
 	description += " ";
 

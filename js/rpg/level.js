@@ -5,11 +5,13 @@ RPG.Cells.BaseCell = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
 						.implement(RPG.Visual.DescriptionInterface)
 						.implement(RPG.Misc.ModifierInterface);
-RPG.Cells.BaseCell.prototype.init = function() {
+RPG.Cells.BaseCell.prototype.init = function(level) {
 	this._items = [];
 	this._modifiers = [];
 	this._being = null;
+	this._level = null;
 	this._flags = 0;
+	this._coords = null;
 }
 RPG.Cells.BaseCell.prototype.addItem = function(item) {
 	this._items.push(item);
@@ -22,11 +24,22 @@ RPG.Cells.BaseCell.prototype.removeItem = function(item) {
 RPG.Cells.BaseCell.prototype.getItems = function() {
 	return this._items;
 }
+RPG.Cells.BaseCell.prototype.setLevel = function(level, coords) {
+	this._level = level;
+	this._coords = coords;
+}
+RPG.Cells.BaseCell.prototype.getLevel = function() {
+	return this._level;
+}
 RPG.Cells.BaseCell.prototype.setBeing = function(being) {
 	this._being = being || null;
+	if (being) { being.setCell(this); }
 }
 RPG.Cells.BaseCell.prototype.getBeing = function() {
 	return this._being;
+}
+RPG.Cells.BaseCell.prototype.getCoords = function() {
+	return this._coords;
 }
 RPG.Cells.BaseCell.prototype.isFree = function() {
 	if (this._flags & RPG.CELL_BLOCKED) { return false; }
@@ -78,6 +91,7 @@ RPG.Engine.Level.prototype.getSize = function() {
 	return this.size;
 }
 RPG.Engine.Level.prototype.setCell = function(coords, cell) {
+	cell.setLevel(this, coords);
 	this.data[coords.x][coords.y] = cell;
 }
 RPG.Engine.Level.prototype.at = function(coords) {
