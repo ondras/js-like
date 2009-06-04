@@ -1,9 +1,10 @@
 RPG.Engine.AI = OZ.Class().extend(RPG.Engine.Brain);
 RPG.Engine.AI.prototype.yourTurn = function() {
 	var being = this.being;
+	var level = being.getLevel();
 	var world = RPG.getWorld();
 	
-	var myCoords = being.getCell().getCoords();
+	var myCoords = being.getCoords();
 	var avail = [null];
 	
 	for (var i=-1;i<=1;i++) {
@@ -12,8 +13,7 @@ RPG.Engine.AI.prototype.yourTurn = function() {
 			var coords = myCoords.clone();
 			coords.x += i;
 			coords.y += j;
-			var cell = world.cellInfo(being, coords);
-			if (cell.isFree()) { avail.push(coords); }
+			if (level.isFree(coords)) { avail.push(coords); }
 		}
 	}
 	

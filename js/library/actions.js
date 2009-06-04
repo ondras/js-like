@@ -32,16 +32,14 @@ RPG.Actions.Move.prototype.describe = function(who) {
 	return this._phrase(str, ch);
 }
 RPG.Actions.Move.prototype.execute = function() {
-	var sourceCell = this._source.getCell();
-	var source = sourceCell.getCoords();
-	var level = sourceCell.getLevel();
+	var level = this._source.getLevel();
+	var source = this._source.getCoords();
 	var target = this._target;
-	var targetCell = level.at(target);
 	
-	var ok = level.valid(target) && targetCell.isFree() && target.distance(source) == 1;
+	var ok = level.valid(target) && level.isFree(target) && target.distance(source) == 1;
 	if (ok) {
-		sourceCell.setBeing(null);
-		targetCell.setBeing(this._source);
+		level.setBeing(source, null);
+		level.setBeing(target, this._source);
 		this._tookTime = true;
 	} else {
 		this._tookTime = false;

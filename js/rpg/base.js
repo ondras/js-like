@@ -11,7 +11,9 @@ RPG.Feats.BaseFeat.prototype.baseValue = function() {
 RPG.Feats.BaseFeat.prototype.modifiedValue = function(modifierHolder) {
 	var plus = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_PLUS);
 	var times = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_TIMES);
-	return (this._value + plus) * times;
+	var value = this._value;
+	if (value instanceof RPG.Misc.Dice) { value = value.roll(); }
+	return (value + plus) * times;
 };
 
 RPG.Beings.BaseBeing = OZ.Class()
@@ -20,31 +22,42 @@ RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Misc.ModifierInterface);
 RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._modifiers = [];
-	this._world = null;
+	this._coords = null;
+	this._level = null;
+	this._brain = null;
 	this._race = r;
 	this._items = [];
-	this._hp = 0;
-	this._brain = null;
+	this._stats = {
+		hp: 0,
+		maxhp: new RPG.Feats.HP(100),
+		dv: new RPG.Feats.DV(10),
+		pv: new RPG.Feats.PV(10)
+	}
 	this._char = this._race.getChar(null);
-	this._maxhp = new RPG.Feats.HP(100);
 }
 /**
- * @param {SMap.Cells.BaseCell}
+ * @param {SMap.Misc.Coords}
  */
-RPG.Beings.BaseBeing.prototype.setCell = function(cell) {
-	this._cell = cell;
+RPG.Beings.BaseBeing.prototype.setCoords = function(coords) {
+	this._coords = coords;
 }
-RPG.Beings.BaseBeing.prototype.getCell = function() {
-	return this._cell;
+RPG.Beings.BaseBeing.prototype.getCoords = function() {
+	return this._coords;
 }
-RPG.Beings.BaseBeing.prototype.getRace = function() {
-	return this._race;
+RPG.Beings.BaseBeing.prototype.setLevel = function(level) {
+	this._level = level;
+}
+RPG.Beings.BaseBeing.prototype.getLevel = function() {
+	return this._level;
 }
 RPG.Beings.BaseBeing.prototype.setBrain = function(brain) {
 	this._brain = brain;
 }
 RPG.Beings.BaseBeing.prototype.getBrain = function() {
 	return this._brain;
+}
+RPG.Beings.BaseBeing.prototype.getRace = function() {
+	return this._race;
 }
 RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type) {
 	var modifierHolders = [];
@@ -70,7 +83,13 @@ RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type) {
 	return total;
 }
 RPG.Beings.BaseBeing.prototype.getHP = function() {
-	return this._hp;
+	return this._stats.hp;
+}
+RPG.Beings.BaseBeing.prototype.getDV = function() {
+	return this._stats.dv.modifiedValue(this);
+}
+RPG.Beings.BaseBeing.prototype.getPV = function() {
+	return this._stats.pv.modifiedValue(this);
 }
 RPG.Beings.BaseBeing.prototype.getChar = function(who) {
 	var ch = this._char.clone();
@@ -83,6 +102,40 @@ RPG.Beings.BaseBeing.prototype.getImage = function(who) {
 RPG.Beings.BaseBeing.prototype.describe = function(who) {
 	if (who == this) { return "you"; }
 	return this._race.describe(who);
+}
+/**
+ * Can this being see target coords?
+ * @param {RPG.Misc.Coords} target
+ * @returns {bool}
+ */
+RPG.Beings.BaseBeing.prototype.canSee = function(target) {
+	var source = this._coords;
+	if (source.distance(target) <= 1) { return true; } /* optimalization: can see self & surroundings */
+	if (source.distance(target) > 5) { return false; } /* FIXME this should depend on perception or so */
+
+	var offsets = [
+		[0, 0],
+		[1, 0],
+		[-1, 0],
+		[0, 1],
+		[0, -1]
+	];
+	var c = source.clone();
+	for (var i=0;i<offsets.length;i++) {
+		c.x = source.x + offsets[i][0];
+		c.y = source.y + offsets[i][1];
+		if (!this._level.valid(c) || this._level.isBlocked(c)) { continue; }
+		var tmp = this._level.lineOfSight(c, target);
+		if (tmp == true) { return true; }
+	}
+	return false;
+}
+/**
+ * Being requests info about a cell
+ * @param {RPG.Misc.Coords} coords
+ */
+RPG.Beings.BaseBeing.prototype.cellInfo = function(coords) {
+	return this._level.at(coords);
 }
 
 RPG.Items.BaseItem = OZ.Class()

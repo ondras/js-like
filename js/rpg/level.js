@@ -5,13 +5,11 @@ RPG.Cells.BaseCell = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
 						.implement(RPG.Visual.DescriptionInterface)
 						.implement(RPG.Misc.ModifierInterface);
-RPG.Cells.BaseCell.prototype.init = function(level) {
+RPG.Cells.BaseCell.prototype.init = function() {
 	this._items = [];
 	this._modifiers = [];
 	this._being = null;
-	this._level = null;
 	this.flags = 0;
-	this._coords = null;
 }
 RPG.Cells.BaseCell.prototype.addItem = function(item) {
 	this._items.push(item);
@@ -24,22 +22,11 @@ RPG.Cells.BaseCell.prototype.removeItem = function(item) {
 RPG.Cells.BaseCell.prototype.getItems = function() {
 	return this._items;
 }
-RPG.Cells.BaseCell.prototype.setLevel = function(level, coords) {
-	this._level = level;
-	this._coords = coords;
-}
-RPG.Cells.BaseCell.prototype.getLevel = function() {
-	return this._level;
-}
 RPG.Cells.BaseCell.prototype.setBeing = function(being) {
 	this._being = being || null;
-	if (being) { being.setCell(this); }
 }
 RPG.Cells.BaseCell.prototype.getBeing = function() {
 	return this._being;
-}
-RPG.Cells.BaseCell.prototype.getCoords = function() {
-	return this._coords;
 }
 RPG.Cells.BaseCell.prototype.isFree = function() {
 	if (this.flags & RPG.CELL_BLOCKED) { return false; }
@@ -74,6 +61,9 @@ RPG.Engine.Level.prototype.find = function(being) {
 	}
 	throw new Error("Being not found");
 }
+/**
+ * Get all beings in this level
+ */ 
 RPG.Engine.Level.prototype.getBeings = function() {
 	var all = [];
 	for (var i=0;i<this.size.x;i++) {
@@ -91,11 +81,23 @@ RPG.Engine.Level.prototype.getSize = function() {
 	return this.size;
 }
 RPG.Engine.Level.prototype.setCell = function(coords, cell) {
-	cell.setLevel(this, coords);
 	this.data[coords.x][coords.y] = cell;
 }
 RPG.Engine.Level.prototype.at = function(coords) {
 	return this.data[coords.x][coords.y];
+}
+RPG.Engine.Level.prototype.setBeing = function(coords, being) {
+	if (being) { 
+		being.setLevel(this);
+		being.setCoords(coords); 
+	}
+	this.at(coords).setBeing(being);
+}
+RPG.Engine.Level.prototype.addItem = function(coords, item) {
+	this.at(coords).addItem(item);
+}
+RPG.Engine.Level.prototype.isFree = function(coords) {
+	return this.at(coords).isFree();
 }
 RPG.Engine.Level.prototype.valid = function(coords) {
 	var size = this.size;
@@ -104,13 +106,16 @@ RPG.Engine.Level.prototype.valid = function(coords) {
 	if (coords.y >= size.y) { return false; }
 	return true;
 }
+RPG.Engine.Level.prototype.isBlocked = function(coords) {
+	return this.data[coords.x][coords.y].flags & RPG.CELL_BLOCKED;
+}
 /**
  * Is it possible to see from one cell to another?
  * @param {RPG.Misc.Coords} c1
  * @param {RPG.Misc.Coords} c2
  * @returns {bool}
  */
-RPG.Engine.Level.prototype.canSee = function(c1, c2) {
+RPG.Engine.Level.prototype.lineOfSight = function(c1, c2) {
 	var dx = c2.x-c1.x;
 	var dy = c2.y-c1.y;
 	if (Math.abs(dx) > Math.abs(dy)) {

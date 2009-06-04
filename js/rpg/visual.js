@@ -1,4 +1,3 @@
-
 /**
  * Visual interface: everyting that can be visualized have this
  */

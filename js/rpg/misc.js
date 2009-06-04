@@ -1,4 +1,3 @@
-
 RPG.Misc.Dice = OZ.Class();
 RPG.Misc.Dice.prototype.init = function(times, faces, bonus) {
 	this.times = times;

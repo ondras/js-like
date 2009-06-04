@@ -22,19 +22,19 @@ for (var i=0;i<size.x;i++) {
 
 /* add some items */
 var d = new RPG.Items.Dagger();
-l.at(new RPG.Misc.Coords(3, 3)).addItem(d);
+l.addItem(new RPG.Misc.Coords(3, 3), d);
 
 var d = new RPG.Items.Weapon();
-l.at(new RPG.Misc.Coords(2, 2)).addItem(d);
+l.addItem(new RPG.Misc.Coords(2, 2), d);
 
 /* add some beings */
 var orc = new RPG.Beings.Orc();
 var brain = new RPG.Engine.Interactive(orc);
-l.at(new RPG.Misc.Coords(1, 1)).setBeing(orc);
+l.setBeing(new RPG.Misc.Coords(1, 1), orc);
 
 var orc2 = new RPG.Beings.Orc();
 var brain2 = new RPG.Engine.AI(orc2);
-l.at(new RPG.Misc.Coords(4, 4)).setBeing(orc2);
+l.setBeing(new RPG.Misc.Coords(4, 4), orc2);
 
 /* setup the world */
 var world = new RPG.Engine.World();
@@ -42,13 +42,13 @@ world.useScheduler(new RPG.Engine.Queue());
 
 /* attach visualizers */
 var map = new RPG.Visual.ImageMap(OZ.$("map"));
-map.setActor(orc);
+map.setBeing(orc);
 
 var ascii = new RPG.Visual.ASCIIMap(OZ.$("ascii"));
-ascii.setActor(orc);
+ascii.setBeing(orc);
 
 var text = new RPG.Visual.TextBuffer(OZ.$("ta"));
-text.setActor(orc);
+text.setBeing(orc);
 
 /* go! :-) */
 world.useLevel(l);
@@ -57,58 +57,49 @@ world.run();
 
 /* ==== misc ui stuff below ========= */
 
-var move = function(dir) {
-	var ctor = null;
-	var coords = brain.being.getCell().getCoords().clone();
-	switch (dir) {
-		case "up":
-			ctor = RPG.Actions.Move;
-			coords.y--;
-		break;
-		case "left":
-			ctor = RPG.Actions.Move;
-			coords.x--;
-		break;
-		case "right":
-			ctor = RPG.Actions.Move;
-			coords.x++;
-		break;
-		case "down":
-			ctor = RPG.Actions.Move;
-			coords.y++;
-		break;
-	}
-	brain.action(ctor, coords);
+var move = function(dx, dy) {
+	var coords = brain.being.getCoords().clone();
+	coords.x += dx;
+	coords.y += dy;
+	brain.action(RPG.Actions.Move, coords);
+}
+
+var wait = function() {
+	brain.action(RPG.Actions.Wait);
 }
 
 var domclick = function(e) {
-	move(this.id);
+	var target = OZ.Event.target(e);
+	if (target.className != "nav") { return; }
+	var r = target.id.match(/keyCode_(.*)/);
+	var keyCode = parseInt(r[1], 10);
+	doKeyCode(keyCode);
 }
-
 
 var keypress = function(e) {
-	switch (e.keyCode) {
-		case 37: 
-			move("left");
-		break;
-		case 38: 
-			move("up");
-		break;
-		case 39: 
-			move("right");
-		break;
-		case 40: 
-			move("down");
-		break;
-		default:
-			return;
-		break;
+	if (doKeyCode(e.keyCode)) {
+		OZ.Event.prevent(e);
 	}
-	OZ.Event.prevent(e);
 }
 
-OZ.Event.add(OZ.$("up"), "click", domclick);
-OZ.Event.add(OZ.$("left"), "click", domclick);
-OZ.Event.add(OZ.$("right"), "click", domclick);
-OZ.Event.add(OZ.$("down"), "click", domclick);
+var doKeyCode = function(keyCode) {
+	switch (keyCode) {
+		case 33: move(1, -1); break;
+		case 34: move(1, 1); break;
+		case 36: move(-1, -1); break;
+		case 35: move(-1, 1); break;
+		case 37: move(-1, 0); break;
+		case 38: move(0, -1); break;
+		case 39: move(1, 0); break;
+		case 40: move(0, 1); break;
+		case 12: 
+		case 190: 
+			wait();
+		break;
+		default: return false; break;
+	}
+	return true;
+}
+
+OZ.Event.add(document, "click", domclick);
 OZ.Event.add(document, "keydown", keypress);

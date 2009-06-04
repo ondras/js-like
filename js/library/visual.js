@@ -4,7 +4,7 @@ RPG.Visual.BaseMap.prototype.init = function(container) {
 		container: container
 	}
 	this._event = null;
-	this._actor = null;
+	this._being = null;
 	this._data = null;
 	this._size = null;
 	
@@ -19,8 +19,8 @@ RPG.Visual.BaseMap.prototype._level = function(level) {
 	this._rebuild();
 	this._redraw();
 }
-RPG.Visual.BaseMap.prototype.setActor = function(actor) {
-	this._actor = actor;
+RPG.Visual.BaseMap.prototype.setBeing = function(being) {
+	this._being = being;
 }
 RPG.Visual.BaseMap.prototype._rebuild = function() {
 	OZ.DOM.clear(this.dom.container);
@@ -85,17 +85,15 @@ RPG.Visual.ImageMap.prototype._hide = function(img) {
 	img.style.visibility = "hidden";
 }
 RPG.Visual.ImageMap.prototype._redrawCoords = function(coords) {
-	var cell = RPG.getWorld().cellInfo(this._actor, coords);
 	var pair = this._data[coords.x][coords.y];
-	
-	if (cell) {
-		this._show(pair[0]);
-	} else {
+	if (!this._being.canSee(coords)) {
 		this._hide(pair[0]);
 		this._hide(pair[1]);
 		return;
 	}
-	
+
+	this._show(pair[0]);
+	var cell = this._being.cellInfo(coords);
 	this._cell(coords, cell);
 }
 RPG.Visual.ImageMap.prototype._cell = function(coords, cell) {	
@@ -103,12 +101,12 @@ RPG.Visual.ImageMap.prototype._cell = function(coords, cell) {
 	var bg = pair[0];
 	var fg = pair[1];
 
-	this._tile(bg, cell.getImage(this._actor), cell.describe(this._actor));
+	this._tile(bg, cell.getImage(this._being), cell.describe(this._being));
 
 	var b = cell.getBeing();
 	if (b) { 
 		this._show(fg);
-		this._tile(fg, b.getImage(this._actor), b.describe(this._actor));
+		this._tile(fg, b.getImage(this._being), b.describe(this._being));
 		return;
 	}
 
@@ -116,7 +114,7 @@ RPG.Visual.ImageMap.prototype._cell = function(coords, cell) {
 	if (items.length) {
 		var item = items[items.length-1];
 		this._show(fg);
-		this._tile(fg, item.getImage(this._actor), item.describe(this._actor));
+		this._tile(fg, item.getImage(this._being), item.describe(this._being));
 		return;
 	}
 	
@@ -163,22 +161,22 @@ RPG.Visual.ASCIIMap.prototype._rebuild = function() {
 	}
 }
 RPG.Visual.ASCIIMap.prototype._redrawCoords = function(coords) {
-	var cell = RPG.getWorld().cellInfo(this._actor, coords);
 	var span = this._data[coords.x][coords.y];
-	
-	if (!cell) {
+	if (!this._being.canSee(coords)) {
 		span.innerHTML = "&nbsp;"
 		return;
 	}
 
+	var cell = this._being.cellInfo(coords);
+
 	/* background */
-	var cellvis = cell.getChar(this._actor);
+	var cellvis = cell.getChar(this._being);
 	span.style.backgroundColor = cellvis.getBackground();
 
 	/* is there a being? */
 	var b = cell.getBeing();
 	if (b) {
-		var beingvis = b.getChar(this._actor);
+		var beingvis = b.getChar(this._being);
 		span.innerHTML = beingvis.getChar();
 		span.style.color = beingvis.getColor();
 		return span;
@@ -188,7 +186,7 @@ RPG.Visual.ASCIIMap.prototype._redrawCoords = function(coords) {
 	var items = cell.getItems();
 	if (items.length) {
 		var item = items[items.length-1];
-		var itemvis = item.getChar(this._actor);
+		var itemvis = item.getChar(this._being);
 		span.innerHTML = itemvis.getChar();
 		span.style.color = itemvis.getColor();
 		return span;
@@ -202,7 +200,7 @@ RPG.Visual.ASCIIMap.prototype._redrawCoords = function(coords) {
 RPG.Visual.TextBuffer = OZ.Class();
 RPG.Visual.TextBuffer.prototype.init = function(textarea) {
 	this._world = null;
-	this._actor = null;
+	this._being = null;
 	this._event = null;
 	this.dom = {
 		textarea: textarea
@@ -210,16 +208,16 @@ RPG.Visual.TextBuffer.prototype.init = function(textarea) {
 	this.dom.textarea.value = "";
 	OZ.Event.add(RPG.getWorld(), "action", this.bind(this._action));
 }
-RPG.Visual.TextBuffer.prototype.setActor = function(actor) {
-	this._actor = actor;
+RPG.Visual.TextBuffer.prototype.setBeing = function(being) {
+	this._being = being;
 }
 RPG.Visual.TextBuffer.prototype._action = function(e) {
 	var action = e.data;
-	var description = action.describe(this._actor);
+	var description = action.describe(this._being);
 	description += " ";
 
 	var source = action.getSource();
-	if (this._actor && this._actor != source) {
+	if (this._being && this._being != source) {
 		this.dom.textarea.value += description;
 	} else {
 		this.dom.textarea.value = description;
