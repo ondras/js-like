@@ -101,12 +101,12 @@ RPG.Visual.ImageMap.prototype._cell = function(coords, cell) {
 	var bg = pair[0];
 	var fg = pair[1];
 
-	this._tile(bg, cell.getImage(this._being), cell.describe(this._being));
+	this._tile(bg, cell.getImage(this._being), cell.describeA(this._being));
 
 	var b = cell.getBeing();
 	if (b) { 
 		this._show(fg);
-		this._tile(fg, b.getImage(this._being), b.describe(this._being));
+		this._tile(fg, b.getImage(this._being), b.describeA(this._being));
 		return;
 	}
 
@@ -114,7 +114,7 @@ RPG.Visual.ImageMap.prototype._cell = function(coords, cell) {
 	if (items.length) {
 		var item = items[items.length-1];
 		this._show(fg);
-		this._tile(fg, item.getImage(this._being), item.describe(this._being));
+		this._tile(fg, item.getImage(this._being), item.describeA(this._being));
 		return;
 	}
 	

@@ -103,6 +103,20 @@ RPG.Beings.BaseBeing.prototype.describe = function(who) {
 	if (who == this) { return "you"; }
 	return this._race.describe(who);
 }
+RPG.Beings.BaseBeing.prototype.describeA = function(who) {
+	if (who == this) { 
+		return this.describe(who); 
+	} else {
+		return this._race.describeA(who);
+	}
+}
+RPG.Beings.BaseBeing.prototype.describeThe = function(who) {
+	if (who == this) { 
+		return this.describe(who); 
+	} else {
+		return this._race.describeThe(who);
+	}
+}
 /**
  * Can this being see target coords?
  * @param {RPG.Misc.Coords} target

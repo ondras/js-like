@@ -3,7 +3,7 @@ RPG.Actions.Wait.prototype.init = function(source, target, params) {
 	this.parent(source, target, params);
 }
 RPG.Actions.Wait.prototype.describe = function(who) {
-	var str = this._source.describe(who);
+	var str = this._source.describeA(who);
 	str += " ";
 	if (this._source == who) {
 		str += "wait";
@@ -15,7 +15,7 @@ RPG.Actions.Wait.prototype.describe = function(who) {
 
 RPG.Actions.Move = OZ.Class().extend(RPG.Engine.BaseAction);
 RPG.Actions.Move.prototype.describe = function(who) {
-	var str = this._source.describe(who);
+	var str = this._source.describeA(who);
 	str += " ";
 	if (this._tookTime) {
 		if (this._source == who) {

@@ -31,6 +31,16 @@ RPG.Visual.DescriptionInterface = OZ.Class();
 RPG.Visual.DescriptionInterface.prototype.describe = function(who) {
 	return null;
 }
+RPG.Visual.DescriptionInterface.prototype.describeA = function(who) {
+	var base = this.describe(who);
+	var result = "a";
+	if (base.charAt(0).match(/[aeiouy]/i)) { result += "n"; }
+	result += " " + base;
+	return result;
+}
+RPG.Visual.DescriptionInterface.prototype.describeThe = function(who) {
+	return "the " + this.describe(who);
+}
 
 /**
  * ASCII character specification
