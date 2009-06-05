@@ -1,20 +1,29 @@
 /**
- * Feat base class
+ * Basic Feat. Implements ModifierInterface, since a feat can influent other feat (Strength influences MaxHP...).
+ * However, feats modify other feats byt adding/multiplying their own (modified) value.
  */
-RPG.Feats.BaseFeat = OZ.Class();
+RPG.Feats.BaseFeat = OZ.Class().implement(RPG.Misc.ModifierInterface);
 RPG.Feats.BaseFeat.prototype.init = function(baseValue) {
 	this._value = baseValue;
+	this._modifiers = [];
 }
 RPG.Feats.BaseFeat.prototype.baseValue = function() {
 	return this._value;
 };
 RPG.Feats.BaseFeat.prototype.modifiedValue = function(modifierHolder) {
-	var plus = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_PLUS);
-	var times = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_TIMES);
+	var plus = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_PLUS, modifierHolder);
+	var times = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_TIMES, modifierHolder);
 	var value = this._value;
 	if (value instanceof RPG.Misc.Dice) { value = value.roll(); }
 	return (value + plus) * times;
 };
+RPG.Feats.BaseFeat.prototype.getModifier = function(feat, type, modifierHolder) {
+	for (var i=0;i<this._modifiers.length;i++) {
+		var item = this._modifiers[i];
+		if (item[0] == feat && item[1] == type) { return item[2] * this.modifiedValue(modifierHolder); }
+	}
+	return null;
+}
 
 RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
@@ -28,11 +37,14 @@ RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._race = r;
 	this._items = [];
 	this._stats = {
-		hp: 0,
-		maxhp: new RPG.Feats.HP(100),
+		hp: 0
+	}
+	this._feats = {
+		maxhp: new RPG.Feats.MaxHP(100),
 		dv: new RPG.Feats.DV(10),
 		pv: new RPG.Feats.PV(10)
 	}
+
 	this._char = this._race.getChar(null);
 }
 /**
@@ -59,16 +71,19 @@ RPG.Beings.BaseBeing.prototype.getBrain = function() {
 RPG.Beings.BaseBeing.prototype.getRace = function() {
 	return this._race;
 }
-RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type) {
+RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type, modifierHolder) {
 	var modifierHolders = [];
 	for (var i=0;i<this._items.length;i++) {
 		modifierHolders.push(this._items[i]);
+	}
+	for (var p in this._feats) {
+		modifierHolders.push(this._feats[p]);
 	}
 	modifierHolders.push(this._race);
 	
 	var values = [];
 	for (var i=0;i<modifierHolders.length;i++) {
-		var mod = modifierHolders[i].getModifier(feat, type);
+		var mod = modifierHolders[i].getModifier(feat, type, modifierHolder);
 		if (mod !== null) { values.push(mod); }
 	}
 	
@@ -85,11 +100,14 @@ RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type) {
 RPG.Beings.BaseBeing.prototype.getHP = function() {
 	return this._stats.hp;
 }
+RPG.Beings.BaseBeing.prototype.getMaxHP = function() {
+	return this._feats.maxhp.modifiedValue(this);
+}
 RPG.Beings.BaseBeing.prototype.getDV = function() {
-	return this._stats.dv.modifiedValue(this);
+	return this._feats.dv.modifiedValue(this);
 }
 RPG.Beings.BaseBeing.prototype.getPV = function() {
-	return this._stats.pv.modifiedValue(this);
+	return this._feats.pv.modifiedValue(this);
 }
 RPG.Beings.BaseBeing.prototype.getChar = function(who) {
 	var ch = this._char.clone();
@@ -177,3 +195,6 @@ RPG.Races.BaseRace = OZ.Class()
 							.implement(RPG.Misc.ModifierInterface)
 							.implement(RPG.Visual.VisualInterface)
 							.implement(RPG.Visual.DescriptionInterface);
+RPG.Races.BaseRace.prototype.init = function() {
+	this._modifiers = [];
+}

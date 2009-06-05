@@ -49,13 +49,19 @@ RPG.Misc.ModifierInterface.prototype.addModifier = function(feat, type, value) {
 	var item = [feat, type, value];
 	this._modifiers.push(item);
 }
-RPG.Misc.ModifierInterface.prototype.getModifier = function(feat, type) {
+/**
+ * Ask for a modifier to a given feat. Third argument is necessary for 
+ * recursive scenarios, for example: to retrieve modifier for MaxHP, 
+ * we have to compute the modified value of Strength.
+ * 
+ * @param {RPG.Feats.BaseFeat} feat The feat we wish to modify
+ * @param {int} type Type constant
+ * @param {RPG.Misc.ModifierInterface} modifierHolder
+ */
+RPG.Misc.ModifierInterface.prototype.getModifier = function(feat, type, modifierHolder) {
 	for (var i=0;i<this._modifiers.length;i++) {
 		var item = this._modifiers[i];
 		if (item[0] == feat && item[1] == type) { return item[2]; }
 	}
 	return null;
-}
-RPG.Misc.ModifierInterface.prototype.getModifiers = function() {
-	return this._modifiers;
 }
