@@ -1,5 +1,8 @@
 /**
- * Dungeon cell
+ * @class Dungeon cell
+ * @augments RPG.Misc.ModifierInterface
+ * @augments RPG.Visual.DescriptionInterface
+ * @augments RPG.Visual.VisualInterface
  */
 RPG.Cells.BaseCell = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
@@ -42,7 +45,7 @@ RPG.Cells.BaseCell.prototype.describe = function(who) {
 }
 
 /**
- * Dungeon Map
+ * @class Dungeon map
  */
 RPG.Engine.Map = OZ.Class();
 RPG.Engine.Map.prototype.init = function(size) {

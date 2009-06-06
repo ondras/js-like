@@ -1,20 +1,30 @@
 /**
+ * @namespace
  * Base RPG components.
  */
 var RPG = {
-	world:null,
-	
-	Misc:{},
-	Engine:{},
-	Visual:{},
-	
-	Actions:{},
-	Feats:{},
-	Items:{},
-	Beings:{},
-	Cells:{},
-	Races:{}
+	world:null
 }
+
+/** @namespace */
+RPG.Actions = {};
+/** @namespace */
+RPG.Misc = {};
+/** @namespace */
+RPG.Engine = {};
+/** @namespace */
+RPG.Visual = {};
+/** @namespace */
+RPG.Feats = {};
+/** @namespace */
+RPG.Items = {};
+/** @namespace */
+RPG.Beings = {};
+/** @namespace */
+RPG.Cells = {};
+/** @namespace */
+RPG.Races = {};
+
 
 RPG.getWorld = function() {
 	return this._world;

@@ -1,3 +1,9 @@
+/**
+ * @class Basic being
+ * @augments RPG.Visual.VisualInterface
+ * @augments RPG.Visual.DescriptionInterface
+ * @augments RPG.Misc.ModifierInterface
+ */
 RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
 						.implement(RPG.Visual.DescriptionInterface)

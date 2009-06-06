@@ -1,5 +1,6 @@
 /**
- * Waiting, doing nothing
+ * @class Waiting, doing nothing
+ * @augments RPG.Engine.BaseAction
  */
 RPG.Actions.Wait = OZ.Class().extend(RPG.Engine.BaseAction);
 RPG.Actions.Wait.prototype.describe = function(who) {
@@ -14,7 +15,8 @@ RPG.Actions.Wait.prototype.describe = function(who) {
 }
 
 /**
- * Moving to a given cell. Target == coords.
+ * @class Moving to a given cell. Target == coords.
+ * @augments RPG.Engine.BaseAction
  */
 RPG.Actions.Move = OZ.Class().extend(RPG.Engine.BaseAction);
 RPG.Actions.Move.prototype.execute = function() {
@@ -50,7 +52,8 @@ RPG.Actions.Move.prototype.describe = function(who) {
 }
 
 /**
- * Attacking other being. Target == being.
+ * @class Attacking other being. Target == being.
+ * @augments RPG.Engine.BaseAction
  */
 RPG.Actions.Attack = OZ.Class().extend(RPG.Engine.BaseAction);
 RPG.Actions.Attack.prototype.init = function(source, target, params) {

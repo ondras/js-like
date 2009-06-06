@@ -1,3 +1,6 @@
+/**
+ * @class Game world
+ */
 RPG.Engine.World = OZ.Class();
 RPG.Engine.World.prototype.init = function() {
 	this.running = 0;

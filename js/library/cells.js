@@ -1,3 +1,7 @@
+/**
+ * @class Floor
+ * @augments RPG.Cells.BaseCell
+ */
 RPG.Cells.Corridor = OZ.Class().extend(RPG.Cells.BaseCell);
 RPG.Cells.Corridor.prototype.init = function() {
 	this.parent();
@@ -12,6 +16,10 @@ RPG.Cells.Corridor.prototype.getImage = function(who) {
 	return "corridor";
 }
 
+/**
+ * @class Wall
+ * @augments RPG.Cells.BaseCell
+ */
 RPG.Cells.Wall = OZ.Class().extend(RPG.Cells.BaseCell);
 RPG.Cells.Wall.prototype.init = function() {
 	this.parent();

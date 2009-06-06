@@ -1,3 +1,7 @@
+/**
+ * @class AI
+ * @augments RPG.Engine.Brain
+ */
 RPG.Engine.AI = OZ.Class().extend(RPG.Engine.Brain);
 RPG.Engine.AI.prototype.yourTurn = function() {
 	var being = this.being;
@@ -26,7 +30,8 @@ RPG.Engine.AI.prototype.yourTurn = function() {
 }
 
 /**
- * Asynchronous interactive brain. Postpones execution and awaits user input.
+ * @class Asynchronous interactive brain. Postpones execution and awaits user input.
+ * @augments RPG.Engine.Brain
  */
 RPG.Engine.Interactive = OZ.Class().extend(RPG.Engine.Brain);
 RPG.Engine.Interactive.prototype.init = function(being) {

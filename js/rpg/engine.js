@@ -1,5 +1,5 @@
 /**
- * Actor interface
+ * @class Actor interface
  */
 RPG.Engine.ActorInterface = OZ.Class();
 RPG.Engine.ActorInterface.prototype.getSpeed = function() {};
@@ -9,6 +9,10 @@ RPG.Engine.ActorInterface.prototype.getSpeed = function() {};
 RPG.Engine.ActorInterface.prototype.yourTurn = function() {
 }
 
+/** 
+ * @class Basic action
+ * @augments RPG.Visual.DescriptionInterface
+ */
 RPG.Engine.BaseAction = OZ.Class().implement(RPG.Visual.DescriptionInterface);
 /**
  * @param {?} source Something that performs this action
@@ -51,7 +55,7 @@ RPG.Engine.BaseAction.prototype._phrase = function(str, endchar) {
 }
 
 /**
- * Scheduler class - manages list of actors
+ * @class Scheduler - manages list of actors
  */
 RPG.Engine.Scheduler = OZ.Class();
 RPG.Engine.Scheduler.prototype.init = function() {
@@ -74,7 +78,8 @@ RPG.Engine.Scheduler.prototype.getActors = function() {
 RPG.Engine.Scheduler.prototype.scheduleActor = function() {}
 
 /**
- * Brain
+ * @class Brain
+ * @augments RPG.Engine.ActorInterface
  */
 RPG.Engine.Brain = OZ.Class().implement(RPG.Engine.ActorInterface);
 RPG.Engine.Brain.prototype.init = function(being) {

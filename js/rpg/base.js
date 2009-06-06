@@ -1,6 +1,7 @@
 /**
- * Basic Feat. Implements ModifierInterface, since a feat can influent other feat (Strength influences MaxHP...).
+ * @class Basic feat. Implements ModifierInterface, since a feat can influent other feat (Strength influences MaxHP...).
  * However, feats modify other feats byt adding/multiplying their own (modified) value.
+ * @augments RPG.Misc.ModifierInterface
  */
 RPG.Feats.BaseFeat = OZ.Class().implement(RPG.Misc.ModifierInterface);
 RPG.Feats.BaseFeat.prototype.init = function(baseValue) {
@@ -25,6 +26,12 @@ RPG.Feats.BaseFeat.prototype.getModifier = function(feat, type, modifierHolder) 
 	return null;
 }
 
+/**
+ * @class Basic item
+ * @augments RPG.Visual.VisualInterface
+ * @augments RPG.Visual.DescriptionInterface
+ * @augments RPG.Misc.ModifierInterface
+ */
 RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
 						.implement(RPG.Visual.DescriptionInterface)
@@ -46,6 +53,12 @@ RPG.Items.BaseItem.prototype.describe = function(who) {
 	return "item";
 }
 
+/**
+ * @class Basic race
+ * @augments RPG.Visual.VisualInterface
+ * @augments RPG.Visual.DescriptionInterface
+ * @augments RPG.Misc.ModifierInterface
+ */
 RPG.Races.BaseRace = OZ.Class()
 							.implement(RPG.Misc.ModifierInterface)
 							.implement(RPG.Visual.VisualInterface)

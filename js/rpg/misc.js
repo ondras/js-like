@@ -1,3 +1,6 @@
+/**
+ * @class Throwing dice
+ */
 RPG.Misc.Dice = OZ.Class();
 RPG.Misc.Dice.prototype.init = function(times, faces, bonus) {
 	this.times = times;
@@ -22,7 +25,7 @@ RPG.Misc.Dice.prototype.roll = function() {
 }
 
 /**
- * Coordinates
+ * @class Coordinates
  */
 RPG.Misc.Coords = OZ.Class();
 RPG.Misc.Coords.prototype.init = function(x, y) {
@@ -42,7 +45,7 @@ RPG.Misc.Coords.prototype.clone = function() {
 }
 
 /**
- * Modifier interface: everything that holds feat modifiers have this
+ * @class Modifier interface: everything that holds feat modifiers have this
  */
 RPG.Misc.ModifierInterface = OZ.Class();
 RPG.Misc.ModifierInterface.prototype.addModifier = function(feat, type, value) {

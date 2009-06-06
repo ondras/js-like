@@ -1,3 +1,7 @@
+/**
+ * @class Orc race
+ * @augments RPG.Races.BaseRace
+ */
 RPG.Races.Orc = OZ.Class().extend(RPG.Races.BaseRace);
 RPG.Races.Orc.prototype.describe = function(who) {
 	return "orc";

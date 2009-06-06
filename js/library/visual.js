@@ -1,3 +1,6 @@
+/**
+ * @class Basic map
+ */
 RPG.Visual.BaseMap = OZ.Class();
 RPG.Visual.BaseMap.prototype.init = function(container) {
 	this.dom = {
@@ -42,6 +45,10 @@ RPG.Visual.BaseMap.prototype._action = function(e) {
 RPG.Visual.BaseMap.prototype._redrawCoords = function(coords) {
 }
 
+/**
+ * @class Image map
+ * @augments RPG.Visual.BaseMap
+ */
 RPG.Visual.ImageMap = OZ.Class().extend(RPG.Visual.BaseMap);
 RPG.Visual.ImageMap.prototype.init = function(container, options) {
 	this.parent(container);
@@ -126,6 +133,10 @@ RPG.Visual.ImageMap.prototype._tile = function(node, src, text) {
 	node.title = text;
 }
 
+/**
+ * @class Classic ASCII map
+ * @augments RPG.Visual.BaseMap
+ */
 RPG.Visual.ASCIIMap = OZ.Class().extend(RPG.Visual.BaseMap);
 RPG.Visual.ASCIIMap.prototype.init = function(container) {
 	this.parent(container);
@@ -197,6 +208,9 @@ RPG.Visual.ASCIIMap.prototype._redrawCoords = function(coords) {
 	span.style.color = cellvis.getColor();
 }
 
+/**
+ * @class Textual description area
+ */
 RPG.Visual.TextBuffer = OZ.Class();
 RPG.Visual.TextBuffer.prototype.init = function(textarea) {
 	this._world = null;

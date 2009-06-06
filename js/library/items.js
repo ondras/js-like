@@ -1,3 +1,7 @@
+/**
+ * @class Generic weapon
+ * @augments RPG.Items.BaseItem
+ */
 RPG.Items.Weapon = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Weapon.prototype.init = function(hit, damage) {
 	this.parent();
@@ -22,6 +26,10 @@ RPG.Items.Weapon.prototype.getImage = function(who) {
 	return "weapon";
 }
 
+/**
+ * @class Dagger
+ * @augments RPG.Items.Weapon
+ */
 RPG.Items.Dagger = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Dagger.prototype.init = function(hit, damage) {
 	this.parent(hit, damage);

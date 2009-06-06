@@ -1,3 +1,7 @@
+/**
+ * @class Queue - fifo scheduler
+ * @augments RPG.Engine.Scheduler
+ */
 RPG.Engine.Queue = OZ.Class().extend(RPG.Engine.Scheduler);
 RPG.Engine.Queue.prototype.scheduleActor = function() {
 	if (!this.actors.length) { return null; }

@@ -1,5 +1,5 @@
 /**
- * Visual interface: everyting that can be visualized have this
+ * @class Visual interface: everyting that can be visualized have this
  */
 RPG.Visual.VisualInterface = OZ.Class();
 /**
@@ -20,7 +20,7 @@ RPG.Visual.VisualInterface.prototype.getImage = function(who) {
 }
 
 /**
- * Description interface: everyting that can be described have this
+ * @class Description interface: everyting that can be described have this
  */
 RPG.Visual.DescriptionInterface = OZ.Class();
 /**
@@ -51,7 +51,7 @@ RPG.Visual.DescriptionInterface.prototype.describeThe = function(who) {
 }
 
 /**
- * ASCII character specification
+ * @class ASCII character specification
  */
 RPG.Visual.Char = OZ.Class();
 RPG.Visual.Char.prototype.init = function() {
