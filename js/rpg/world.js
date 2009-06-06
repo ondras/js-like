@@ -2,7 +2,7 @@ RPG.Engine.World = OZ.Class();
 RPG.Engine.World.prototype.init = function() {
 	this.running = 0;
 	this.ticks = 0;
-	this.level = null;
+	this._map = null;
 	this.scheduler = null;
 	
 	this._newActorNeeded = true;
@@ -12,28 +12,28 @@ RPG.Engine.World.prototype.init = function() {
 }
 
 /**
- * Switch to a new level
- * @param {RPG.Engine.Level} level
+ * Switch to a new map
+ * @param {RPG.Engine.Map} map
  */
-RPG.Engine.World.prototype.useLevel = function(level) {
-	this.level = level;
+RPG.Engine.World.prototype.setMap = function(map) {
+	this._map = map;
 	this.scheduler.clearActors();
 
-	var beings = this.level.getBeings();
-	for (var i=0;i<beings.length;i++) { /* get all beings in level and assign them to scheduler */
+	var beings = this._map.getBeings();
+	for (var i=0;i<beings.length;i++) { /* get all beings in map and assign them to scheduler */
 		var b = beings[i];
 		var br = b.getBrain();
 		if (br) { this.scheduler.addActor(br); }
 	}
 	
-	this.dispatch("level", level);
+	this.dispatch("map", map);
 }
 
-RPG.Engine.World.prototype.currentLevel = function() {
-	return this.level;
+RPG.Engine.World.prototype.getMap = function() {
+	return this._map;
 }
 
-RPG.Engine.World.prototype.useScheduler = function(scheduler) {
+RPG.Engine.World.prototype.setScheduler = function(scheduler) {
 	this.scheduler = scheduler;
 }
 
@@ -73,9 +73,9 @@ RPG.Engine.World.prototype._loop = function() {
 		if (this.running < 1) { return; }
 		if (this._actions.length) { /* there are actions to process */
 			var action = this._actions.shift(); /* get first action */
-			var result = action.execute(); /* execute it */
+			action.execute(); /* execute it */
 			this.dispatch("action", action); /* let everyone know it happened */
-			if (result) { /* our actor has made a non-null action */
+			if (action.tookTime()) { /* our actor has made a non-null action */
 				this.ticks++;
 				this._newActorNeeded = true; 
 			} 

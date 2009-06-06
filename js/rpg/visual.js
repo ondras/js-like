@@ -31,6 +31,10 @@ RPG.Visual.DescriptionInterface = OZ.Class();
 RPG.Visual.DescriptionInterface.prototype.describe = function(who) {
 	return null;
 }
+/**
+ * Describe + prefix with indefinite article
+ * @see RPG.Visual.DescriptionInterface#describe
+ */
 RPG.Visual.DescriptionInterface.prototype.describeA = function(who) {
 	var base = this.describe(who);
 	var result = "a";
@@ -38,6 +42,10 @@ RPG.Visual.DescriptionInterface.prototype.describeA = function(who) {
 	result += " " + base;
 	return result;
 }
+/**
+ * Describe + prefix with definite article
+ * @see RPG.Visual.DescriptionInterface#describe
+ */
 RPG.Visual.DescriptionInterface.prototype.describeThe = function(who) {
 	return "the " + this.describe(who);
 }

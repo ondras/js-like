@@ -9,6 +9,7 @@ RPG.Cells.BaseCell.prototype.init = function() {
 	this._items = [];
 	this._modifiers = [];
 	this._being = null;
+	this._description = null;
 	this.flags = 0;
 }
 RPG.Cells.BaseCell.prototype.addItem = function(item) {
@@ -28,17 +29,23 @@ RPG.Cells.BaseCell.prototype.setBeing = function(being) {
 RPG.Cells.BaseCell.prototype.getBeing = function() {
 	return this._being;
 }
+/**
+ * Can a being move to this cell?
+ */
 RPG.Cells.BaseCell.prototype.isFree = function() {
 	if (this.flags & RPG.CELL_BLOCKED) { return false; }
 	if (this._being) { return false; }
 	return true;
 }
+RPG.Cells.BaseCell.prototype.describe = function(who) {
+	return this._description;
+}
 
 /**
- * Dungeon level
+ * Dungeon Map
  */
-RPG.Engine.Level = OZ.Class();
-RPG.Engine.Level.prototype.init = function(size) {
+RPG.Engine.Map = OZ.Class();
+RPG.Engine.Map.prototype.init = function(size) {
 	this.size = size;
 	this.data = [];
 	for (var i=0;i<this.size.x;i++) {
@@ -52,7 +59,7 @@ RPG.Engine.Level.prototype.init = function(size) {
 /**
  * Locate being
  */
-RPG.Engine.Level.prototype.find = function(being) {
+RPG.Engine.Map.prototype.find = function(being) {
 	for (var i=0;i<this.size.x;i++) {
 		for (var j=0;j<this.size.y;j++) {
 			var cell = this.data[i][j];
@@ -62,9 +69,9 @@ RPG.Engine.Level.prototype.find = function(being) {
 	throw new Error("Being not found");
 }
 /**
- * Get all beings in this level
+ * Get all beings in this Map
  */ 
-RPG.Engine.Level.prototype.getBeings = function() {
+RPG.Engine.Map.prototype.getBeings = function() {
 	var all = [];
 	for (var i=0;i<this.size.x;i++) {
 		for (var j=0;j<this.size.y;j++) {
@@ -75,38 +82,38 @@ RPG.Engine.Level.prototype.getBeings = function() {
 	return all;
 }
 /**
- * Level size
+ * Map size
  */
-RPG.Engine.Level.prototype.getSize = function() {
+RPG.Engine.Map.prototype.getSize = function() {
 	return this.size;
 }
-RPG.Engine.Level.prototype.setCell = function(coords, cell) {
+RPG.Engine.Map.prototype.setCell = function(coords, cell) {
 	this.data[coords.x][coords.y] = cell;
 }
-RPG.Engine.Level.prototype.at = function(coords) {
+RPG.Engine.Map.prototype.at = function(coords) {
 	return this.data[coords.x][coords.y];
 }
-RPG.Engine.Level.prototype.setBeing = function(coords, being) {
+RPG.Engine.Map.prototype.setBeing = function(coords, being) {
 	if (being) { 
-		being.setLevel(this);
+		being.setMap(this);
 		being.setCoords(coords); 
 	}
 	this.at(coords).setBeing(being);
 }
-RPG.Engine.Level.prototype.addItem = function(coords, item) {
+RPG.Engine.Map.prototype.addItem = function(coords, item) {
 	this.at(coords).addItem(item);
 }
-RPG.Engine.Level.prototype.isFree = function(coords) {
+RPG.Engine.Map.prototype.isFree = function(coords) {
 	return this.at(coords).isFree();
 }
-RPG.Engine.Level.prototype.valid = function(coords) {
+RPG.Engine.Map.prototype.valid = function(coords) {
 	var size = this.size;
 	if (Math.min(coords.x, coords.y) < 0) { return false; }
 	if (coords.x >= size.x) { return false; }
 	if (coords.y >= size.y) { return false; }
 	return true;
 }
-RPG.Engine.Level.prototype.isBlocked = function(coords) {
+RPG.Engine.Map.prototype.isBlocked = function(coords) {
 	return this.data[coords.x][coords.y].flags & RPG.CELL_BLOCKED;
 }
 /**
@@ -115,7 +122,7 @@ RPG.Engine.Level.prototype.isBlocked = function(coords) {
  * @param {RPG.Misc.Coords} c2
  * @returns {bool}
  */
-RPG.Engine.Level.prototype.lineOfSight = function(c1, c2) {
+RPG.Engine.Map.prototype.lineOfSight = function(c1, c2) {
 	var dx = c2.x-c1.x;
 	var dy = c2.y-c1.y;
 	if (Math.abs(dx) > Math.abs(dy)) {

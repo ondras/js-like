@@ -1,7 +1,7 @@
 RPG.Engine.AI = OZ.Class().extend(RPG.Engine.Brain);
 RPG.Engine.AI.prototype.yourTurn = function() {
 	var being = this.being;
-	var level = being.getLevel();
+	var map = being.getMap();
 	var world = RPG.getWorld();
 	
 	var myCoords = being.getCoords();
@@ -13,7 +13,7 @@ RPG.Engine.AI.prototype.yourTurn = function() {
 			var coords = myCoords.clone();
 			coords.x += i;
 			coords.y += j;
-			if (level.isFree(coords)) { avail.push(coords); }
+			if (map.isFree(coords)) { avail.push(coords); }
 		}
 	}
 	

@@ -1,8 +1,8 @@
-/* a simple level */
+/* a simple Map */
 var nx = 10;
 var ny = 10;
 var size = new RPG.Misc.Coords(nx, ny);
-var l = new RPG.Engine.Level(size);
+var l = new RPG.Engine.Map(size);
 for (var i=0;i<size.x;i++) {
 	for (var j=0;j<size.y;j++) {
 		var c = new RPG.Misc.Coords(i, j);
@@ -31,14 +31,16 @@ l.addItem(new RPG.Misc.Coords(2, 2), d);
 var orc = new RPG.Beings.Orc();
 var brain = new RPG.Engine.Interactive(orc);
 l.setBeing(new RPG.Misc.Coords(1, 1), orc);
+orc.fullHP();
 
 var orc2 = new RPG.Beings.Orc();
 var brain2 = new RPG.Engine.AI(orc2);
-l.setBeing(new RPG.Misc.Coords(4, 4), orc2);
+l.setBeing(new RPG.Misc.Coords(2, 1), orc2);
+orc2.fullHP();
 
 /* setup the world */
 var world = new RPG.Engine.World();
-world.useScheduler(new RPG.Engine.Queue());
+world.setScheduler(new RPG.Engine.Queue());
 
 /* attach visualizers */
 var map = new RPG.Visual.ImageMap(OZ.$("map"));
@@ -51,17 +53,27 @@ var text = new RPG.Visual.TextBuffer(OZ.$("ta"));
 text.setBeing(orc);
 
 /* go! :-) */
-world.useLevel(l);
+world.setMap(l);
 world.run();
 
 
 /* ==== misc ui stuff below ========= */
 
 var move = function(dx, dy) {
-	var coords = brain.being.getCoords().clone();
+	var being = brain.being;
+	var coords = being.getCoords().clone();
 	coords.x += dx;
 	coords.y += dy;
-	brain.action(RPG.Actions.Move, coords);
+	
+	/* being there? */
+	var cell = being.cellInfo(coords);
+	var b2 = cell.getBeing();
+	if (b2) {
+		brain.action(RPG.Actions.Attack, b2);
+	} else {
+		brain.action(RPG.Actions.Move, coords);
+	}
+	
 }
 
 var wait = function() {

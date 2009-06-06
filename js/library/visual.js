@@ -8,14 +8,14 @@ RPG.Visual.BaseMap.prototype.init = function(container) {
 	this._data = null;
 	this._size = null;
 	
-	OZ.Event.add(RPG.getWorld(), "level", this.bind(this._levelChange));
+	OZ.Event.add(RPG.getWorld(), "map", this.bind(this._mapChange));
 	OZ.Event.add(RPG.getWorld(), "action", this.bind(this._action));
 }
-RPG.Visual.BaseMap.prototype._levelChange = function(e) {
-	this._level(e.data);
+RPG.Visual.BaseMap.prototype._mapChange = function(e) {
+	this._map(e.data);
 }
-RPG.Visual.BaseMap.prototype._level = function(level) {
-	this._size = level.getSize();
+RPG.Visual.BaseMap.prototype._map = function(map) {
+	this._size = map.getSize();
 	this._rebuild();
 	this._redraw();
 }
@@ -51,8 +51,8 @@ RPG.Visual.ImageMap.prototype.init = function(container, options) {
 	this.dom.container.style.position = "relative";
 	for (var p in options) { this.options[p] = options[p]; }
 
-	var level = RPG.getWorld().currentLevel();
-	if (level) { this._level(level); }
+	var map = RPG.getWorld().getMap();
+	if (map) { this._map(map); }
 }
 RPG.Visual.ImageMap.prototype._resize = function() {
 	this.dom.container.style.width = (this.options.tileSize.x * this._size.x) + "px";
@@ -131,8 +131,8 @@ RPG.Visual.ASCIIMap.prototype.init = function(container) {
 	this.parent(container);
 	this._computeWidth();
 
-	var level = RPG.getWorld().currentLevel();
-	if (level) { this._level(level); }
+	var map = RPG.getWorld().getMap();
+	if (map) { this._map(map); }
 }
 RPG.Visual.ASCIIMap.prototype._computeWidth = function() {
 	var tmp = OZ.DOM.elm("span");

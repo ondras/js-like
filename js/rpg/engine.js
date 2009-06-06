@@ -10,6 +10,11 @@ RPG.Engine.ActorInterface.prototype.yourTurn = function() {
 }
 
 RPG.Engine.BaseAction = OZ.Class().implement(RPG.Visual.DescriptionInterface);
+/**
+ * @param {?} source Something that performs this action
+ * @param {?} target Action target
+ * @param {?} params Any params necessary
+ */
 RPG.Engine.BaseAction.prototype.init = function(source, target, params) {
 	this._source = source;
 	this._target = target;
@@ -28,9 +33,17 @@ RPG.Engine.BaseAction.prototype.getTarget = function() {
 RPG.Engine.BaseAction.prototype.tookTime = function() {
 	return this._tookTime;
 }
+/**
+ * Process this action
+ */
 RPG.Engine.BaseAction.prototype.execute = function() {
 	return this._tookTime;
 }
+/**
+ * Visual formatting helper
+ * @param {string} str 
+ * @param {string} endchar
+ */
 RPG.Engine.BaseAction.prototype._phrase = function(str, endchar) {
 	var result = str.charAt(0).toUpperCase() + str.substring(1);
 	result += endchar;

@@ -24,12 +24,12 @@ RPG.Misc.Dice.prototype.roll = function() {
 /**
  * Coordinates
  */
-RPG.Misc.Coords = OZ.Class().implement(RPG.Visual.DescriptionInterface);
+RPG.Misc.Coords = OZ.Class();
 RPG.Misc.Coords.prototype.init = function(x, y) {
 	this.x = x;
 	this.y = y;
 }
-RPG.Misc.Coords.prototype.describe = function() {
+RPG.Misc.Coords.prototype.toString = function() {
 	return "["+this.x+", "+this.y+"]";
 }
 RPG.Misc.Coords.prototype.distance = function(coords) {
