@@ -96,15 +96,32 @@ var keypress = function(e) {
 
 var doKeyCode = function(keyCode) {
 	switch (keyCode) {
+		case 105:
 		case 33: move(1, -1); break;
+		
+		case 99:
 		case 34: move(1, 1); break;
+
+		case 103:
 		case 36: move(-1, -1); break;
+		
+		case 97:
 		case 35: move(-1, 1); break;
+		
+		case 100:
 		case 37: move(-1, 0); break;
+		
+		case 104:
 		case 38: move(0, -1); break;
+
+		case 102:
 		case 39: move(1, 0); break;
+		
+		case 98:
 		case 40: move(0, 1); break;
+		
 		case 12: 
+		case 101:
 		case 190: 
 			wait();
 		break;

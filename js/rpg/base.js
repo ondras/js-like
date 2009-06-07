@@ -16,14 +16,13 @@ RPG.Feats.BaseFeat.prototype.modifiedValue = function(modifierHolder) {
 	var times = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_TIMES, modifierHolder);
 	var value = this._value;
 	if (value instanceof RPG.Misc.Dice) { value = value.roll(); }
-	return (value + plus) * times;
+	var exact = (value + plus) * times;
+	return Math.max(0, exact);
 };
-RPG.Feats.BaseFeat.prototype.getModifier = function(feat, type, modifierHolder) {
-	for (var i=0;i<this._modifiers.length;i++) {
-		var item = this._modifiers[i];
-		if (item[0] == feat && item[1] == type) { return item[2] * this.modifiedValue(modifierHolder); }
-	}
-	return null;
+RPG.Feats.BaseFeat.prototype.standardModifier = function(modifierHolder) {
+	var value = this.modifiedValue(modifierHolder);
+	var num = (value-11)*10/21;
+	return num;
 }
 
 /**

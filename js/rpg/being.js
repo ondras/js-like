@@ -17,23 +17,48 @@ RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._race = r;
 	this._items = [];
 	this._gender = RPG.GENDER_NEUTER;
+	this._stats = {};
+	this._feats = {};
+	this._hands = null;
+	this._weapon = null;
+	
+	this._char = this._race.getChar(null);
+
+	this._initMisc();
+	this.fullHP();
+}
+
+/**
+ * Non-trivial initialization
+ */
+
+RPG.Beings.BaseBeing.prototype._initMisc = function() {
 	this._stats = {
 		hp: 0
 	}
 	this._feats = {
-		maxhp: new RPG.Feats.MaxHP(10),
-		dv: new RPG.Feats.DV(2),
-		pv: new RPG.Feats.PV(2)
+		maxhp: new RPG.Feats.MaxHP(8),
+		dv: new RPG.Feats.DV(0),
+		pv: new RPG.Feats.PV(0)
 	}
-	
 	this._hands = {
 		hit: new RPG.Feats.Hit(5),
 		damage: new RPG.Feats.Damage(2),
 	}
-	this._weapon = null;
-
-	this._char = this._race.getChar(null);
+	
+	var attrs = {
+		strength: RPG.Feats.Strength,
+		toughness: RPG.Feats.Toughness,
+		intelligence: RPG.Feats.Intelligence,
+		dexterity: RPG.Feats.Dexterity
+	}
+	for (var name in attrs) {
+		var ctor = attrs[name];
+		var dice = new RPG.Misc.Dice(1, 6, 0);
+		this._feats[name] = new ctor(dice.roll());
+	}
 }
+
 
 /**
  * @param {SMap.Misc.Coords}
@@ -66,6 +91,10 @@ RPG.Beings.BaseBeing.prototype.getRace = function() {
 	return this._race;
 }
 
+/**
+ * Being combines modifiers from various sources: items, feats, race, ...
+ * @see RPG.Base.ModifierInterface
+ */
 RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type, modifierHolder) {
 	var modifierHolders = [];
 	for (var i=0;i<this._items.length;i++) {
@@ -93,57 +122,41 @@ RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type, modifierHolder
 	return total;
 }
 
-RPG.Beings.BaseBeing.prototype.getHP = function() {
-	return this._stats.hp;
-}
-
-RPG.Beings.BaseBeing.prototype.getMaxHP = function() {
-	return this._feats.maxhp.modifiedValue(this);
-}
-
-RPG.Beings.BaseBeing.prototype.getDV = function() {
-	return this._feats.dv.modifiedValue(this);
-}
-
-RPG.Beings.BaseBeing.prototype.getPV = function() {
-	return this._feats.pv.modifiedValue(this);
-}
-
-RPG.Beings.BaseBeing.prototype.getHit = function() {
-	if (this._weapon) {
-		return this._weapon.getHit(this);
-	} else {
-		return this._hands.hit.modifiedValue(this);
-	}
-}
-
-RPG.Beings.BaseBeing.prototype.getDamage = function() {
-	if (this._weapon) {
-		return this._weapon.getDamage(this);
-	} else {
-		return this._hands.damage.modifiedValue(this);
-	}
-}
-
+/**
+ * Sets an item as a current weapon. FIXME this should be reworked into an inventory
+ * @param {RPG.Items.BaseItem}
+ */
 RPG.Beings.BaseBeing.prototype.setWeapon = function(item) {
 	this._weapon = item;
 }
 
+/**
+ * @see RPG.Visual.VisualInterface#getChar
+ */
 RPG.Beings.BaseBeing.prototype.getChar = function(who) {
 	var ch = this._char.clone();
 	if (who == this) { ch.setChar("@"); }
 	return ch;
 }
 
+/**
+ * @see RPG.Visual.VisualInterface#getImage
+ */
 RPG.Beings.BaseBeing.prototype.getImage = function(who) {
 	return this._race.getImage(who);
 }
 
+/**
+ * @see RPG.Visual.DescriptionInterface#describe
+ */
 RPG.Beings.BaseBeing.prototype.describe = function(who) {
 	if (who == this) { return "you"; }
 	return this._race.describe(who);
 }
 
+/**
+ * @see RPG.Visual.DescriptionInterface#describeA
+ */
 RPG.Beings.BaseBeing.prototype.describeA = function(who) {
 	if (who == this) { 
 		return this.describe(who); 
@@ -152,6 +165,9 @@ RPG.Beings.BaseBeing.prototype.describeA = function(who) {
 	}
 }
 
+/**
+ * @see RPG.Visual.DescriptionInterface#describeThe
+ */
 RPG.Beings.BaseBeing.prototype.describeThe = function(who) {
 	if (who == this) { 
 		return this.describe(who); 
@@ -160,6 +176,10 @@ RPG.Beings.BaseBeing.prototype.describeThe = function(who) {
 	}
 }
 
+/**
+ * Return him/her/it string for this being
+ * @returns {string}
+ */
 RPG.Beings.BaseBeing.prototype.describeIt = function() {
 	var table = {};
 	table[RPG.GENDER_MALE] = "him";
@@ -167,6 +187,44 @@ RPG.Beings.BaseBeing.prototype.describeIt = function() {
 	table[RPG.GENDER_NEUTER] = "it";
 	
 	return table[this._gender];
+}
+
+/* ============================= FEAT GETTERS ============================= */
+
+RPG.Beings.BaseBeing.prototype.getHP = function() {
+	return this._stats.hp;
+}
+
+RPG.Beings.BaseBeing.prototype.getMaxHP = function() {
+	return Math.round(this._feats.maxhp.modifiedValue(this));
+}
+
+RPG.Beings.BaseBeing.prototype.getDV = function() {
+	return Math.round(this._feats.dv.modifiedValue(this));
+}
+
+RPG.Beings.BaseBeing.prototype.getPV = function() {
+	return Math.round(this._feats.pv.modifiedValue(this));
+}
+
+RPG.Beings.BaseBeing.prototype.getHit = function() {
+	var val = 0;
+	if (this._weapon) {
+		val = this._weapon.getHit(this);
+	} else {
+		val = this._hands.hit.modifiedValue(this);
+	}
+	return Math.round(val);
+}
+
+RPG.Beings.BaseBeing.prototype.getDamage = function() {
+	var val = 0;
+	if (this._weapon) {
+		val = this._weapon.getDamage(this);
+	} else {
+		val = this._hands.damage.modifiedValue(this);
+	}
+	return Math.round(val);
 }
 
 /**
@@ -193,7 +251,15 @@ RPG.Beings.BaseBeing.prototype.fullHP = function() {
 }
 
 /**
- * This being dies.
+ * How far can this being see
+ * @returns {int}
+ */
+RPG.Beings.BaseBeing.prototype.sightDistance = function() {
+	return 5; /* FIXME this should depend on perception or so */
+}
+
+/**
+ * This being dies. FIXME do this as an action?
  */
 RPG.Beings.BaseBeing.prototype.die = function() {
 	for (var i=0;i<this._items.length;i++) { /* drop items */
@@ -214,7 +280,7 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 	var source = this._coords;
 	if (source.distance(target) <= 1) { return true; } /* optimalization: can see self & surroundings */
-	if (source.distance(target) > 5) { return false; } /* FIXME this should depend on perception or so */
+	if (source.distance(target) > this.sightDistance()) { return false; } 
 
 	var offsets = [
 		[0, 0],

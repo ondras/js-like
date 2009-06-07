@@ -65,7 +65,7 @@ RPG.Actions.Attack.prototype.init = function(source, target, params) {
 }
 RPG.Actions.Attack.prototype.execute = function() {
 	/* hit? */
-	var hit = this._source.getHit() + Math.round(Math.randomNormal(5));
+	var hit = this._source.getHit() + Math.round(Math.randomNormal(3));
 	var dv = this._target.getDV();
 	if (hit < dv) { 
 		return; 
@@ -74,7 +74,7 @@ RPG.Actions.Attack.prototype.execute = function() {
 	}
 
 	/* damage? */
-	var damage = this._source.getDamage() + Math.round(Math.randomNormal(10)); 
+	var damage = this._source.getDamage() + Math.round(Math.randomNormal(3)); 
 	damage = Math.max(damage, 0);
 	var pv = this._target.getPV();
 	if (damage > pv) {

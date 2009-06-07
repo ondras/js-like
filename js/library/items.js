@@ -31,9 +31,9 @@ RPG.Items.Weapon.prototype.getImage = function(who) {
  * @augments RPG.Items.Weapon
  */
 RPG.Items.Dagger = OZ.Class().extend(RPG.Items.Weapon)
-RPG.Items.Dagger.prototype.init = function(hit, damage) {
-	this.parent(hit, damage);
-	this.addModifier(RPG.Feats.Strength, RPG.MODIFIER_PLUS, 10);
+RPG.Items.Dagger.prototype.init = function() {
+	this.parent(2, 0);
+//	this.addModifier(RPG.Feats.Strength, RPG.MODIFIER_PLUS, 10);
 }
 RPG.Items.Dagger.prototype.describe = function(who) {
 	return "dagger";

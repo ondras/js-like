@@ -64,7 +64,14 @@ RPG.Misc.ModifierInterface.prototype.addModifier = function(feat, type, value) {
 RPG.Misc.ModifierInterface.prototype.getModifier = function(feat, type, modifierHolder) {
 	for (var i=0;i<this._modifiers.length;i++) {
 		var item = this._modifiers[i];
-		if (item[0] == feat && item[1] == type) { return item[2]; }
+		if (item[0] == feat && item[1] == type) { 
+			var val = item[2];
+			if (typeof(val) == "function") {
+				return val(modifierHolder);
+			} else {
+				return val; 
+			}
+		}
 	}
 	return null;
 }
