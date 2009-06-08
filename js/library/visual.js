@@ -1,4 +1,32 @@
 /**
+ * @class Basic map cell
+ */
+RPG.Visual.BaseCell = OZ.Class();
+RPG.Visual.BaseCell.prototype.init = function(owner, coords) {
+	this._owner = owner;
+}
+
+/**
+ * Reset a cell - we have never seen it
+ */
+RPG.Visual.BaseCell.prototype.reset = function() {
+}
+
+/**
+ * Mark a cell as being out of sight
+ */
+RPG.Visual.BaseCell.prototype.notVisible = function() {
+	this.reset();
+}
+
+/**
+ * Is visible - fill with relevant data
+ */
+RPG.Visual.BaseCell.prototype.sync = function(being, coords) {
+}
+
+
+/**
  * @class Basic map
  */
 RPG.Visual.BaseMap = OZ.Class();
@@ -6,43 +34,126 @@ RPG.Visual.BaseMap.prototype.init = function(container) {
 	this.dom = {
 		container: container
 	}
-	this._event = null;
 	this._being = null;
 	this._data = null;
 	this._size = null;
+	this._cell = RPG.Visual.BaseCell;
 	
 	OZ.Event.add(RPG.getWorld(), "map", this.bind(this._mapChange));
 	OZ.Event.add(RPG.getWorld(), "action", this.bind(this._action));
 }
+
 RPG.Visual.BaseMap.prototype._mapChange = function(e) {
 	this._map(e.data);
 }
+
 RPG.Visual.BaseMap.prototype._map = function(map) {
 	this._size = map.getSize();
 	this._rebuild();
 	this._redraw();
 }
+
 RPG.Visual.BaseMap.prototype.setBeing = function(being) {
 	this._being = being;
 }
+
 RPG.Visual.BaseMap.prototype._rebuild = function() {
 	OZ.DOM.clear(this.dom.container);
 	this._resize();
-}
-RPG.Visual.BaseMap.prototype._redraw = function() {
-	var c = new RPG.Misc.Coords(0, 0);
+	this._data = new Array(this._size.x);
+	
+	var coords = new RPG.Misc.Coords(0, 0);
 	for (var j=0;j<this._size.y;j++) {
 		for (var i=0;i<this._size.x;i++) {
-			c.x = i;
-			c.y = j;
-			this._redrawCoords(c);
+			if (!j) { this._data[i] = new Array(this._size.y); }
+			coords.x = i;
+			coords.y = j;
+			var cell = new this._cell(this, coords);
+			cell.reset();
+			this._data[i][j] = cell;
 		}
 	}
 }
+
+RPG.Visual.BaseMap.prototype._redraw = function() {
+	var bc = this._being.getCoords();
+	var dist = this._being.sightDistance();
+	var c = new RPG.Misc.Coords(0, 0);
+	for (var j=0;j<this._size.y;j++) {
+		for (var i=0;i<this._size.x;i++) {
+			var cell = this._data[i][j];
+			c.x = i;
+			c.y = j;
+			if (bc.distance(c) > dist || !this._being.canSee(c)) { /* cell is not visible */
+				cell.notVisible();
+			} else { /* cell is visible */
+				cell.sync(this._being, c);
+			}
+		}
+	}
+}
+
 RPG.Visual.BaseMap.prototype._action = function(e) {
 	this._redraw();
 }
-RPG.Visual.BaseMap.prototype._redrawCoords = function(coords) {
+
+
+/**
+ * @class Image cell
+ * @augments RPG.Visual.BaseCell
+ */
+RPG.Visual.ImageCell = OZ.Class().extend(RPG.Visual.BaseCell);
+RPG.Visual.ImageCell.prototype.init = function(owner, coords) {
+	this.parent(owner);
+
+	var ts = owner.options.tileSize;
+	var container = owner.dom.container;
+	var x = coords.x * ts.x;
+	var y = coords.y * ts.y;
+	this.node1 = OZ.DOM.elm("img", {position:"absolute", left:x+"px", top:y+"px", width:ts.x+"px", height:ts.y+"px"});
+	this.node2 = OZ.DOM.elm("img", {position:"absolute", left:x+"px", top:y+"px", width:ts.x+"px", height:ts.y+"px"});
+	
+	container.appendChild(this.node1);
+	container.appendChild(this.node2);
+}
+
+RPG.Visual.ImageCell.prototype.reset = function() {
+	this.node1.style.visibility = "hidden";
+	this.node2.style.visibility = "hidden";
+}
+
+RPG.Visual.ImageCell.prototype.sync = function(being, coords) {
+	var cell = being.cellInfo(coords);
+	this._updateImage(this.node1, cell, being);
+
+	var b = cell.getBeing();
+	if (b) { 
+		this._updateImage(this.node2, b, being);
+		return;
+	}
+
+	var items = cell.getItems();
+	if (items.length) {
+		var item = items[items.length-1];
+		this._updateImage(this.node2, item, being);
+		return;
+	}
+	
+	this.node2.style.visibility = "hidden";
+}
+
+RPG.Visual.ImageCell.prototype._updateImage = function(node, what, being) {
+	node.style.visibility = "visible";
+	var src = what.getImage(being);
+	var text = what.describeA(being);
+
+	var url = "img/"+src+".png";
+	if (node.src.indexOf(url) == -1) { 
+		node.src = url; 
+	} else {
+	}
+	node.alt = text;
+	node.title = text;
 }
 
 /**
@@ -57,6 +168,7 @@ RPG.Visual.ImageMap.prototype.init = function(container, options) {
 	}
 	this.dom.container.style.position = "relative";
 	for (var p in options) { this.options[p] = options[p]; }
+	this._cell = RPG.Visual.ImageCell;
 
 	var map = RPG.getWorld().getMap();
 	if (map) { this._map(map); }
@@ -65,72 +177,56 @@ RPG.Visual.ImageMap.prototype._resize = function() {
 	this.dom.container.style.width = (this.options.tileSize.x * this._size.x) + "px";
 	this.dom.container.style.height = (this.options.tileSize.y * this._size.y) + "px";
 }
-RPG.Visual.ImageMap.prototype._rebuild = function() {
-	this.parent();
-	this._data = new Array(this._size.x);
-	var ts = this.options.tileSize;
-	
-	for (var i=0;i<this._size.x;i++) {
-		this._data[i] = new Array(this._size.y);
-		for (var j=0;j<this._size.y;j++) {
-			var pair = [];
-			for (var k=0;k<2;k++) {
-				var x = i * ts.x;
-				var y = j * ts.y;
-				var node = OZ.DOM.elm("img", {position:"absolute", left:x+"px", top:y+"px", width:ts.x+"px", height:ts.y+"px"});
-				this.dom.container.appendChild(node);
-				pair.push(node);
-			}
-			this._data[i][j] = pair;
-		}
+
+/**
+ * @class ASCII cell
+ * @augments RPG.Visual.BaseCell
+ */
+RPG.Visual.ASCIICell = OZ.Class().extend(RPG.Visual.BaseCell);
+RPG.Visual.ASCIICell.prototype.init = function(owner, coords) {
+	this.parent(owner);
+
+	var container = owner.dom.container;
+	this.node = OZ.DOM.elm("span");
+	container.appendChild(this.node);
+	if (coords.x + 1 == owner._size.x) {
+		container.appendChild(OZ.DOM.elm("br"));
 	}
 }
-RPG.Visual.ImageMap.prototype._show = function(img) {
-	img.style.visibility = "visible";
-}
-RPG.Visual.ImageMap.prototype._hide = function(img) {
-	img.style.visibility = "hidden";
-}
-RPG.Visual.ImageMap.prototype._redrawCoords = function(coords) {
-	var pair = this._data[coords.x][coords.y];
-	if (!this._being.canSee(coords)) {
-		this._hide(pair[0]);
-		this._hide(pair[1]);
-		return;
-	}
 
-	this._show(pair[0]);
-	var cell = this._being.cellInfo(coords);
-	this._cell(coords, cell);
+RPG.Visual.ASCIICell.prototype.reset = function() {
+	this.node.innerHTML = "&nbsp;"
 }
-RPG.Visual.ImageMap.prototype._cell = function(coords, cell) {	
-	var pair = this._data[coords.x][coords.y];
-	var bg = pair[0];
-	var fg = pair[1];
 
-	this._tile(bg, cell.getImage(this._being), cell.describeA(this._being));
+RPG.Visual.ASCIICell.prototype.sync = function(being, coords) {
+	var cell = being.cellInfo(coords);
 
+	/* background */
+	var cellvis = cell.getChar(being);
+	this.node.style.backgroundColor = cellvis.getBackground();
+
+	/* is there a being? */
 	var b = cell.getBeing();
-	if (b) { 
-		this._show(fg);
-		this._tile(fg, b.getImage(this._being), b.describeA(this._being));
+	if (b) {
+		var beingvis = b.getChar(being);
+		this.node.innerHTML = beingvis.getChar();
+		this.node.style.color = beingvis.getColor();
 		return;
 	}
-
+	
+	/* is there an item? */
 	var items = cell.getItems();
 	if (items.length) {
 		var item = items[items.length-1];
-		this._show(fg);
-		this._tile(fg, item.getImage(this._being), item.describeA(this._being));
+		var itemvis = item.getChar(being);
+		this.node.innerHTML = itemvis.getChar();
+		this.node.style.color = itemvis.getColor();
 		return;
 	}
 	
-	this._hide(fg);
-}
-RPG.Visual.ImageMap.prototype._tile = function(node, src, text) {
-	node.src = "img/"+src+".png";
-	node.alt = text;
-	node.title = text;
+	/* does the cell has a representation? */
+	this.node.innerHTML = cellvis.getChar();
+	this.node.style.color = cellvis.getColor();
 }
 
 /**
@@ -142,9 +238,12 @@ RPG.Visual.ASCIIMap.prototype.init = function(container) {
 	this.parent(container);
 	this._computeWidth();
 
+	this._cell = RPG.Visual.ASCIICell;
+
 	var map = RPG.getWorld().getMap();
 	if (map) { this._map(map); }
 }
+
 RPG.Visual.ASCIIMap.prototype._computeWidth = function() {
 	var tmp = OZ.DOM.elm("span");
 	tmp.innerHTML = "x";
@@ -152,60 +251,9 @@ RPG.Visual.ASCIIMap.prototype._computeWidth = function() {
 	this._charWidth = tmp.offsetWidth;
 	OZ.DOM.clear(this.dom.container);
 }
+
 RPG.Visual.ASCIIMap.prototype._resize = function() {
 	this.dom.container.style.width = (this._charWidth * this._size.x) + "px";
-}
-RPG.Visual.ASCIIMap.prototype._rebuild = function() {
-	this.parent();
-	this._data = new Array(this._size.x);
-	
-	for (var j=0;j<this._size.y;j++) {
-		for (var i=0;i<this._size.x;i++) {
-			if (!j) { this._data[i] = new Array(this._size.y); }
-			var node = OZ.DOM.elm("span");
-			this.dom.container.appendChild(node);
-			this._data[i][j] = node;
-			if (i + 1 == size.x) {
-				this.dom.container.appendChild(OZ.DOM.elm("br"));
-			}
-		}
-	}
-}
-RPG.Visual.ASCIIMap.prototype._redrawCoords = function(coords) {
-	var span = this._data[coords.x][coords.y];
-	if (!this._being.canSee(coords)) {
-		span.innerHTML = "&nbsp;"
-		return;
-	}
-
-	var cell = this._being.cellInfo(coords);
-
-	/* background */
-	var cellvis = cell.getChar(this._being);
-	span.style.backgroundColor = cellvis.getBackground();
-
-	/* is there a being? */
-	var b = cell.getBeing();
-	if (b) {
-		var beingvis = b.getChar(this._being);
-		span.innerHTML = beingvis.getChar();
-		span.style.color = beingvis.getColor();
-		return span;
-	}
-	
-	/* is there an item? */
-	var items = cell.getItems();
-	if (items.length) {
-		var item = items[items.length-1];
-		var itemvis = item.getChar(this._being);
-		span.innerHTML = itemvis.getChar();
-		span.style.color = itemvis.getColor();
-		return span;
-	}
-	
-	/* does the cell has a representation? */
-	span.innerHTML = cellvis.getChar();
-	span.style.color = cellvis.getColor();
 }
 
 /**
