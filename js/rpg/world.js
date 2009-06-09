@@ -86,6 +86,7 @@ RPG.Engine.World.prototype._loop = function() {
 			var actor = this.scheduler.scheduleActor(); /* find next actor */
 			if (actor) {
 				this._newActorNeeded = false;
+				this.dispatch("turn", actor);
 				actor.yourTurn(); /* let actor know he should do some action */
 			} else { /* no actor available, just sleep */
 				this.pause();

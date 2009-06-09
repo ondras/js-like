@@ -46,8 +46,10 @@ world.setScheduler(new RPG.Engine.Queue());
 var map = new RPG.Visual.ImageMap(OZ.$("map"));
 map.setBeing(orc);
 
+
 var ascii = new RPG.Visual.ASCIIMap(OZ.$("ascii"));
 ascii.setBeing(orc);
+
 
 var text = new RPG.Visual.TextBuffer(OZ.$("ta"));
 text.setBeing(orc);

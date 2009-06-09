@@ -41,6 +41,7 @@ RPG.Visual.BaseMap.prototype.init = function(container) {
 	
 	OZ.Event.add(RPG.getWorld(), "map", this.bind(this._mapChange));
 	OZ.Event.add(RPG.getWorld(), "action", this.bind(this._action));
+	OZ.Event.add(RPG.getWorld(), "turn", this.bind(this._turn));
 }
 
 RPG.Visual.BaseMap.prototype._mapChange = function(e) {
@@ -94,7 +95,14 @@ RPG.Visual.BaseMap.prototype._redraw = function() {
 }
 
 RPG.Visual.BaseMap.prototype._action = function(e) {
-	this._redraw();
+//	this._redraw();
+}
+
+RPG.Visual.BaseMap.prototype._turn = function(e) {
+	var actor = e.data;
+	if (actor == this._being.getBrain()) {
+		this._redraw();
+	}
 }
 
 
@@ -119,6 +127,10 @@ RPG.Visual.ImageCell.prototype.init = function(owner, coords) {
 
 RPG.Visual.ImageCell.prototype.reset = function() {
 	this.node1.style.visibility = "hidden";
+	this.node2.style.visibility = "hidden";
+}
+
+RPG.Visual.ImageCell.prototype.notVisible = function() {
 	this.node2.style.visibility = "hidden";
 }
 
@@ -192,41 +204,70 @@ RPG.Visual.ASCIICell.prototype.init = function(owner, coords) {
 	if (coords.x + 1 == owner._size.x) {
 		container.appendChild(OZ.DOM.elm("br"));
 	}
+	
+	this._char = null;
+	this._color = null;
+	this._background = null;
+	this._cellChar = null;
+	this._cellColor = null;
 }
 
 RPG.Visual.ASCIICell.prototype.reset = function() {
-	this.node.innerHTML = "&nbsp;"
+	this.node.innerHTML = "&nbsp;";
+}
+
+RPG.Visual.ASCIICell.prototype.notVisible = function() {
+	if (this._char != this._cellChar) {
+		this._char = this._cellChar;
+		this.node.innerHTML = this._char;
+	}
+	if (this._color != this._cellColor) {
+		this._color = this._cellColor;
+		this.node.style.color = this._color;
+	}
 }
 
 RPG.Visual.ASCIICell.prototype.sync = function(being, coords) {
 	var cell = being.cellInfo(coords);
-
-	/* background */
 	var cellvis = cell.getChar(being);
-	this.node.style.backgroundColor = cellvis.getBackground();
-
-	/* is there a being? */
-	var b = cell.getBeing();
-	if (b) {
-		var beingvis = b.getChar(being);
-		this.node.innerHTML = beingvis.getChar();
-		this.node.style.color = beingvis.getColor();
-		return;
-	}
+	var color, ch;
 	
-	/* is there an item? */
+	/* background */
+	var background = cellvis.getBackground();
+	this._cellChar = cellvis.getChar();
+	this._cellColor = cellvis.getColor();
+
+	var b = cell.getBeing();
 	var items = cell.getItems();
-	if (items.length) {
+
+	if (b) { /* is there a being? */
+		var beingvis = b.getChar(being);
+		var color = beingvis.getColor();
+		var ch = beingvis.getChar();
+	} else if (items.length) { /* is there an item? */
 		var item = items[items.length-1];
 		var itemvis = item.getChar(being);
-		this.node.innerHTML = itemvis.getChar();
-		this.node.style.color = itemvis.getColor();
-		return;
+		var ch = itemvis.getChar();
+		var color = itemvis.getColor();
+	} else { /* does the cell has a representation? */
+		ch = this._cellChar;
+		color = this._cellColor;
 	}
 	
-	/* does the cell has a representation? */
-	this.node.innerHTML = cellvis.getChar();
-	this.node.style.color = cellvis.getColor();
+	if (ch != this._char) {
+		this._char = ch;
+		this.node.innerHTML = ch;
+	}
+	
+	if (color != this._color) {
+		this._color = color;
+		this.node.style.color = color;
+	}
+	
+	if (background != this._background) {
+		this._background = background;
+		this.node.style.backgroundColor = background;
+	}
 }
 
 /**
