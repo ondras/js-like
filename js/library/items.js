@@ -14,15 +14,13 @@ RPG.Items.Weapon.prototype.getHit = function(modifierHolder) {
 RPG.Items.Weapon.prototype.getDamage = function(modifierHolder) {
 	return this._damage.modifiedValue(modifierHolder);
 }
-RPG.Items.Weapon.prototype.describe = function(who) {
+RPG.Items.Weapon.prototype.describe = function() {
 	return "weapon";
 }
-RPG.Items.Weapon.prototype.getChar = function(who) {
-	var ch = this.parent(who);
-	ch.setChar(")");
-	return ch;
+RPG.Items.Weapon.prototype.getChar = function() {
+	return ")";
 }
-RPG.Items.Weapon.prototype.getImage = function(who) {
+RPG.Items.Weapon.prototype.getImage = function() {
 	return "weapon";
 }
 
@@ -35,9 +33,26 @@ RPG.Items.Dagger.prototype.init = function() {
 	this.parent(2, 0);
 //	this.addModifier(RPG.Feats.Strength, RPG.MODIFIER_PLUS, 10);
 }
-RPG.Items.Dagger.prototype.describe = function(who) {
+RPG.Items.Dagger.prototype.describe = function() {
 	return "dagger";
 }
-RPG.Items.Dagger.prototype.getImage = function(who) {
+RPG.Items.Dagger.prototype.getImage = function() {
 	return "dagger";
+}
+
+RPG.Items.Corpse = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Corpse.prototype.init = function(being) {
+	this.parent();
+	this.flags &= RPG.ITEM_EDIBLE;
+	this._color = being.getColor();
+	this._description = "corpse of "+being.describeA();
+}
+RPG.Items.Corpse.prototype.getChar = function() {
+	return "%";
+}
+RPG.Items.Corpse.prototype.getColor = function() {
+	return this._color;
+}
+RPG.Items.Corpse.prototype.describe = function() {
+	return this._description;
 }

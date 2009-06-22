@@ -2,9 +2,7 @@
  * @namespace
  * Base RPG components.
  */
-var RPG = {
-	world:null
-}
+var RPG = {}
 
 /** @namespace */
 RPG.Actions = {};
@@ -25,13 +23,10 @@ RPG.Cells = {};
 /** @namespace */
 RPG.Races = {};
 
-
-RPG.getWorld = function() {
-	return this._world;
-}
-
 RPG.CELL_BLOCKED 	= 1;
-RPG.ITEM_PICKABLE 	= 1;
+
+RPG.ITEM_PICKABLE	= 1;
+RPG.ITEM_EDIBLE		= 2;
 
 RPG.MODIFIER_PLUS	= 0;
 RPG.MODIFIER_TIMES	= 1;

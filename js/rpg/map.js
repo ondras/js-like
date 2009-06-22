@@ -13,6 +13,9 @@ RPG.Cells.BaseCell.prototype.init = function() {
 	this._modifiers = [];
 	this._being = null;
 	this._description = null;
+	this._char = null;
+	this._color = "gray";
+	this._image = null;
 	this.flags = 0;
 }
 RPG.Cells.BaseCell.prototype.addItem = function(item) {
@@ -40,8 +43,29 @@ RPG.Cells.BaseCell.prototype.isFree = function() {
 	if (this._being) { return false; }
 	return true;
 }
-RPG.Cells.BaseCell.prototype.describe = function(who) {
+/**
+ * @see RPG.Visual.DescriptionInterface#describe
+ */
+RPG.Cells.BaseCell.prototype.describe = function() {
 	return this._description;
+}
+/**
+ * @see RPG.Visual.VisualInterface#getColor
+ */
+RPG.Cells.BaseCell.prototype.getColor = function() {
+	return this._color;
+}
+/**
+ * @see RPG.Visual.VisualInterface#getChar
+ */
+RPG.Cells.BaseCell.prototype.getChar = function() {
+	return this._char;
+}
+/**
+ * @see RPG.Visual.VisualInterface#getImage
+ */
+RPG.Cells.BaseCell.prototype.getImage = function() {
+	return this._image;
 }
 
 /**

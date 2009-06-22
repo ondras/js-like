@@ -3,17 +3,18 @@
  * @augments RPG.Visual.VisualInterface
  * @augments RPG.Visual.DescriptionInterface
  * @augments RPG.Misc.ModifierInterface
+ * @augments RPG.Engine.ActorInterface
  */
 RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
 						.implement(RPG.Visual.DescriptionInterface)
-						.implement(RPG.Misc.ModifierInterface);
+						.implement(RPG.Misc.ModifierInterface)
+						.implement(RPG.Engine.ActorInterface);
 
 RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._modifiers = [];
 	this._coords = null;
 	this._map = null;
-	this._brain = null;
 	this._race = r;
 	this._items = [];
 	this._gender = RPG.GENDER_NEUTER;
@@ -31,7 +32,6 @@ RPG.Beings.BaseBeing.prototype.init = function(r) {
 /**
  * Non-trivial initialization
  */
-
 RPG.Beings.BaseBeing.prototype._initMisc = function() {
 	this._stats = {
 		hp: 0
@@ -59,7 +59,6 @@ RPG.Beings.BaseBeing.prototype._initMisc = function() {
 	}
 }
 
-
 /**
  * @param {SMap.Misc.Coords}
  */
@@ -79,16 +78,12 @@ RPG.Beings.BaseBeing.prototype.getMap = function() {
 	return this._map;
 }
 
-RPG.Beings.BaseBeing.prototype.setBrain = function(brain) {
-	this._brain = brain;
-}
-
-RPG.Beings.BaseBeing.prototype.getBrain = function() {
-	return this._brain;
-}
-
 RPG.Beings.BaseBeing.prototype.getRace = function() {
 	return this._race;
+}
+
+RPG.Beings.BaseBeing.prototype.addItem = function(item) { 
+	this._items.push(item);
 }
 
 /**
@@ -133,47 +128,43 @@ RPG.Beings.BaseBeing.prototype.setWeapon = function(item) {
 /**
  * @see RPG.Visual.VisualInterface#getChar
  */
-RPG.Beings.BaseBeing.prototype.getChar = function(who) {
-	var ch = this._char.clone();
-	if (who == this) { ch.setChar("@"); }
-	return ch;
+RPG.Beings.BaseBeing.prototype.getChar = function() {
+	return this._race.getChar();
+}
+
+/**
+ * @see RPG.Visual.VisualInterface#getColor
+ */
+RPG.Beings.BaseBeing.prototype.getColor = function() {
+	return this._race.getColor();
 }
 
 /**
  * @see RPG.Visual.VisualInterface#getImage
  */
-RPG.Beings.BaseBeing.prototype.getImage = function(who) {
-	return this._race.getImage(who);
+RPG.Beings.BaseBeing.prototype.getImage = function() {
+	return this._race.getImage();
 }
 
 /**
  * @see RPG.Visual.DescriptionInterface#describe
  */
-RPG.Beings.BaseBeing.prototype.describe = function(who) {
-	if (who == this) { return "you"; }
-	return this._race.describe(who);
+RPG.Beings.BaseBeing.prototype.describe = function() {
+	return this._race.describe();
 }
 
 /**
  * @see RPG.Visual.DescriptionInterface#describeA
  */
-RPG.Beings.BaseBeing.prototype.describeA = function(who) {
-	if (who == this) { 
-		return this.describe(who); 
-	} else {
-		return this._race.describeA(who);
-	}
+RPG.Beings.BaseBeing.prototype.describeA = function() {
+	return this._race.describeA();
 }
 
 /**
  * @see RPG.Visual.DescriptionInterface#describeThe
  */
-RPG.Beings.BaseBeing.prototype.describeThe = function(who) {
-	if (who == this) { 
-		return this.describe(who); 
-	} else {
-		return this._race.describeThe(who);
-	}
+RPG.Beings.BaseBeing.prototype.describeThe = function() {
+	return this._race.describeThe();
 }
 
 /**
@@ -259,17 +250,22 @@ RPG.Beings.BaseBeing.prototype.sightDistance = function() {
 }
 
 /**
- * This being dies. FIXME do this as an action?
+ * This being drops everything it holds.
  */
-RPG.Beings.BaseBeing.prototype.die = function() {
+RPG.Beings.BaseBeing.prototype.dropAll = function() {
 	for (var i=0;i<this._items.length;i++) { /* drop items */
 		this._map.addItem(this._coords, this._items[i]);
 	}
-	this._map.setBeing(this._coords, null); /* remove being */
-	/* FIXME */
-	if (this._brain) {
-		RPG.getWorld().scheduler.removeActor(this._brain);
-	}
+}
+
+/**
+ * This being dies
+ */
+RPG.Beings.BaseBeing.prototype.die = function() {
+	this.dropAll();
+	var corpse = new RPG.Items.Corpse(this);
+	this._map.addItem(this._coords, corpse);
+	RPG.World.action(new RPG.Actions.Death(this)); 
 }
 
 /**
@@ -300,10 +296,12 @@ RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 	return false;
 }
 
-/**
- * Being requests info about a cell
- * @param {RPG.Misc.Coords} coords
- */
-RPG.Beings.BaseBeing.prototype.cellInfo = function(coords) {
-	return this._map.at(coords);
+RPG.Beings.BaseBeing.prototype.woundedState = function() {
+	var def = ["slightly", "moderately", "severly", "critically"];
+	var hp = this.getHP();
+	var max = this.getMaxHP();
+	if (hp == max) { return "not"; }
+	var frac = 1 - hp/max;
+	var index = Math.floor(frac * def.length);
+	return def[index];
 }

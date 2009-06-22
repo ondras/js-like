@@ -1,3 +1,18 @@
-td {
+.map {
+	background-color: black;
+}
+
+.ascii {
+	background-color:black; 
+	font-family:monospace; 
+	font-size:150%;
+}
+
+.buffer {
+	width: 50%;
+	height: 100px;
+}
+
+.keypad {
 	text-align: center;
 }

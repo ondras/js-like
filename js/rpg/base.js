@@ -39,13 +39,10 @@ RPG.Items.BaseItem.prototype.init = function() {
 	this._modifiers = [];
 	this.flags = RPG.ITEM_PICKABLE;
 }
-RPG.Items.BaseItem.prototype.getChar = function(who) {
-	var ch = new RPG.Visual.Char();
-	ch.setChar("?");
-	ch.setColor("#a9a9a9");
-	return ch;
+RPG.Items.BaseItem.prototype.getChar = function() {
+	return "?";
 }
-RPG.Items.BaseItem.prototype.getImage = function(who) {
+RPG.Items.BaseItem.prototype.getImage = function() {
 	return "item";
 }
 RPG.Items.BaseItem.prototype.describe = function(who) {
