@@ -5,6 +5,9 @@
 RPG.Races.Orc = OZ.Class().extend(RPG.Races.BaseRace);
 RPG.Races.Orc.prototype.init = function() {
 	this.parent();
+	this._char = "o";
+	this._color = "lightgreen";
+	this._image = "orc";
 	this.addModifier(RPG.Feats.Strength, RPG.MODIFIER_PLUS, 9);
 	this.addModifier(RPG.Feats.Toughness, RPG.MODIFIER_PLUS, 10);
 	this.addModifier(RPG.Feats.Intelligence, RPG.MODIFIER_PLUS, 5);
@@ -12,15 +15,6 @@ RPG.Races.Orc.prototype.init = function() {
 }
 RPG.Races.Orc.prototype.describe = function() {
 	return "orc";
-}
-RPG.Races.Orc.prototype.getImage = function() {
-	return "orc";
-}
-RPG.Races.Orc.prototype.getChar = function() {
-	return "o";
-}
-RPG.Races.Orc.prototype.getColor = function() {
-	return "lightgreen";
 }
 
 /**
@@ -30,6 +24,9 @@ RPG.Races.Orc.prototype.getColor = function() {
 RPG.Races.Human = OZ.Class().extend(RPG.Races.BaseRace);
 RPG.Races.Human.prototype.init = function() {
 	this.parent();
+	this._char = "@";
+	this._color = "brown";
+	this._image = "human";
 	this.addModifier(RPG.Feats.Strength, RPG.MODIFIER_PLUS, 7);
 	this.addModifier(RPG.Feats.Toughness, RPG.MODIFIER_PLUS, 7);
 	this.addModifier(RPG.Feats.Intelligence, RPG.MODIFIER_PLUS, 7);
@@ -37,13 +34,4 @@ RPG.Races.Human.prototype.init = function() {
 }
 RPG.Races.Human.prototype.describe = function() {
 	return "human";
-}
-RPG.Races.Human.prototype.getImage = function() {
-	return "human";
-}
-RPG.Races.Human.prototype.getChar = function() {
-	return "@";
-}
-RPG.Races.Human.prototype.getColor = function() {
-	return "brown";
 }

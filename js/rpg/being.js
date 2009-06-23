@@ -246,7 +246,7 @@ RPG.Beings.BaseBeing.prototype.fullHP = function() {
  * @returns {int}
  */
 RPG.Beings.BaseBeing.prototype.sightDistance = function() {
-	return 5; /* FIXME this should depend on perception or so */
+	return 50; /* FIXME this should depend on perception or so */
 }
 
 /**
@@ -274,6 +274,7 @@ RPG.Beings.BaseBeing.prototype.die = function() {
  * @returns {bool}
  */
 RPG.Beings.BaseBeing.prototype.canSee = function(target) {
+return true;
 	var source = this._coords;
 	if (source.distance(target) <= 1) { return true; } /* optimalization: can see self & surroundings */
 	if (source.distance(target) > this.sightDistance()) { return false; } 

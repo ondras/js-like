@@ -14,7 +14,7 @@ RPG.Visual.VisualInterface.prototype.getChar = function() {
  * @returns {string}
  */
 RPG.Visual.VisualInterface.prototype.getColor = function() {
-	return "#a9a9a9";
+	return null;
 }
 /**
  * Returns an image file name 

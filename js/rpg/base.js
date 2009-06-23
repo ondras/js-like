@@ -38,12 +38,18 @@ RPG.Items.BaseItem = OZ.Class()
 RPG.Items.BaseItem.prototype.init = function() {
 	this._modifiers = [];
 	this.flags = RPG.ITEM_PICKABLE;
+	this._char = "?";
+	this._color = "#a9a9a9";
+	this._image = "item";
 }
 RPG.Items.BaseItem.prototype.getChar = function() {
-	return "?";
+	return this._char;
 }
 RPG.Items.BaseItem.prototype.getImage = function() {
-	return "item";
+	return this._image;
+}
+RPG.Items.BaseItem.prototype.getColor = function() {
+	return this._color;
 }
 RPG.Items.BaseItem.prototype.describe = function(who) {
 	return "item";
@@ -61,4 +67,16 @@ RPG.Races.BaseRace = OZ.Class()
 							.implement(RPG.Visual.DescriptionInterface);
 RPG.Races.BaseRace.prototype.init = function() {
 	this._modifiers = [];
+	this._char = null;
+	this._color = null;
+	this._image = null;
+}
+RPG.Races.BaseRace.prototype.getChar = function() {
+	return this._char;
+}
+RPG.Races.BaseRace.prototype.getColor = function() {
+	return this._color;
+}
+RPG.Races.BaseRace.prototype.getImage = function() {
+	return this._image;
 }

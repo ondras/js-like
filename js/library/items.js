@@ -40,18 +40,21 @@ RPG.Items.Dagger.prototype.getImage = function() {
 	return "dagger";
 }
 
-RPG.Items.Corpse = OZ.Class().extend(RPG.Items.BaseItem);
+/**
+ * @class Anything that can be eaten
+ */
+RPG.Items.Edible = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Edible.prototype.init = function() {
+	this.parent();
+	this.flags |= RPG.ITEM_EDIBLE;
+	this._char = "%";
+}
+
+RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Edible);
 RPG.Items.Corpse.prototype.init = function(being) {
 	this.parent();
-	this.flags &= RPG.ITEM_EDIBLE;
 	this._color = being.getColor();
 	this._description = "corpse of "+being.describeA();
-}
-RPG.Items.Corpse.prototype.getChar = function() {
-	return "%";
-}
-RPG.Items.Corpse.prototype.getColor = function() {
-	return this._color;
 }
 RPG.Items.Corpse.prototype.describe = function() {
 	return this._description;

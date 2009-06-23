@@ -23,10 +23,10 @@ RPG.Cells = {};
 /** @namespace */
 RPG.Races = {};
 
-RPG.CELL_BLOCKED 	= 1;
+RPG.CELL_BLOCKED 	= 1 << 0;
 
-RPG.ITEM_PICKABLE	= 1;
-RPG.ITEM_EDIBLE		= 2;
+RPG.ITEM_PICKABLE	= 1 << 0;
+RPG.ITEM_EDIBLE		= 1 << 1;
 
 RPG.MODIFIER_PLUS	= 0;
 RPG.MODIFIER_TIMES	= 1;
