@@ -223,8 +223,8 @@ RPG.UI._move = function(dx, dy) {
 	} 
 	
 	/* closed door there? */
-	var door = map.at(coords).getDoor();
-	if (door && door.isClosed()) {
+	var f = map.at(coords).getFeature();
+	if (f && f instanceof RPG.Features.Door && f.isClosed()) {
 		this.action(RPG.Actions.Open, coords);
 		return;
 	}

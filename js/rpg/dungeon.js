@@ -1,131 +1,112 @@
 /**
  * @class Dungeon cell
  * @augments RPG.Misc.ModifierInterface
- * @augments RPG.Visual.DescriptionInterface
  * @augments RPG.Visual.VisualInterface
  */
-RPG.Cells.BaseCell = OZ.Class()
+RPG.Dungeon.BaseCell = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
-						.implement(RPG.Visual.DescriptionInterface)
 						.implement(RPG.Misc.ModifierInterface);
-RPG.Cells.BaseCell.prototype.init = function() {
+
+RPG.Dungeon.BaseCell.prototype.init = function() {
+	this._initVisuals();
 	this._items = [];
 	this._modifiers = [];
 	this._being = null;
-	this._description = null;
-	this._char = null;
-	this._color = "gray";
-	this._image = null;
+	this._feature = null;
 	this.flags = 0;
 }
-RPG.Cells.BaseCell.prototype.addItem = function(item) {
+
+RPG.Dungeon.BaseCell.prototype.addItem = function(item) {
 	this._items.push(item);
 }
-RPG.Cells.BaseCell.prototype.removeItem = function(item) {
+
+RPG.Dungeon.BaseCell.prototype.removeItem = function(item) {
 	var index = this._items.indexOf(item);
 	if (index == -1) { throw new Error("Item not found"); }
 	this._items.splice(index, 1);
 }
-RPG.Cells.BaseCell.prototype.getItems = function() {
+
+RPG.Dungeon.BaseCell.prototype.getItems = function() {
 	return this._items;
 }
-RPG.Cells.BaseCell.prototype.setBeing = function(being) {
+
+RPG.Dungeon.BaseCell.prototype.setBeing = function(being) {
 	this._being = being || null;
 }
-RPG.Cells.BaseCell.prototype.getBeing = function() {
+
+RPG.Dungeon.BaseCell.prototype.getBeing = function() {
 	return this._being;
+}
+
+RPG.Dungeon.BaseCell.prototype.setFeature = function(feature) {
+	this._feature = feature;
+}
+
+RPG.Dungeon.BaseCell.prototype.getFeature = function() {
+	return this._feature;
 }
 
 /**
  * Can a being move to this cell?
  */
-RPG.Cells.BaseCell.prototype.isFree = function() {
-	if (this.flags & RPG.CELL_BLOCKED) { return false; }
+RPG.Dungeon.BaseCell.prototype.isFree = function() {
 	if (this._being) { return false; }
-	for (var i=0;i<this._items.length;i++) {
-		var item = this._items[i];
-		if (item.flags & RPG.ITEM_OBSTACLE) { return false; }
-	}
+	if (this.flags & RPG.CELL_OBSTACLE) { return false; }
+	if (this._feature && this._feature.flags & RPG.FEATURE_OBSTACLE) { return false; }
 	return true;
 }
 
 /**
  * Can a being see through this cell?
  */
-RPG.Cells.BaseCell.prototype.visibleThrough = function() {
-	if (this.flags & RPG.CELL_BLOCKED) { return false; }
-	for (var i=0;i<this._items.length;i++) {
-		var item = this._items[i];
-		if (item.flags & RPG.ITEM_OBSTACLE) { return false; }
-	}
+RPG.Dungeon.BaseCell.prototype.visibleThrough = function() {
+	if (this.flags & RPG.CELL_SOLID) { return false; }
+	if (this._feature && this._feature.flags & RPG.FEATURE_SOLID) { return false; }
 	return true;
-}
-
-
-/**
- * @see RPG.Visual.DescriptionInterface#describe
- */
-RPG.Cells.BaseCell.prototype.describe = function() {
-	return this._description;
-}
-/**
- * @see RPG.Visual.VisualInterface#getColor
- */
-RPG.Cells.BaseCell.prototype.getColor = function() {
-	return this._color;
-}
-/**
- * @see RPG.Visual.VisualInterface#getChar
- */
-RPG.Cells.BaseCell.prototype.getChar = function() {
-	return this._char;
-}
-/**
- * @see RPG.Visual.VisualInterface#getImage
- */
-RPG.Cells.BaseCell.prototype.getImage = function() {
-	return this._image;
-}
-/**
- * Returns door at current cell, if present (false otherwise)
- */
-RPG.Cells.BaseCell.prototype.getDoor = function() {
-	for (var i=0;i<this._items.length;i++) {
-		var item = this._items[i];
-		if (item instanceof RPG.Items.Door) { return item; }
-	}
-	return false;
+	return true;
 }
 
 /**
  * @class Room, a logical group of cells
  */
-RPG.Engine.Room = OZ.Class();
+RPG.Dungeon.BaseRoom = OZ.Class();
 
 /**
- * @param {RPG.Engine.Map} map
+ * @param {RPG.Dungeon.Map} map
  * @param {RPG.Misc.Coords} corner1 top-left corner
  * @param {RPG.Misc.Coords} corner2 bottom-right corner
  */
-RPG.Engine.Room.prototype.init = function(map, corner1, corner2) {
+RPG.Dungeon.BaseRoom.prototype.init = function(map, corner1, corner2) {
 	this._map = map;
 	this._corner1 = corner1.clone();
 	this._corner2 = corner2.clone();
 }
 
-RPG.Engine.Room.prototype.getCorner1 = function() {
+RPG.Dungeon.BaseRoom.prototype.getCorner1 = function() {
 	return this._corner1;
 }
 
-RPG.Engine.Room.prototype.getCorner2 = function() {
+RPG.Dungeon.BaseRoom.prototype.getCorner2 = function() {
 	return this._corner2;
 }
 
 /**
+ * @class Dungeon feature
+ */
+RPG.Dungeon.BaseFeature = OZ.Class()
+							.implement(RPG.Visual.VisualInterface)
+
+RPG.Dungeon.BaseFeature.prototype.init = function() {
+	this._initVisuals();
+	this.flags = 0;
+}
+
+
+/**
  * @class Dungeon map
  */
-RPG.Engine.Map = OZ.Class();
-RPG.Engine.Map.prototype.init = function(size) {
+RPG.Dungeon.Map = OZ.Class();
+RPG.Dungeon.Map.prototype.init = function(size) {
 	this._size = size;
 	this._data = [];
 	this._rooms = [];
@@ -142,7 +123,7 @@ RPG.Engine.Map.prototype.init = function(size) {
 /**
  * Get all beings in this Map
  */ 
-RPG.Engine.Map.prototype.getBeings = function() {
+RPG.Dungeon.Map.prototype.getBeings = function() {
 	var all = [];
 	for (var i=0;i<this._size.x;i++) {
 		for (var j=0;j<this._size.y;j++) {
@@ -155,29 +136,29 @@ RPG.Engine.Map.prototype.getBeings = function() {
 /**
  * Map size
  */
-RPG.Engine.Map.prototype.getSize = function() {
+RPG.Dungeon.Map.prototype.getSize = function() {
 	return this._size;
 }
-RPG.Engine.Map.prototype.setCell = function(coords, cell) {
+RPG.Dungeon.Map.prototype.setCell = function(coords, cell) {
 	this._data[coords.x][coords.y] = cell;
 }
-RPG.Engine.Map.prototype.at = function(coords) {
+RPG.Dungeon.Map.prototype.at = function(coords) {
 	return this._data[coords.x][coords.y];
 }
-RPG.Engine.Map.prototype.setBeing = function(coords, being) {
+RPG.Dungeon.Map.prototype.setBeing = function(coords, being) {
 	if (being) { 
 		being.setMap(this);
 		being.setCoords(coords); 
 	}
 	this.at(coords).setBeing(being);
 }
-RPG.Engine.Map.prototype.addItem = function(coords, item) {
+RPG.Dungeon.Map.prototype.addItem = function(coords, item) {
 	this.at(coords).addItem(item);
 }
-RPG.Engine.Map.prototype.isFree = function(coords) {
+RPG.Dungeon.Map.prototype.isFree = function(coords) {
 	return this.at(coords).isFree();
 }
-RPG.Engine.Map.prototype.isValid = function(coords) {
+RPG.Dungeon.Map.prototype.isValid = function(coords) {
 	var size = this._size;
 	if (Math.min(coords.x, coords.y) < 0) { return false; }
 	if (coords.x >= size.x) { return false; }
@@ -191,7 +172,7 @@ RPG.Engine.Map.prototype.isValid = function(coords) {
  * @param {RPG.Misc.Coords} corner1
  * @param {RPG.Misc.Coords} corner2
  */
-RPG.Engine.Map.prototype.addRoom = function(ctor, corner1, corner2) {
+RPG.Dungeon.Map.prototype.addRoom = function(ctor, corner1, corner2) {
 	var room = new ctor(this, corner1, corner2);
 	this._rooms.push(room);
 	return room;
@@ -199,9 +180,9 @@ RPG.Engine.Map.prototype.addRoom = function(ctor, corner1, corner2) {
 
 /**
  * Returns list of rooms in this map
- * @returns {RPG.Engine.Room[]}
+ * @returns {RPG.Dungeon.Room[]}
  */
-RPG.Engine.Map.prototype.getRooms = function() {
+RPG.Dungeon.Map.prototype.getRooms = function() {
 	return this._rooms;
 }
 
@@ -211,7 +192,7 @@ RPG.Engine.Map.prototype.getRooms = function() {
  * @param {RPG.Misc.Coords} c2
  * @returns {bool}
  */
-RPG.Engine.Map.prototype.lineOfSight = function(c1, c2) {
+RPG.Dungeon.Map.prototype.lineOfSight = function(c1, c2) {
 	var dx = c2.x-c1.x;
 	var dy = c2.y-c1.y;
 	if (Math.abs(dx) > Math.abs(dy)) {
@@ -243,7 +224,7 @@ RPG.Engine.Map.prototype.lineOfSight = function(c1, c2) {
 	return true;
 }
 
-RPG.Engine.Map.prototype.getFreeCoords = function() {
+RPG.Dungeon.Map.prototype.getFreeCoords = function() {
 	var all = [];
 	var c = new RPG.Misc.Coords();
 	for (var i=0;i<this._size.x;i++) {
@@ -251,7 +232,7 @@ RPG.Engine.Map.prototype.getFreeCoords = function() {
 			c.x = i;
 			c.y = j;
 			var cell = this._data[i][j];
-			if (cell.isFree()) { all.push(c.clone()); }
+			if (cell.isFree() && !cell.getFeature() && cell.getItems().length == 0) { all.push(c.clone()); }
 		}
 	}
 	

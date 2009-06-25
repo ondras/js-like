@@ -6,35 +6,51 @@ var RPG = {}
 
 /** @namespace */
 RPG.Actions = {};
+
 /** @namespace */
 RPG.Misc = {};
+
 /** @namespace */
 RPG.Engine = {};
+
 /** @namespace */
 RPG.Visual = {};
+
 /** @namespace */
 RPG.Feats = {};
+
+/** @namespace */
+RPG.Features = {};
+
 /** @namespace */
 RPG.Items = {};
+
 /** @namespace */
 RPG.Beings = {};
+
 /** @namespace */
 RPG.Cells = {};
+
 /** @namespace */
 RPG.Races = {};
 
-RPG.CELL_BLOCKED 	= 1 << 0;
+/** @namespace */
+RPG.Dungeon = {};
 
-RPG.ITEM_PICKABLE	= 1 << 0;
-RPG.ITEM_EDIBLE		= 1 << 1;
-RPG.ITEM_OBSTACLE	= 1 << 2;
+RPG.CELL_OBSTACLE 		= 1 << 0; /* can not be moved onto */
+RPG.CELL_SOLID	 		= 1 << 1; /* can not be seen through */
 
-RPG.MODIFIER_PLUS	= 0;
-RPG.MODIFIER_TIMES	= 1;
+RPG.ITEM_EDIBLE			= 1 << 0; /* can be eaten */
 
-RPG.GENDER_MALE		= 0;
-RPG.GENDER_FEMALE	= 1;
-RPG.GENDER_NEUTER	= 2;
+RPG.FEATURE_OBSTACLE	= 1 << 0; /* can not be moved onto */
+RPG.FEATURE_SOLID		= 1 << 1; /* can not be seen through */
+
+RPG.MODIFIER_PLUS		= 0;
+RPG.MODIFIER_TIMES		= 1;
+
+RPG.GENDER_MALE			= 0;
+RPG.GENDER_FEMALE		= 1;
+RPG.GENDER_NEUTER		= 2;
 
 /**
  * Generates a normally distributed random number, mean = 0.

@@ -4,13 +4,14 @@
  */
 RPG.Actions.Wait = OZ.Class().extend(RPG.Engine.BaseAction);
 RPG.Actions.Wait.prototype.execute = function() {
-	var str = "";
+/*	var str = "";
 	if (this._source == RPG.World.getPC()) {
 		str = "you wait";
 	} else {
 		str = this._source.describeA() + " waits";
 	}
 	RPG.UI.Buffer.show(str+".");
+*/
 }
 
 /**
@@ -22,18 +23,19 @@ RPG.Actions.Move.prototype.execute = function() {
 	var level = this._source.getMap();
 	var source = this._source.getCoords();
 	var target = this._target;
-	
 	var you = (this._source == RPG.World.getPC());
-	var str = "";
-	str = (you ? "you" : this._source.describeA());
-	
+
 	level.setBeing(source, null);
 	level.setBeing(target, this._source);
 	this._tookTime = true;
+
+/*	
+	var str = "";
+	str = (you ? "you" : this._source.describeA());
 	str += " " + (you ? "move to" : "moves to");
 	str += " "+this._target.toString()+".";
 	RPG.UI.Buffer.show(str);
-
+*/
 	if (you) {
 		this._seeItems();
 		RPG.UI.Map.redraw();
@@ -48,14 +50,11 @@ RPG.Actions.Move.prototype._seeItems = function() {
 	var map = RPG.World.getMap();
 	
 	var items = map.at(coords).getItems();
-	var door = map.at(coords).getDoor();
-	var itc = items.length;
-	if (door) { itc--; }
 	
-	if (itc > 1) {
+	if (items.length > 1) {
 		RPG.UI.Buffer.show("several items are lying here.");
-	} else if (itc == 1) {
-		var item = items[items.length-1];
+	} else if (items.length == 1) {
+		var item = items[0];
 		var str = item.describeA();
 		str += " is lying here.";
 		RPG.UI.Buffer.show(str);
@@ -157,7 +156,7 @@ RPG.Actions.Open.prototype.execute = function() {
 	var map = this._source.getMap();
 	var coords = this._target;
 	
-	map.at(coords).getDoor().open();
+	map.at(coords).getFeature().open();
 	
 	var str = "";
 	var you = (this._source == RPG.World.getPC());
@@ -169,10 +168,59 @@ RPG.Actions.Open.prototype.execute = function() {
 	str += " the door at " + coords.toString() + ".";
 	
 	RPG.UI.Buffer.show(str);
+	RPG.UI.Map.redraw();
+}
+
+/**
+ * @class Close a door
+ * @augments RPG.Engine.BaseAction
+ */
+RPG.Actions.Close = OZ.Class().extend(RPG.Engine.BaseAction);
+RPG.Actions.Close.prototype.execute = function() {
+	var map = this._source.getMap();
+	var coords = this._target;
 	
+	map.at(coords).getFeature().close();
+	
+	var str = "";
+	var you = (this._source == RPG.World.getPC());
+	if (you) {
+		str += "you close";
+	} else {
+		str += this._source.describeA() + " closes";
+	}
+	str += " the door at " + coords.toString() + ".";
+	
+	RPG.UI.Buffer.show(str);
+	RPG.UI.Map.redraw();
+}
+
+/**
+ * @class Teleporting to a given cell. Target == coords.
+ * @augments RPG.Engine.BaseAction
+ */
+RPG.Actions.Teleport = OZ.Class().extend(RPG.Engine.BaseAction);
+RPG.Actions.Teleport.prototype.execute = function() {
+	var level = this._source.getMap();
+	var source = this._source.getCoords();
+	var target = this._target;
+	var you = (this._source == RPG.World.getPC());
+
+	level.setBeing(source, null);
+	level.setBeing(target, this._source);
+	this._tookTime = true;
+
+	var str = "";
+	str = (you ? "you" : this._source.describeA());
+	str += " suddenly ";
+	str += (you ? "teleport" : "teleports");
+	str += " away!";
+	RPG.UI.Buffer.show(str);
+
 	if (you) {
 		RPG.UI.Map.redraw();
 	} else {
-		RPG.UI.Map.redrawCoords(coords);
+		RPG.UI.Map.redrawCoords(source);
+		RPG.UI.Map.redrawCoords(target);
 	}
 }

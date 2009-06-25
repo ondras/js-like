@@ -11,7 +11,7 @@
 		<script type="text/javascript" src="js/rpg/engine.js"></script>
 		<script type="text/javascript" src="js/rpg/base.js"></script>
 		<script type="text/javascript" src="js/rpg/being.js"></script>
-		<script type="text/javascript" src="js/rpg/map.js"></script>
+		<script type="text/javascript" src="js/rpg/dungeon.js"></script>
 		<script type="text/javascript" src="js/rpg/world.js"></script>
 		<script type="text/javascript" src="js/rpg/ui.js"></script>
 
@@ -22,12 +22,20 @@
 		<script type="text/javascript" src="js/library/races.js"></script>
 		<script type="text/javascript" src="js/library/feats.js"></script>
 		<script type="text/javascript" src="js/library/queue.js"></script>
-		<script type="text/javascript" src="js/library/cells.js"></script>
+		<script type="text/javascript" src="js/library/dungeon.js"></script>
 		<script type="text/javascript" src="js/library/items.js"></script>
 		<script type="text/javascript" src="js/library/visual.js"></script>
 	</head>
 
 	<body>
+		
+		<div id="map"></div>
+		<ul id="mapswitch">
+			<li><a id="map_ascii" href="#">ASCII</a></li>
+			<li><a id="map_image" href="#">Graphics</a></li>
+		</ul>
+		<div style="clear:both"></div>
+
 		<script type="text/javascript" src="js/debug/graph.js"></script>
 		<script type="text/javascript" src="testbed.js"></script>
 	</body>

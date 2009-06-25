@@ -1,17 +1,16 @@
 /**
  * @class Basic being
  * @augments RPG.Visual.VisualInterface
- * @augments RPG.Visual.DescriptionInterface
  * @augments RPG.Misc.ModifierInterface
  * @augments RPG.Engine.ActorInterface
  */
 RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
-						.implement(RPG.Visual.DescriptionInterface)
 						.implement(RPG.Misc.ModifierInterface)
 						.implement(RPG.Engine.ActorInterface);
 
 RPG.Beings.BaseBeing.prototype.init = function(r) {
+	this._initVisuals();
 	this._modifiers = [];
 	this._coords = null;
 	this._map = null;
@@ -129,7 +128,11 @@ RPG.Beings.BaseBeing.prototype.setWeapon = function(item) {
  * @see RPG.Visual.VisualInterface#getChar
  */
 RPG.Beings.BaseBeing.prototype.getChar = function() {
-	return this._race.getChar();
+	if (RPG.World.getPC() == this) { 
+		return "@"; 
+	} else {
+		return this._race.getChar();
+	}
 }
 
 /**
@@ -147,24 +150,36 @@ RPG.Beings.BaseBeing.prototype.getImage = function() {
 }
 
 /**
- * @see RPG.Visual.DescriptionInterface#describe
+ * @see RPG.Visual.VisualInterface#describe
  */
 RPG.Beings.BaseBeing.prototype.describe = function() {
-	return this._race.describe();
+	if (RPG.World.getPC() == this) {
+		return "you";
+	} else {
+		return this._race.describe();
+	}
 }
 
 /**
- * @see RPG.Visual.DescriptionInterface#describeA
+ * @see RPG.Visual.VisualInterface#describeA
  */
 RPG.Beings.BaseBeing.prototype.describeA = function() {
-	return this._race.describeA();
+	if (RPG.World.getPC() == this) {
+		return "you";
+	} else {
+		return this._race.describeA();
+	}
 }
 
 /**
- * @see RPG.Visual.DescriptionInterface#describeThe
+ * @see RPG.Visual.VisualInterface#describeThe
  */
 RPG.Beings.BaseBeing.prototype.describeThe = function() {
-	return this._race.describeThe();
+	if (RPG.World.getPC() == this) {
+		return "you";
+	} else {
+		return this._race.describeThe();
+	}
 }
 
 /**
@@ -246,7 +261,7 @@ RPG.Beings.BaseBeing.prototype.fullHP = function() {
  * @returns {int}
  */
 RPG.Beings.BaseBeing.prototype.sightDistance = function() {
-	return 6; /* FIXME this should depend on perception or so */
+	return 5; /* FIXME this should depend on perception or so */
 }
 
 /**

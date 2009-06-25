@@ -28,55 +28,26 @@ RPG.Feats.BaseFeat.prototype.standardModifier = function(modifierHolder) {
 /**
  * @class Basic item
  * @augments RPG.Visual.VisualInterface
- * @augments RPG.Visual.DescriptionInterface
  * @augments RPG.Misc.ModifierInterface
  */
 RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
-						.implement(RPG.Visual.DescriptionInterface)
 						.implement(RPG.Misc.ModifierInterface);
 RPG.Items.BaseItem.prototype.init = function() {
+	this._initVisuals();
 	this._modifiers = [];
-	this.flags = RPG.ITEM_PICKABLE;
-	this._char = "?";
-	this._color = "#a9a9a9";
-	this._image = "item";
-}
-RPG.Items.BaseItem.prototype.getChar = function() {
-	return this._char;
-}
-RPG.Items.BaseItem.prototype.getImage = function() {
-	return this._image;
-}
-RPG.Items.BaseItem.prototype.getColor = function() {
-	return this._color;
-}
-RPG.Items.BaseItem.prototype.describe = function(who) {
-	return "item";
+	this.flags = 0;
 }
 
 /**
  * @class Basic race
  * @augments RPG.Visual.VisualInterface
- * @augments RPG.Visual.DescriptionInterface
  * @augments RPG.Misc.ModifierInterface
  */
 RPG.Races.BaseRace = OZ.Class()
 							.implement(RPG.Misc.ModifierInterface)
 							.implement(RPG.Visual.VisualInterface)
-							.implement(RPG.Visual.DescriptionInterface);
 RPG.Races.BaseRace.prototype.init = function() {
+	this._initVisuals();
 	this._modifiers = [];
-	this._char = null;
-	this._color = null;
-	this._image = null;
-}
-RPG.Races.BaseRace.prototype.getChar = function() {
-	return this._char;
-}
-RPG.Races.BaseRace.prototype.getColor = function() {
-	return this._color;
-}
-RPG.Races.BaseRace.prototype.getImage = function() {
-	return this._image;
 }

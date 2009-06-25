@@ -28,7 +28,6 @@ RPG.Beings.God.prototype.sightDistance = function() {
 	return Number.POSITIVE_INFINITY;
 }
 
-
 RPG.Beings.God.prototype.canSee = function(coords) {
 	return true;
 }

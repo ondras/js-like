@@ -1,34 +1,88 @@
-var mg = new RPG.Engine.MapGen.Digger(new RPG.Misc.Coords(40, 20));
+var mg = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(40, 20));
 var map = mg.generate();
 
-/* add some items */
-map.addItem(map.getFreeCoords(), new RPG.Items.Dagger());
-map.addItem(map.getFreeCoords(), new RPG.Items.Weapon());
+var rooms = map.getRooms();
+var arr = [];
+var max = Math.max(4, rooms.length);
+for (var i=0;i<max;i++) {
+	arr.push(rooms[i % rooms.length]);
+}
 
-/* add some beings */
+/* room #1 - player */
+var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
+var x = Math.round((room.getCorner1().x + room.getCorner2().x)/2);
+var y = Math.round((room.getCorner1().y + room.getCorner2().y)/2);
 var pc = new RPG.Beings.Human();
-map.setBeing(map.getFreeCoords(), pc);
+map.setBeing(new RPG.Misc.Coords(x, y), pc);
 RPG.World.setPC(pc);
 
-var orc2 = new RPG.Beings.Orc();
-orc2.addItem(new RPG.Items.Dagger());
-var brain2 = new RPG.Engine.AI(orc2);
-map.setBeing(map.getFreeCoords(), orc2);
+/* room #2 - orc */
+var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
+var x = Math.round((room.getCorner1().x + room.getCorner2().x)/2);
+var y = Math.round((room.getCorner1().y + room.getCorner2().y)/2);
+var orc = new RPG.Beings.Orc();
+var brain = new RPG.Engine.AI(orc);
+map.setBeing(new RPG.Misc.Coords(x, y), orc);
+
+/* room #3 - dagger */
+var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
+var x = Math.round((room.getCorner1().x + room.getCorner2().x)/2);
+var y = Math.round((room.getCorner1().y + room.getCorner2().y)/2);
+map.addItem(new RPG.Misc.Coords(x, y), new RPG.Items.Dagger());
+
+/* room #4 - gold */
+var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
+var c1 = room.getCorner1();
+var c2 = room.getCorner2();
+for (var i=c1.x;i<=c2.x;i++) {
+	for (var j=c1.y;j<=c2.y;j++) {
+		var gold = new RPG.Items.Gold();
+		map.addItem(new RPG.Misc.Coords(i, j), gold);
+	}
+}
+
+/* teleport */
+var t = new RPG.Features.Teleport();
+map.at(map.getFreeCoords()).setFeature(t);
 
 /* setup the world */
 RPG.World.setScheduler(new RPG.Engine.Queue());
 
 /* build ui */
-var m = RPG.UI.buildASCII();
-//var m = RPG.UI.buildMap();
-document.body.appendChild(m);
 var buffer = RPG.UI.buildBuffer()
-document.body.appendChild(buffer);
+document.body.insertBefore(buffer, document.body.firstChild);
+
 var keypad = RPG.UI.buildKeypad();
 document.body.appendChild(keypad);
 
 RPG.UI.enableKeyboard();
 
+function use(name) { 
+	var map ={
+		"map_ascii": "buildASCII",
+		"map_image": "buildMap"
+	}
+	var func = RPG.UI[map[name]];
+	var c = OZ.$("map");
+	OZ.DOM.clear(c);
+	var m = func.call(RPG.UI);
+	c.appendChild(m);
+	
+	if (RPG.World.getMap()) { RPG.UI.Map.adjust(RPG.World.getMap()); }
+
+	var a = OZ.$(name);
+	var ul = a.parentNode.parentNode;
+	var as = ul.getElementsByTagName("a");
+	for (var i=0;i<as.length;i++) { as[i].className = ""; }
+	OZ.$(name).className = "active";
+}
+
+OZ.Event.add(OZ.$("map_ascii"), "click", function() { use("map_ascii"); });
+OZ.Event.add(OZ.$("map_image"), "click", function() { use("map_image"); });
+
+use("map_ascii");
+
 /* go! :-) */
 RPG.World.setMap(map);
 RPG.World.run();
+

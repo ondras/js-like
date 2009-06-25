@@ -1,24 +1,24 @@
 /**
  * @class Map generator
  */
-RPG.Engine.MapGen = OZ.Class();
+RPG.Dungeon.Generator = OZ.Class();
 
-RPG.Engine.MapGen.prototype.init = function(size, wall, floor) {
+RPG.Dungeon.Generator.prototype.init = function(size, wall, floor) {
 	this._size = size;
 	this._wall = RPG.Cells.Wall;
 	this._corridor = RPG.Cells.Corridor;
-	this._door = RPG.Items.Door;
-	this._room = RPG.Engine.Room;
+	this._door = RPG.Features.Door;
+	this._room = RPG.Dungeon.BaseRoom;
 	this._map = null;
 }
 
-RPG.Engine.MapGen.prototype.generate = function() {
+RPG.Dungeon.Generator.prototype.generate = function() {
 	this._blankMap();
 	return this._map;
 }
 
-RPG.Engine.MapGen.prototype._blankMap = function() {
-	this._map = new RPG.Engine.Map(this._size);
+RPG.Dungeon.Generator.prototype._blankMap = function() {
+	this._map = new RPG.Dungeon.Map(this._size);
 	var c = new RPG.Misc.Coords(0, 0);
 	for (var i=0;i<this._size.x;i++) {
 		for (var j=0;j<this._size.y;j++) {
@@ -30,7 +30,7 @@ RPG.Engine.MapGen.prototype._blankMap = function() {
 	return this._map;
 }
 
-RPG.Engine.MapGen.prototype._digRoom = function(room) {
+RPG.Dungeon.Generator.prototype._digRoom = function(room) {
 	var c = new RPG.Misc.Coords(0, 0);
 	var corner1 = room.getCorner1();
 	var corner2 = room.getCorner2();
@@ -44,14 +44,14 @@ RPG.Engine.MapGen.prototype._digRoom = function(room) {
 	}
 }
 
-RPG.Engine.MapGen.prototype._generateCoords = function(minSize) {
+RPG.Dungeon.Generator.prototype._generateCoords = function(minSize) {
 	var padding = 2 + minSize - 1;
 	var x = Math.floor(Math.random()*(this._size.x-padding)) + 1;
 	var y = Math.floor(Math.random()*(this._size.y-padding)) + 1;
 	return new RPG.Misc.Coords(x, y);
 }
 
-RPG.Engine.MapGen.prototype._generateSize = function(corner, minSize, maxWidth, maxHeight) {
+RPG.Dungeon.Generator.prototype._generateSize = function(corner, minSize, maxWidth, maxHeight) {
 	var availX = this._size.x - corner.x - minSize;
 	var availY = this._size.y - corner.y - minSize;
 	
@@ -63,7 +63,7 @@ RPG.Engine.MapGen.prototype._generateSize = function(corner, minSize, maxWidth, 
 	return new RPG.Misc.Coords(x, y);
 }
 
-RPG.Engine.MapGen.prototype._addDoorsToRoom = function(room) {
+RPG.Dungeon.Generator.prototype._addDoorsToRoom = function(room) {
 	var corner1 = room.getCorner1();
 	var corner2 = room.getCorner2();
 	var left = corner1.x-1;
@@ -82,17 +82,17 @@ RPG.Engine.MapGen.prototype._addDoorsToRoom = function(room) {
 				c.x = i;
 				c.y = j;
 				var cell = this._map.at(c);
-				if (!(cell instanceof this._wall) && !cell.getDoor()) {
-					var door = new this._door();
-					cell.addItem(door);
-				}
+				if (cell instanceof this._wall) { continue; }
+				if (cell.getFeature()) { continue; }
+				var door = new this._door();
+				cell.setFeature(door);
 			}
 		}
 	}
 	
 }
 
-RPG.Engine.MapGen.prototype._addDoors = function() {
+RPG.Dungeon.Generator.prototype._addDoors = function() {
 	var rooms = this._map.getRooms();
 	for (var i=0;i<rooms.length;i++) {
 		var room = rooms[i];
@@ -103,7 +103,7 @@ RPG.Engine.MapGen.prototype._addDoors = function() {
 /**
  * Can a given rectangle fit in a map?
  */
-RPG.Engine.MapGen.prototype._freeSpace = function(corner1, corner2) {
+RPG.Dungeon.Generator.prototype._freeSpace = function(corner1, corner2) {
 	var c = new RPG.Misc.Coords(0, 0);
 	for (var i=corner1.x; i<=corner2.x; i++) {
 		for (var j=corner1.y; j<=corner2.y; j++) {
@@ -120,11 +120,11 @@ RPG.Engine.MapGen.prototype._freeSpace = function(corner1, corner2) {
 
 /**
  * @class Arena map generator
- * @augments RPG.Engine.MapGen
+ * @augments RPG.Dungeon.Generator
  */
-RPG.Engine.MapGen.Arena = OZ.Class().extend(RPG.Engine.MapGen);
+RPG.Dungeon.Generator.Arena = OZ.Class().extend(RPG.Dungeon.Generator);
 
-RPG.Engine.MapGen.Arena.prototype.generate = function() {
+RPG.Dungeon.Generator.Arena.prototype.generate = function() {
 	this._blankMap();
 	var c1 = new RPG.Misc.Coords(1, 1);
 	var c2 = new RPG.Misc.Coords(this._size.x-1, this._size.y-1);
@@ -135,11 +135,11 @@ RPG.Engine.MapGen.Arena.prototype.generate = function() {
 
 /**
  * @class Random map generator, tries to fill the space evenly
- * @augments RPG.Engine.MapGen
+ * @augments RPG.Dungeon.Generator
  */ 
-RPG.Engine.MapGen.Uniform = OZ.Class().extend(RPG.Engine.MapGen);
+RPG.Dungeon.Generator.Uniform = OZ.Class().extend(RPG.Dungeon.Generator);
 
-RPG.Engine.MapGen.Uniform.prototype.init = function(size) {
+RPG.Dungeon.Generator.Uniform.prototype.init = function(size) {
 	this.parent(size);
 	this._roomAttempts = 10; /* new room is created N-times until is considered as impossible to generate */
 	this._roomPercentage = 0.2; /* we stop after this percentage of level area has been dug out */
@@ -151,7 +151,7 @@ RPG.Engine.MapGen.Uniform.prototype.init = function(size) {
 	this._digged = 0;
 }
 
-RPG.Engine.MapGen.Uniform.prototype.generate = function() {
+RPG.Dungeon.Generator.Uniform.prototype.generate = function() {
 	while (1) {
 		this._blankMap();
 		this._generateRooms();
@@ -166,7 +166,7 @@ RPG.Engine.MapGen.Uniform.prototype.generate = function() {
 /**
  * Generates a suitable amount of rooms
  */
-RPG.Engine.MapGen.Uniform.prototype._generateRooms = function() {
+RPG.Dungeon.Generator.Uniform.prototype._generateRooms = function() {
 	var digged = 0;
 	var w = this._size.x-2;
 	var h = this._size.y-2;
@@ -181,14 +181,14 @@ RPG.Engine.MapGen.Uniform.prototype._generateRooms = function() {
  * Generates connectors beween rooms
  * @returns {bool} success Was this attempt successfull?
  */
-RPG.Engine.MapGen.Uniform.prototype._generateCorridors = function() {
+RPG.Dungeon.Generator.Uniform.prototype._generateCorridors = function() {
 	return 1;
 }
 
 /**
  * Try to generate one room
  */
-RPG.Engine.MapGen.Uniform.prototype._generateRoom = function() {
+RPG.Dungeon.Generator.Uniform.prototype._generateRoom = function() {
 	var count = 0;
 	do {
 		count++;
@@ -235,11 +235,11 @@ RPG.Engine.MapGen.Uniform.prototype._generateRoom = function() {
  * @class Random dungeon generator using human-like digging patterns.
  * Heavily based on Mike Andrson's ideas from the "Tyrant" algo, mentioned at 
  * http://www.roguebasin.roguelikedevelopment.org/index.php?title=Dungeon-Building_Algorithm .
- * @augments RPG.Engine.MapGen
+ * @augments RPG.Dungeon.Generator
  */
-RPG.Engine.MapGen.Digger = OZ.Class().extend(RPG.Engine.MapGen);
+RPG.Dungeon.Generator.Digger = OZ.Class().extend(RPG.Dungeon.Generator);
 
-RPG.Engine.MapGen.Digger.prototype.init = function(size) {
+RPG.Dungeon.Generator.Digger.prototype.init = function(size) {
 	this.parent(size);
 	this._features = {
 		"room": 2,
@@ -258,7 +258,7 @@ RPG.Engine.MapGen.Digger.prototype.init = function(size) {
 
 }
 
-RPG.Engine.MapGen.Digger.prototype.generate = function() {
+RPG.Dungeon.Generator.Digger.prototype.generate = function() {
 	this._blankMap();
 	this._digged = 0;
 
@@ -286,7 +286,7 @@ RPG.Engine.MapGen.Digger.prototype.generate = function() {
 	return this._map;
 }
 
-RPG.Engine.MapGen.Digger.prototype._firstRoom = function() {
+RPG.Dungeon.Generator.Digger.prototype._firstRoom = function() {
 	var corner1 = this._generateCoords(this._minSize);
 	var dims = this._generateSize(corner1, this._minSize, this._maxWidth, this._maxHeight);
 	
@@ -306,7 +306,7 @@ RPG.Engine.MapGen.Digger.prototype._firstRoom = function() {
  * Suitable wall has 3 neighbor walls and 1 neighbor corridor.
  * @returns {RPG.Misc.Coords}
  */
-RPG.Engine.MapGen.Digger.prototype._findWall = function() {
+RPG.Dungeon.Generator.Digger.prototype._findWall = function() {
 	if (this._forcedWalls.length) {
 		var index = Math.floor(Math.random()*this._forcedWalls.length);
 		var wall = this._forcedWalls[index];
@@ -325,7 +325,7 @@ RPG.Engine.MapGen.Digger.prototype._findWall = function() {
  * Tries adding a feature
  * @returns {bool} was this a successful try?
  */
-RPG.Engine.MapGen.Digger.prototype._tryFeature = function(wall) {
+RPG.Dungeon.Generator.Digger.prototype._tryFeature = function(wall) {
 	var name = this._getFeature();
 	var func = this["_feature" + name.charAt(0).toUpperCase() + name.substring(1)];
 	if (!func) { alert("PANIC! Non-existant feature '"+name+"'."); }
@@ -336,7 +336,7 @@ RPG.Engine.MapGen.Digger.prototype._tryFeature = function(wall) {
 /**
  * Get a random feature name
  */
-RPG.Engine.MapGen.Digger.prototype._getFeature = function() {
+RPG.Dungeon.Generator.Digger.prototype._getFeature = function() {
 	var total = 0;
 	for (var p in this._features) { total += this._features[p]; }
 	var random = Math.floor(Math.random()*total);
@@ -351,7 +351,7 @@ RPG.Engine.MapGen.Digger.prototype._getFeature = function() {
 /**
  * Wall feature
  */
-RPG.Engine.MapGen.Digger.prototype._featureRoom = function(wall) {
+RPG.Dungeon.Generator.Digger.prototype._featureRoom = function(wall) {
 	/* corridor vector */
 	var direction = this._emptyDirection(wall);
 	var normal = new RPG.Misc.Coords(direction.y, -direction.x);
@@ -434,7 +434,7 @@ RPG.Engine.MapGen.Digger.prototype._featureRoom = function(wall) {
 /**
  * Corridor feature
  */
-RPG.Engine.MapGen.Digger.prototype._featureCorridor = function(wall) {
+RPG.Dungeon.Generator.Digger.prototype._featureCorridor = function(wall) {
 	/* corridor vector */
 	var direction = this._emptyDirection(wall);
 	var normal = new RPG.Misc.Coords(direction.y, -direction.x);
@@ -528,7 +528,7 @@ RPG.Engine.MapGen.Digger.prototype._featureCorridor = function(wall) {
 /**
  * Adds a new wall to list of available walls
  */
-RPG.Engine.MapGen.Digger.prototype._addFreeWall = function(coords) {
+RPG.Dungeon.Generator.Digger.prototype._addFreeWall = function(coords) {
 	/* remove if already exists */
 	this._removeFreeWall(coords);
 	
@@ -543,7 +543,7 @@ RPG.Engine.MapGen.Digger.prototype._addFreeWall = function(coords) {
 /**
  * Adds a new wall to list of forced walls
  */
-RPG.Engine.MapGen.Digger.prototype._addForcedWall = function(coords) {
+RPG.Dungeon.Generator.Digger.prototype._addForcedWall = function(coords) {
 	/* is this one ok? */
 	var ok = this._emptyDirection(coords);
 	if (!ok) { return; }
@@ -555,7 +555,7 @@ RPG.Engine.MapGen.Digger.prototype._addForcedWall = function(coords) {
 /**
  * Removes a wall from list of walls
  */
-RPG.Engine.MapGen.Digger.prototype._removeFreeWall = function(coords) {
+RPG.Dungeon.Generator.Digger.prototype._removeFreeWall = function(coords) {
 	for (var i=0;i<this._freeWalls.length;i++) {
 		var wall = this._freeWalls[i];
 		if (wall.x == coords.x && wall.y == coords.y) {
@@ -568,7 +568,7 @@ RPG.Engine.MapGen.Digger.prototype._removeFreeWall = function(coords) {
 /**
  * Returns vector in "digging" direction, or false, if this does not exist (or is not unique)
  */
-RPG.Engine.MapGen.Digger.prototype._emptyDirection = function(coords) {
+RPG.Dungeon.Generator.Digger.prototype._emptyDirection = function(coords) {
 	var c = new RPG.Misc.Coords();
 	var empty = null;
 	var deltas = [[-1, 0], [1, 0], [0, -1], [0, 1]];
@@ -598,7 +598,7 @@ RPG.Engine.MapGen.Digger.prototype._emptyDirection = function(coords) {
 /**
  * For a given rectangular area, adds all relevant surrounding walls to list of free walls
  */
-RPG.Engine.MapGen.Digger.prototype._addSurroundingWalls = function(corner1, corner2) {
+RPG.Dungeon.Generator.Digger.prototype._addSurroundingWalls = function(corner1, corner2) {
 	var c = new RPG.Misc.Coords(0, 0);
 	var left = corner1.x-1;
 	var right = corner2.x+1;
