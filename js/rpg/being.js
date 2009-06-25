@@ -289,7 +289,11 @@ RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 	for (var i=0;i<offsets.length;i++) {
 		c.x = source.x + offsets[i][0];
 		c.y = source.y + offsets[i][1];
-		if (!this._map.isValid(c) || !this._map.isFree(c)) { continue; }
+		
+		/* test alternate starting cell for validity */
+		if (i) {
+			if (!this._map.isValid(c) || !this._map.isFree(c)) { continue; }
+		}
 		var tmp = this._map.lineOfSight(c, target);
 		if (tmp == true) { return true; }
 	}

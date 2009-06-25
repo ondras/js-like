@@ -74,6 +74,10 @@ RPG.Engine.MapGen.prototype._addDoorsToRoom = function(room) {
 	var c = new RPG.Misc.Coords(0, 0);
 	for (var i=left;i<=right;i++) {
 		for (var j=top;j<=bottom;j++) {
+			/* corners no */
+			if (i == left && (j == top || j == bottom)) { continue; }
+			if (i == right && (j == top || j == bottom)) { continue; }
+			
 			if (i == left || i == right || j == top || j == bottom) {
 				c.x = i;
 				c.y = j;

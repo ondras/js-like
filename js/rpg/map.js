@@ -35,8 +35,9 @@ RPG.Cells.BaseCell.prototype.setBeing = function(being) {
 RPG.Cells.BaseCell.prototype.getBeing = function() {
 	return this._being;
 }
+
 /**
- * Can a being (move to / see through) this cell?
+ * Can a being move to this cell?
  */
 RPG.Cells.BaseCell.prototype.isFree = function() {
 	if (this.flags & RPG.CELL_BLOCKED) { return false; }
@@ -47,6 +48,20 @@ RPG.Cells.BaseCell.prototype.isFree = function() {
 	}
 	return true;
 }
+
+/**
+ * Can a being see through this cell?
+ */
+RPG.Cells.BaseCell.prototype.visibleThrough = function() {
+	if (this.flags & RPG.CELL_BLOCKED) { return false; }
+	for (var i=0;i<this._items.length;i++) {
+		var item = this._items[i];
+		if (item.flags & RPG.ITEM_OBSTACLE) { return false; }
+	}
+	return true;
+}
+
+
 /**
  * @see RPG.Visual.DescriptionInterface#describe
  */
@@ -222,7 +237,7 @@ RPG.Engine.Map.prototype.lineOfSight = function(c1, c2) {
 			error -= 1;
 		}
 		if (current[major] == c2[major]) { return true; }
-		if (!this._data[current.x][current.y].isFree()) { return false; }
+		if (!this._data[current.x][current.y].visibleThrough()) { return false; }
 	}
 	
 	return true;

@@ -6,7 +6,7 @@ map.addItem(map.getFreeCoords(), new RPG.Items.Dagger());
 map.addItem(map.getFreeCoords(), new RPG.Items.Weapon());
 
 /* add some beings */
-var pc = new RPG.Beings.God();
+var pc = new RPG.Beings.Human();
 map.setBeing(map.getFreeCoords(), pc);
 RPG.World.setPC(pc);
 
