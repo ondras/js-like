@@ -232,7 +232,7 @@ RPG.Engine.MapGen.Uniform.prototype._generateRoom = function() {
 }
 
 /**
- * @class Uniform dungeon generator using human-like digging patterns.
+ * @class Random dungeon generator using human-like digging patterns.
  * Heavily based on Mike Andrson's ideas from the "Tyrant" algo, mentioned at 
  * http://www.roguebasin.roguelikedevelopment.org/index.php?title=Dungeon-Building_Algorithm .
  * @augments RPG.Engine.MapGen
