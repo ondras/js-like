@@ -41,6 +41,40 @@ RPG.Items.Dagger.prototype.getImage = function() {
 }
 
 /**
+ * @class Door
+ */
+RPG.Items.Door = OZ.Class().extend(RPG.Items.BaseItem);
+
+RPG.Items.Door.prototype.init = function() {
+	this.parent();
+	this.flags &= !RPG.ITEM_PICKABLE;
+	
+	this._closed = null;
+	this._color = "brown";
+	this.close();
+}
+
+RPG.Items.Door.prototype.close = function() {
+	this._closed = true;
+	this.flags |= RPG.ITEM_OBSTACLE;
+	this._description = "closed door";
+	this._image = "door_closed";
+	this._char = "+";
+}
+
+RPG.Items.Door.prototype.open = function() {
+	this._closed = false;
+	this.flags &= !RPG.ITEM_OBSTACLE;
+	this._description = "opened door";
+	this._image = "door_opened";
+	this._char = "/";
+}
+
+RPG.Items.Door.prototype.isClosed = function() {
+	return this._closed;
+}
+
+/**
  * @class Anything that can be eaten
  */
 RPG.Items.Edible = OZ.Class().extend(RPG.Items.BaseItem);

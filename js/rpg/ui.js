@@ -209,14 +209,29 @@ RPG.UI._move = function(dx, dy) {
 	coords.x += dx;
 	coords.y += dy;
 	
-	if (!map.valid(coords)) { return; }
+	/* invalid move */
+	if (!map.isValid(coords)) { return; } 
+	
+	/* too far */
 	if (pc.getCoords().distance(coords) > 1) { return; }
 
 	/* being there? */
-	var b2 = map.at(coords).getBeing();
-	if (b2) {
-		this.action(RPG.Actions.Attack, b2);
-	} else if (map.isFree(coords)) {
+	var b = map.at(coords).getBeing();
+	if (b) {
+		this.action(RPG.Actions.Attack, b);
+		return;
+	} 
+	
+	/* closed door there? */
+	var door = map.at(coords).getDoor();
+	if (door && door.isClosed()) {
+		this.action(RPG.Actions.Open, coords);
+		return;
+	}
+	
+	/* can we move there? */
+	if (map.isFree(coords)) {
 		this.action(RPG.Actions.Move, coords);
+		return;
 	}
 }

@@ -246,7 +246,7 @@ RPG.Beings.BaseBeing.prototype.fullHP = function() {
  * @returns {int}
  */
 RPG.Beings.BaseBeing.prototype.sightDistance = function() {
-	return 50; /* FIXME this should depend on perception or so */
+	return 5; /* FIXME this should depend on perception or so */
 }
 
 /**
@@ -274,7 +274,6 @@ RPG.Beings.BaseBeing.prototype.die = function() {
  * @returns {bool}
  */
 RPG.Beings.BaseBeing.prototype.canSee = function(target) {
-return true;
 	var source = this._coords;
 	if (source.distance(target) <= 1) { return true; } /* optimalization: can see self & surroundings */
 	if (source.distance(target) > this.sightDistance()) { return false; } 
@@ -290,7 +289,7 @@ return true;
 	for (var i=0;i<offsets.length;i++) {
 		c.x = source.x + offsets[i][0];
 		c.y = source.y + offsets[i][1];
-		if (!this._map.valid(c) || this._map.isBlocked(c)) { continue; }
+		if (!this._map.isValid(c) || !this._map.isFree(c)) { continue; }
 		var tmp = this._map.lineOfSight(c, target);
 		if (tmp == true) { return true; }
 	}

@@ -130,6 +130,10 @@ RPG.Actions.Attack.prototype._describe = function() {
 	return str;
 }
 
+/**
+ * @class Death - when something dies
+ * @augments RPG.Engine.BaseAction
+ */
 RPG.Actions.Death = OZ.Class().extend(RPG.Engine.BaseAction);
 RPG.Actions.Death.prototype.execute = function() {
 	var map = RPG.World.getMap();
@@ -137,4 +141,33 @@ RPG.Actions.Death.prototype.execute = function() {
 	
 	RPG.UI.Map.redrawCoords(this._source.getCoords());
 	RPG.World.removeActor(this._source);
+}
+
+/**
+ * @class Open a door
+ * @augments RPG.Engine.BaseAction
+ */
+RPG.Actions.Open = OZ.Class().extend(RPG.Engine.BaseAction);
+RPG.Actions.Open.prototype.execute = function() {
+	var map = this._source.getMap();
+	var coords = this._target;
+	
+	map.at(coords).getDoor().open();
+	
+	var str = "";
+	var you = (this._source == RPG.World.getPC());
+	if (you) {
+		str += "you open";
+	} else {
+		str += this._source.describeA() + " opens";
+	}
+	str += " the door at " + coords.toString() + ".";
+	
+	RPG.UI.Buffer.show(str);
+	
+	if (you) {
+		RPG.UI.Map.redraw();
+	} else {
+		RPG.UI.Map.redrawCoords(coords);
+	}
 }

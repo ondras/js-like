@@ -36,11 +36,15 @@ RPG.Cells.BaseCell.prototype.getBeing = function() {
 	return this._being;
 }
 /**
- * Can a being move to this cell?
+ * Can a being (move to / see through) this cell?
  */
 RPG.Cells.BaseCell.prototype.isFree = function() {
 	if (this.flags & RPG.CELL_BLOCKED) { return false; }
 	if (this._being) { return false; }
+	for (var i=0;i<this._items.length;i++) {
+		var item = this._items[i];
+		if (item.flags & RPG.ITEM_OBSTACLE) { return false; }
+	}
 	return true;
 }
 /**
@@ -67,29 +71,39 @@ RPG.Cells.BaseCell.prototype.getChar = function() {
 RPG.Cells.BaseCell.prototype.getImage = function() {
 	return this._image;
 }
+/**
+ * Returns door at current cell, if present (false otherwise)
+ */
+RPG.Cells.BaseCell.prototype.getDoor = function() {
+	for (var i=0;i<this._items.length;i++) {
+		var item = this._items[i];
+		if (item instanceof RPG.Items.Door) { return item; }
+	}
+	return false;
+}
 
 /**
  * @class Dungeon map
  */
 RPG.Engine.Map = OZ.Class();
 RPG.Engine.Map.prototype.init = function(size) {
-	this.size = size;
-	this.data = [];
-	for (var i=0;i<this.size.x;i++) {
+	this._size = size;
+	this._data = [];
+	for (var i=0;i<this._size.x;i++) {
 		var col = [];
-		for (var j=0;j<this.size.y;j++) {
+		for (var j=0;j<this._size.y;j++) {
 			col.push(null);
 		}
-		this.data.push(col);
+		this._data.push(col);
 	}
 }
 /**
  * Locate being
  */
 RPG.Engine.Map.prototype.find = function(being) {
-	for (var i=0;i<this.size.x;i++) {
-		for (var j=0;j<this.size.y;j++) {
-			var cell = this.data[i][j];
+	for (var i=0;i<this._size.x;i++) {
+		for (var j=0;j<this._size.y;j++) {
+			var cell = this._data[i][j];
 			if (cell.getBeing() == being) { return new RPG.Misc.Coords(i, j); } 
 		}
 	}
@@ -100,9 +114,9 @@ RPG.Engine.Map.prototype.find = function(being) {
  */ 
 RPG.Engine.Map.prototype.getBeings = function() {
 	var all = [];
-	for (var i=0;i<this.size.x;i++) {
-		for (var j=0;j<this.size.y;j++) {
-			var b = this.data[i][j].getBeing();
+	for (var i=0;i<this._size.x;i++) {
+		for (var j=0;j<this._size.y;j++) {
+			var b = this._data[i][j].getBeing();
 			if (b) { all.push(b); }
 		}
 	}
@@ -112,13 +126,13 @@ RPG.Engine.Map.prototype.getBeings = function() {
  * Map size
  */
 RPG.Engine.Map.prototype.getSize = function() {
-	return this.size;
+	return this._size;
 }
 RPG.Engine.Map.prototype.setCell = function(coords, cell) {
-	this.data[coords.x][coords.y] = cell;
+	this._data[coords.x][coords.y] = cell;
 }
 RPG.Engine.Map.prototype.at = function(coords) {
-	return this.data[coords.x][coords.y];
+	return this._data[coords.x][coords.y];
 }
 RPG.Engine.Map.prototype.setBeing = function(coords, being) {
 	if (being) { 
@@ -133,16 +147,14 @@ RPG.Engine.Map.prototype.addItem = function(coords, item) {
 RPG.Engine.Map.prototype.isFree = function(coords) {
 	return this.at(coords).isFree();
 }
-RPG.Engine.Map.prototype.valid = function(coords) {
-	var size = this.size;
+RPG.Engine.Map.prototype.isValid = function(coords) {
+	var size = this._size;
 	if (Math.min(coords.x, coords.y) < 0) { return false; }
 	if (coords.x >= size.x) { return false; }
 	if (coords.y >= size.y) { return false; }
 	return true;
 }
-RPG.Engine.Map.prototype.isBlocked = function(coords) {
-	return this.data[coords.x][coords.y].flags & RPG.CELL_BLOCKED;
-}
+
 /**
  * Is it possible to see from one cell to another?
  * @param {RPG.Misc.Coords} c1
@@ -175,8 +187,24 @@ RPG.Engine.Map.prototype.lineOfSight = function(c1, c2) {
 			error -= 1;
 		}
 		if (current[major] == c2[major]) { return true; }
-		if (this.data[current.x][current.y].flags & RPG.CELL_BLOCKED) { return false; }
+		if (!this._data[current.x][current.y].isFree()) { return false; }
 	}
 	
 	return true;
+}
+
+RPG.Engine.Map.prototype.getFreeCoords = function() {
+	var all = [];
+	var c = new RPG.Misc.Coords();
+	for (var i=0;i<this._size.x;i++) {
+		for (var j=0;j<this._size.y;j++) {
+			c.x = i;
+			c.y = j;
+			var cell = this._data[i][j];
+			if (cell.isFree()) { all.push(c.clone()); }
+		}
+	}
+	
+	var index = Math.floor(Math.random()*all.length);
+	return all[index];
 }

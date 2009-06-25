@@ -195,7 +195,6 @@ RPG.Visual.ImageCell.prototype._updateImage = function(node, what) {
 RPG.Visual.ASCIIMap = OZ.Class().extend(RPG.Visual.BaseMap);
 RPG.Visual.ASCIIMap.prototype.init = function(container) {
 	this.parent(container, RPG.Visual.ASCIICell);
-	this._computeWidth();
 }
 
 RPG.Visual.ASCIIMap.prototype._computeWidth = function() {
@@ -207,6 +206,7 @@ RPG.Visual.ASCIIMap.prototype._computeWidth = function() {
 }
 
 RPG.Visual.ASCIIMap.prototype._resize = function() {
+	this._computeWidth();
 	this._dom.container.style.width = (this._charWidth * this._size.x) + "px";
 }
 
