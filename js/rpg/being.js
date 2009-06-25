@@ -246,7 +246,7 @@ RPG.Beings.BaseBeing.prototype.fullHP = function() {
  * @returns {int}
  */
 RPG.Beings.BaseBeing.prototype.sightDistance = function() {
-	return 5; /* FIXME this should depend on perception or so */
+	return 6; /* FIXME this should depend on perception or so */
 }
 
 /**

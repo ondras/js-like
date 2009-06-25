@@ -240,9 +240,13 @@ RPG.Visual.ASCIICell.prototype.notVisible = function() {
 		this._char = this._cellChar;
 		this.node.innerHTML = this._char;
 	}
-	if (this._color != this._cellColor) {
-		this._color = this._cellColor;
-		this.node.style.color = this._color;
+	
+	var tmp = "darkgreen";
+	
+//	if (this._color != this._cellColor) {
+	if (this._color != tmp) {
+		this._color = tmp;
+		this.node.style.color = tmp;
 	}
 }
 
