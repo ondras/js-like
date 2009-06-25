@@ -8,33 +8,38 @@ RPG.Engine.MapGen.prototype.init = function(size, wall, floor) {
 	this._wall = RPG.Cells.Wall;
 	this._corridor = RPG.Cells.Corridor;
 	this._door = RPG.Items.Door;
+	this._room = RPG.Engine.Room;
+	this._map = null;
 }
 
 RPG.Engine.MapGen.prototype.generate = function() {
-	var map = this._blankMap();
-	return map;
+	this._blankMap();
+	return this._map;
 }
 
 RPG.Engine.MapGen.prototype._blankMap = function() {
-	var map = new RPG.Engine.Map(this._size);
+	this._map = new RPG.Engine.Map(this._size);
 	var c = new RPG.Misc.Coords(0, 0);
 	for (var i=0;i<this._size.x;i++) {
 		for (var j=0;j<this._size.y;j++) {
 			c.x = i;
 			c.y = j;
-			map.setCell(c, new this._wall());
+			this._map.setCell(c, new this._wall());
 		}
 	}
-	return map;
+	return this._map;
 }
 
-RPG.Engine.MapGen.prototype._digRoom = function(map, corner1, corner2) {
+RPG.Engine.MapGen.prototype._digRoom = function(room) {
 	var c = new RPG.Misc.Coords(0, 0);
+	var corner1 = room.getCorner1();
+	var corner2 = room.getCorner2();
+	
 	for (var i=corner1.x;i<=corner2.x;i++) {
 		for (var j=corner1.y;j<=corner2.y;j++) {
 			c.x = i;
 			c.y = j;
-			map.setCell(c, new this._corridor());
+			this._map.setCell(c, new this._corridor());
 		}
 	}
 }
@@ -58,18 +63,51 @@ RPG.Engine.MapGen.prototype._generateSize = function(corner, minSize, maxWidth, 
 	return new RPG.Misc.Coords(x, y);
 }
 
+RPG.Engine.MapGen.prototype._addDoorsToRoom = function(room) {
+	var corner1 = room.getCorner1();
+	var corner2 = room.getCorner2();
+	var left = corner1.x-1;
+	var right = corner2.x+1;
+	var top = corner1.y-1;
+	var bottom = corner2.y+1;
+
+	var c = new RPG.Misc.Coords(0, 0);
+	for (var i=left;i<=right;i++) {
+		for (var j=top;j<=bottom;j++) {
+			if (i == left || i == right || j == top || j == bottom) {
+				c.x = i;
+				c.y = j;
+				var cell = this._map.at(c);
+				if (!(cell instanceof this._wall) && !cell.getDoor()) {
+					var door = new this._door();
+					cell.addItem(door);
+				}
+			}
+		}
+	}
+	
+}
+
+RPG.Engine.MapGen.prototype._addDoors = function() {
+	var rooms = this._map.getRooms();
+	for (var i=0;i<rooms.length;i++) {
+		var room = rooms[i];
+		this._addDoorsToRoom(room);
+	}
+}
+
 /**
  * Can a given rectangle fit in a map?
  */
-RPG.Engine.MapGen.prototype._freeSpace = function(map, corner1, corner2) {
+RPG.Engine.MapGen.prototype._freeSpace = function(corner1, corner2) {
 	var c = new RPG.Misc.Coords(0, 0);
 	for (var i=corner1.x; i<=corner2.x; i++) {
 		for (var j=corner1.y; j<=corner2.y; j++) {
 			c.x = i;
 			c.y = j;
-			if (!map.isValid(c)) { return false; }
+			if (!this._map.isValid(c)) { return false; }
 
-			var cell = map.at(c);
+			var cell = this._map.at(c);
 			if (!(cell instanceof this._wall)) { return false; }
 		}
 	}
@@ -83,20 +121,21 @@ RPG.Engine.MapGen.prototype._freeSpace = function(map, corner1, corner2) {
 RPG.Engine.MapGen.Arena = OZ.Class().extend(RPG.Engine.MapGen);
 
 RPG.Engine.MapGen.Arena.prototype.generate = function() {
-	var map = this._blankMap();
+	this._blankMap();
 	var c1 = new RPG.Misc.Coords(1, 1);
 	var c2 = new RPG.Misc.Coords(this._size.x-1, this._size.y-1);
-	this._digRoom(map, c1, c2);
-	return map;
+	var room = this._map.addRoom(this._room, c1, c2);
+	this._digRoom(room);
+	return this._map;
 }
 
 /**
- * @class Random map generator
+ * @class Random map generator, tries to fill the space evenly
  * @augments RPG.Engine.MapGen
  */ 
-RPG.Engine.MapGen.Random = OZ.Class().extend(RPG.Engine.MapGen);
+RPG.Engine.MapGen.Uniform = OZ.Class().extend(RPG.Engine.MapGen);
 
-RPG.Engine.MapGen.Random.prototype.init = function(size) {
+RPG.Engine.MapGen.Uniform.prototype.init = function(size) {
 	this.parent(size);
 	this._roomAttempts = 10; /* new room is created N-times until is considered as impossible to generate */
 	this._roomPercentage = 0.2; /* we stop after this percentage of level area has been dug out */
@@ -104,56 +143,48 @@ RPG.Engine.MapGen.Random.prototype.init = function(size) {
 	this._maxWidth = 7; /* maximum room width */
 	this._maxHeight = 5; /* maximum room height */
 	this._roomSeparation = 2; /* minimum amount of cells between two rooms */
+	
+	this._digged = 0;
 }
 
-RPG.Engine.MapGen.Random.prototype.generate = function() {
+RPG.Engine.MapGen.Uniform.prototype.generate = function() {
 	while (1) {
-		var map = this._blankMap();
-		var rooms = this._generateRooms(map);
-		var result = this._generateCorridors(map, rooms);
-		if (result == 1) { return map; }
+		this._blankMap();
+		this._generateRooms();
+		var result = this._generateCorridors();
+		if (result == 1) { 
+			this._addDoors();
+			return this._map; 
+		}
 	}
 }
 
 /**
  * Generates a suitable amount of rooms
  */
-RPG.Engine.MapGen.Random.prototype._generateRooms = function(map) {
-	var rooms = [];
+RPG.Engine.MapGen.Uniform.prototype._generateRooms = function() {
 	var digged = 0;
-	
+	var w = this._size.x-2;
+	var h = this._size.y-2;
+
 	do {
-		var room = this._generateRoom(map, rooms);
-		
-		if (room) { 
-			rooms.push(room);
-
-			/* dig the room */
-			this._digRoom(map, room[0], room[1]);
-			
-			/* maybe we were digging enough? */
-			digged += (room[1].x-room[0].x) * (room[1].y - room[0].y);
-			var w = this._size.x-2;
-			var h = this._size.y-2;
-			if (digged/(w*h) > this._roomPercentage) { break; }
-		}
-	} while (room);
-
-	return rooms;
+		var result = this._generateRoom();
+		if (this._digged/(w*h) > this._roomPercentage) { break; }
+	} while (result);
 }
 
 /**
  * Generates connectors beween rooms
  * @returns {bool} success Was this attempt successfull?
  */
-RPG.Engine.MapGen.Random.prototype._generateCorridors = function(map, rooms) {
+RPG.Engine.MapGen.Uniform.prototype._generateCorridors = function() {
 	return 1;
 }
 
 /**
  * Try to generate one room
  */
-RPG.Engine.MapGen.Random.prototype._generateRoom = function(map, rooms) {
+RPG.Engine.MapGen.Uniform.prototype._generateRoom = function() {
 	var count = 0;
 	do {
 		count++;
@@ -178,39 +209,26 @@ RPG.Engine.MapGen.Random.prototype._generateRoom = function(map, rooms) {
 		c2.y += 1;
 		
 		/* is this one room okay? */
-		var fits = this._freeSpace(map, c1, c2);
-		if (fits) { return [corner1, corner2]; }
+		var fits = this._freeSpace(c1, c2);
+		
+		if (fits) {
+			var room = this._map.addRoom(this._room, corner1, corner2);
+
+			/* dig the room */
+			this._digRoom(room);
+			this._digged += dims.x*dims.y;
+			
+			return true;
+		}
+		
 	} while (count < this._roomAttempts);
 
 	/* no room was generated in a given number of attempts */
 	return false;
 }
 
-RPG.Engine.MapGen.Random.prototype._intersects = function(rooms, room) {
-	var roomw = room[1].x - room[0].x + 1;
-	var roomh = room[1].y - room[0].y + 1;
-	
-	for (var i=0;i<rooms.length;i++) {
-		var r = rooms[i];
-		var rw = r[1].x - r[0].x + 1;
-		var rh = r[1].y - r[0].y + 1;
-		
-		var availw = roomw+rw + this._roomSeparation-1;
-		var availh = roomh+rh + this._roomSeparation-1;
-		
-		/* compute bounding box of room union */
-		var left = Math.min(room[0].x, r[0].x); 
-		var right = Math.max(room[1].x, r[1].x);
-		var top = Math.min(room[0].y, r[0].y);
-		var bottom = Math.max(room[1].y, r[1].y);
-		
-		if (right-left < availw && bottom-top < availh) { return true; }
-	}
-	return false;
-}
-
 /**
- * @class Random dungeon generator using human-like digging patterns.
+ * @class Uniform dungeon generator using human-like digging patterns.
  * Heavily based on Mike Andrson's ideas from the "Tyrant" algo, mentioned at 
  * http://www.roguebasin.roguelikedevelopment.org/index.php?title=Dungeon-Building_Algorithm .
  * @augments RPG.Engine.MapGen
@@ -237,31 +255,34 @@ RPG.Engine.MapGen.Digger.prototype.init = function(size) {
 }
 
 RPG.Engine.MapGen.Digger.prototype.generate = function() {
-	var map = this._blankMap();
+	this._blankMap();
 	this._digged = 0;
 
-	this._firstRoom(map);
+	this._firstRoom();
 	var area = (this._size.x-2) * (this._size.y-2);
 
 	do {
 		/* find a good wall */
-		var wall = this._findWall(map);
+		var wall = this._findWall();
 
 		var featureResult = false;
 		var featureCount = 0;
 		do {
 			/* Try adding afeature */
-			featureResult = this._tryFeature(map, wall);
+			featureResult = this._tryFeature(wall);
 			featureCount++;
+			
 			/* Feature added, cool */
 			if (featureResult) { break; }
+			
 		} while (featureCount < this._featureAttempts);
 	} while (this._digged/area < this._diggedPercentage || this._forcedWalls.length)
 	
-	return map;
+	this._addDoors();
+	return this._map;
 }
 
-RPG.Engine.MapGen.Digger.prototype._firstRoom = function(map) {
+RPG.Engine.MapGen.Digger.prototype._firstRoom = function() {
 	var corner1 = this._generateCoords(this._minSize);
 	var dims = this._generateSize(corner1, this._minSize, this._maxWidth, this._maxHeight);
 	
@@ -270,9 +291,10 @@ RPG.Engine.MapGen.Digger.prototype._firstRoom = function(map) {
 	corner2.y += dims.y-1;
 	
 	this._digged += dims.x*dims.y;
+	var room = this._map.addRoom(this._room, corner1, corner2);
 	
-	this._digRoom(map, corner1, corner2);
-	this._addSurroundingWalls(map, corner1, corner2);
+	this._digRoom(room);
+	this._addSurroundingWalls(corner1, corner2);
 }
 
 /**
@@ -280,7 +302,7 @@ RPG.Engine.MapGen.Digger.prototype._firstRoom = function(map) {
  * Suitable wall has 3 neighbor walls and 1 neighbor corridor.
  * @returns {RPG.Misc.Coords}
  */
-RPG.Engine.MapGen.Digger.prototype._findWall = function(map) {
+RPG.Engine.MapGen.Digger.prototype._findWall = function() {
 	if (this._forcedWalls.length) {
 		var index = Math.floor(Math.random()*this._forcedWalls.length);
 		var wall = this._forcedWalls[index];
@@ -299,12 +321,12 @@ RPG.Engine.MapGen.Digger.prototype._findWall = function(map) {
  * Tries adding a feature
  * @returns {bool} was this a successful try?
  */
-RPG.Engine.MapGen.Digger.prototype._tryFeature = function(map, wall) {
+RPG.Engine.MapGen.Digger.prototype._tryFeature = function(wall) {
 	var name = this._getFeature();
 	var func = this["_feature" + name.charAt(0).toUpperCase() + name.substring(1)];
 	if (!func) { alert("PANIC! Non-existant feature '"+name+"'."); }
 	
-	return func.call(this, map, wall);
+	return func.call(this, wall);
 }
 
 /**
@@ -325,9 +347,9 @@ RPG.Engine.MapGen.Digger.prototype._getFeature = function() {
 /**
  * Wall feature
  */
-RPG.Engine.MapGen.Digger.prototype._featureRoom = function(map, wall) {
+RPG.Engine.MapGen.Digger.prototype._featureRoom = function(wall) {
 	/* corridor vector */
-	var direction = this._emptyDirection(map, wall);
+	var direction = this._emptyDirection(wall);
 	var normal = new RPG.Misc.Coords(direction.y, -direction.x);
 
 	var diffX = this._maxWidth - this._minSize + 1;
@@ -379,18 +401,18 @@ RPG.Engine.MapGen.Digger.prototype._featureRoom = function(map, wall) {
 	c2.x += 1;
 	c2.y += 1;
 
-	var ok = this._freeSpace(map, c1, c2);
+	var ok = this._freeSpace(c1, c2);
 	if (!ok) { return false; }
 	
 	/* dig the wall + room */
 	this._digged += 1 + width*height;
-	var door = new this._door();
-	map.setCell(wall, new this._corridor());
-	map.addItem(wall, door);
-	this._digRoom(map, corner1, corner2);
+	this._map.setCell(wall, new this._corridor());
+
+	var room = this._map.addRoom(this._room, corner1, corner2);
+	this._digRoom(room);
 	
 	/* add to a list of free walls */
-	this._addSurroundingWalls(map, corner1, corner2);
+	this._addSurroundingWalls(corner1, corner2);
 	
 	/* remove 3 free walls from entrance */
 	this._removeFreeWall(wall);
@@ -408,15 +430,15 @@ RPG.Engine.MapGen.Digger.prototype._featureRoom = function(map, wall) {
 /**
  * Corridor feature
  */
-RPG.Engine.MapGen.Digger.prototype._featureCorridor = function(map, wall) {
+RPG.Engine.MapGen.Digger.prototype._featureCorridor = function(wall) {
 	/* corridor vector */
-	var direction = this._emptyDirection(map, wall);
+	var direction = this._emptyDirection(wall);
 	var normal = new RPG.Misc.Coords(direction.y, -direction.x);
 	
 	/* wall length */
 	var availSpace = 0;
 	var c = wall.clone();
-	while (map.isValid(c)) {
+	while (this._map.isValid(c)) {
 		c.x += direction.x;
 		c.y += direction.y;
 		availSpace++;
@@ -449,45 +471,29 @@ RPG.Engine.MapGen.Digger.prototype._featureCorridor = function(map, wall) {
 	var corner1 = new RPG.Misc.Coords(left, top);
 	var corner2 = new RPG.Misc.Coords(right, bottom);
 
-	var ok = this._freeSpace(map, corner1, corner2);
+	var ok = this._freeSpace(corner1, corner2);
 	if (!ok) { return false; }
 	
 	/* dig the wall + corridor */
 	this._digged += length;
 	var c = start.clone();
 	for (var i=0;i<length;i++) {
-		map.setCell(c, new this._corridor());
+		this._map.setCell(c, new this._corridor());
 		c.x += direction.x;
 		c.y += direction.y;
 	}
 	
-	/* add a door? */
-	var empty = start.clone();
-	empty.x -= direction.x;
-	empty.y -= direction.y;
-	var c1 = empty.clone();
-	var c2 = empty.clone();
-	c1.x += normal.x;
-	c1.y += normal.y;
-	c2.x -= normal.x;
-	c2.y -= normal.y;
-	if (!(map.at(c1) instanceof this._wall) && !(map.at(c2) instanceof this._wall)) {
-		var door = new this._door();
-		map.addItem(wall, door);
-	} 
-	
-	this._forcedWalls = [];
-	
 	/* add forced endings */
+	this._forcedWalls = [];
 	c.x = end.x + direction.x;
 	c.y = end.y + direction.y;
-	this._addForcedWall(map, c);
+	this._addForcedWall(c);
 	c.x = end.x + normal.x;
 	c.y = end.y + normal.y;
-	this._addForcedWall(map, c);
+	this._addForcedWall(c);
 	c.x = end.x - normal.x;
 	c.y = end.y - normal.y;
-	this._addForcedWall(map, c);
+	this._addForcedWall(c);
 	
 	/* remove end cell from free walls */
 	this._removeFreeWall(end);
@@ -499,7 +505,7 @@ RPG.Engine.MapGen.Digger.prototype._featureCorridor = function(map, wall) {
 		end = tmp;
 	}
 	/* sync list of free walls */
-	this._addSurroundingWalls(map, start, end);
+	this._addSurroundingWalls(start, end);
 	
 	/* remove walls that are not free anymore */
 	c.x = wall.x;
@@ -518,12 +524,12 @@ RPG.Engine.MapGen.Digger.prototype._featureCorridor = function(map, wall) {
 /**
  * Adds a new wall to list of available walls
  */
-RPG.Engine.MapGen.Digger.prototype._addFreeWall = function(map, coords) {
+RPG.Engine.MapGen.Digger.prototype._addFreeWall = function(coords) {
 	/* remove if already exists */
 	this._removeFreeWall(coords);
 	
 	/* is this one ok? */
-	var ok = this._emptyDirection(map, coords);
+	var ok = this._emptyDirection(coords);
 	if (!ok) { return; }
 	
 	/* ok, so let's add it */
@@ -533,9 +539,9 @@ RPG.Engine.MapGen.Digger.prototype._addFreeWall = function(map, coords) {
 /**
  * Adds a new wall to list of forced walls
  */
-RPG.Engine.MapGen.Digger.prototype._addForcedWall = function(map, coords) {
+RPG.Engine.MapGen.Digger.prototype._addForcedWall = function(coords) {
 	/* is this one ok? */
-	var ok = this._emptyDirection(map, coords);
+	var ok = this._emptyDirection(coords);
 	if (!ok) { return; }
 	
 	/* ok, so let's add it */
@@ -558,7 +564,7 @@ RPG.Engine.MapGen.Digger.prototype._removeFreeWall = function(coords) {
 /**
  * Returns vector in "digging" direction, or false, if this does not exist (or is not unique)
  */
-RPG.Engine.MapGen.Digger.prototype._emptyDirection = function(map, coords) {
+RPG.Engine.MapGen.Digger.prototype._emptyDirection = function(coords) {
 	var c = new RPG.Misc.Coords();
 	var empty = null;
 	var deltas = [[-1, 0], [1, 0], [0, -1], [0, 1]];
@@ -567,9 +573,9 @@ RPG.Engine.MapGen.Digger.prototype._emptyDirection = function(map, coords) {
 		c.x = coords.x+deltas[i][0];
 		c.y = coords.y+deltas[i][1];
 		
-		if (!map.isValid(c)) { return false; }
+		if (!this._map.isValid(c)) { return false; }
 		
-		var cell = map.at(c);
+		var cell = this._map.at(c);
 		if (!(cell instanceof this._wall)) { 
 			
 			/* there already is another empty neighbor! */
@@ -588,7 +594,7 @@ RPG.Engine.MapGen.Digger.prototype._emptyDirection = function(map, coords) {
 /**
  * For a given rectangular area, adds all relevant surrounding walls to list of free walls
  */
-RPG.Engine.MapGen.Digger.prototype._addSurroundingWalls = function(map, corner1, corner2) {
+RPG.Engine.MapGen.Digger.prototype._addSurroundingWalls = function(corner1, corner2) {
 	var c = new RPG.Misc.Coords(0, 0);
 	var left = corner1.x-1;
 	var right = corner2.x+1;
@@ -600,7 +606,7 @@ RPG.Engine.MapGen.Digger.prototype._addSurroundingWalls = function(map, corner1,
 			if (i == left || i == right || j == top || j == bottom) {
 				c.x = i;
 				c.y = j;
-				this._addFreeWall(map, c);
+				this._addFreeWall(c);
 			}
 		}
 	}

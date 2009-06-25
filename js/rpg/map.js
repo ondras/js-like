@@ -83,12 +83,38 @@ RPG.Cells.BaseCell.prototype.getDoor = function() {
 }
 
 /**
+ * @class Room, a logical group of cells
+ */
+RPG.Engine.Room = OZ.Class();
+
+/**
+ * @param {RPG.Engine.Map} map
+ * @param {RPG.Misc.Coords} corner1 top-left corner
+ * @param {RPG.Misc.Coords} corner2 bottom-right corner
+ */
+RPG.Engine.Room.prototype.init = function(map, corner1, corner2) {
+	this._map = map;
+	this._corner1 = corner1.clone();
+	this._corner2 = corner2.clone();
+}
+
+RPG.Engine.Room.prototype.getCorner1 = function() {
+	return this._corner1;
+}
+
+RPG.Engine.Room.prototype.getCorner2 = function() {
+	return this._corner2;
+}
+
+/**
  * @class Dungeon map
  */
 RPG.Engine.Map = OZ.Class();
 RPG.Engine.Map.prototype.init = function(size) {
 	this._size = size;
 	this._data = [];
+	this._rooms = [];
+	
 	for (var i=0;i<this._size.x;i++) {
 		var col = [];
 		for (var j=0;j<this._size.y;j++) {
@@ -97,18 +123,7 @@ RPG.Engine.Map.prototype.init = function(size) {
 		this._data.push(col);
 	}
 }
-/**
- * Locate being
- */
-RPG.Engine.Map.prototype.find = function(being) {
-	for (var i=0;i<this._size.x;i++) {
-		for (var j=0;j<this._size.y;j++) {
-			var cell = this._data[i][j];
-			if (cell.getBeing() == being) { return new RPG.Misc.Coords(i, j); } 
-		}
-	}
-	throw new Error("Being not found");
-}
+
 /**
  * Get all beings in this Map
  */ 
@@ -153,6 +168,26 @@ RPG.Engine.Map.prototype.isValid = function(coords) {
 	if (coords.x >= size.x) { return false; }
 	if (coords.y >= size.y) { return false; }
 	return true;
+}
+
+/**
+ * Add a new room
+ * @param {function} ctor
+ * @param {RPG.Misc.Coords} corner1
+ * @param {RPG.Misc.Coords} corner2
+ */
+RPG.Engine.Map.prototype.addRoom = function(ctor, corner1, corner2) {
+	var room = new ctor(this, corner1, corner2);
+	this._rooms.push(room);
+	return room;
+}
+
+/**
+ * Returns list of rooms in this map
+ * @returns {RPG.Engine.Room[]}
+ */
+RPG.Engine.Map.prototype.getRooms = function() {
+	return this._rooms;
 }
 
 /**

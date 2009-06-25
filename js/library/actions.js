@@ -46,11 +46,16 @@ RPG.Actions.Move.prototype.execute = function() {
 RPG.Actions.Move.prototype._seeItems = function() {
 	var coords = RPG.World.getPC().getCoords();
 	var map = RPG.World.getMap();
+	
 	var items = map.at(coords).getItems();
-	if (items.length > 1) {
+	var door = map.at(coords).getDoor();
+	var itc = items.length;
+	if (door) { itc--; }
+	
+	if (itc > 1) {
 		RPG.UI.Buffer.show("several items are lying here.");
-	} else if (items.length == 1) {
-		var item = items[0];
+	} else if (itc == 1) {
+		var item = items[items.length-1];
 		var str = item.describeA();
 		str += " is lying here.";
 		RPG.UI.Buffer.show(str);

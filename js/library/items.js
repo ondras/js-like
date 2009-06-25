@@ -76,6 +76,7 @@ RPG.Items.Door.prototype.isClosed = function() {
 
 /**
  * @class Anything that can be eaten
+ * @augments RPG.Items.BaseItem
  */
 RPG.Items.Edible = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Edible.prototype.init = function() {
@@ -84,7 +85,15 @@ RPG.Items.Edible.prototype.init = function() {
 	this._char = "%";
 }
 
+/**
+ * @class Corpse, after being dies
+ * @augments RPG.Items.Edible
+ */
 RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Edible);
+
+/**
+ * @param {RPG.Beings.BaseBeing} being The one who died
+ */
 RPG.Items.Corpse.prototype.init = function(being) {
 	this.parent();
 	this._color = being.getColor();
