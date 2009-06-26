@@ -2,7 +2,7 @@
  * @class Floor
  * @augments RPG.Cells.BaseCell
  */
-RPG.Cells.Corridor = OZ.Class().extend(RPG.Dungeon.BaseCell);
+RPG.Cells.Corridor = OZ.Class().extend(RPG.Cells.BaseCell);
 RPG.Cells.Corridor.prototype.init = function() {
 	this.parent();
 	this._description = "floor section";
@@ -15,7 +15,7 @@ RPG.Cells.Corridor.prototype.init = function() {
  * @class Wall
  * @augments RPG.Cells.BaseCell
  */
-RPG.Cells.Wall = OZ.Class().extend(RPG.Dungeon.BaseCell);
+RPG.Cells.Wall = OZ.Class().extend(RPG.Cells.BaseCell);
 RPG.Cells.Wall.prototype.init = function() {
 	this.parent();
 	this._description = "solid wall";
@@ -29,7 +29,7 @@ RPG.Cells.Wall.prototype.init = function() {
 /**
  * @class Door
  */
-RPG.Features.Door = OZ.Class().extend(RPG.Dungeon.BaseFeature);
+RPG.Features.Door = OZ.Class().extend(RPG.Features.BaseFeature);
 
 RPG.Features.Door.prototype.init = function() {
 	this.parent();
@@ -66,7 +66,7 @@ RPG.Features.Door.prototype.isClosed = function() {
 /**
  * @class Teleport
  */
-RPG.Features.Teleport = OZ.Class().extend(RPG.Dungeon.BaseFeature);
+RPG.Features.Teleport = OZ.Class().extend(RPG.Features.BaseFeature);
 
 RPG.Features.Teleport.prototype.init = function() {
 	this.parent();

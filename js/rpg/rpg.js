@@ -35,6 +35,9 @@ RPG.Cells = {};
 RPG.Races = {};
 
 /** @namespace */
+RPG.Rooms = {};
+
+/** @namespace */
 RPG.Dungeon = {};
 
 RPG.CELL_OBSTACLE 		= 1 << 0; /* can not be moved onto */

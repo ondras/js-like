@@ -3,11 +3,11 @@
  * @augments RPG.Misc.ModifierInterface
  * @augments RPG.Visual.VisualInterface
  */
-RPG.Dungeon.BaseCell = OZ.Class()
+RPG.Cells.BaseCell = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
 						.implement(RPG.Misc.ModifierInterface);
 
-RPG.Dungeon.BaseCell.prototype.init = function() {
+RPG.Cells.BaseCell.prototype.init = function() {
 	this._initVisuals();
 	this._items = [];
 	this._modifiers = [];
@@ -16,40 +16,40 @@ RPG.Dungeon.BaseCell.prototype.init = function() {
 	this.flags = 0;
 }
 
-RPG.Dungeon.BaseCell.prototype.addItem = function(item) {
+RPG.Cells.BaseCell.prototype.addItem = function(item) {
 	this._items.push(item);
 }
 
-RPG.Dungeon.BaseCell.prototype.removeItem = function(item) {
+RPG.Cells.BaseCell.prototype.removeItem = function(item) {
 	var index = this._items.indexOf(item);
 	if (index == -1) { throw new Error("Item not found"); }
 	this._items.splice(index, 1);
 }
 
-RPG.Dungeon.BaseCell.prototype.getItems = function() {
+RPG.Cells.BaseCell.prototype.getItems = function() {
 	return this._items;
 }
 
-RPG.Dungeon.BaseCell.prototype.setBeing = function(being) {
+RPG.Cells.BaseCell.prototype.setBeing = function(being) {
 	this._being = being || null;
 }
 
-RPG.Dungeon.BaseCell.prototype.getBeing = function() {
+RPG.Cells.BaseCell.prototype.getBeing = function() {
 	return this._being;
 }
 
-RPG.Dungeon.BaseCell.prototype.setFeature = function(feature) {
+RPG.Cells.BaseCell.prototype.setFeature = function(feature) {
 	this._feature = feature;
 }
 
-RPG.Dungeon.BaseCell.prototype.getFeature = function() {
+RPG.Cells.BaseCell.prototype.getFeature = function() {
 	return this._feature;
 }
 
 /**
  * Can a being move to this cell?
  */
-RPG.Dungeon.BaseCell.prototype.isFree = function() {
+RPG.Cells.BaseCell.prototype.isFree = function() {
 	if (this._being) { return false; }
 	if (this.flags & RPG.CELL_OBSTACLE) { return false; }
 	if (this._feature && this._feature.flags & RPG.FEATURE_OBSTACLE) { return false; }
@@ -59,7 +59,7 @@ RPG.Dungeon.BaseCell.prototype.isFree = function() {
 /**
  * Can a being see through this cell?
  */
-RPG.Dungeon.BaseCell.prototype.visibleThrough = function() {
+RPG.Cells.BaseCell.prototype.visibleThrough = function() {
 	if (this.flags & RPG.CELL_SOLID) { return false; }
 	if (this._feature && this._feature.flags & RPG.FEATURE_SOLID) { return false; }
 	return true;
@@ -69,34 +69,34 @@ RPG.Dungeon.BaseCell.prototype.visibleThrough = function() {
 /**
  * @class Room, a logical group of cells
  */
-RPG.Dungeon.BaseRoom = OZ.Class();
+RPG.Rooms.BaseRoom = OZ.Class();
 
 /**
  * @param {RPG.Dungeon.Map} map
  * @param {RPG.Misc.Coords} corner1 top-left corner
  * @param {RPG.Misc.Coords} corner2 bottom-right corner
  */
-RPG.Dungeon.BaseRoom.prototype.init = function(map, corner1, corner2) {
+RPG.Rooms.BaseRoom.prototype.init = function(map, corner1, corner2) {
 	this._map = map;
 	this._corner1 = corner1.clone();
 	this._corner2 = corner2.clone();
 }
 
-RPG.Dungeon.BaseRoom.prototype.getCorner1 = function() {
+RPG.Rooms.BaseRoom.prototype.getCorner1 = function() {
 	return this._corner1;
 }
 
-RPG.Dungeon.BaseRoom.prototype.getCorner2 = function() {
+RPG.Rooms.BaseRoom.prototype.getCorner2 = function() {
 	return this._corner2;
 }
 
 /**
  * @class Dungeon feature
  */
-RPG.Dungeon.BaseFeature = OZ.Class()
+RPG.Features.BaseFeature = OZ.Class()
 							.implement(RPG.Visual.VisualInterface)
 
-RPG.Dungeon.BaseFeature.prototype.init = function() {
+RPG.Features.BaseFeature.prototype.init = function() {
 	this._initVisuals();
 	this.flags = 0;
 }

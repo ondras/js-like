@@ -71,7 +71,7 @@ var Graph = {
 			for (var j=0;j<node._implement.length;j++) {
 				var name = this.cached(node._implement[j]);
 				if (!name) { alert("wtf."); }
-				this.result += '"'+name + '" -> "' + item.name+'" [constraint=false, color=red, style=dotted, weight=1]\n';
+				this.result += '"'+name + '" -> "' + item.name+'" [constraint=true, color=red, style=dotted, weight=1]\n';
 			}
 		}
 	}

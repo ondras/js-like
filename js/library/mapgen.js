@@ -8,7 +8,7 @@ RPG.Dungeon.Generator.prototype.init = function(size, wall, floor) {
 	this._wall = RPG.Cells.Wall;
 	this._corridor = RPG.Cells.Corridor;
 	this._door = RPG.Features.Door;
-	this._room = RPG.Dungeon.BaseRoom;
+	this._room = RPG.Rooms.BaseRoom;
 	this._map = null;
 }
 
