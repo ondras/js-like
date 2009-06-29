@@ -29,6 +29,18 @@ RPG.Items.Dagger.prototype.init = function() {
 }
 
 /**
+ * @class Klingon Ceremonial Sword
+ * @augments RPG.Items.Weapon
+ */
+RPG.Items.KlingonSword = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.KlingonSword.prototype.init = function() {
+	this.parent(5, 5);
+	this._color = "gold";
+	this._image = "klingon-sword";
+	this._description = "Klingon ceremonial sword";
+}
+
+/**
  * @class Anything that can be eaten
  * @augments RPG.Items.BaseItem
  */

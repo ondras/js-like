@@ -24,11 +24,11 @@ var orc = new RPG.Beings.Orc();
 var brain = new RPG.Engine.AI(orc);
 map.setBeing(new RPG.Misc.Coords(x, y), orc);
 
-/* room #3 - dagger */
+/* room #3 - item */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
 var x = Math.round((room.getCorner1().x + room.getCorner2().x)/2);
 var y = Math.round((room.getCorner1().y + room.getCorner2().y)/2);
-map.addItem(new RPG.Misc.Coords(x, y), new RPG.Items.Dagger());
+map.addItem(new RPG.Misc.Coords(x, y), new RPG.Items.KlingonSword());
 
 /* room #4 - gold */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
@@ -49,11 +49,15 @@ map.at(map.getFreeCoords()).setFeature(t);
 RPG.World.setScheduler(new RPG.Engine.Queue());
 
 /* build ui */
+RPG.UI.init();
+
 var buffer = RPG.UI.buildBuffer()
 document.body.insertBefore(buffer, document.body.firstChild);
 
 var keypad = RPG.UI.buildKeypad();
 document.body.appendChild(keypad);
+var commands = RPG.UI.buildCommands();
+document.body.appendChild(commands);
 
 RPG.UI.enableKeyboard();
 

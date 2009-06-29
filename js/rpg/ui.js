@@ -5,6 +5,7 @@ RPG.UI = {
 	Buffer: null,
 	Map: null,
 	_locked: false,
+	_commands: [],
 	_inputs: []
 };
 
@@ -12,6 +13,36 @@ RPG.UI = {
  * Static version of bind
  */
 RPG.UI.bind = OZ.Class().prototype.bind;
+
+RPG.UI.init = function() {
+	this._defineCommand([57], [33], function() { this._move(1, -1); });
+	this._defineCommand([51], [34], function() { this._move(1, 1); });
+	this._defineCommand([49], [35], function() { this._move(-1, 1); });
+	this._defineCommand([55], [36], function() { this._move(-1, -1); });
+	this._defineCommand([52], [37], function() { this._move(-1, 0); });
+	this._defineCommand([56], [38], function() { this._move(0, -1); });
+	this._defineCommand([54], [39], function() { this._move(1, 0); });
+	this._defineCommand([50], [40], function() { this._move(0, 1); });
+
+	/* wait */
+	this._defineCommand([46, 53], [12], function() {
+		this.action(RPG.Actions.Wait);
+	});
+
+	/* pick */
+	this._defineCommand([44], [], function() {
+		var arr = [];
+		var pc = RPG.World.getPC();
+		var items = pc.getMap().at(pc.getCoords()).getItems();
+		for (var i=0;i<items.length;i++) {
+			arr.push(items[i]);
+		}
+		if (arr.length) { 
+			this.action(RPG.Actions.Pick, arr);
+		}
+	});
+	
+}
 
 /**
  * Disable interactive mode
@@ -79,25 +110,25 @@ RPG.UI.buildBuffer = function() {
 RPG.UI.buildKeypad = function() {
 	var def = [
 		{
-			"Up left": 36,
-			"Up": 38,
-			"Up right": 33
+			"◤": 36,
+			"▲": 38,
+			"◥": 33
 		},
 		{
-			"Left": 37,
-			"Wait": 190,
-			"Right": 39
+			"◀": 37,
+			"…": 190,
+			"▶": 39
 		},
 		{
-			"Down left": 35,
-			"Down": 40,
-			"Down right": 34
+			"◣": 35,
+			"▼": 40,
+			"◢": 34
 		}
 	];
-	
+
 	var gen = function(code) {
 		return function() {
-			return RPG.UI._handleCode(code);
+			return RPG.UI._handleCode(0, code);
 		}
 	}
 	
@@ -121,78 +152,56 @@ RPG.UI.buildKeypad = function() {
 }
 
 /**
- * Add keyboard control
+ * Build command buttons
  */
-RPG.UI.enableKeyboard = function() {
-	OZ.Event.add(document, "keydown", this.bind(this._keyDown));
+RPG.UI.buildCommands = function() {
+	var div = OZ.DOM.elm("div", {"class":"commands"});
+	
+	var i = OZ.DOM.elm("input", {type:"button", value:"Pick (,)"});
+	div.appendChild(i);
+	OZ.Event.add(i, "click", function() { RPG.UI._handleCode(44, 0); });
+
+	return div;
 }
 
 /**
- * Process a given keyCode
- * @param {int} keyCode
- * @returns {bool} was there any action performed?
+ * Add keyboard control
  */
-RPG.UI._handleCode = function(keyCode) {
-	switch (keyCode) {
-		case 105:
-		case 33: 
-			this._move(1, -1); 
-		break;
-		
-		case 99:
-		case 34: 
-			this._move(1, 1); 
-		break;
-
-		case 103:
-		case 36: 
-			this._move(-1, -1); 
-		break;
-		
-		case 97:
-		case 35: 
-			this._move(-1, 1); 
-		break;
-		
-		case 100:
-		case 37: 
-			this._move(-1, 0); 
-		break;
-		
-		case 104:
-		case 38: 
-			this._move(0, -1); 
-		break;
-
-		case 102:
-		case 39: 
-			this._move(1, 0); 
-		break;
-		
-		case 98:
-		case 40: 
-			this._move(0, 1); 
-		break;
-		
-		case 12: 
-		case 101:
-		case 190: 
-			this.action(RPG.Actions.Wait);
-		break;
-		
-		default: 
-			return false; 
-		break;
-	}
-	return true;
+RPG.UI.enableKeyboard = function() {
+	OZ.Event.add(document, "keypress", this.bind(this._keyPress));
 }
 
+RPG.UI._defineCommand = function(charCodes, keyCodes, what) {
+	this._commands.push({
+		charCodes: charCodes,
+		keyCodes: keyCodes,
+		what: this.bind(what)
+	});
+}
+
+/**
+ * Process a given key
+ * @param {int} keyCode
+ * @param {int} charCode
+ * @returns {bool} was there any action performed?
+ */
+RPG.UI._handleCode = function(charCode, keyCode) {
+	for (var i=0;i<this._commands.length;i++) {
+		var c = this._commands[i];
+		if (c.keyCodes.indexOf(keyCode) != -1 || c.charCodes.indexOf(charCode) != -1) {
+			c.what();
+			return true;
+		}
+	}
+	return false;
+}
+		
 /**
  * Keydown handler
  * @param {event} e
  */
-RPG.UI._keyDown = function(e) {
-	if (this._handleCode(e.keyCode)) {
+RPG.UI._keyPress = function(e) {
+	if (this._handleCode(e.charCode, e.keyCode)) {
 		OZ.Event.prevent(e);
 	}
 }

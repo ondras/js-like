@@ -207,9 +207,9 @@ RPG.Visual.ImageCell.prototype._updateImage = function(node, what) {
 		type = "beings";
 	} else if (what instanceof RPG.Items.BaseItem) {
 		type = "items";
-	} else if (what instanceof RPG.Dungeon.BaseCell) {
+	} else if (what instanceof RPG.Cells.BaseCell) {
 		type = "cells";
-	} else if (what instanceof RPG.Dungeon.BaseFeature) {
+	} else if (what instanceof RPG.Features.BaseFeature) {
 		type = "features";
 	}
 	

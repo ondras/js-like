@@ -224,3 +224,28 @@ RPG.Actions.Teleport.prototype.execute = function() {
 		RPG.UI.Map.redrawCoords(target);
 	}
 }
+
+/**
+ * @class Picking item(s). Target = item || item[]
+ * @augments RPG.Engine.BaseAction
+ */
+RPG.Actions.Pick = OZ.Class().extend(RPG.Engine.BaseAction);
+RPG.Actions.Pick.prototype.execute = function() {
+	var items = this._target;
+	if (!(items instanceof Array)) { items = [items]; }
+	
+	var map = this._source.getMap();
+	var cell = map.at(this._source.getCoords());
+	var you = (this._source == RPG.World.getPC());
+	
+	for (var i=0;i<items.length;i++) {
+		var item = items[i];
+		this._source.addItem(item);
+		cell.removeItem(item);
+		var str = (you ? "you" : this._source.describeA());
+		str += " " + (you ? "pick" : "picks") + " up ";
+		str += item.describeA();
+		str += ".";
+		RPG.UI.Buffer.show(str);
+	}
+}
