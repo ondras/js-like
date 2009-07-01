@@ -1,6 +1,6 @@
 OZ.Class = function() { 
 	var c = function() {
-		this.constructor = c;
+		this.constructor = arguments.callee;
 		var init = arguments.callee.prototype.init;
 		if (init) { init.apply(this,arguments); }
 	};

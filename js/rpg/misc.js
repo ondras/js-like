@@ -43,6 +43,16 @@ RPG.Misc.Coords.prototype.distance = function(coords) {
 RPG.Misc.Coords.prototype.clone = function() {
 	return new this.constructor(this.x, this.y);
 }
+RPG.Misc.Coords.prototype.plus = function(c) {
+	this.x += c.x;
+	this.y += c.y;
+	return this;
+}
+RPG.Misc.Coords.prototype.minus = function(c) {
+	this.x -= c.x;
+	this.y -= c.y;
+	return this;
+}
 
 /**
  * @class Modifier interface: everything that holds feat modifiers have this

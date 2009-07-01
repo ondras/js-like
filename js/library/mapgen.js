@@ -200,17 +200,17 @@ RPG.Dungeon.Generator.Uniform.prototype._generateRoom = function() {
 		var dims = this._generateSize(corner1, this._minSize, this._maxWidth, this._maxHeight);
 		
 		/* this is the room */
-		var corner2 = corner1.clone();
-		corner2.x += dims.x-1;
-		corner2.y += dims.y-1;
+		var corner2 = corner1.clone().plus(dims);
+		corner2.x -= 1;
+		corner2.y -= 1;
 		
 		/* enlarge for fitting */
 		var c1 = corner1.clone();
 		c1.x--;
 		c1.y--;
 		var c2 = corner2.clone();
-		c2.x += 1;
-		c2.y += 1;
+		c2.x++;
+		c2.y++;
 		
 		/* is this one room okay? */
 		var fits = this._freeSpace(c1, c2);
@@ -290,9 +290,9 @@ RPG.Dungeon.Generator.Digger.prototype._firstRoom = function() {
 	var corner1 = this._generateCoords(this._minSize);
 	var dims = this._generateSize(corner1, this._minSize, this._maxWidth, this._maxHeight);
 	
-	var corner2 = corner1.clone();
-	corner2.x += dims.x-1;
-	corner2.y += dims.y-1;
+	var corner2 = corner1.clone().plus(dims);
+	corner2.x -= 1;
+	corner2.y -= 1;
 	
 	this._digged += dims.x*dims.y;
 	var room = this._map.addRoom(this._room, corner1, corner2);
@@ -362,9 +362,7 @@ RPG.Dungeon.Generator.Digger.prototype._featureRoom = function(wall) {
 	var height = Math.floor(Math.random() * diffY) + this._minSize;
 	
 	/* one corner of the room, unshifted */
-	var corner1 = wall.clone();
-	corner1.x += direction.x;
-	corner1.y += direction.y;
+	var corner1 = wall.clone().plus(direction);
 	
 	var corner2 = corner1.clone();
 	
@@ -399,11 +397,11 @@ RPG.Dungeon.Generator.Digger.prototype._featureRoom = function(wall) {
 	
 	/* enlarge for testing */
 	var c1 = corner1.clone();
-	c1.x -= 1;
-	c1.y -= 1;
+	c1.x--;
+	c1.y--;
 	var c2 = corner2.clone();
-	c2.x += 1;
-	c2.y += 1;
+	c2.x++;
+	c2.y++;
 
 	var ok = this._freeSpace(c1, c2);
 	if (!ok) { return false; }
@@ -420,12 +418,9 @@ RPG.Dungeon.Generator.Digger.prototype._featureRoom = function(wall) {
 	
 	/* remove 3 free walls from entrance */
 	this._removeFreeWall(wall);
-	var c = new RPG.Misc.Coords();
-	c.x = wall.x + normal.x;
-	c.y = wall.y + normal.y;
+	var c = wall.clone().plus(normal);
 	this._removeFreeWall(c);
-	c.x = wall.x - normal.x;
-	c.y = wall.y - normal.y;
+	var c = wall.clone().minus(normal);
 	this._removeFreeWall(c);
 
 	return true;
@@ -463,8 +458,7 @@ RPG.Dungeon.Generator.Digger.prototype._featureCorridor = function(wall) {
 	/* end point */
 	var end = start.clone();
 	for (var i=1;i<length;i++) {
-		end.x += direction.x;
-		end.y += direction.y;
+		end.plus(direction);
 	}
 	
 	var left = Math.min(start.x + normal.x, start.x - normal.x, end.x + normal.x, end.x - normal.x);
@@ -483,20 +477,16 @@ RPG.Dungeon.Generator.Digger.prototype._featureCorridor = function(wall) {
 	var c = start.clone();
 	for (var i=0;i<length;i++) {
 		this._map.setCell(c, new this._corridor());
-		c.x += direction.x;
-		c.y += direction.y;
+		c.plus(direction);
 	}
 	
 	/* add forced endings */
 	this._forcedWalls = [];
-	c.x = end.x + direction.x;
-	c.y = end.y + direction.y;
+	c = end.clone().plus(direction);
 	this._addForcedWall(c);
-	c.x = end.x + normal.x;
-	c.y = end.y + normal.y;
+	c = end.clone().plus(normal);
 	this._addForcedWall(c);
-	c.x = end.x - normal.x;
-	c.y = end.y - normal.y;
+	c = end.clone().minus(normal);
 	this._addForcedWall(c);
 	
 	/* remove end cell from free walls */
@@ -512,14 +502,11 @@ RPG.Dungeon.Generator.Digger.prototype._featureCorridor = function(wall) {
 	this._addSurroundingWalls(start, end);
 	
 	/* remove walls that are not free anymore */
-	c.x = wall.x;
-	c.y = wall.y;
+	c = wall;
 	this._removeFreeWall(c);
-	c.x = wall.x + normal.x;
-	c.y = wall.y + normal.y;
+	c = wall.clone().plus(normal);
 	this._removeFreeWall(c);
-	c.x = wall.x - normal.x;
-	c.y = wall.y - normal.y;
+	c = wall.clone().minus(normal);
 	this._removeFreeWall(c);
 	
 	return true;

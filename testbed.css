@@ -21,6 +21,16 @@ body {
 
 .keypad {
 	text-align: center;
+	float: left;
+	border-collapse: collapse;
+}
+
+.keypad td {
+	padding: 0px;
+}
+
+.keypad input, .commands input {
+	margin: 1px;
 }
 
 #mapswitch {

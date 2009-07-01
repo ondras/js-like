@@ -9,9 +9,8 @@ RPG.Visual.TextBuffer.prototype.init = function(textarea) {
 	this._dom.textarea.value = "";
 }
 
-RPG.Visual.TextBuffer.prototype.show = function(str) {
-	var s = str.charAt(0).toUpperCase() + str.substring(1);
-	this._dom.textarea.value += s+" ";
+RPG.Visual.TextBuffer.prototype.message = function(str) {
+	this._dom.textarea.value += str+" ";
 }
 
 RPG.Visual.TextBuffer.prototype.clear = function() {

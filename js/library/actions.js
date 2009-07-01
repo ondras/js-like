@@ -3,16 +3,6 @@
  * @augments RPG.Engine.BaseAction
  */
 RPG.Actions.Wait = OZ.Class().extend(RPG.Engine.BaseAction);
-RPG.Actions.Wait.prototype.execute = function() {
-/*	var str = "";
-	if (this._source == RPG.World.getPC()) {
-		str = "you wait";
-	} else {
-		str = this._source.describeA() + " waits";
-	}
-	RPG.UI.Buffer.show(str+".");
-*/
-}
 
 /**
  * @class Moving to a given cell. Target == coords.
@@ -29,19 +19,12 @@ RPG.Actions.Move.prototype.execute = function() {
 	level.setBeing(target, this._source);
 	this._tookTime = true;
 
-/*	
-	var str = "";
-	str = (you ? "you" : this._source.describeA());
-	str += " " + (you ? "move to" : "moves to");
-	str += " "+this._target.toString()+".";
-	RPG.UI.Buffer.show(str);
-*/
 	if (you) {
 		this._seeItems();
-		RPG.UI.Map.redraw();
+		RPG.UI.redraw();
 	} else {
-		RPG.UI.Map.redrawCoords(source);
-		RPG.UI.Map.redrawCoords(target);
+		RPG.UI.redrawCoords(source);
+		RPG.UI.redrawCoords(target);
 	}
 }
 
@@ -52,12 +35,12 @@ RPG.Actions.Move.prototype._seeItems = function() {
 	var items = map.at(coords).getItems();
 	
 	if (items.length > 1) {
-		RPG.UI.Buffer.show("several items are lying here.");
+		RPG.UI.message("Several items are lying here.");
 	} else if (items.length == 1) {
 		var item = items[0];
-		var str = item.describeA();
+		var str = item.describeA().capitalize();
 		str += " is lying here.";
-		RPG.UI.Buffer.show(str);
+		RPG.UI.message(str);
 	}
 }
 
@@ -93,14 +76,14 @@ RPG.Actions.Attack.prototype.execute = function() {
 	}
 	
 	var str = this._describe();
-	RPG.UI.Buffer.show(str);
+	RPG.UI.message(str);
 }
 
 RPG.Actions.Attack.prototype._describe = function() {
 	var you1 = (this._source == RPG.World.getPC());
 	var you2 = (this._target == RPG.World.getPC());
 	var str = "";
-	str = (you1 ? "you" : this._source.describeThe()) + " ";
+	str = (you1 ? "you" : this._source.describeThe()).capitalize() + " ";
 	
 	if (!this._hit) {
 		str += (you1 ? "miss" : "misses");
@@ -114,7 +97,7 @@ RPG.Actions.Attack.prototype._describe = function() {
 			str += "hit " + this._target.describeThe();
 			str += ", but do not manage to harm " + this._target.describeIt();
 		} else {
-			str += " fails to hurt " + (you2 ? "you" : this._target.describeThe());
+			str += "fails to hurt " + (you2 ? "you" : this._target.describeThe());
 		}
 		str += ".";
 		return str;
@@ -123,7 +106,11 @@ RPG.Actions.Attack.prototype._describe = function() {
 	str += (you1 ? "hit" : "hits");
 	str += " " + (you2 ? "you" : this._target.describeThe());
 	if (this._kill) {
-		str += " and kill " + this._target.describeIt(); /* fixme endgame */
+		if (you2) {
+			str += " and kills you";
+		} else {
+			str += " and kill "+this._target.describeIt();
+		}
 		str += "!";
 	} else {
 		if (!you2) {
@@ -143,8 +130,13 @@ RPG.Actions.Death.prototype.execute = function() {
 	var map = RPG.World.getMap();
 	map.setBeing(this._source.getCoords(), null); /* remove being */
 	
-	RPG.UI.Map.redrawCoords(this._source.getCoords());
+	RPG.UI.redrawCoords(this._source.getCoords());
 	RPG.World.removeActor(this._source);
+	
+	if (RPG.World.getPC() == this.getSource()) {
+		RPG.World.pause();
+		alert("MWHAHAHA you are dead!");
+	}
 }
 
 /**
@@ -165,10 +157,12 @@ RPG.Actions.Open.prototype.execute = function() {
 	} else {
 		str += this._source.describeA() + " opens";
 	}
-	str += " the door at " + coords.toString() + ".";
+	str = str.capitalize();
 	
-	RPG.UI.Buffer.show(str);
-	RPG.UI.Map.redraw();
+	str += " the door.";
+	
+	RPG.UI.message(str);
+	RPG.UI.redraw();
 }
 
 /**
@@ -189,10 +183,11 @@ RPG.Actions.Close.prototype.execute = function() {
 	} else {
 		str += this._source.describeA() + " closes";
 	}
-	str += " the door at " + coords.toString() + ".";
+	str = str.capitalize();
+	str += " the door.";
 	
-	RPG.UI.Buffer.show(str);
-	RPG.UI.Map.redraw();
+	RPG.UI.message(str);
+	RPG.UI.redraw();
 }
 
 /**
@@ -211,17 +206,17 @@ RPG.Actions.Teleport.prototype.execute = function() {
 	this._tookTime = true;
 
 	var str = "";
-	str = (you ? "you" : this._source.describeA());
+	str = (you ? "you" : this._source.describeA()).capitalize();
 	str += " suddenly ";
 	str += (you ? "teleport" : "teleports");
 	str += " away!";
-	RPG.UI.Buffer.show(str);
+	RPG.UI.message(str);
 
 	if (you) {
-		RPG.UI.Map.redraw();
+		RPG.UI.redraw();
 	} else {
-		RPG.UI.Map.redrawCoords(source);
-		RPG.UI.Map.redrawCoords(target);
+		RPG.UI.redrawCoords(source);
+		RPG.UI.redrawCoords(target);
 	}
 }
 
@@ -242,10 +237,10 @@ RPG.Actions.Pick.prototype.execute = function() {
 		var item = items[i];
 		this._source.addItem(item);
 		cell.removeItem(item);
-		var str = (you ? "you" : this._source.describeA());
+		var str = (you ? "you" : this._source.describeA()).capitalize();
 		str += " " + (you ? "pick" : "picks") + " up ";
 		str += item.describeA();
 		str += ".";
-		RPG.UI.Buffer.show(str);
+		RPG.UI.message(str);
 	}
 }

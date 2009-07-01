@@ -21,6 +21,7 @@ RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._feats = {};
 	this._hands = null;
 	this._weapon = null;
+	this._alive = true;
 	
 	this._char = this._race.getChar(null);
 
@@ -233,6 +234,12 @@ RPG.Beings.BaseBeing.prototype.getDamage = function() {
 	return Math.round(val);
 }
 
+/* ============================== MISC ==================================== */
+
+RPG.Beings.BaseBeing.prototype.isAlive = function() {
+	return this._alive;
+}
+
 /**
  * Adjust hitpoints by a given amount
  * @param {int} amount
@@ -277,6 +284,7 @@ RPG.Beings.BaseBeing.prototype.dropAll = function() {
  * This being dies
  */
 RPG.Beings.BaseBeing.prototype.die = function() {
+	this._alive = false;
 	this.dropAll();
 	var corpse = new RPG.Items.Corpse(this);
 	this._map.addItem(this._coords, corpse);

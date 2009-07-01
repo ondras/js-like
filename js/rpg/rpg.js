@@ -69,3 +69,7 @@ Math.randomNormal = function(stddev) {
     var gauss = u * Math.sqrt(-2*Math.log(r)/r);
     return gauss*stddev;
 }
+
+String.prototype.capitalize = function() {
+	return this.charAt(0).toUpperCase() + this.substring(1);
+}

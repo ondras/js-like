@@ -49,15 +49,13 @@ map.at(map.getFreeCoords()).setFeature(t);
 RPG.World.setScheduler(new RPG.Engine.Queue());
 
 /* build ui */
-RPG.UI.init();
-
 var buffer = RPG.UI.buildBuffer()
 document.body.insertBefore(buffer, document.body.firstChild);
 
-var keypad = RPG.UI.buildKeypad();
-document.body.appendChild(keypad);
 var commands = RPG.UI.buildCommands();
-document.body.appendChild(commands);
+for (var i=0;i<commands.length;i++) {
+	document.body.appendChild(commands[i]);
+}
 
 RPG.UI.enableKeyboard();
 
@@ -72,7 +70,7 @@ function use(name) {
 	var m = func.call(RPG.UI);
 	c.appendChild(m);
 	
-	if (RPG.World.getMap()) { RPG.UI.Map.adjust(RPG.World.getMap()); }
+	if (RPG.World.getMap()) { RPG.UI.adjust(RPG.World.getMap()); }
 
 	var a = OZ.$(name);
 	var ul = a.parentNode.parentNode;
