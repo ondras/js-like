@@ -11,28 +11,38 @@ RPG.Beings.BaseBeing = OZ.Class()
 
 RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._initVisuals();
-	this._modifiers = [];
+	this._modifiers = []; /* to comply with ModifierInterface */
+
 	this._coords = null;
 	this._map = null;
+	
 	this._race = r;
 	this._items = [];
 	this._gender = RPG.GENDER_NEUTER;
 	this._stats = {};
 	this._feats = {};
-	this._hands = null;
-	this._weapon = null;
-	this._alive = true;
 	
-	this._char = this._race.getChar(null);
+	this._weapons = {
+		current: null,
+		hands: new RPG.Beings.BaseBeing.Hands(2, 1),
+		foot: new RPG.Beings.BaseBeing.Foot(1, 2)
+	}
 
-	this._initMisc();
+	this._alive = true;
+	this._char = this._race.getChar();
+	this._color = this._race.getColor();
+	this._image = this._race.getImage();
+	this._description = this._race.describe();
+
+	this._initStatsAndFeats();
+
 	this.fullHP();
 }
 
 /**
- * Non-trivial initialization
+ * Initialize stats (HP) and feats (MaxHP, DV, PV)
  */
-RPG.Beings.BaseBeing.prototype._initMisc = function() {
+RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	this._stats = {
 		hp: 0
 	}
@@ -40,10 +50,6 @@ RPG.Beings.BaseBeing.prototype._initMisc = function() {
 		maxhp: new RPG.Feats.MaxHP(8),
 		dv: new RPG.Feats.DV(0),
 		pv: new RPG.Feats.PV(0)
-	}
-	this._hands = {
-		hit: new RPG.Feats.Hit(5),
-		damage: new RPG.Feats.Damage(2),
 	}
 	
 	var attrs = {
@@ -54,7 +60,7 @@ RPG.Beings.BaseBeing.prototype._initMisc = function() {
 	}
 	for (var name in attrs) {
 		var ctor = attrs[name];
-		var dice = new RPG.Misc.Dice(1, 6, 0);
+		var dice = new RPG.Misc.Interval(1, 6);
 		this._feats[name] = new ctor(dice.roll());
 	}
 }
@@ -86,15 +92,16 @@ RPG.Beings.BaseBeing.prototype.addItem = function(item) {
 	this._items.push(item);
 }
 
+RPG.Beings.BaseBeing.prototype.getFoot = function() {
+	return this._weapons.foot;
+}
+
 /**
- * Being combines modifiers from various sources: items, feats, race, ...
+ * Being combines modifiers from various sources: equpped items, feats, race, ...
  * @see RPG.Base.ModifierInterface
  */
 RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type, modifierHolder) {
 	var modifierHolders = [];
-	for (var i=0;i<this._items.length;i++) {
-		modifierHolders.push(this._items[i]);
-	}
 	for (var p in this._feats) {
 		modifierHolders.push(this._feats[p]);
 	}
@@ -118,11 +125,19 @@ RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type, modifierHolder
 }
 
 /**
- * Sets an item as a current weapon. FIXME this should be reworked into an inventory
- * @param {RPG.Items.BaseItem}
+ * Sets an item as a current weapon. FIXME this should be reworked into an inventory.
+ * @param {RPG.Misc.WeaponInterface}
  */
 RPG.Beings.BaseBeing.prototype.setWeapon = function(item) {
-	this._weapon = item;
+	this._weapons.current = item;
+}
+
+/**
+ * Gets current weapon. FIXME this should be reqorked into an inventory.
+ * @returns {RPG.Misc.WeaponInterface}
+ */
+RPG.Beings.BaseBeing.prototype.getWeapon = function() {
+	return this._weapons.current || this._weapons.hands;
 }
 
 /**
@@ -132,22 +147,8 @@ RPG.Beings.BaseBeing.prototype.getChar = function() {
 	if (RPG.World.getPC() == this) { 
 		return "@"; 
 	} else {
-		return this._race.getChar();
+		return this._char;
 	}
-}
-
-/**
- * @see RPG.Visual.VisualInterface#getColor
- */
-RPG.Beings.BaseBeing.prototype.getColor = function() {
-	return this._race.getColor();
-}
-
-/**
- * @see RPG.Visual.VisualInterface#getImage
- */
-RPG.Beings.BaseBeing.prototype.getImage = function() {
-	return this._race.getImage();
 }
 
 /**
@@ -157,29 +158,7 @@ RPG.Beings.BaseBeing.prototype.describe = function() {
 	if (RPG.World.getPC() == this) {
 		return "you";
 	} else {
-		return this._race.describe();
-	}
-}
-
-/**
- * @see RPG.Visual.VisualInterface#describeA
- */
-RPG.Beings.BaseBeing.prototype.describeA = function() {
-	if (RPG.World.getPC() == this) {
-		return "you";
-	} else {
-		return this._race.describeA();
-	}
-}
-
-/**
- * @see RPG.Visual.VisualInterface#describeThe
- */
-RPG.Beings.BaseBeing.prototype.describeThe = function() {
-	if (RPG.World.getPC() == this) {
-		return "you";
-	} else {
-		return this._race.describeThe();
+		return this._description;
 	}
 }
 
@@ -203,35 +182,23 @@ RPG.Beings.BaseBeing.prototype.getHP = function() {
 }
 
 RPG.Beings.BaseBeing.prototype.getMaxHP = function() {
-	return Math.round(this._feats.maxhp.modifiedValue(this));
+	return this._feats.maxhp.modifiedValue(this);
 }
 
 RPG.Beings.BaseBeing.prototype.getDV = function() {
-	return Math.round(this._feats.dv.modifiedValue(this));
+	return this._feats.dv.modifiedValue(this);
 }
 
 RPG.Beings.BaseBeing.prototype.getPV = function() {
-	return Math.round(this._feats.pv.modifiedValue(this));
+	return this._feats.pv.modifiedValue(this);
 }
 
-RPG.Beings.BaseBeing.prototype.getHit = function() {
-	var val = 0;
-	if (this._weapon) {
-		val = this._weapon.getHit(this);
-	} else {
-		val = this._hands.hit.modifiedValue(this);
-	}
-	return Math.round(val);
+RPG.Beings.BaseBeing.prototype.getHit = function(weapon) {
+	return weapon.getHit(this);
 }
 
-RPG.Beings.BaseBeing.prototype.getDamage = function() {
-	var val = 0;
-	if (this._weapon) {
-		val = this._weapon.getDamage(this);
-	} else {
-		val = this._hands.damage.modifiedValue(this);
-	}
-	return Math.round(val);
+RPG.Beings.BaseBeing.prototype.getDamage = function(weapon) {
+	return weapon.getDamage(this);
 }
 
 /* ============================== MISC ==================================== */
@@ -315,7 +282,7 @@ RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 		
 		/* test alternate starting cell for validity */
 		if (i) {
-			if (!this._map.isValid(c) || !this._map.isFree(c)) { continue; }
+			if (!this._map.isValid(c) || !this._map.at(c).isFree()) { continue; }
 		}
 		var tmp = this._map.lineOfSight(c, target);
 		if (tmp == true) { return true; }
@@ -331,4 +298,16 @@ RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	var frac = 1 - hp/max;
 	var index = Math.floor(frac * def.length);
 	return def[index];
+}
+
+RPG.Beings.BaseBeing.Hands = OZ.Class().implement(RPG.Misc.WeaponInterface);
+RPG.Beings.BaseBeing.Hands.prototype.init = function(hit, damage) {
+	this.setHit(hit);
+	this.setDamage(damage);
+}
+
+RPG.Beings.BaseBeing.Foot = OZ.Class().implement(RPG.Misc.WeaponInterface);
+RPG.Beings.BaseBeing.Foot.prototype.init = function(hit, damage) {
+	this.setHit(hit);
+	this.setDamage(damage);
 }

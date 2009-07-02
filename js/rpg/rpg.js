@@ -8,13 +8,16 @@ var RPG = {}
 RPG.Actions = {};
 
 /** @namespace */
-RPG.Misc = {};
+RPG.Beings = {};
+
+/** @namespace */
+RPG.Cells = {};
+
+/** @namespace */
+RPG.Dungeon = {};
 
 /** @namespace */
 RPG.Engine = {};
-
-/** @namespace */
-RPG.Visual = {};
 
 /** @namespace */
 RPG.Feats = {};
@@ -26,10 +29,7 @@ RPG.Features = {};
 RPG.Items = {};
 
 /** @namespace */
-RPG.Beings = {};
-
-/** @namespace */
-RPG.Cells = {};
+RPG.Misc = {};
 
 /** @namespace */
 RPG.Races = {};
@@ -38,21 +38,38 @@ RPG.Races = {};
 RPG.Rooms = {};
 
 /** @namespace */
-RPG.Dungeon = {};
+RPG.Rules = {};
 
+/** @namespace */
+RPG.UI = {};
+
+/** @namespace */
+RPG.Visual = {};
+
+
+/** @constant */
 RPG.CELL_OBSTACLE 		= 1 << 0; /* can not be moved onto */
+/** @constant */
 RPG.CELL_SOLID	 		= 1 << 1; /* can not be seen through */
 
+/** @constant */
 RPG.ITEM_EDIBLE			= 1 << 0; /* can be eaten */
 
+/** @constant */
 RPG.FEATURE_OBSTACLE	= 1 << 0; /* can not be moved onto */
+/** @constant */
 RPG.FEATURE_SOLID		= 1 << 1; /* can not be seen through */
 
+/** @constant */
 RPG.MODIFIER_PLUS		= 0;
+/** @constant */
 RPG.MODIFIER_TIMES		= 1;
 
+/** @constant */
 RPG.GENDER_MALE			= 0;
+/** @constant */
 RPG.GENDER_FEMALE		= 1;
+/** @constant */
 RPG.GENDER_NEUTER		= 2;
 
 /**

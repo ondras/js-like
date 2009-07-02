@@ -167,7 +167,7 @@ RPG.Engine.AI.Wander.prototype.go = function() {
 			var coords = myCoords.clone();
 			coords.x += i;
 			coords.y += j;
-			if (map.isFree(coords)) { avail.push(coords); }
+			if (map.at(coords).isFree()) { avail.push(coords); }
 		}
 	}
 	
@@ -207,7 +207,7 @@ RPG.Engine.AI.Attack.prototype.go = function() {
 	
 	/* ready to attack, go */
 	if (c1.distance(c2) == 1) {
-		RPG.World.action(new RPG.Actions.Attack(being, this._target));
+		RPG.World.action(new RPG.Actions.Attack(being, this._target, being.getWeapon()));
 		return;
 	}
 	

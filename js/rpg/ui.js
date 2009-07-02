@@ -1,13 +1,8 @@
-/**
- * @namespace
- */
-RPG.UI = {
-	_buffer: null,
-	_map: null,
-	_locked: false,
-	_commands: [],
-	_pending: null
-};
+RPG.UI._buffer = null;
+RPG.UI._map = null;
+RPG.UI._locked = false;
+RPG.UI._commands = [];
+RPG.UI._pending = null;
 
 /**
  * @class Basic command
@@ -20,7 +15,7 @@ RPG.UI.Command.prototype.init = function(label) {
 	this._keyCodes = [];
 	this._func = function() {};
 	this._button = OZ.DOM.elm("input", {type:"button", value:label});
-	OZ.Event.add(this._button, "click", this.bind(this.exec));
+	OZ.Event.add(this._button, "click", this.bind(function(e){this.exec();}));
 }
 
 RPG.UI.Command.prototype.getButton = function() {
@@ -40,6 +35,7 @@ RPG.UI.Command.prototype.setFunc = function(func) {
 }
 
 RPG.UI.Command.prototype.test = function(charCode, keyCode) {
+	if (this._button && this._button.disabled) { return false; }
 	return (this._charCodes.indexOf(charCode) != -1 || this._keyCodes.indexOf(keyCode) != -1);
 }
 
@@ -83,7 +79,7 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	/* being there? */
 	var b = map.at(coords).getBeing();
 	if (b) {
-		RPG.UI.action(RPG.Actions.Attack, b);
+		RPG.UI.action(RPG.Actions.Attack, b, pc.getWeapon());
 		return;
 	} 
 	
@@ -95,7 +91,7 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	}
 	
 	/* can we move there? */
-	if (map.isFree(coords)) {
+	if (map.at(coords).isFree()) {
 		RPG.UI.action(RPG.Actions.Move, coords);
 		return;
 	}	
@@ -114,10 +110,18 @@ RPG.UI.Command.Complex.prototype.exec = function(subcommand) {
 	RPG.UI._pending = null;
 
 	/* second click on a pending command => cancel */
-	if (pending && !subcommand) { return; }
+	if (pending && !subcommand) { 
+		RPG.UI.adjustButtons({commands:true, cancel:false, dir:true});
+		return; 
+	}
 	
 	var result = this._func.call(this, subcommand);
-	if (!result) { RPG.UI._pending = this; }
+	if (result) { 
+		RPG.UI.adjustButtons({commands:true, cancel:false, dir:true});
+	} else {
+		RPG.UI.adjustButtons({commands:false, cancel:true, dir:true});
+		RPG.UI._pending = this; 
+	}
 }
 
 /**
@@ -150,9 +154,7 @@ RPG.UI.adjust = function(map) {
  */
 RPG.UI.lock = function() {
 	this._locked = true;
-	RPG.UI._commands.forEach(function(c){
-		c.getButton().disabled = true;
-	});
+	RPG.UI.adjustButtons({commands:false, dir:false, cancel:false});
 }
 
 /**
@@ -160,9 +162,31 @@ RPG.UI.lock = function() {
  */
 RPG.UI.unlock = function() {
 	this._locked = false;
-	RPG.UI._commands.forEach(function(c){
-		c.getButton().disabled = false;
-	});
+	RPG.UI.adjustButtons({dir:true, commands:true, cancel:false});
+}
+
+/**
+ * @param {bool} [data.commands]
+ * @param {bool} [data.cancel]
+ * @param {bool} [data.dir]
+ */ 
+RPG.UI.adjustButtons = function(data) {
+	for (var i=0;i<this._commands.length;i++) {
+		var c = this._commands[i];
+		var b = c.getButton();
+		if (!b) { continue; }
+		
+		if (c instanceof RPG.UI.Command.Direction) {
+			/* directional */
+			b.disabled = !data.dir;
+		} else if (c == this._cancel) {
+			/* cancel button */
+			b.disabled = !data.cancel;
+		} else {
+			/* standard buttons */
+			b.disabled = !data.commands;
+		}
+	}
 }
 
 /**
@@ -298,6 +322,31 @@ RPG.UI.buildCommands = function() {
 			}
 		}
 		return true;
+	});
+
+	var c = new RPG.UI.Command.Complex("Kick (k)");
+	div.appendChild(c.getButton());
+	c.addCharCode(107);
+	c.setFunc(function(cmd){
+		if (!cmd) {
+			RPG.UI.clear();
+			RPG.UI.message("Kick: select direction...");
+			return false;
+		} else {
+			var coords = RPG.World.getPC().getCoords().clone().plus(cmd.getCoords());
+			RPG.UI.action(RPG.Actions.Kick, coords);
+			return true;
+		}
+	});
+	
+	var c = new RPG.UI.Command("Cancel (z)");
+	this._cancel = c;
+	div.appendChild(c.getButton());
+	c.addCharCode(122);
+	c.setFunc(function(){
+		RPG.UI.clear();
+		RPG.UI._pending = null;
+		RPG.UI.adjustButtons({commands:true, dir:true, cancel:false});
 	});
 
 	return result;

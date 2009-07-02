@@ -9,41 +9,6 @@ RPG.Engine.ActorInterface.prototype.getSpeed = function() {};
 RPG.Engine.ActorInterface.prototype.yourTurn = function() {
 }
 
-/** 
- * @class Basic action
- */
-RPG.Engine.BaseAction = OZ.Class();
-
-/**
- * @param {?} source Something that performs this action
- * @param {?} target Action target
- * @param {?} params Any params necessary
- */
-RPG.Engine.BaseAction.prototype.init = function(source, target, params) {
-	this._source = source;
-	this._target = target;
-	this._params = params;
-	this._tookTime = true;
-}
-RPG.Engine.BaseAction.prototype.getSource = function() {
-	return this._source;
-}
-RPG.Engine.BaseAction.prototype.getTarget = function() {
-	return this._target;
-}
-/**
- * @returns {bool} Did this action took some time?
- */
-RPG.Engine.BaseAction.prototype.tookTime = function() {
-	return this._tookTime;
-}
-/**
- * Process this action
- */
-RPG.Engine.BaseAction.prototype.execute = function() {
-	return this._tookTime;
-}
-
 /**
  * @class Scheduler - manages list of actors
  */
@@ -66,3 +31,39 @@ RPG.Engine.Scheduler.prototype.getActors = function() {
 	return this.actors();
 }
 RPG.Engine.Scheduler.prototype.scheduleActor = function() {}
+
+/** 
+ * @class Basic action
+ */
+RPG.Actions.BaseAction = OZ.Class();
+
+/**
+ * @param {?} source Something that performs this action
+ * @param {?} target Action target
+ * @param {?} params Any params necessary
+ */
+RPG.Actions.BaseAction.prototype.init = function(source, target, params) {
+	this._source = source;
+	this._target = target;
+	this._params = params;
+	this._tookTime = true;
+}
+RPG.Actions.BaseAction.prototype.getSource = function() {
+	return this._source;
+}
+RPG.Actions.BaseAction.prototype.getTarget = function() {
+	return this._target;
+}
+/**
+ * @returns {bool} Did this action took some time?
+ */
+RPG.Actions.BaseAction.prototype.tookTime = function() {
+	return this._tookTime;
+}
+/**
+ * Process this action
+ */
+RPG.Actions.BaseAction.prototype.execute = function() {
+	return this._tookTime;
+}
+

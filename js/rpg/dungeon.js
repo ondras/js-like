@@ -95,8 +95,8 @@ RPG.Rooms.BaseRoom.prototype.getCorner2 = function() {
  */
 RPG.Features.BaseFeature = OZ.Class()
 							.implement(RPG.Visual.VisualInterface)
-
-RPG.Features.BaseFeature.prototype.init = function() {
+RPG.Features.BaseFeature.prototype.init = function(coords) {
+	this._coords = coords.clone();
 	this._initVisuals();
 	this.flags = 0;
 }
@@ -154,9 +154,6 @@ RPG.Dungeon.Map.prototype.setBeing = function(coords, being) {
 }
 RPG.Dungeon.Map.prototype.addItem = function(coords, item) {
 	this.at(coords).addItem(item);
-}
-RPG.Dungeon.Map.prototype.isFree = function(coords) {
-	return this.at(coords).isFree();
 }
 RPG.Dungeon.Map.prototype.isValid = function(coords) {
 	var size = this._size;
@@ -224,7 +221,7 @@ RPG.Dungeon.Map.prototype.lineOfSight = function(c1, c2) {
 	return true;
 }
 
-RPG.Dungeon.Map.prototype.getFreeCoords = function() {
+RPG.Dungeon.Map.prototype.getFreeCoords = function(noItems) {
 	var all = [];
 	var c = new RPG.Misc.Coords();
 	for (var i=0;i<this._size.x;i++) {
@@ -232,7 +229,10 @@ RPG.Dungeon.Map.prototype.getFreeCoords = function() {
 			c.x = i;
 			c.y = j;
 			var cell = this._data[i][j];
-			if (cell.isFree() && !cell.getFeature() && cell.getItems().length == 0) { all.push(c.clone()); }
+			if (!cell.isFree()) { continue; }
+			if (cell.getFeature()) { continue; }
+			if (noItems && cell.getItems().length) { continue; }
+			all.push(c.clone());
 		}
 	}
 	

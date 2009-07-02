@@ -2,19 +2,13 @@
  * @class Generic weapon
  * @augments RPG.Items.BaseItem
  */
-RPG.Items.Weapon = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Weapon = OZ.Class().extend(RPG.Items.BaseItem).implement(RPG.Misc.WeaponInterface);
 RPG.Items.Weapon.prototype.init = function(hit, damage) {
 	this.parent();
-	this._hit = new RPG.Feats.Hit(hit || 0);
-	this._damage = new RPG.Feats.Hit(damage || 0);
+	this.setHit(hit);
+	this.setDamage(damage);
 	this._char = ")";
 	this._color = "lightgray";
-}
-RPG.Items.Weapon.prototype.getHit = function(modifierHolder) {
-	return this._hit.modifiedValue(modifierHolder);
-}
-RPG.Items.Weapon.prototype.getDamage = function(modifierHolder) {
-	return this._damage.modifiedValue(modifierHolder);
 }
 
 /**
@@ -23,7 +17,7 @@ RPG.Items.Weapon.prototype.getDamage = function(modifierHolder) {
  */
 RPG.Items.Dagger = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Dagger.prototype.init = function() {
-	this.parent(2, 0);
+	this.parent(2, 2);
 	this._image = "dagger";
 	this._description = "dagger";
 }
@@ -34,7 +28,7 @@ RPG.Items.Dagger.prototype.init = function() {
  */
 RPG.Items.KlingonSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.KlingonSword.prototype.init = function() {
-	this.parent(5, 5);
+	this.parent(10, 10);
 	this._color = "gold";
 	this._image = "klingon-sword";
 	this._description = "Klingon ceremonial sword";

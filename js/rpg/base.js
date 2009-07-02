@@ -15,14 +15,14 @@ RPG.Feats.BaseFeat.prototype.modifiedValue = function(modifierHolder) {
 	var plus = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_PLUS, modifierHolder);
 	var times = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_TIMES, modifierHolder);
 	var value = this._value;
-	if (value instanceof RPG.Misc.Dice) { value = value.roll(); }
+	if (value instanceof RPG.Misc.Interval) { value = value.roll(); }
 	var exact = (value + plus) * times;
 	return Math.max(0, exact);
 };
 RPG.Feats.BaseFeat.prototype.standardModifier = function(modifierHolder) {
 	var value = this.modifiedValue(modifierHolder);
 	var num = (value-11)*10/21;
-	return num;
+	return Math.round(num);
 }
 
 /**

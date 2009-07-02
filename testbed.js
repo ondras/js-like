@@ -21,6 +21,9 @@ var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
 var x = Math.round((room.getCorner1().x + room.getCorner2().x)/2);
 var y = Math.round((room.getCorner1().y + room.getCorner2().y)/2);
 var orc = new RPG.Beings.Orc();
+var dagger = new RPG.Items.Dagger();
+orc.addItem(dagger);
+orc.setWeapon(dagger);
 var brain = new RPG.Engine.AI(orc);
 map.setBeing(new RPG.Misc.Coords(x, y), orc);
 
@@ -42,8 +45,9 @@ for (var i=c1.x;i<=c2.x;i++) {
 }
 
 /* teleport */
-var t = new RPG.Features.Teleport();
-map.at(map.getFreeCoords()).setFeature(t);
+var c = map.getFreeCoords(true);
+var t = new RPG.Features.Teleport(c);
+map.at(c).setFeature(t);
 
 /* setup the world */
 RPG.World.setScheduler(new RPG.Engine.Queue());

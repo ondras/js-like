@@ -1,27 +1,30 @@
 /**
- * @class Throwing dice
+ * @class Interval - generalized throwing dice
  */
-RPG.Misc.Dice = OZ.Class();
-RPG.Misc.Dice.prototype.init = function(times, faces, bonus) {
-	this.times = times;
-	this.faces = faces;
-	this.bonus = bonus;
+RPG.Misc.Interval = OZ.Class();
+RPG.Misc.Interval.prototype.init = function(min, max) {
+	this.min = min;
+	this.max = max;
 }
-RPG.Misc.Dice.prototype.toString = function() {
-	var str = "";
-	str += this.times + "d" + this.faces;
-	if (this.bonus) {
-		if (this.bonus > 0) { str += "+"; }
-		str += this.bonus;
-	}
-	return str;
+RPG.Misc.Interval.prototype.toString = function() {
+	return this.min + " - "+this.max;
 }
-RPG.Misc.Dice.prototype.roll = function() {
-	var result = this.bonus;
-	for (var i=0;i<this.times;i++) {
-		result += 1 + Math.floor(Math.random()*this.faces);
+
+/**
+ * Roll the dice.
+ * @param {int} [rollCount=3] How many rolls to perform in order to get final number.
+ * Higher number means "more normal" distribution.
+ */
+RPG.Misc.Interval.prototype.roll = function(rollCount) {
+	var result = 0;
+	var count = rollCount || 3;
+	
+	var diff = (this.max - this.min)/count;
+	for (var i=0;i<count;i++) {
+		result += Math.random()*diff;
 	}
-	return result;
+	
+	return this.min + Math.round(result);
 }
 
 /**
@@ -62,6 +65,7 @@ RPG.Misc.ModifierInterface.prototype.addModifier = function(feat, type, value) {
 	var item = [feat, type, value];
 	this._modifiers.push(item);
 }
+
 /**
  * Ask for a modifier to a given feat. Third argument is necessary for 
  * recursive scenarios, for example: to retrieve modifier for MaxHP, 
@@ -84,4 +88,22 @@ RPG.Misc.ModifierInterface.prototype.getModifier = function(feat, type, modifier
 		}
 	}
 	return null;
+}
+
+/**
+ * @class Weapon interface. Separated from items, because "hands" and "foot" are also weapons.
+ */
+RPG.Misc.WeaponInterface = OZ.Class();
+RPG.Misc.WeaponInterface.prototype.setHit = function(hit) {
+	this._hit = new RPG.Feats.Hit(hit);
+	
+}
+RPG.Misc.WeaponInterface.prototype.setDamage = function(damage) {
+	this._damage = new RPG.Feats.Hit(damage);
+}
+RPG.Misc.WeaponInterface.prototype.getHit = function(modifierHolder) {
+	return this._hit.modifiedValue(modifierHolder);
+}
+RPG.Misc.WeaponInterface.prototype.getDamage = function(modifierHolder) {
+	return this._damage.modifiedValue(modifierHolder);
 }

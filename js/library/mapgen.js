@@ -84,7 +84,13 @@ RPG.Dungeon.Generator.prototype._addDoorsToRoom = function(room) {
 				var cell = this._map.at(c);
 				if (cell instanceof this._wall) { continue; }
 				if (cell.getFeature()) { continue; }
-				var door = new this._door();
+				var door = new this._door(c);
+				
+				if (RPG.Rules.isDoorClosed(door)) {
+					door.close();
+					if (RPG.Rules.isDoorLocked(door)) { door.lock(); }
+				}
+				
 				cell.setFeature(door);
 			}
 		}
