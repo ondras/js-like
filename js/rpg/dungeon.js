@@ -63,7 +63,6 @@ RPG.Cells.BaseCell.prototype.visibleThrough = function() {
 	if (this.flags & RPG.CELL_SOLID) { return false; }
 	if (this._feature && this._feature.flags & RPG.FEATURE_SOLID) { return false; }
 	return true;
-	return true;
 }
 
 /**

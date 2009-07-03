@@ -48,7 +48,7 @@ RPG.Visual = {};
 
 
 /** @constant */
-RPG.CELL_OBSTACLE 		= 1 << 0; /* can not be moved onto */
+RPG.CELL_OBSTACLE 		= 1 << 0; /* can not be moved onto, e.g. wall */
 /** @constant */
 RPG.CELL_SOLID	 		= 1 << 1; /* can not be seen through */
 
@@ -56,9 +56,9 @@ RPG.CELL_SOLID	 		= 1 << 1; /* can not be seen through */
 RPG.ITEM_EDIBLE			= 1 << 0; /* can be eaten */
 
 /** @constant */
-RPG.FEATURE_OBSTACLE	= 1 << 0; /* can not be moved onto */
+RPG.FEATURE_OBSTACLE	= 1 << 0; /* can not be moved onto, e.g. closed door, tree */
 /** @constant */
-RPG.FEATURE_SOLID		= 1 << 1; /* can not be seen through */
+RPG.FEATURE_SOLID		= 1 << 1; /* can not be seen through, e.g. closed door */
 
 /** @constant */
 RPG.MODIFIER_PLUS		= 0;

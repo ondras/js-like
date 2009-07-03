@@ -84,7 +84,7 @@ RPG.Actions.Attack.prototype._describe = function() {
 	var missVerb = (youAttacker ? "miss" : "misses");
 	var kickVerb = (youAttacker ? "kick" : "kicks");
 	var hitVerb = (youAttacker ? "hit" : "hits");
-	if (this._params instanceof RPG.Beings.BaseBeing.Foot) { hitVerb = kickVerb; }
+	if (this._params instanceof RPG.Misc.Foot) { hitVerb = kickVerb; }
 	
 	var str = attacker.capitalize() + " ";
 	str = (youAttacker ? "you" : this._source.describeThe()).capitalize() + " ";
@@ -285,6 +285,9 @@ RPG.Actions.Pick.prototype.execute = function() {
 	}
 }
 
+/**
+ * @class Kick something
+ */
 RPG.Actions.Kick = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Kick.prototype.execute = function() {
 	/* FIXME only PC is allowed to kick */

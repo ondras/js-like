@@ -24,8 +24,8 @@ RPG.Beings.BaseBeing.prototype.init = function(r) {
 	
 	this._weapons = {
 		current: null,
-		hands: new RPG.Beings.BaseBeing.Hands(2, 1),
-		foot: new RPG.Beings.BaseBeing.Foot(1, 2)
+		hands: new RPG.Misc.Hands(2, 1),
+		foot: new RPG.Misc.Foot(1, 2)
 	}
 
 	this._alive = true;
@@ -298,16 +298,4 @@ RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	var frac = 1 - hp/max;
 	var index = Math.floor(frac * def.length);
 	return def[index];
-}
-
-RPG.Beings.BaseBeing.Hands = OZ.Class().implement(RPG.Misc.WeaponInterface);
-RPG.Beings.BaseBeing.Hands.prototype.init = function(hit, damage) {
-	this.setHit(hit);
-	this.setDamage(damage);
-}
-
-RPG.Beings.BaseBeing.Foot = OZ.Class().implement(RPG.Misc.WeaponInterface);
-RPG.Beings.BaseBeing.Foot.prototype.init = function(hit, damage) {
-	this.setHit(hit);
-	this.setDamage(damage);
 }

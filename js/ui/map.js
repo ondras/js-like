@@ -1,29 +1,9 @@
 /**
- * @class Textual description area
- */
-RPG.Visual.TextBuffer = OZ.Class();
-RPG.Visual.TextBuffer.prototype.init = function(textarea) {
-	this._dom = {
-		textarea: textarea
-	}
-	this._dom.textarea.value = "";
-}
-
-RPG.Visual.TextBuffer.prototype.message = function(str) {
-	this._dom.textarea.value += str+" ";
-}
-
-RPG.Visual.TextBuffer.prototype.clear = function() {
-	this._dom.textarea.value = "";
-}
-
-
-/**
  * Basic map visualizator
  */
-RPG.Visual.BaseMap = OZ.Class();
+RPG.UI.BaseMap = OZ.Class();
 
-RPG.Visual.BaseMap.prototype.init = function(container, cellCtor) {
+RPG.UI.BaseMap.prototype.init = function(container, cellCtor) {
 	this._size = null;
 	this._cellCtor = cellCtor;
 	this._dom = {
@@ -32,7 +12,7 @@ RPG.Visual.BaseMap.prototype.init = function(container, cellCtor) {
 	}
 }
 
-RPG.Visual.BaseMap.prototype.adjust = function(map) {
+RPG.UI.BaseMap.prototype.adjust = function(map) {
 	this._size = map.getSize();
 	OZ.DOM.clear(this._dom.container);
 	this._resize();
@@ -52,7 +32,7 @@ RPG.Visual.BaseMap.prototype.adjust = function(map) {
 	this.redraw();
 }
 
-RPG.Visual.BaseMap.prototype.redraw = function() {
+RPG.UI.BaseMap.prototype.redraw = function() {
 	var c = new RPG.Misc.Coords(0, 0);
 	for (c.x=0;c.x<this._size.x;c.x++) {
 		for (c.y=0;c.y<this._size.y;c.y++) {
@@ -61,7 +41,7 @@ RPG.Visual.BaseMap.prototype.redraw = function() {
 	}
 }
 
-RPG.Visual.BaseMap.prototype.redrawCoords = function(coords) {
+RPG.UI.BaseMap.prototype.redrawCoords = function(coords) {
 	var pc = RPG.World.getPC();
 	var pccoords = pc.getCoords();
 	var dist = pc.sightDistance();
@@ -74,14 +54,14 @@ RPG.Visual.BaseMap.prototype.redrawCoords = function(coords) {
 	}
 }
 
-RPG.Visual.BaseMap.prototype._resize = function() {
+RPG.UI.BaseMap.prototype._resize = function() {
 }
 
 /**
  * @class Basic map cell
  */
-RPG.Visual.BaseCell = OZ.Class();
-RPG.Visual.BaseCell.prototype.init = function(owner, coords) {
+RPG.UI.BaseCell = OZ.Class();
+RPG.UI.BaseCell.prototype.init = function(owner, coords) {
 	this.HIDDEN = 0;
 	this.INVISIBLE = 1;
 	this.VISIBLE = 2;
@@ -95,17 +75,17 @@ RPG.Visual.BaseCell.prototype.init = function(owner, coords) {
  * Update state
  * @param {int} new state
  */
-RPG.Visual.BaseCell.prototype.update = function(state) {
+RPG.UI.BaseCell.prototype.update = function(state) {
 	this.state = state;
 }
 
 /**
  * @class Image map
- * @augments RPG.Visual.BaseMap
+ * @augments RPG.UI.BaseMap
  */
-RPG.Visual.ImageMap = OZ.Class().extend(RPG.Visual.BaseMap);
-RPG.Visual.ImageMap.prototype.init = function(container, cell, options) {
-	this.parent(container, RPG.Visual.ImageCell);
+RPG.UI.ImageMap = OZ.Class().extend(RPG.UI.BaseMap);
+RPG.UI.ImageMap.prototype.init = function(container, cell, options) {
+	this.parent(container, RPG.UI.ImageCell);
 	this.options = {
 		tileSize: new RPG.Misc.Coords(32, 32)
 	}
@@ -113,17 +93,17 @@ RPG.Visual.ImageMap.prototype.init = function(container, cell, options) {
 	for (var p in options) { this.options[p] = options[p]; }
 }
 
-RPG.Visual.ImageMap.prototype._resize = function() {
+RPG.UI.ImageMap.prototype._resize = function() {
 	this._dom.container.style.width = (this.options.tileSize.x * this._size.x) + "px";
 	this._dom.container.style.height = (this.options.tileSize.y * this._size.y) + "px";
 }
 
 /**
  * @class Image cell
- * @augments RPG.Visual.BaseCell
+ * @augments RPG.UI.BaseCell
  */
-RPG.Visual.ImageCell = OZ.Class().extend(RPG.Visual.BaseCell);
-RPG.Visual.ImageCell.prototype.init = function(owner, coords) {
+RPG.UI.ImageCell = OZ.Class().extend(RPG.UI.BaseCell);
+RPG.UI.ImageCell.prototype.init = function(owner, coords) {
 	this.parent(owner, coords);
 
 	var ts = owner.options.tileSize;
@@ -143,9 +123,9 @@ RPG.Visual.ImageCell.prototype.init = function(owner, coords) {
 }
 
 /**
- * @see RPG.Visual.BaseCell#update
+ * @see RPG.UI.BaseCell#update
  */
-RPG.Visual.ImageCell.prototype.update = function(state) {
+RPG.UI.ImageCell.prototype.update = function(state) {
 	this.state = state;
 	switch (state) {
 		case this.HIDDEN:
@@ -171,7 +151,7 @@ RPG.Visual.ImageCell.prototype.update = function(state) {
 /**
  * Complete cell redraw
  */
-RPG.Visual.ImageCell.prototype._draw = function() {
+RPG.UI.ImageCell.prototype._draw = function() {
 	this.container.style.opacity = 1;
 	var cell = RPG.World.getMap().at(this._coords);
 	this._updateImage(this.node1, cell);
@@ -196,7 +176,7 @@ RPG.Visual.ImageCell.prototype._draw = function() {
 	}
 }
 
-RPG.Visual.ImageCell.prototype._updateImage = function(node, what) {
+RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 	node.style.visibility = "visible";
 	var src = what.getImage();
 	var text = what.describeA();
@@ -223,14 +203,14 @@ RPG.Visual.ImageCell.prototype._updateImage = function(node, what) {
 
 /**
  * @class Classic ASCII map
- * @augments RPG.Visual.BaseMap
+ * @augments RPG.UI.BaseMap
  */
-RPG.Visual.ASCIIMap = OZ.Class().extend(RPG.Visual.BaseMap);
-RPG.Visual.ASCIIMap.prototype.init = function(container) {
-	this.parent(container, RPG.Visual.ASCIICell);
+RPG.UI.ASCIIMap = OZ.Class().extend(RPG.UI.BaseMap);
+RPG.UI.ASCIIMap.prototype.init = function(container) {
+	this.parent(container, RPG.UI.ASCIICell);
 }
 
-RPG.Visual.ASCIIMap.prototype._computeWidth = function() {
+RPG.UI.ASCIIMap.prototype._computeWidth = function() {
 	var tmp = OZ.DOM.elm("span");
 	tmp.innerHTML = "x";
 	this._dom.container.appendChild(tmp);
@@ -238,17 +218,17 @@ RPG.Visual.ASCIIMap.prototype._computeWidth = function() {
 	OZ.DOM.clear(this._dom.container);
 }
 
-RPG.Visual.ASCIIMap.prototype._resize = function() {
+RPG.UI.ASCIIMap.prototype._resize = function() {
 	this._computeWidth();
 	this._dom.container.style.width = (this._charWidth * this._size.x) + "px";
 }
 
 /**
  * @class ASCII cell
- * @augments RPG.Visual.BaseCell
+ * @augments RPG.UI.BaseCell
  */
-RPG.Visual.ASCIICell = OZ.Class().extend(RPG.Visual.BaseCell);
-RPG.Visual.ASCIICell.prototype.init = function(owner, coords) {
+RPG.UI.ASCIICell = OZ.Class().extend(RPG.UI.BaseCell);
+RPG.UI.ASCIICell.prototype.init = function(owner, coords) {
 	this.parent(owner, coords);
 
 	var container = owner._dom.container;
@@ -266,9 +246,9 @@ RPG.Visual.ASCIICell.prototype.init = function(owner, coords) {
 }
 
 /**
- * @see RPG.Visual.BaseCell#update
+ * @see RPG.UI.BaseCell#update
  */
-RPG.Visual.ASCIICell.prototype.update = function(state) {
+RPG.UI.ASCIICell.prototype.update = function(state) {
 	this.state = state;
 	switch (state) {
 		case this.HIDDEN:
@@ -298,7 +278,7 @@ RPG.Visual.ASCIICell.prototype.update = function(state) {
 /**
  * Complete cell redraw
  */
-RPG.Visual.ASCIICell.prototype._draw = function() {
+RPG.UI.ASCIICell.prototype._draw = function() {
 	this.node.style.opacity = 1;
 	var cell = RPG.World.getMap().at(this._coords);
 	

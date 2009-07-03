@@ -27,6 +27,10 @@ RPG.Misc.Interval.prototype.roll = function(rollCount) {
 	return this.min + Math.round(result);
 }
 
+RPG.Misc.Interval.prototype.clone = function() {
+	return new RPG.Misc.Interval(this.min, this.max);
+}
+
 /**
  * @class Coordinates
  */
@@ -106,4 +110,22 @@ RPG.Misc.WeaponInterface.prototype.getHit = function(modifierHolder) {
 }
 RPG.Misc.WeaponInterface.prototype.getDamage = function(modifierHolder) {
 	return this._damage.modifiedValue(modifierHolder);
+}
+
+/**
+ * @class Hands, basic weapon
+ */
+RPG.Misc.Hands = OZ.Class().implement(RPG.Misc.WeaponInterface);
+RPG.Misc.Hands.prototype.init = function(hit, damage) {
+	this.setHit(hit);
+	this.setDamage(damage);
+}
+
+/**
+ * @class Foot, useful for kicking
+ */
+RPG.Misc.Foot = OZ.Class().implement(RPG.Misc.WeaponInterface);
+RPG.Misc.Foot.prototype.init = function(hit, damage) {
+	this.setHit(hit);
+	this.setDamage(damage);
 }

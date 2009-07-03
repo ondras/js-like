@@ -24,8 +24,13 @@ var orc = new RPG.Beings.Orc();
 var dagger = new RPG.Items.Dagger();
 orc.addItem(dagger);
 orc.setWeapon(dagger);
-var brain = new RPG.Engine.AI(orc);
+var ai = new RPG.Engine.AI(orc);
 map.setBeing(new RPG.Misc.Coords(x, y), orc);
+
+
+var goal = new RPG.Engine.AI.Kill(ai, pc);
+ai.addTask(goal);
+
 
 /* room #3 - item */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
