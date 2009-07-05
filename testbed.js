@@ -27,11 +27,6 @@ orc.setWeapon(dagger);
 var ai = new RPG.Engine.AI(orc);
 map.setBeing(new RPG.Misc.Coords(x, y), orc);
 
-
-var goal = new RPG.Engine.AI.Kill(ai, pc);
-ai.addTask(goal);
-
-
 /* room #3 - item */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
 var x = Math.round((room.getCorner1().x + room.getCorner2().x)/2);
@@ -58,15 +53,13 @@ map.at(c).setFeature(t);
 RPG.World.setScheduler(new RPG.Engine.Queue());
 
 /* build ui */
-var buffer = RPG.UI.buildBuffer()
+var buffer = RPG.UI.buildBuffer();
 document.body.insertBefore(buffer, document.body.firstChild);
 
 var commands = RPG.UI.buildCommands();
 for (var i=0;i<commands.length;i++) {
 	document.body.appendChild(commands[i]);
 }
-
-RPG.UI.enableKeyboard();
 
 function use(name) { 
 	var map ={
@@ -97,3 +90,21 @@ use("map_ascii");
 RPG.World.setMap(map);
 RPG.World.run();
 
+/* add some chatting */
+var c = new RPG.Misc.Chat("Hi, what am I supposed to do?")
+	.addOption("Nothing special")
+	.addOption("Some activity please", new RPG.Misc.Chat("What activity?")
+		.addOption("Kill me!", function(action) {
+			action.getTarget().clearTasks();
+			action.getTarget().addTask(new RPG.Engine.AI.Kill(action.getSource()));
+		})
+		.addOption("Attack me!", function(action) {
+			action.getTarget().clearTasks();
+			action.getTarget().addTask(new RPG.Engine.AI.Attack(action.getSource()));
+		})
+		.addOption("Run away!", function(action) {
+			action.getTarget().clearTasks();
+			action.getTarget().addTask(new RPG.Engine.AI.Retreat(action.getSource()));
+		})
+	);
+orc.setChat(c);

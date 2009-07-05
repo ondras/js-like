@@ -279,7 +279,7 @@ RPG.Actions.Pick.prototype.execute = function() {
 		
 		var str = (you ? "you" : this._source.describeA()).capitalize();
 		str += " " + (you ? "pick" : "picks") + " up ";
-		str += item.describeA();
+		str += (you ? item.describeThe() : item.describeA());
 		str += ".";
 		RPG.UI.message(str);
 	}
@@ -287,6 +287,7 @@ RPG.Actions.Pick.prototype.execute = function() {
 
 /**
  * @class Kick something
+ * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.Kick = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Kick.prototype.execute = function() {
@@ -297,6 +298,11 @@ RPG.Actions.Kick.prototype.execute = function() {
 	var feature = cell.getFeature();
 	var being = cell.getBeing();
 	var items = cell.getItems();
+	
+	if (this._source == being) {
+		RPG.UI.message("You wouldn't do that, would you?");
+		return;
+	}
 	
 	if (cell.flags & RPG.CELL_OBSTACLE) {
 		RPG.UI.message("Ouch! That hurts!");
@@ -311,6 +317,7 @@ RPG.Actions.Kick.prototype.execute = function() {
 			RPG.UI.message("You kick the door.");
 		} else {
 			RPG.UI.message("You kick the door and destroy it!");
+			RPG.UI.redraw();
 		}
 		return;
 	}
@@ -341,4 +348,21 @@ RPG.Actions.Kick.prototype.execute = function() {
 	}
 	
 	RPG.UI.message("You kick in empty air.");
+}
+
+/**
+ * @class Initiate chat
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Chat = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.Chat.prototype.execute = function() {
+	/* FIXME only PC is allowed to kick */
+	RPG.UI.message("You talk to "+this._target.describe()+".");
+	
+	var chat = this._target.getChat();
+	if (chat) {
+		RPG.UI.chat(chat, this);
+	} else {
+		RPG.UI.message(this._target.describeIt() + " does not reply.");
+	}
 }

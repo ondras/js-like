@@ -15,6 +15,7 @@ RPG.Beings.BaseBeing.prototype.init = function(r) {
 
 	this._coords = null;
 	this._map = null;
+	this._chat = null;
 	
 	this._race = r;
 	this._items = [];
@@ -25,7 +26,7 @@ RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._weapons = {
 		current: null,
 		hands: new RPG.Misc.Hands(2, 1),
-		foot: new RPG.Misc.Foot(1, 2)
+		foot: new RPG.Misc.Foot(0, 2)
 	}
 
 	this._alive = true;
@@ -47,7 +48,7 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 		hp: 0
 	}
 	this._feats = {
-		maxhp: new RPG.Feats.MaxHP(8),
+		maxhp: new RPG.Feats.MaxHP(10),
 		dv: new RPG.Feats.DV(0),
 		pv: new RPG.Feats.PV(0)
 	}
@@ -94,6 +95,14 @@ RPG.Beings.BaseBeing.prototype.addItem = function(item) {
 
 RPG.Beings.BaseBeing.prototype.getFoot = function() {
 	return this._weapons.foot;
+}
+
+RPG.Beings.BaseBeing.prototype.setChat = function(chat) {
+	this._chat = chat;
+}
+
+RPG.Beings.BaseBeing.prototype.getChat = function() {
+	return this._chat;
 }
 
 /**
@@ -159,6 +168,28 @@ RPG.Beings.BaseBeing.prototype.describe = function() {
 		return "you";
 	} else {
 		return this._description;
+	}
+}
+
+/**
+ * @see RPG.Visual.VisualInterface#describeA
+ */
+RPG.Beings.BaseBeing.prototype.describeA = function() {
+	if (RPG.World.getPC() == this) {
+		return "you";
+	} else {
+		return RPG.Visual.VisualInterface.prototype.describeA.call(this);
+	}
+}
+
+/**
+ * @see RPG.Visual.VisualInterface#describeThe
+ */
+RPG.Beings.BaseBeing.prototype.describeThe = function() {
+	if (RPG.World.getPC() == this) {
+		return "you";
+	} else {
+		return RPG.Visual.VisualInterface.prototype.describeThe.call(this);
 	}
 }
 

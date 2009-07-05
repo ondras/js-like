@@ -13,15 +13,18 @@
 RPG.Engine.AI = OZ.Class();
 
 RPG.Engine.AI.prototype.init = function(being) {
-window.ai = this;
 	this._being = being;
 	this._tasks = [];
 	
 	being.yourTurn = this.bind(this.yourTurn);
+	being.addTask = this.bind(this.addTask);
+	being.addGoal = this.bind(this.addGoal);
+	being.clearTasks = this.bind(this.clearTasks);
+	
 	this._event = OZ.Event.add(RPG.World, "action", this.bind(this._action));
 
 	/* fallback task */
-	var wander = new RPG.Engine.AI.Wander(this);
+	var wander = new RPG.Engine.AI.Wander();
 	this.addTask(wander);
 }
 
@@ -62,7 +65,7 @@ RPG.Engine.AI.prototype._action = function(e) {
 			/* let's kill the bastard! */
 			var str = this._being.describeThe().capitalize() + " gets very angry!";
 			RPG.UI.message(str);
-			var goal = new RPG.Engine.AI.Kill(this, a.getSource());
+			var goal = new RPG.Engine.AI.Kill(a.getSource());
 			this.addTask(goal);
 		}
 		
@@ -70,7 +73,7 @@ RPG.Engine.AI.prototype._action = function(e) {
 			/* too much damage, run for your life! */
 			var str = this._being.describeThe().capitalize() + " runs away!";
 			RPG.UI.message(str);
-			var goal = new RPG.Engine.AI.Retreat(this, a.getSource());
+			var goal = new RPG.Engine.AI.Retreat(a.getSource());
 			this.addTask(goal);
 			
 		}
@@ -115,11 +118,16 @@ RPG.Engine.AI.prototype.getBeing = function() {
 
 RPG.Engine.AI.prototype.addGoal = function(goal) {
 	this._tasks[this._tasks.length-1].push(goal);
+	goal.setAI(this);
 }
 
 RPG.Engine.AI.prototype.addTask = function(goal) {
 	this._tasks.push([]);
 	this.addGoal(goal);
+}
+
+RPG.Engine.AI.prototype.clearTasks = function() {
+	this._tasks.splice(1, this._tasks.length-1);
 }
 
 /**
@@ -139,7 +147,9 @@ RPG.Engine.AI.prototype._verifyTasks = function() {
  * @class Goal
  */
 RPG.Engine.AI.Goal = OZ.Class();
-RPG.Engine.AI.Goal.prototype.init = function(ai) {
+RPG.Engine.AI.Goal.prototype.init = function() {
+}
+RPG.Engine.AI.Goal.prototype.setAI = function(ai) {
 	this._ai = ai;
 }
 
@@ -161,6 +171,7 @@ RPG.Engine.AI.Goal.prototype.isSatisfied = function() {
 
 /**
  * @class Wander goal - walk around randomly
+ * @augments RPG.Engine.AI.Goal
  */
 RPG.Engine.AI.Wander = OZ.Class().extend(RPG.Engine.AI.Goal);
 
@@ -203,11 +214,12 @@ RPG.Engine.AI.Wander.prototype.isSatisfied = function() {
 
 /**
  * @class Kill goal
+ * @augments RPG.Engine.AI.Goal
  */
 RPG.Engine.AI.Kill = OZ.Class().extend(RPG.Engine.AI.Goal);
 
-RPG.Engine.AI.Kill.prototype.init = function(ai, target) {
-	this.parent(ai);
+RPG.Engine.AI.Kill.prototype.init = function(target) {
+	this.parent();
 	this._target = target;
 }
 
@@ -215,7 +227,7 @@ RPG.Engine.AI.Kill.prototype.init = function(ai, target) {
  * To kill a target, we just schedule an attack on it
  */
 RPG.Engine.AI.Kill.prototype.go = function() {
-	var attack = new RPG.Engine.AI.Attack(this._ai, this._target);
+	var attack = new RPG.Engine.AI.Attack(this._target);
 	ai.addGoal(attack);
 	return false;
 }
@@ -231,10 +243,11 @@ RPG.Engine.AI.Kill.prototype.getTarget = function() {
 
 /**
  * Attack goal
+ * @augments RPG.Engine.AI.Goal
  */
 RPG.Engine.AI.Attack = OZ.Class().extend(RPG.Engine.AI.Goal);
-RPG.Engine.AI.Attack.prototype.init = function(ai, target) {
-	this.parent(ai);
+RPG.Engine.AI.Attack.prototype.init = function(target) {
+	this.parent();
 	this._target = target;
 	this._approached = false;
 	this._attacked = false;
@@ -246,7 +259,7 @@ RPG.Engine.AI.Attack.prototype.isSatisfied = function() {
 
 RPG.Engine.AI.Attack.prototype.go = function() {
 	if (!this._approached) {
-		var approach =  new RPG.Engine.AI.Approach(this._ai, this._target);
+		var approach =  new RPG.Engine.AI.Approach(this._target);
 		this._ai.addGoal(approach);
 	
 		/* next time we execute this, we are close enough */
@@ -265,11 +278,12 @@ RPG.Engine.AI.Attack.prototype.go = function() {
 
 /**
  * @class Approach goal - get to distance 1 to a given target
+ * @augments RPG.Engine.AI.Goal
  */
 RPG.Engine.AI.Approach = OZ.Class().extend(RPG.Engine.AI.Goal);	
 
-RPG.Engine.AI.Approach.prototype.init = function(ai, target) {
-	this.parent(ai);
+RPG.Engine.AI.Approach.prototype.init = function(target) {
+	this.parent();
 	this._target = target;
 	
 	/* target last seen here */
@@ -303,11 +317,10 @@ RPG.Engine.AI.Approach.prototype.go = function() {
 	var goal = false;
 	if (this._lastCoords) {
 		/* we know where to go */
-		var vec = this._lastCoords.clone().minus(being.getCoords());
-		goal = new RPG.Engine.AI.Direction(this._ai, vec);
+		goal = new RPG.Engine.AI.GetToDistance(this._lastCoords, 0);
 	} else {
 		/* we do not know anything. wander. */
-		goal = new RPG.Engine.AI.Wander(this._ai);
+		goal = new RPG.Engine.AI.Wander();
 	}
 	this._ai.addGoal(goal);
 	
@@ -316,11 +329,12 @@ RPG.Engine.AI.Approach.prototype.go = function() {
 
 /**
  * @class Run away from a being
+ * @augments RPG.Engine.AI.Goal
  */
 RPG.Engine.AI.Retreat = OZ.Class().extend(RPG.Engine.AI.Goal);
 
-RPG.Engine.AI.Retreat.prototype.init = function(ai, target) {
-	this.parent(ai);
+RPG.Engine.AI.Retreat.prototype.init = function(target) {
+	this.parent();
 	this._target = target;
 }
 
@@ -331,11 +345,10 @@ RPG.Engine.AI.Retreat.prototype.go = function() {
 
 	if (being.canSee(c2)) {
 		/* we see the target so we know how to run away */
-		var vec = being.getCoords().clone().minus(c2);
-		goal = new RPG.Engine.AI.Direction(this._ai, vec);
+		goal = new RPG.Engine.AI.GetToDistance(c2, 10000);
 	} else {
 		/* we do not know anything. wander. */
-		goal = new RPG.Engine.AI.Wander(this._ai);
+		goal = new RPG.Engine.AI.Wander();
 	}
 	this._ai.addGoal(goal);
 	
@@ -352,47 +365,94 @@ RPG.Engine.AI.Retreat.prototype.getTarget = function() {
 
 
 /**
- * @class Directional step
+ * @class Achieve desired distance from a given coords
+ * @augments RPG.Engine.AI.Goal
  */
-RPG.Engine.AI.Direction = OZ.Class().extend(RPG.Engine.AI.Goal);
-RPG.Engine.AI.Direction.prototype.init = function(ai, vector) {
-	this.parent(ai);
-	this._vector = vector.clone();
+RPG.Engine.AI.GetToDistance = OZ.Class().extend(RPG.Engine.AI.Goal);
+RPG.Engine.AI.GetToDistance.prototype.init = function(coords, distance) {
+	this.parent();
+	this._coords = coords.clone();
+	this._distance = distance;
 	this._done = false;
 }
 
-RPG.Engine.AI.Direction.prototype.isSatisfied = function() {
+RPG.Engine.AI.GetToDistance.prototype.isSatisfied = function() {
 	return this._done;
 }
 
-RPG.Engine.AI.Direction.prototype.go = function() {
+RPG.Engine.AI.GetToDistance.prototype.go = function() {
 	var being = this._ai.getBeing();
 	var map = being.getMap();
-	var coords = being.getCoords();
-	var target = coords.clone().plus(this._vector);
+	var current = being.getCoords();
+
+	/**
+	 * For a given starting coords and depth, this function returns two values:
+	 * a) to which distance from our target it is possible to move with a given number of steps
+	 * b) how many steps it will take to do so
+	 */
+	function getBestDistance(coords, depth) {
+		var step = 0;
+		var best = coords.distance(this._coords);
+		if (!depth) { return [best, step]; }
+		
+		var c = coords.clone();
+		for (var i=-1;i<=1;i++) {
+			for (var j=-1;j<=1;j++) {
+				c.x = coords.x+i;
+				c.y = coords.y+j;
+				if (!map.at(c).isFree()) { continue; }
+				var result = arguments.callee.call(this, c, depth-1);
+				var resultBest = result[0];
+				var resultStep = result[1] + 1;
+				
+				if (this._isBetter(resultBest, best)) { 
+					best = resultBest; 
+					step = resultStep;
+				}
+			}
+		}
+		return [best, step];
+	}
+
+	/* we can move in 8 directions; try them and find those which move us closest in the shortest time */
 	
-	/* we can move in 8 directions; try them and find those which move us closest */
+	/* recursion depth */
+	var depth = 2;
+	/* array of final candidates */
 	var bestMoves = [];
-	var bestDistance = Number.POSITIVE_INFINITY;
+	/* best target distance */
+	var bestDistance = null;
+	/* lowest amount of steps to achieve it */
+	var bestSteps = Number.POSITIVE_INFINITY;
 	for (var i=-1;i<=1;i++) {
 		for (var j=-1;j<=1;j++) {
-			var t = coords.clone();
+			var t = current.clone();
 			t.x += i;
 			t.y += j;
 			
 			/* do not try waiting at this moment */
 			if (i==0 && j==0) { continue; }
 			
-			/* discard non-free non-null places */
-			if ((i || j) && !map.at(t).isFree()) { continue; }
+			/* discard non-free places */
+			if (!map.at(t).isFree()) { continue; }
 			
-			var dist = target.distance(t);
-			if (dist < bestDistance) {
-				bestDistance = dist;
+			var result = getBestDistance.call(this, t, depth);
+//			console.log("Best distance for "+t+" (depth "+depth+") is "+result);
+			
+			if (bestDistance == null || this._isBetter(result[0], bestDistance)) {
+				/* this is either the first try, or the best (so far) step */
+				bestDistance = result[0];
+				bestSteps = result[1];
+				bestMoves = [];
+			} else if (result[0] == bestDistance && result[1] < bestSteps) {
+				/* same distance as our best try, but better stepcount */
+				bestSteps = result[1];
 				bestMoves = [];
 			}
 			
-			if (dist == bestDistance) { bestMoves.push(t); }
+			/* superb candidate */
+			if (result[0] == bestDistance && result[1] == bestSteps) { bestMoves.push(t); }
+			
 		}
 	}
 	
@@ -406,5 +466,9 @@ RPG.Engine.AI.Direction.prototype.go = function() {
 	
 	this._done = true;
 	return true;
+}
+
+RPG.Engine.AI.GetToDistance.prototype._isBetter = function(what, current) {
+	return Math.abs(what - this._distance) < Math.abs(current - this._distance);
 }
 

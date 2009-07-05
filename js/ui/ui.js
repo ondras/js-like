@@ -1,8 +1,11 @@
-RPG.UI._buffer = null;
-RPG.UI._map = null;
-RPG.UI._locked = false;
-RPG.UI._commands = [];
-RPG.UI._pending = null;
+RPG.UI._buffer = null; /* text message display */
+RPG.UI._map = null; /* map instance */
+RPG.UI._locked = false; /* is ui locked? (because it is not PC's time to act) */
+RPG.UI._commands = []; /* avail commands */
+RPG.UI._pending = null; /* command awaiting specification */
+RPG.UI._auto = null; /* autowalk command instance */
+RPG.UI.Chat = {};
+RPG.UI.Itemlist = {};
 
 /**
  * Static version of bind
@@ -34,7 +37,7 @@ RPG.UI.adjust = function(map) {
  */
 RPG.UI.lock = function() {
 	this._locked = true;
-	RPG.UI.adjustButtons({commands:false, dir:false, cancel:false});
+	this.adjustButtons({commands:false, dir:false, cancel:false});
 }
 
 /**
@@ -42,31 +45,7 @@ RPG.UI.lock = function() {
  */
 RPG.UI.unlock = function() {
 	this._locked = false;
-	RPG.UI.adjustButtons({dir:true, commands:true, cancel:false});
-}
-
-/**
- * @param {bool} [data.commands]
- * @param {bool} [data.cancel]
- * @param {bool} [data.dir]
- */ 
-RPG.UI.adjustButtons = function(data) {
-	for (var i=0;i<this._commands.length;i++) {
-		var c = this._commands[i];
-		var b = c.getButton();
-		if (!b) { continue; }
-		
-		if (c instanceof RPG.UI.Command.Direction) {
-			/* directional */
-			b.disabled = !data.dir;
-		} else if (c == this._cancel) {
-			/* cancel button */
-			b.disabled = !data.cancel;
-		} else {
-			/* standard buttons */
-			b.disabled = !data.commands;
-		}
-	}
+	this.adjustButtons({dir:true, commands:true, cancel:false});
 }
 
 /**
@@ -80,6 +59,16 @@ RPG.UI.action = function(ctor, target, params) {
 	this.clear();
 	var a = new ctor(RPG.World.getPC(), target, params);
 	RPG.World.action(a);
+}
+
+/**
+ * Perform a dialogue
+ * @param {RPG.Misc.Chat} chat
+ * @param {RPG.Beings.BaseBeing} source
+ * @param {RPG.Beings.BaseBeing} target
+ */
+RPG.UI.chat = function(chat, action) {
+	this.Chat.invoke(chat, action);
 }
 
 /**
@@ -110,10 +99,48 @@ RPG.UI.buildBuffer = function() {
 }
 
 /**
- * Add keyboard control
+ * Build command buttons
  */
-RPG.UI.enableKeyboard = function() {
-	OZ.Event.add(document, "keypress", this.bind(this._keyPress));
+RPG.UI.buildCommands = function() {
+	var result = [];
+	result.push(new RPG.UI.Command.Table().getContainer());
+	
+	var div = OZ.DOM.elm("div", {"class":"commands"});
+	result.push(div);
+	
+	div.appendChild(new RPG.UI.Command.Pick().getButton());
+	div.appendChild(new RPG.UI.Command.Open().getButton());
+	div.appendChild(new RPG.UI.Command.Close().getButton());
+	div.appendChild(new RPG.UI.Command.Kick().getButton());
+	div.appendChild(new RPG.UI.Command.Cancel().getButton());
+	div.appendChild(new RPG.UI.Command.Chat().getButton());
+	div.appendChild(new RPG.UI.Command.Auto().getButton());
+
+	return result;
+}
+
+/**
+ * @param {bool} [data.commands]
+ * @param {bool} [data.cancel]
+ * @param {bool} [data.dir]
+ */ 
+RPG.UI.adjustButtons = function(data) {
+	for (var i=0;i<this._commands.length;i++) {
+		var c = this._commands[i];
+		var b = c.getButton();
+		if (!b) { continue; }
+		
+		if (c instanceof RPG.UI.Command.Direction) {
+			/* directional */
+			b.disabled = !data.dir;
+		} else if (c instanceof RPG.UI.Command.Cancel) {
+			/* cancel button */
+			b.disabled = !data.cancel;
+		} else {
+			/* standard buttons */
+			b.disabled = !data.commands;
+		}
+	}
 }
 
 /**
@@ -126,13 +153,14 @@ RPG.UI._handleCode = function(charCode, keyCode) {
 	for (var i=0;i<RPG.UI._commands.length;i++) {
 		var c = RPG.UI._commands[i];
 		if (c.test(charCode, keyCode)) {
+			this.clear();
 			c.exec();
 			return true;
 		}
 	}
 	return false;
 }
-		
+
 /**
  * Keydown handler
  * @param {event} e
@@ -143,28 +171,5 @@ RPG.UI._keyPress = function(e) {
 	}
 }
 
-RPG.UI._surroundingDoors = function(closed) {
-	var coords = false;
-	var dc = 0;
-	var pc = RPG.World.getPC();
-	var map = pc.getMap();
-	
-	for (var i=-1;i<=1;i++) {
-		for (var j=-1;j<=1;j++) {
-			if (!i && !j) { continue; }
-			
-			var c = pc.getCoords().clone().plus(new RPG.Misc.Coords(i, j));
-			var f = map.at(c).getFeature();
-			if (f && f instanceof RPG.Features.Door && f.isClosed() == closed) {
-				dc++;
-				coords = c;
-			}
-		}
-	}
-	
-	if (dc == 1) {
-		return coords;
-	} else {
-		return dc;
-	}
-}
+OZ.Event.add(document, "keypress", RPG.UI.bind(RPG.UI._keyPress));
+

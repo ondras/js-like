@@ -18,6 +18,7 @@ RPG.Beings.Human.prototype.init = function() {
 
 /**
  * @class God, useful for debugging.
+ * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.God = OZ.Class().extend(RPG.Beings.BaseBeing);
 RPG.Beings.God.prototype.init = function() {

@@ -1,6 +1,7 @@
 /**
  * @class Generic weapon
  * @augments RPG.Items.BaseItem
+ * @augments RPG.Misc.WeaponInterface
  */
 RPG.Items.Weapon = OZ.Class().extend(RPG.Items.BaseItem).implement(RPG.Misc.WeaponInterface);
 RPG.Items.Weapon.prototype.init = function(hit, damage) {
@@ -17,7 +18,7 @@ RPG.Items.Weapon.prototype.init = function(hit, damage) {
  */
 RPG.Items.Dagger = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Dagger.prototype.init = function() {
-	this.parent(2, 2);
+	this.parent(0, new RPG.Misc.Interval(1, 4));
 	this._image = "dagger";
 	this._description = "dagger";
 }
@@ -58,11 +59,12 @@ RPG.Items.Corpse.prototype.init = function(being) {
 	this.parent();
 	this._image = "corpse";
 	this._color = being.getColor();
-	this._description = "corpse of "+being.describeA();
+	this._description = being.describe() + " corpse";
 }
 
 /**
  * @class Gold, money
+ * @augments RPG.Items.BaseItem
  */
 RPG.Items.Gold = OZ.Class().extend(RPG.Items.BaseItem);
 

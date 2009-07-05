@@ -239,7 +239,7 @@ RPG.Dungeon.Generator.Uniform.prototype._generateRoom = function() {
 
 /**
  * @class Random dungeon generator using human-like digging patterns.
- * Heavily based on Mike Andrson's ideas from the "Tyrant" algo, mentioned at 
+ * Heavily based on Mike Anderson's ideas from the "Tyrant" algo, mentioned at 
  * http://www.roguebasin.roguelikedevelopment.org/index.php?title=Dungeon-Building_Algorithm .
  * @augments RPG.Dungeon.Generator
  */

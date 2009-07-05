@@ -7,7 +7,7 @@ RPG.Misc.Interval.prototype.init = function(min, max) {
 	this.max = max;
 }
 RPG.Misc.Interval.prototype.toString = function() {
-	return this.min + " - "+this.max;
+	return this.min + "-" + this.max;
 }
 
 /**
@@ -25,10 +25,6 @@ RPG.Misc.Interval.prototype.roll = function(rollCount) {
 	}
 	
 	return this.min + Math.round(result);
-}
-
-RPG.Misc.Interval.prototype.clone = function() {
-	return new RPG.Misc.Interval(this.min, this.max);
 }
 
 /**
@@ -65,6 +61,11 @@ RPG.Misc.Coords.prototype.minus = function(c) {
  * @class Modifier interface: everything that holds feat modifiers have this
  */
 RPG.Misc.ModifierInterface = OZ.Class();
+/**
+ * @param {function} feat Feat constructor
+ * @param {int} type Type constant
+ * @param {int || function} value Modification value
+ */
 RPG.Misc.ModifierInterface.prototype.addModifier = function(feat, type, value) {
 	var item = [feat, type, value];
 	this._modifiers.push(item);
@@ -114,6 +115,7 @@ RPG.Misc.WeaponInterface.prototype.getDamage = function(modifierHolder) {
 
 /**
  * @class Hands, basic weapon
+ * @augments RPG.Misc.WeaponInterface
  */
 RPG.Misc.Hands = OZ.Class().implement(RPG.Misc.WeaponInterface);
 RPG.Misc.Hands.prototype.init = function(hit, damage) {
@@ -123,9 +125,38 @@ RPG.Misc.Hands.prototype.init = function(hit, damage) {
 
 /**
  * @class Foot, useful for kicking
+ * @augments RPG.Misc.WeaponInterface
  */
 RPG.Misc.Foot = OZ.Class().implement(RPG.Misc.WeaponInterface);
 RPG.Misc.Foot.prototype.init = function(hit, damage) {
 	this.setHit(hit);
 	this.setDamage(damage);
+}
+
+/**
+ * @class Chat - hierarchical dialog structure
+ */
+RPG.Misc.Chat = OZ.Class();
+
+RPG.Misc.Chat.prototype.init = function(text, end) {
+	this._text = text;
+	this._options = [];
+	this._end = end;
+}
+
+RPG.Misc.Chat.prototype.addOption = function(text, something) {
+	this._options.push([text, something]);
+	return this;
+}
+
+RPG.Misc.Chat.prototype.getText = function() {
+	return this._text;
+}
+
+RPG.Misc.Chat.prototype.getOptions = function() {
+	return this._options;
+}
+
+RPG.Misc.Chat.prototype.getEnd = function() {
+	return this._end;
 }

@@ -28,6 +28,7 @@ RPG.Cells.Wall.prototype.init = function() {
 
 /**
  * @class Door
+ * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Door = OZ.Class().extend(RPG.Features.BaseFeature);
 
@@ -100,6 +101,7 @@ RPG.Features.Door.prototype.damage = function(amount) {
 
 /**
  * @class Teleport
+ * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Teleport = OZ.Class().extend(RPG.Features.BaseFeature);
 

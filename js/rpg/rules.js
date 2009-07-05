@@ -43,6 +43,7 @@ RPG.Rules.isCritical = function(being) {
  */
 RPG.Rules.getMeleeDamage = function(attacker, defender, weapon, isCritical) {
 	var damage = attacker.getDamage(weapon);
+	if (damage instanceof RPG.Misc.Interval) { damage = damage.roll(); }
 	
 	damage += new RPG.Misc.Interval(-3, 3).roll(1);
 	

@@ -91,6 +91,7 @@ RPG.Rooms.BaseRoom.prototype.getCorner2 = function() {
 
 /**
  * @class Dungeon feature
+ * @augments RPG.Visual.VisualInterface
  */
 RPG.Features.BaseFeature = OZ.Class()
 							.implement(RPG.Visual.VisualInterface)
