@@ -11,8 +11,9 @@ RPG.UI.Command.prototype.init = function(label) {
 	this._charCodes = [];
 	this._keyCodes = [];
 	this._button = OZ.DOM.elm("input", {type:"button", value:label});
-	OZ.Event.add(this._button, "click", this.bind(function(e){this.exec();}));
+	OZ.Event.add(this._button, "click", this.bind(this._click));
 }
+
 
 RPG.UI.Command.prototype.getButton = function() {
 	return this._button;
@@ -27,11 +28,15 @@ RPG.UI.Command.prototype.addCharCode = function(charCode) {
 }
 
 RPG.UI.Command.prototype.test = function(charCode, keyCode) {
-	if (this._button && this._button.disabled) { return false; }
+	if (this._button.disabled) { return false; }
 	return (this._charCodes.indexOf(charCode) != -1 || this._keyCodes.indexOf(keyCode) != -1);
 }
 
 RPG.UI.Command.prototype.exec = function() {
+}
+
+RPG.UI.Command.prototype._click = function(e) {
+	RPG.UI.command(this);
 }
 
 /**
@@ -140,29 +145,6 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 }
 
 /**
- * @class Pick command
- * @augments RPG.UI.Command
- */
-RPG.UI.Command.Pick = OZ.Class().extend(RPG.UI.Command);
-RPG.UI.Command.Pick.prototype.init = function() {
-	this.parent("Pick (,)");
-	this.addCharCode(44);
-}
-RPG.UI.Command.Pick.prototype.exec = function() {
-	var arr = [];
-	var pc = RPG.World.getPC();
-	var items = pc.getMap().at(pc.getCoords()).getItems();
-	for (var i=0;i<items.length;i++) {
-		arr.push(items[i]);
-	}
-	if (arr.length) { 
-		RPG.UI.action(RPG.Actions.Pick, arr);
-	} else {
-		RPG.UI.message("There is nothing to pick up!");
-	}
-}
-	
-/**
  * @class Cancel command
  * @augments RPG.UI.Command
  */
@@ -172,51 +154,19 @@ RPG.UI.Command.Cancel.prototype.init = function() {
 	this.addCharCode(122);
 }
 RPG.UI.Command.Cancel.prototype.exec = function() {
-	RPG.UI._pending = null;
-	RPG.UI.adjustButtons({commands:true, dir:true, cancel:false});
-}
-
-/**
- * @class Complex command, may depend on other commands
- * @augments RPG.UI.Command
- */
-RPG.UI.Command.Complex = OZ.Class().extend(RPG.UI.Command);
-RPG.UI.Command.Complex.prototype.exec = function(subcommand) {
-	var pending = RPG.UI._pending;
-	
-	/* someone else is pending, cancel */
-	if (pending && pending != this) { return; } 
-	
-	RPG.UI._pending = null;
-
-	/* second click on a pending command => cancel */
-	if (pending && !subcommand) { 
-		RPG.UI.adjustButtons({commands:true, cancel:false, dir:true});
-		return; 
-	}
-	
-	var result = this.tryExec(subcommand);
-	if (result) { 
-		RPG.UI.adjustButtons({commands:true, cancel:false, dir:true});
-	} else {
-		RPG.UI.adjustButtons({commands:false, cancel:true, dir:true});
-		RPG.UI._pending = this; 
-	}
-}
-
-RPG.UI.Command.Complex.prototype.tryExec = function(subcommand) {
+	RPG.UI.setMode(RPG.UI_NORMAL);
 }
 
 /**
  * @class Open command
- * @augments RPG.UI.Command.Complex
+ * @augments RPG.UI.Command
  */
-RPG.UI.Command.Open = OZ.Class().extend(RPG.UI.Command.Complex);
+RPG.UI.Command.Open = OZ.Class().extend(RPG.UI.Command);
 RPG.UI.Command.Open.prototype.init = function() {
 	this.parent("Open (o)");
 	this.addCharCode(111);
 }
-RPG.UI.Command.Open.prototype.tryExec = function(cmd) {
+RPG.UI.Command.Open.prototype.exec = function(cmd) {
 	var pc = RPG.World.getPC();
 
 	if (cmd) {
@@ -240,23 +190,21 @@ RPG.UI.Command.Open.prototype.tryExec = function(cmd) {
 			RPG.UI.message("There are no closed doors nearby.");
 		} else {
 			/* too many doors */
-			RPG.UI.message("Open a door: select direction...");
-			return false;
+			RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Open a door");
 		}
 	}
-	return true;
 }
 
 /**
  * @class Close command
- * @augments RPG.UI.Command.Complex
+ * @augments RPG.UI.Command
  */
-RPG.UI.Command.Close = OZ.Class().extend(RPG.UI.Command.Complex);
+RPG.UI.Command.Close = OZ.Class().extend(RPG.UI.Command);
 RPG.UI.Command.Close.prototype.init = function() {
 	this.parent("Close (c)");
 	this.addCharCode(99);
 }
-RPG.UI.Command.Close.prototype.tryExec = function(cmd) {
+RPG.UI.Command.Close.prototype.exec = function(cmd) {
 	var pc = RPG.World.getPC();
 
 	if (cmd) {
@@ -280,43 +228,39 @@ RPG.UI.Command.Close.prototype.tryExec = function(cmd) {
 			RPG.UI.message("There are no opened doors nearby.");
 		} else {
 			/* too many doors */
-			RPG.UI.message("Close a door: select direction...");
-			return false;
+			RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Close a door");
 		}
 	}
-	return true;
 }
 
 /**
  * @class Kick command
- * @augments RPG.UI.Command.Complex
+ * @augments RPG.UI.Command
  */
-RPG.UI.Command.Kick = OZ.Class().extend(RPG.UI.Command.Complex);
+RPG.UI.Command.Kick = OZ.Class().extend(RPG.UI.Command);
 RPG.UI.Command.Kick.prototype.init = function() {
 	this.parent("Kick (k)");
 	this.addCharCode(107);
 }
-RPG.UI.Command.Kick.prototype.tryExec = function(cmd) {
+RPG.UI.Command.Kick.prototype.exec = function(cmd) {
 	if (!cmd) {
-		RPG.UI.message("Kick: select direction...");
-		return false;
+		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Kick");
 	} else {
 		var coords = RPG.World.getPC().getCoords().clone().plus(cmd.getCoords());
 		RPG.UI.action(RPG.Actions.Kick, coords);
-		return true;
 	}
 }
 
 /**
  * @class Chat
- * @augments RPG.UI.Command.Complex
+ * @augments RPG.UI.Command
  */
-RPG.UI.Command.Chat = OZ.Class().extend(RPG.UI.Command.Complex);	
+RPG.UI.Command.Chat = OZ.Class().extend(RPG.UI.Command);	
 RPG.UI.Command.Chat.prototype.init = function() {
 	this.parent("Chat (C)");
 	this.addCharCode(67);
 }
-RPG.UI.Command.Chat.prototype.tryExec = function(cmd) {
+RPG.UI.Command.Chat.prototype.exec = function(cmd) {
 	var errMsg = "There is noone to chat with.";
 	var pc = RPG.World.getPC();
 
@@ -329,47 +273,145 @@ RPG.UI.Command.Chat.prototype.tryExec = function(cmd) {
 		} else {
 			RPG.UI.action(RPG.Actions.Chat, being);
 		}
-		return true;
 	} else {
 		var beings = this._surroundingBeings();
 		if (!beings.length) {
 			RPG.UI.message(errMsg);
-			return true;
 		} else if (beings.length == 1) {
 			RPG.UI.action(RPG.Actions.Chat, beings[0]);
-			return true;
 		} else {
-			RPG.UI.message("Chat: select direction...");
-			return false;
+			RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Chat");
+		}
+	}
+}
+
+/**
+ * @class Pick command
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Pick = OZ.Class().extend(RPG.UI.Command);
+RPG.UI.Command.Pick.prototype.init = function() {
+	this.parent("Pick (,)");
+	this.addCharCode(44);
+}
+RPG.UI.Command.Pick.prototype.exec = function(selectedItems) {
+	var arr = [];
+	var pc = RPG.World.getPC();
+	
+	if (selectedItems) {
+		if (selectedItems) {
+			RPG.UI.action(RPG.Actions.Pick, selectedItems);
+		}
+	} else {
+		var items = pc.getMap().at(pc.getCoords()).getItems();
+		
+		if (!items.length) {
+			RPG.UI.message("There is nothing to pick up!");
+			return;
+		}
+		
+		if (items.length == 1) {
+			RPG.UI.action(RPG.Actions.Pick, items[0]);
+			return; 
+		}
+		
+		var obj = {
+			items: items,
+			label: "Select items to be picked up",
+			pick: -1
+		}
+		RPG.UI.setMode(RPG.UI_WAIT_ITEMS, this, obj);
+	}
+}
+
+/**
+ * @class Drop command
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Drop = OZ.Class().extend(RPG.UI.Command);
+RPG.UI.Command.Drop.prototype.init = function() {
+	this.parent("Drop (d)");
+	this.addCharCode(100);
+}
+RPG.UI.Command.Drop.prototype.exec = function(selectedItems) {
+	var arr = [];
+	var pc = RPG.World.getPC();
+	
+	if (selectedItems) {
+		if (selectedItems.length) {
+			RPG.UI.action(RPG.Actions.Drop, selectedItems);
+		}
+	} else {
+		var items = pc.getItems();
+		if (items.length) {
+			var obj = {
+				items: items,
+				label: "Select items to be dropped on the ground",
+				pick: -1
+			}
+			RPG.UI.setMode(RPG.UI_WAIT_ITEMS, this, obj);
+		} else {
+			RPG.UI.message("You don't own anything!");
+		}
+	}
+}
+
+/**
+ * @class Inventory command
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Inventory = OZ.Class().extend(RPG.UI.Command);
+RPG.UI.Command.Inventory.prototype.init = function() {
+	this.parent("Inventory (i)");
+	this.addCharCode(105);
+	this._state = false;
+}
+RPG.UI.Command.Inventory.prototype.exec = function() {
+	var arr = [];
+	var pc = RPG.World.getPC();
+	
+	if (this._state) {
+		this._state = false;
+	} else {
+		var items = pc.getItems();
+		if (items.length) {
+			this._state = true;
+			var obj = {
+				items: items,
+				label: "Your inventory",
+				pick: 0
+			}
+			RPG.UI.setMode(RPG.UI_WAIT_ITEMS, this, obj);
+		} else {
+			RPG.UI.message("You don't own anything!");
 		}
 	}
 }
 
 /**
  * @class Autowalker
- * @augments RPG.UI.Command.Complex
+ * @augments RPG.UI.Command
  */
-RPG.UI.Command.Auto = OZ.Class().extend(RPG.UI.Command.Complex);	
-RPG.UI.Command.Auto.prototype.init = function() {
+RPG.UI.Command.Autowalk = OZ.Class().extend(RPG.UI.Command);	
+RPG.UI.Command.Autowalk.prototype.init = function() {
 	this.parent("Walk continuously (w)");
 	this.addCharCode(119);
 	this._coords = null;
-	this._surround = {};
+	this._left = false;
+	this._right = false;
 	this._steps = 0;
 	this._yt = null;
 }
-RPG.UI.Command.Auto.prototype.tryExec = function(cmd) {
+RPG.UI.Command.Autowalk.prototype.exec = function(cmd) {
 	if (cmd) {
 		/* direction given */
 		this._start(cmd.getCoords());
-		return true;
 	} else {
-		RPG.UI.message("Walk continuously: select direction...");
-		return false;
+		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Walk continuously");
 	}
 }
 
-RPG.UI.Command.Auto.prototype._start = function(coords) {
+RPG.UI.Command.Autowalk.prototype._start = function(coords) {
 	var pc = RPG.World.getPC();
 	var map = pc.getMap();
 	var target = pc.getCoords().clone().plus(coords);
@@ -377,20 +419,7 @@ RPG.UI.Command.Auto.prototype._start = function(coords) {
 	/* cannot walk to the wall */
 	if (!map.at(target).isFree()) { return; }
 
-	/* save state of relevant siblings */
-	this._coords = coords.clone();
-	this._surround = {};
-	var n1 = new RPG.Misc.Coords(coords.y, -coords.x);
-	var n2 = new RPG.Misc.Coords(-coords.y, coords.x);
-	var d1 = coords.clone().plus(n1);
-	var d2 = coords.clone().plus(n2);
-	
-	var arr = [coords, n1, n2, d1, d2];
-	for (var i=0;i<arr.length;i++) {
-		var c = arr[i].clone();
-		var str = c.x+","+c.y;
-		this._surround[str] = map.at(c.plus(pc.getCoords())).isFree();
-	}
+	this._saveState(coords);
 	
 	this._steps = 0;
 	this._yt = pc.yourTurn;
@@ -398,7 +427,20 @@ RPG.UI.Command.Auto.prototype._start = function(coords) {
 	this._step();
 }
 
-RPG.UI.Command.Auto.prototype._yourTurn = function() {
+/**
+ * Save state of current direction + left/right neighbors 
+ */
+RPG.UI.Command.Autowalk.prototype._saveState = function(coords) {
+	this._coords = coords.clone();
+	var pc = RPG.World.getPC();
+	var map = pc.getMap();
+	var leftC = new RPG.Misc.Coords(-coords.y, coords.x);
+	var rightC = new RPG.Misc.Coords(coords.y, -coords.x);
+	this._left = map.at(leftC.plus(pc.getCoords())).isFree();
+	this._right = map.at(rightC.plus(pc.getCoords())).isFree();
+}
+
+RPG.UI.Command.Autowalk.prototype._yourTurn = function() {
 	if (this._check()) {
 		/* still going */
 		this._step();
@@ -408,36 +450,76 @@ RPG.UI.Command.Auto.prototype._yourTurn = function() {
 	}
 }
 
-RPG.UI.Command.Auto.prototype._check = function() {
+/**
+ * Most complicated part. Check whether we can continue autowalking.
+ */
+RPG.UI.Command.Autowalk.prototype._check = function() {
 	var pc = RPG.World.getPC();
 	var map = pc.getMap();
-	var cell = map.at(pc.getCoords());
+	var coords = pc.getCoords();
+	var cell = map.at(coords);
 
 	if (this._steps == 50) { return false; } /* too much steps */
-	if (cell.getFeature()) { return false; } /* we came to a feature */
 	if (cell.getItems().length) { return false; } /* we stepped across some items */
 	
-	for (var p in this._surround) {
-		var arr = p.split(",");
-		var c = new RPG.Misc.Coords();
-		c.x = parseInt(arr[0], 10);
-		c.y = parseInt(arr[1], 10);
-		if (map.at(c.plus(pc.getCoords())).isFree() != this._surround[p]) { return false; } /* surrounding cells have changed */
+	if (!this._coords.x && !this._coords.y) { return true; } /* standing on a spot is okay now */
+
+	/* now check neighbor status */
+	var n1 = new RPG.Misc.Coords(-this._coords.y, this._coords.x);
+	var n2 = new RPG.Misc.Coords(this._coords.y, -this._coords.x);
+	var aheadC = this._coords.clone().plus(coords);
+	var leftC = n1.clone().plus(coords);
+	var rightC = n2.clone().plus(coords);
+	var ahead = !(map.at(aheadC).flags & RPG.CELL_OBSTACLE);
+	var left = !(map.at(leftC).flags & RPG.CELL_OBSTACLE);
+	var right = !(map.at(rightC).flags & RPG.CELL_OBSTACLE);
+	
+	/* leaving opened area/crossroads */
+	if (this._left && !left) { this._left = left; }
+	if (this._right && !right) { this._right = right; }
+	
+	if (ahead) {
+		/* we can - in theory - continue; just check if we are not standing on a crossroads */
+		if ((!this._left && left) || (!this._right && right)) { return false; }
+	} else {
+		/* try to change direction, because it is not possible to continue */
+		var freecount = 0;
+		for (var i=-1;i<=1;i++) {
+			for (var j=-1;j<=1;j++) {
+				if (!i && !j) { continue; }
+				var c = map.at(new RPG.Misc.Coords(i, j).plus(coords));
+				if (!(c.flags & RPG.CELL_OBSTACLE)) { freecount++; }
+			}
+		}
+		if (freecount > 2) { return false; } /* too many options to go */
+		
+		if (left && !right) {
+			/* turn left */
+			this._saveState(n1);
+		} else if (right && !left) {
+			/* turn right */
+			this._saveState(n2);
+		} else {
+			return false; /* the only way from here is diagonal, stop */
+		}	
 	}
 	
+	var cell = map.at(this._coords.clone().plus(coords));
+	if (cell.getBeing()) { return false; } /* standing against a being */
+	if (cell.getFeature()) { return false; } /* standing against a feature */
+
 	return true;
 }
 
-RPG.UI.Command.Auto.prototype._step = function() {
+RPG.UI.Command.Autowalk.prototype._step = function() {
 	this._steps++;
 	var pc = RPG.World.getPC();
 	
 	if (this._coords.x || this._coords.y) {
-		var a = new RPG.Actions.Move(pc, pc.getCoords().clone().plus(this._coords));
+		RPG.UI.action(RPG.Actions.Move, pc.getCoords().clone().plus(this._coords));
 	} else {
-		var a = new RPG.Actions.Wait(pc);
+		RPG.UI.action(RPG.Actions.Wait);
 	}
-	RPG.World.action(a);
 }
 
 

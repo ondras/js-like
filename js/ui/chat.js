@@ -1,14 +1,15 @@
-RPG.UI.Chat._current = null;
-RPG.UI.Chat._action = null;
+/**
+ * @class Chat dialog
+ */
+RPG.UI.Chat = OZ.Class();
 
-RPG.UI.Chat.invoke = function(chat, action) {
+RPG.UI.Chat.prototype.init = function(chat, action) {
 	this._current = chat;
 	this._action = action;
-//	RPG.World.pause();
 	this._showPart(chat);
 }
 
-RPG.UI.Chat._showPart = function(chat) {
+RPG.UI.Chat.prototype._showPart = function(chat) {
 	var text = chat.getText();
 	var options = chat.getOptions();
 	var result = null;
@@ -45,4 +46,5 @@ RPG.UI.Chat._showPart = function(chat) {
 		if (end) { end(this._action); }
 	}
 	
+	RPG.UI.setMode(RPG.UI.DONE_CHAT);
 }

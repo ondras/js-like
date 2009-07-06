@@ -1,16 +1,79 @@
 RPG.UI._buffer = null; /* text message display */
 RPG.UI._map = null; /* map instance */
-RPG.UI._locked = false; /* is ui locked? (because it is not PC's time to act) */
 RPG.UI._commands = []; /* avail commands */
 RPG.UI._pending = null; /* command awaiting specification */
-RPG.UI._auto = null; /* autowalk command instance */
-RPG.UI.Chat = {};
-RPG.UI.Itemlist = {};
+RPG.UI._dimmer = null; /* dimmer element */
+RPG.UI._mode = RPG.UI_NORMAL;
 
 /**
  * Static version of bind
  */
 RPG.UI.bind = OZ.Class().prototype.bind;
+
+RPG.UI.setMode = function(mode, command, data) {
+	if (this._mode == mode) { return; }
+	this._mode = mode;
+	switch (mode) {
+		case RPG.UI_NORMAL:
+			this._pending = null;
+			this._undim();
+			this._adjustButtons({commands:true, cancel:false, dir:true});
+		break;
+		case RPG.UI_LOCKED:
+			this._adjustButtons({commands:false, cancel:false, dir:false});
+		break;
+		case RPG.UI_WAIT_DIRECTION:
+			this._pending = command;
+			this.message(data+": select direction...");
+			this._adjustButtons({commands:false, cancel:true, dir:true});
+		break;
+		case RPG.UI_WAIT_ITEMS:
+			this._pending = command;
+			this._dim();
+			this._adjustButtons({commands:false, cancel:false, dir:false});
+			new this.Itemlist(data);
+		break;
+		case RPG.UI_WAIT_CHAT:
+			new RPG.UI.Chat(data, command);
+		break;
+		case RPG.UI_DONE_ITEMS:
+			this._pending.exec(data);
+			this.setMode(RPG.UI_NORMAL);
+		break;
+		case RPG.UI_DONE_CHAT:
+			this.setMode(RPG.UI_NORMAL);
+		break;
+	}
+}
+
+/**
+ * This command wants to be executed
+ */
+RPG.UI.command = function(command) {
+	this.clear();
+
+	/* no sry */
+	if (this._mode == RPG.UI_LOCKED) { return; } 
+	
+	if (command instanceof RPG.UI.Command.Cancel && this._mode != RPG.UI_NORMAL) { 
+		/* cancel */
+		command.exec();
+		return; 
+	} 
+	
+	/* no commands in itemlist (bar cancel) */
+	if (this._mode == RPG.UI_WAIT_ITEMS) { return; } 
+	
+	/* non-dir when direction is needed */
+	if (!(command instanceof RPG.UI.Command.Direction) && this._mode == RPG.UI_WAIT_DIRECTION) { return; } 
+	
+	if (this._pending) {
+		this._pending.exec(command);
+		this.setMode(RPG.UI_NORMAL);
+	} else {
+		command.exec();
+	}
+}
 
 RPG.UI.message = function(str) {
 	if (this._buffer) { this._buffer.message(str); }
@@ -33,22 +96,6 @@ RPG.UI.adjust = function(map) {
 }
 
 /**
- * Disable interactive mode
- */
-RPG.UI.lock = function() {
-	this._locked = true;
-	this.adjustButtons({commands:false, dir:false, cancel:false});
-}
-
-/**
- * Enable interactive mode
- */
-RPG.UI.unlock = function() {
-	this._locked = false;
-	this.adjustButtons({dir:true, commands:true, cancel:false});
-}
-
-/**
  * Pass an action to the World
  * @param {function} ctor action constructor
  * @param {?} target action target
@@ -56,7 +103,6 @@ RPG.UI.unlock = function() {
  */
 RPG.UI.action = function(ctor, target, params) {
 	if (this._locked) { return; }
-	this.clear();
 	var a = new ctor(RPG.World.getPC(), target, params);
 	RPG.World.action(a);
 }
@@ -64,12 +110,8 @@ RPG.UI.action = function(ctor, target, params) {
 /**
  * Perform a dialogue
  * @param {RPG.Misc.Chat} chat
- * @param {RPG.Beings.BaseBeing} source
- * @param {RPG.Beings.BaseBeing} target
+ * @param {RPG.Actions.BaseAction} action Action which invoked this chat
  */
-RPG.UI.chat = function(chat, action) {
-	this.Chat.invoke(chat, action);
-}
 
 /**
  * Build image-based map
@@ -108,13 +150,15 @@ RPG.UI.buildCommands = function() {
 	var div = OZ.DOM.elm("div", {"class":"commands"});
 	result.push(div);
 	
+	div.appendChild(new RPG.UI.Command.Autowalk().getButton());
 	div.appendChild(new RPG.UI.Command.Pick().getButton());
+	div.appendChild(new RPG.UI.Command.Drop().getButton());
+	div.appendChild(new RPG.UI.Command.Inventory().getButton());
 	div.appendChild(new RPG.UI.Command.Open().getButton());
 	div.appendChild(new RPG.UI.Command.Close().getButton());
 	div.appendChild(new RPG.UI.Command.Kick().getButton());
-	div.appendChild(new RPG.UI.Command.Cancel().getButton());
 	div.appendChild(new RPG.UI.Command.Chat().getButton());
-	div.appendChild(new RPG.UI.Command.Auto().getButton());
+	div.appendChild(new RPG.UI.Command.Cancel().getButton());
 
 	return result;
 }
@@ -124,7 +168,7 @@ RPG.UI.buildCommands = function() {
  * @param {bool} [data.cancel]
  * @param {bool} [data.dir]
  */ 
-RPG.UI.adjustButtons = function(data) {
+RPG.UI._adjustButtons = function(data) {
 	for (var i=0;i<this._commands.length;i++) {
 		var c = this._commands[i];
 		var b = c.getButton();
@@ -144,32 +188,51 @@ RPG.UI.adjustButtons = function(data) {
 }
 
 /**
- * Process a given key
- * @param {int} keyCode
- * @param {int} charCode
- * @returns {bool} was there any action performed?
- */
-RPG.UI._handleCode = function(charCode, keyCode) {
-	for (var i=0;i<RPG.UI._commands.length;i++) {
-		var c = RPG.UI._commands[i];
-		if (c.test(charCode, keyCode)) {
-			this.clear();
-			c.exec();
-			return true;
-		}
-	}
-	return false;
-}
-
-/**
  * Keydown handler
  * @param {event} e
  */
 RPG.UI._keyPress = function(e) {
-	if (this._handleCode(e.charCode, e.keyCode)) {
-		OZ.Event.prevent(e);
+	for (var i=0;i<RPG.UI._commands.length;i++) {
+		var c = RPG.UI._commands[i];
+		if (c.test(e.charCode, e.keyCode)) { 
+			this.command(c); 
+			OZ.Event.prevent(e);
+		}
 	}
 }
+
+/**
+ * Dim the UI - because something "modal" will be shown
+ */ 
+RPG.UI._dim = function() {
+	var div = OZ.DOM.elm("div", {position:"absolute", backgroundColor:"black", opacity:0.5});
+	document.body.appendChild(div);
+	this._dimmer = div;
+	
+	/** ... */
+	var sync = function() {
+		var port = OZ.DOM.win();
+		var scroll = OZ.DOM.scroll();
+		div.style.left = scroll[0]+"px";
+		div.style.top = scroll[1]+"px";
+		div.style.width = port[0]+"px";
+		div.style.height = port[1]+"px";
+	}
+	
+	OZ.Event.add(window, "scroll", sync);
+	OZ.Event.add(window, "resize", sync);
+	sync();
+}
+
+/**
+ * Undim the UI
+ */ 
+RPG.UI._undim = function() {
+	if (!this._dimmer) { return; }
+	this._dimmer.parentNode.removeChild(this._dimmer);
+	this._dimmer = null;
+}
+
 
 OZ.Event.add(document, "keypress", RPG.UI.bind(RPG.UI._keyPress));
 

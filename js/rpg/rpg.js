@@ -72,6 +72,22 @@ RPG.GENDER_FEMALE		= 1;
 /** @constant */
 RPG.GENDER_NEUTER		= 2;
 
+/** @constant */
+RPG.UI_NORMAL			= 0;
+/** @constant */
+RPG.UI_LOCKED			= 1;
+/** @constant */
+RPG.UI_WAIT_DIRECTION	= 2;
+/** @constant */
+RPG.UI_WAIT_ITEMS		= 3;
+/** @constant */
+RPG.UI_WAIT_CHAT		= 4;
+/** @constant */
+RPG.UI_DONE_ITEMS		= 5;
+/** @constant */
+RPG.UI_DONE_CHAT		= 6;
+
+
 /**
  * Generates a normally distributed random number, mean = 0.
  * @param {float} stddev Standard deviation. ~95% of the absolute values will be lower than 2*stddev.

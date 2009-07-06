@@ -19,27 +19,11 @@ RPG.Actions.Move.prototype.execute = function() {
 	level.setBeing(target, this._source);
 
 	if (you) {
-		this._seeItems();
+		this._describe();
 		RPG.UI.redraw();
 	} else {
 		RPG.UI.redrawCoords(source);
 		RPG.UI.redrawCoords(target);
-	}
-}
-
-RPG.Actions.Move.prototype._seeItems = function() {
-	var coords = RPG.World.getPC().getCoords();
-	var map = RPG.World.getMap();
-	
-	var items = map.at(coords).getItems();
-	
-	if (items.length > 1) {
-		RPG.UI.message("Several items are lying here.");
-	} else if (items.length == 1) {
-		var item = items[0];
-		var str = item.describeA().capitalize();
-		str += " is lying here.";
-		RPG.UI.message(str);
 	}
 }
 
@@ -236,24 +220,31 @@ RPG.Actions.Teleport.prototype.execute = function() {
 	var level = this._source.getMap();
 	var source = this._source.getCoords();
 	var target = this._target;
+	var pc = RPG.World.getPC();
 	var you = (this._source == RPG.World.getPC());
 
-	level.setBeing(source, null);
-	level.setBeing(target, this._source);
-
-	var str = "";
-	str = (you ? "you" : this._source.describeA()).capitalize();
-	str += " suddenly ";
-	str += (you ? "teleport" : "teleports");
-	str += " away!";
-	RPG.UI.message(str);
-
 	if (you) {
-		RPG.UI.redraw();
+		RPG.UI.message("You suddenly teleport away!");
 	} else {
-		RPG.UI.redrawCoords(source);
-		RPG.UI.redrawCoords(target);
+		if (pc.canSee(source)) {
+			var str = this._source.describeA().capitalize();
+			str += " suddenly disappears!";
+			RPG.UI.message(str);
+		}
+		
+		if (pc.canSee(target)) {
+			var str = this._source.describeA().capitalize();
+			if (pc.canSee(source)) {
+				str += " immediately reappears!";
+			} else {
+				str += " suddenly appears from nowhere!";
+			}
+			RPG.UI.message(str);
+		}
 	}
+	
+	var move = new RPG.Actions.Move(this._source, this._target);
+	RPG.World.action(move);
 }
 
 /**
@@ -279,6 +270,35 @@ RPG.Actions.Pick.prototype.execute = function() {
 		
 		var str = (you ? "you" : this._source.describeA()).capitalize();
 		str += " " + (you ? "pick" : "picks") + " up ";
+		str += (you ? item.describeThe() : item.describeA());
+		str += ".";
+		RPG.UI.message(str);
+	}
+}
+
+/**
+ * @class Droping item(s). Target = item || item[]
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Drop = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.Drop.prototype.execute = function() {
+	var items = this._target;
+	if (!(items instanceof Array)) { items = [items]; }
+	
+	var map = this._source.getMap();
+	var cell = map.at(this._source.getCoords());
+	var you = (this._source == RPG.World.getPC());
+	
+	for (var i=0;i<items.length;i++) {
+		var item = items[i];
+		this._source.removeItem(item);
+		cell.addItem(item);
+		
+		/* FIXME! */
+		if (this._source.getWeapon() == item) { this._source.setWeapon(item); }
+		
+		var str = (you ? "you" : this._source.describeA()).capitalize();
+		str += " " + (you ? "drop" : "drops") + " ";
 		str += (you ? item.describeThe() : item.describeA());
 		str += ".";
 		RPG.UI.message(str);
@@ -361,7 +381,7 @@ RPG.Actions.Chat.prototype.execute = function() {
 	
 	var chat = this._target.getChat();
 	if (chat) {
-		RPG.UI.chat(chat, this);
+		RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, chat);
 	} else {
 		RPG.UI.message(this._target.describeIt() + " does not reply.");
 	}

@@ -39,7 +39,7 @@ var c1 = room.getCorner1();
 var c2 = room.getCorner2();
 for (var i=c1.x;i<=c2.x;i++) {
 	for (var j=c1.y;j<=c2.y;j++) {
-		var gold = new RPG.Items.Gold();
+		var gold = new RPG.Items.Gold(1+Math.floor(Math.random()*100));
 		map.addItem(new RPG.Misc.Coords(i, j), gold);
 	}
 }

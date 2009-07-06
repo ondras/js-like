@@ -68,10 +68,23 @@ RPG.Items.Corpse.prototype.init = function(being) {
  */
 RPG.Items.Gold = OZ.Class().extend(RPG.Items.BaseItem);
 
-RPG.Items.Gold.prototype.init = function() {
+RPG.Items.Gold.prototype.init = function(amount) {
 	this.parent();
 	this._image = "gold";
 	this._color = "gold";
 	this._char = "$";
-	this._description = "heap of gold";
+	this._amount = null;
+	this._description = "";
+	
+	this.setAmount(amount || 1);
 }
+
+RPG.Items.Gold.prototype.getAmount = function() {
+	return this._amount;
+}
+
+RPG.Items.Gold.prototype.setAmount = function(amount) {
+	this._amount = amount;
+	this._description = "heap of gold ("+amount+")";
+}
+

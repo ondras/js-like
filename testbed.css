@@ -33,6 +33,34 @@ body {
 	margin: 1px;
 }
 
+.items {
+	background-color: white;
+	border: 2px solid brown;
+	padding: 0.5em;
+	opacity: 0.95;
+}
+
+.items td {
+	font-size: 80%;
+}
+
+.items h1 {
+	font-size: 100%;
+	margin: 0px 0px 0.5em 0px;
+}
+
+.items thead {
+	font-weight: bold;
+}
+
+.items input {
+	vertical-align: middle;
+}
+
+.items table {
+	margin-bottom: 1em;
+}
+
 #mapswitch {
 	margin: 0px;
 	padding: 0px;

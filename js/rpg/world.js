@@ -105,14 +105,14 @@ RPG.World._loop = function() {
 			action.execute(); /* execute it */
 			this.dispatch("action", action); /* let everyone know it happened */
 			if (action.tookTime()) { /* our actor has made a non-null action */
-				RPG.UI.lock(); /* lock ui */
+				RPG.UI.setMode(RPG.UI_LOCKED); /* lock ui */
 				this._ticks++;
 				this._newActorNeeded = true; 
 			} 
 		} else if (this._newActorNeeded) { /* no pending actions, we need new actor */
 			var actor = this._scheduler.scheduleActor(); /* find next actor */
 			if (actor) {
-				if (actor == this._pc) { RPG.UI.unlock(); }
+				if (actor == this._pc) { RPG.UI.setMode(RPG.UI_NORMAL); }
 				this._newActorNeeded = false;
 				actor.yourTurn(); /* let actor know he should do some action */
 			} else { /* no actor available, just sleep */

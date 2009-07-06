@@ -90,7 +90,27 @@ RPG.Beings.BaseBeing.prototype.getRace = function() {
 }
 
 RPG.Beings.BaseBeing.prototype.addItem = function(item) { 
+	if (item instanceof RPG.Items.Gold) {
+		for (var i=0;i<this._items.length;i++) {
+			var our = this._items[i];
+			if (our instanceof RPG.Items.Gold) {
+				our.setAmount(our.getAmount() + item.getAmount());
+				return;
+			}
+		}
+	}
+
 	this._items.push(item);
+}
+
+RPG.Beings.BaseBeing.prototype.removeItem = function(item) { 
+	var index = this._items.indexOf(item);
+	if (index == -1) { throw new Error("Item '"+item.describe()+"' not found!"); }
+	this._items.splice(index, 1);
+}
+
+RPG.Beings.BaseBeing.prototype.getItems = function() { 
+	return this._items;
 }
 
 RPG.Beings.BaseBeing.prototype.getFoot = function() {

@@ -67,3 +67,19 @@ RPG.Actions.BaseAction.prototype.execute = function() {
 	return this._tookTime;
 }
 
+RPG.Actions.BaseAction.prototype._describe = function() {
+	var coords = RPG.World.getPC().getCoords();
+	var map = RPG.World.getMap();
+	
+	var items = map.at(coords).getItems();
+	
+	if (items.length > 1) {
+		RPG.UI.message("Several items are lying here.");
+	} else if (items.length == 1) {
+		var item = items[0];
+		var str = item.describeA().capitalize();
+		str += " is lying here.";
+		RPG.UI.message(str);
+	}
+}
+
