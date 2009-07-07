@@ -49,7 +49,7 @@ RPG.Dungeon.Generator.prototype.decorateRoomDoors = function(room, options) {
 	var o = {
 		doors: true,
 		closed: 0.5,
-		locked: 0.125,
+		locked: 0.08,
 		fakeDoors: 0.1,
 		fakeCorridors: 1
 	}

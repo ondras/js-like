@@ -1,7 +1,5 @@
 var mg = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(40, 20));
-console.profile("mapgen");
 var map = mg.generate().addHiddenCorridors(0.01).getMap();
-console.profileEnd("mapgen");
 
 var rooms = map.getRooms();
 for (var i=0;i<rooms.length;i++) { mg.decorateRoomDoors(rooms[i]); }
@@ -14,7 +12,7 @@ for (var i=0;i<max;i++) {
 
 /* room #1 - player */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
-var pc = new RPG.Beings.God();
+var pc = new RPG.Beings.Human();
 map.setBeing(room.getCenter(), pc);
 RPG.World.setPC(pc);
 

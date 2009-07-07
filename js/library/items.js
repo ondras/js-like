@@ -133,7 +133,7 @@ RPG.Items.Ruby.prototype.init = function() {
 
 /**
  * @class Opal
- * @augments RPG.Items.Opal
+ * @augments RPG.Items.Gem
  */
 RPG.Items.Opal = OZ.Class().extend(RPG.Items.Gem);
 RPG.Items.Opal.prototype.init = function() {
@@ -154,4 +154,3 @@ RPG.Items.Turquoise.prototype.init = function() {
 	this._image = "turquoise";
 	this._description = "turquoise";
 }
-

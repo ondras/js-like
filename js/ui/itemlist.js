@@ -219,7 +219,7 @@ RPG.UI.Itemlist.prototype._done = function() {
 }
 
 RPG.UI.Itemlist.prototype._keyPress = function(e) {
-	OZ.Event.prevent(e);
+	OZ.Event.prevent(e); /* only when necessary! */
 	var ch = e.charCode;
 	if (ch == "z".charCodeAt(0)) {
 		this._done();
