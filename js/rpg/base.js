@@ -62,10 +62,11 @@ RPG.Items.BaseItem.prototype.setAmount = function(amount) {
 }
 
 RPG.Items.BaseItem.prototype.describe = function() {
+	var plural = this._descriptionPlural || this._description + "s";
 	if (this._amount == 1) {
 		return this._description;
 	} else {
-		return "heap of " + this._amount + " " + this._descriptionPlural;
+		return "heap of " + this._amount + " " + plural;
 	}
 }
 

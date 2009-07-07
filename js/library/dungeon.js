@@ -27,6 +27,21 @@ RPG.Cells.Wall.prototype.init = function() {
 }
 
 /**
+ * @class Fake wall
+ * @augments RPG.Cells.Wall
+ */
+RPG.Cells.Wall.Fake = OZ.Class().extend(RPG.Cells.Wall);
+
+RPG.Cells.Wall.Fake.prototype.init = function(realCell) {
+	this.parent();
+	this._cell = realCell;
+}
+
+RPG.Cells.Wall.Fake.prototype.getRealCell = function() {
+	return this._cell;
+}
+
+/**
  * @class Door
  * @augments RPG.Features.BaseFeature
  */
@@ -89,14 +104,8 @@ RPG.Features.Door.prototype.isLocked = function() {
  */
 RPG.Features.Door.prototype.damage = function(amount) {
 	this._hp -= amount;
-	if (this._hp > 0) { 
-		return true; 
-	} else {
-		/* FIXME: always on main map? */
-		RPG.World.getMap().at(this._coords).setFeature(null);
-		RPG.UI.redrawCoords(this._coords);
-		return false;
-	}
+	if (this._hp <= 0) { this._cell.setFeature(null); }
+	return (this._hp > 0);
 }
 
 /**

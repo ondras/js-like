@@ -1,7 +1,11 @@
 var mg = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(40, 20));
-var map = mg.generate();
+console.profile("mapgen");
+var map = mg.generate().addHiddenCorridors(0.01).getMap();
+console.profileEnd("mapgen");
 
 var rooms = map.getRooms();
+for (var i=0;i<rooms.length;i++) { mg.decorateRoomDoors(rooms[i]); }
+
 var arr = [];
 var max = Math.max(4, rooms.length);
 for (var i=0;i<max;i++) {
@@ -10,44 +14,31 @@ for (var i=0;i<max;i++) {
 
 /* room #1 - player */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
-var x = Math.round((room.getCorner1().x + room.getCorner2().x)/2);
-var y = Math.round((room.getCorner1().y + room.getCorner2().y)/2);
-var pc = new RPG.Beings.Human();
-map.setBeing(new RPG.Misc.Coords(x, y), pc);
+var pc = new RPG.Beings.God();
+map.setBeing(room.getCenter(), pc);
 RPG.World.setPC(pc);
 
 /* room #2 - orc */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
-var x = Math.round((room.getCorner1().x + room.getCorner2().x)/2);
-var y = Math.round((room.getCorner1().y + room.getCorner2().y)/2);
 var orc = new RPG.Beings.Orc();
 var dagger = new RPG.Items.Dagger();
 orc.addItem(dagger);
 orc.setWeapon(dagger);
 var ai = new RPG.Engine.AI(orc);
-map.setBeing(new RPG.Misc.Coords(x, y), orc);
+map.setBeing(room.getCenter(), orc);
 
 /* room #3 - item */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
-var x = Math.round((room.getCorner1().x + room.getCorner2().x)/2);
-var y = Math.round((room.getCorner1().y + room.getCorner2().y)/2);
-map.addItem(new RPG.Misc.Coords(x, y), new RPG.Items.KlingonSword());
+map.at(room.getCenter()).addItem(new RPG.Items.KlingonSword());
 
 /* room #4 - gold */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
-var c1 = room.getCorner1();
-var c2 = room.getCorner2();
-for (var i=c1.x;i<=c2.x;i++) {
-	for (var j=c1.y;j<=c2.y;j++) {
-		var gold = new RPG.Items.Gold();
-		gold.setAmount(1+Math.floor(Math.random()*100));
-		map.addItem(new RPG.Misc.Coords(i, j), gold);
-	}
-}
+mg.decorateRoomDoors(room, {locked: 1});
+mg.decorateRoomInterior(room, {treasure: 1});
 
 /* teleport */
 var c = map.getFreeCoords(true);
-var t = new RPG.Features.Teleport(c);
+var t = new RPG.Features.Teleport();
 map.at(c).setFeature(t);
 
 /* setup the world */

@@ -284,7 +284,7 @@ RPG.Beings.BaseBeing.prototype.sightDistance = function() {
  */
 RPG.Beings.BaseBeing.prototype.dropAll = function() {
 	for (var i=0;i<this._items.length;i++) { /* drop items */
-		this._map.addItem(this._coords, this._items[i]);
+		this._map.at(this._coords).addItem(this._items[i]);
 	}
 }
 
@@ -295,7 +295,7 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 	this._alive = false;
 	this.dropAll();
 	var corpse = new RPG.Items.Corpse(this);
-	this._map.addItem(this._coords, corpse);
+	this._map.at(this._coords).addItem(corpse);
 	RPG.World.action(new RPG.Actions.Death(this)); 
 }
 

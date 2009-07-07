@@ -40,6 +40,7 @@ RPG.Cells.BaseCell.prototype.getBeing = function() {
 
 RPG.Cells.BaseCell.prototype.setFeature = function(feature) {
 	this._feature = feature;
+	if (feature) { feature.setCell(this); }
 }
 
 RPG.Cells.BaseCell.prototype.getFeature = function() {
@@ -89,18 +90,27 @@ RPG.Rooms.BaseRoom.prototype.getCorner2 = function() {
 	return this._corner2;
 }
 
+RPG.Rooms.BaseRoom.prototype.getCenter = function() {
+	var x = Math.round((this._corner1.x + this._corner2.x)/2);
+	var y = Math.round((this._corner1.y + this._corner2.y)/2);
+	return new RPG.Misc.Coords(x, y);
+}
+
 /**
  * @class Dungeon feature
  * @augments RPG.Visual.VisualInterface
  */
 RPG.Features.BaseFeature = OZ.Class()
 							.implement(RPG.Visual.VisualInterface)
-RPG.Features.BaseFeature.prototype.init = function(coords) {
-	this._coords = coords.clone();
+RPG.Features.BaseFeature.prototype.init = function() {
+	this._cell = null;
 	this._initVisuals();
 	this.flags = 0;
 }
 
+RPG.Features.BaseFeature.prototype.setCell = function(cell) {
+	this._cell = cell;
+}
 
 /**
  * @class Dungeon map
@@ -151,9 +161,6 @@ RPG.Dungeon.Map.prototype.setBeing = function(coords, being) {
 		being.setCoords(coords); 
 	}
 	this.at(coords).setBeing(being);
-}
-RPG.Dungeon.Map.prototype.addItem = function(coords, item) {
-	this.at(coords).addItem(item);
 }
 RPG.Dungeon.Map.prototype.isValid = function(coords) {
 	var size = this._size;

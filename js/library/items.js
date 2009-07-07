@@ -21,7 +21,6 @@ RPG.Items.Dagger.prototype.init = function() {
 	this.parent(0, new RPG.Misc.Interval(1, 4));
 	this._image = "dagger";
 	this._description = "dagger";
-	this._descriptionPlural = "daggers";
 }
 
 /**
@@ -34,7 +33,6 @@ RPG.Items.KlingonSword.prototype.init = function() {
 	this._color = "gold";
 	this._image = "klingon-sword";
 	this._description = "Klingon ceremonial sword";
-	this._descriptionPlural = "Klingon ceremonial swords";
 }
 
 /**
@@ -62,7 +60,6 @@ RPG.Items.Corpse.prototype.init = function(being) {
 	this._image = "corpse";
 	this._color = being.getColor();
 	this._description = being.describe() + " corpse";
-	this._descriptionPlural = being.describe() + " corpses";
 }
 
 /**
@@ -87,3 +84,74 @@ RPG.Items.Gold.prototype.describe = function() {
 		return "heap of gold ("+this._amount + " " + this._descriptionPlural + ")";
 	}
 }
+
+/**
+ * @class Valuable gem
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.Gem = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Gem.prototype.init = function() {
+	this.parent();
+	this._char = "*";
+}
+
+/**
+ * @class Diamond
+ * @augments RPG.Items.Gem
+ */
+RPG.Items.Diamond = OZ.Class().extend(RPG.Items.Gem);
+RPG.Items.Diamond.prototype.init = function() {
+	this.parent();
+	this._color = "white";
+	this._image = "diamond";
+	this._description = "diamond";
+}
+
+/**
+ * @class Sapphire
+ * @augments RPG.Items.Gem
+ */
+RPG.Items.Sapphire = OZ.Class().extend(RPG.Items.Gem);
+RPG.Items.Sapphire.prototype.init = function() {
+	this.parent();
+	this._color = "blue";
+	this._image = "sapphire";
+	this._description = "sapphire";
+}
+
+/**
+ * @class Ruby
+ * @augments RPG.Items.Gem
+ */
+RPG.Items.Ruby = OZ.Class().extend(RPG.Items.Gem);
+RPG.Items.Ruby.prototype.init = function() {
+	this.parent();
+	this._color = "red";
+	this._image = "ruby";
+	this._description = "ruby";
+}
+
+/**
+ * @class Opal
+ * @augments RPG.Items.Opal
+ */
+RPG.Items.Opal = OZ.Class().extend(RPG.Items.Gem);
+RPG.Items.Opal.prototype.init = function() {
+	this.parent();
+	this._color = "magenta";
+	this._image = "opal";
+	this._description = "opal";
+}
+
+/**
+ * @class Turquoise
+ * @augments RPG.Items.Gem
+ */
+RPG.Items.Turquoise = OZ.Class().extend(RPG.Items.Gem);
+RPG.Items.Turquoise.prototype.init = function() {
+	this.parent();
+	this._color = "turquoise";
+	this._image = "turquoise";
+	this._description = "turquoise";
+}
+

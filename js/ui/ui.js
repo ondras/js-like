@@ -158,6 +158,7 @@ RPG.UI.buildCommands = function() {
 	div.appendChild(new RPG.UI.Command.Close().getButton());
 	div.appendChild(new RPG.UI.Command.Kick().getButton());
 	div.appendChild(new RPG.UI.Command.Chat().getButton());
+	div.appendChild(new RPG.UI.Command.Search().getButton());
 	div.appendChild(new RPG.UI.Command.Cancel().getButton());
 
 	return result;

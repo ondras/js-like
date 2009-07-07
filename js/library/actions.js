@@ -376,7 +376,7 @@ RPG.Actions.Kick.prototype.execute = function() {
  */
 RPG.Actions.Chat = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Chat.prototype.execute = function() {
-	/* FIXME only PC is allowed to kick */
+	/* FIXME only PC is allowed to chat */
 	RPG.UI.message("You talk to "+this._target.describe()+".");
 	
 	var chat = this._target.getChat();
@@ -385,4 +385,45 @@ RPG.Actions.Chat.prototype.execute = function() {
 	} else {
 		RPG.UI.message(this._target.describeIt() + " does not reply.");
 	}
+}
+
+/**
+ * @class Search surroundings
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Search = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.Search.prototype.execute = function() {
+	/* FIXME only PC is allowed to search */
+	RPG.UI.message("You search your surroundings...");
+	var found = 0;
+	
+	var center = this._source.getCoords();
+	for (var i=-1;i<=1;i++) {
+		for (var j=-1;j<=1;j++) {
+			if (!i && !j) { continue; }
+			var coords = new RPG.Misc.Coords(i, j).plus(center);
+			found += this._search(coords);
+		}
+	}
+	
+	if (found) { RPG.UI.redraw(); }
+}
+
+/**
+ * @returns {int} 1 = revealed, 0 = not revealed
+ */
+RPG.Actions.Search.prototype._search = function(coords) {
+	var map = this._source.getMap();
+	var cell = map.at(coords);
+	if (!(cell instanceof RPG.Cells.Wall.Fake)) { return 0; }
+	if (!RPG.Rules.isFakeDetected(this._source, cell)) { return 0; }
+
+	/* reveal! */
+	var realCell = cell.getRealCell();
+	map.setCell(coords, realCell);
+	
+	var desc = "passage";
+	if (realCell.getFeature()) { desc = realCell.getFeature().describe(); }
+	RPG.UI.message("you discovered a hidden "+desc+"!");
+	return 1;
 }

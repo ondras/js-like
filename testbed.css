@@ -36,7 +36,7 @@ body {
 .items {
 	background-color: white;
 	border: 2px solid brown;
-	padding: 0.5em;
+	padding: 1em;
 	opacity: 0.95;
 }
 
@@ -53,12 +53,17 @@ body {
 	font-weight: bold;
 }
 
+.items thead td {
+	padding-top: 0.5em;
+	border-bottom: 1px solid black;
+}
 .items input {
 	vertical-align: middle;
 }
 
 .items table {
 	margin-bottom: 1em;
+	border-collapse: collapse;
 }
 
 #mapswitch {

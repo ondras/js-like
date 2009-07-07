@@ -286,6 +286,19 @@ RPG.UI.Command.Chat.prototype.exec = function(cmd) {
 }
 
 /**
+ * @class Search surroundings
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Search = OZ.Class().extend(RPG.UI.Command);	
+RPG.UI.Command.Search.prototype.init = function() {
+	this.parent("Search (s)");
+	this.addCharCode(115);
+}
+RPG.UI.Command.Search.prototype.exec = function(cmd) {
+	RPG.UI.action(RPG.Actions.Search, RPG.World.getPC());
+}
+
+/**
  * @class Pick command
  * @augments RPG.UI.Command
  */

@@ -3,7 +3,7 @@
  */
 RPG.Dungeon.Generator = OZ.Class();
 
-RPG.Dungeon.Generator.prototype.init = function(size, wall, floor) {
+RPG.Dungeon.Generator.prototype.init = function(size) {
 	this._size = size;
 	this._wall = RPG.Cells.Wall;
 	this._corridor = RPG.Cells.Corridor;
@@ -14,7 +14,171 @@ RPG.Dungeon.Generator.prototype.init = function(size, wall, floor) {
 
 RPG.Dungeon.Generator.prototype.generate = function() {
 	this._blankMap();
+	return this;
+}
+
+RPG.Dungeon.Generator.prototype.setMap = function(map) {
+	this._map = map;
+	return this;
+}
+
+RPG.Dungeon.Generator.prototype.getMap = function() {
 	return this._map;
+}
+
+RPG.Dungeon.Generator.prototype.addHiddenCorridors = function(percentage) {
+	var c = new RPG.Misc.Coords(0, 0);
+	for (var i=0;i<this._size.x;i++) {
+		for (var j=0;j<this._size.y;j++) {
+			c.x = i;
+			c.y = j;
+			var cell = this._map.at(c);
+			if (!(cell instanceof RPG.Cells.Corridor)) { continue; }
+			if (this._freeNeighbors(c) != 2) { continue; }
+			if (Math.random() >= percentage) { continue; }
+			
+			var fake = new RPG.Cells.Wall.Fake(cell);
+			this._map.setCell(c, fake);
+		}
+	}
+
+	return this;
+}
+
+RPG.Dungeon.Generator.prototype.decorateRoomDoors = function(room, options) {
+	var o = {
+		doors: true,
+		closed: 0.5,
+		locked: 0.125,
+		fakeDoors: 0.1,
+		fakeCorridors: 1
+	}
+	for (var p in options) { o[p] = options[p]; }
+	
+	var corner1 = room.getCorner1();
+	var corner2 = room.getCorner2();
+	var left = corner1.x-1;
+	var right = corner2.x+1;
+	var top = corner1.y-1;
+	var bottom = corner2.y+1;
+	
+	var north = new RPG.Misc.Coords(0, -1);
+	var south = new RPG.Misc.Coords(0, 1);
+	var east = new RPG.Misc.Coords(1, 0);
+	var west = new RPG.Misc.Coords(-1, 0);
+
+	var c = new RPG.Misc.Coords(0, 0);
+	var dir = false;
+	for (var i=left;i<=right;i++) {
+		for (var j=top;j<=bottom;j++) {
+			/* no corners */
+			if (i == left && (j == top || j == bottom)) { continue; }
+			if (i == right && (j == top || j == bottom)) { continue; }
+
+			dir = false;
+			if (i == left) { dir = west; }
+			if (i == right) { dir = east; }
+			if (j == top) { dir = north; }
+			if (j == bottom) { dir = south; }
+			/* no interior cells */
+			if (!dir) { continue; }
+			
+			c.x = i;
+			c.y = j;
+			var cell = this._map.at(c);
+			var feature = cell.getFeature()
+			if (cell instanceof RPG.Cells.Wall) {
+				/* try fake corridor, if applicable */
+				if (Math.random() >= o.fakeCorridors) { continue; } /* bad luck */
+				var nc = this._freeNeighbors(c);
+				if (nc != 4) { continue; } /* bad neighbor count */
+				
+				var after = c.clone().plus(dir);
+				if (!this._map.isValid(after) || !(this._map.at(after) instanceof RPG.Cells.Corridor)) { continue; } /* bad layout */
+				
+				/* fake corridor */
+				var fake = new RPG.Cells.Wall.Fake(new this._corridor());
+				this._map.setCell(c, fake);
+				continue;
+			}
+			
+			if (!feature && o.doors) {
+				/* add door */
+				feature = new RPG.Features.Door();
+				cell.setFeature(feature);
+			}
+			
+			if (!(feature instanceof RPG.Features.Door)) { continue; } /* not a door */
+			if (Math.random() < o.closed) { feature.close(); } /* close door */
+			if (Math.random() < o.locked) { feature.lock(); } /* lock door */
+
+			/* fake wall */
+			if (Math.random() < o.fakeDoors) {
+				var fake = new RPG.Cells.Wall.Fake(cell);
+				this._map.setCell(c, fake);
+			} /* if fake */
+
+		} /* for y */
+	} /* for x */
+	return this;
+}
+
+RPG.Dungeon.Generator.prototype.decorateRoomInterior = function(room, options) {
+	var o = {
+		treasure: 0,
+		monster: 0
+	}
+	for (var p in options) { o[p] = options[p]; }
+	
+	var c1 = room.getCorner1();
+	var c2 = room.getCorner2();
+	for (var i=c1.x;i<=c2.x;i++) {
+		for (var j=c1.y;j<=c2.y;j++) {
+			var cell = this._map.at(new RPG.Misc.Coords(i, j));
+			
+			if (Math.random() < o.treasure) {
+				var treasure = this._generateTreasure();
+				cell.addItem(treasure);
+				continue;
+			}
+			
+			/* FIXME add monster generator */
+		}
+	}
+}
+
+
+/** FIXME: rework into a factory */
+RPG.Dungeon.Generator.prototype._generateTreasure = function() {
+	if (Math.random() < 0.7) {
+		var gold = new RPG.Items.Gold();
+		gold.setAmount(1+Math.floor(Math.random()*100));
+		return gold;
+	} else {
+		var gems = [];
+		for (var p in RPG.Items) {
+			var item = RPG.Items[p];
+			if (item._extend == RPG.Items.Gem) { gems.push(item); }
+		}
+		var gem = gems[Math.floor(Math.random() * gems.length)];
+		return new gem();
+	}
+}
+
+/**
+ * Return number of free neighbors
+ */
+RPG.Dungeon.Generator.prototype._freeNeighbors = function(center) {
+	var result = 0;
+	for (var i=-1;i<=1;i++) {
+		for (var j=-1;j<=1;j++) {
+			if (!i && !j) { continue; }
+			var coords = new RPG.Misc.Coords(i, j).plus(center);
+			if (!this._map.isValid(coords)) { continue; }
+			if (this._map.at(coords) instanceof RPG.Cells.Corridor) { result++; }
+		}
+	}
+	return result;
 }
 
 RPG.Dungeon.Generator.prototype._blankMap = function() {
@@ -27,7 +191,6 @@ RPG.Dungeon.Generator.prototype._blankMap = function() {
 			this._map.setCell(c, new this._wall());
 		}
 	}
-	return this._map;
 }
 
 RPG.Dungeon.Generator.prototype._digRoom = function(room) {
@@ -42,6 +205,7 @@ RPG.Dungeon.Generator.prototype._digRoom = function(room) {
 			this._map.setCell(c, new this._corridor());
 		}
 	}
+	return this;
 }
 
 RPG.Dungeon.Generator.prototype._generateCoords = function(minSize) {
@@ -61,49 +225,6 @@ RPG.Dungeon.Generator.prototype._generateSize = function(corner, minSize, maxWid
 	var x = Math.floor(Math.random()*availX) + minSize;
 	var y = Math.floor(Math.random()*availY) + minSize;
 	return new RPG.Misc.Coords(x, y);
-}
-
-RPG.Dungeon.Generator.prototype._addDoorsToRoom = function(room) {
-	var corner1 = room.getCorner1();
-	var corner2 = room.getCorner2();
-	var left = corner1.x-1;
-	var right = corner2.x+1;
-	var top = corner1.y-1;
-	var bottom = corner2.y+1;
-
-	var c = new RPG.Misc.Coords(0, 0);
-	for (var i=left;i<=right;i++) {
-		for (var j=top;j<=bottom;j++) {
-			/* corners no */
-			if (i == left && (j == top || j == bottom)) { continue; }
-			if (i == right && (j == top || j == bottom)) { continue; }
-			
-			if (i == left || i == right || j == top || j == bottom) {
-				c.x = i;
-				c.y = j;
-				var cell = this._map.at(c);
-				if (cell instanceof this._wall) { continue; }
-				if (cell.getFeature()) { continue; }
-				var door = new this._door(c);
-				
-				if (RPG.Rules.isDoorClosed(door)) {
-					door.close();
-					if (RPG.Rules.isDoorLocked(door)) { door.lock(); }
-				}
-				
-				cell.setFeature(door);
-			}
-		}
-	}
-	
-}
-
-RPG.Dungeon.Generator.prototype._addDoors = function() {
-	var rooms = this._map.getRooms();
-	for (var i=0;i<rooms.length;i++) {
-		var room = rooms[i];
-		this._addDoorsToRoom(room);
-	}
 }
 
 /**
@@ -164,7 +285,7 @@ RPG.Dungeon.Generator.Uniform.prototype.generate = function() {
 		var result = this._generateCorridors();
 		if (result == 1) { 
 			this._addDoors();
-			return this._map; 
+			return this; 
 		}
 	}
 }
@@ -249,7 +370,7 @@ RPG.Dungeon.Generator.Digger.prototype.init = function(size) {
 	this.parent(size);
 	this._features = {
 		"room": 2,
-		"corridor": 2
+		"corridor": 4
 	}
 	this._featureAttempts = 15; /* how many times do we try to create a feature on a suitable wall */
 	this._maxLength = 10; /* max corridor length */
@@ -257,7 +378,7 @@ RPG.Dungeon.Generator.Digger.prototype.init = function(size) {
 	this._minSize = 3; /* min room size */
 	this._maxWidth = 8; /* max room width */
 	this._maxHeight = 5; /* max room height */
-	this._diggedPercentage = 0.25; /* we stop after this percentage of level area has been dug out */
+	this._diggedPercentage = 0.2; /* we stop after this percentage of level area has been dug out */
 	
 	this._freeWalls = []; /* these are available for digging */
 	this._forcedWalls = []; /* these are forced for digging */
@@ -288,8 +409,7 @@ RPG.Dungeon.Generator.Digger.prototype.generate = function() {
 		} while (featureCount < this._featureAttempts);
 	} while (this._digged/area < this._diggedPercentage || this._forcedWalls.length)
 	
-	this._addDoors();
-	return this._map;
+	return this;
 }
 
 RPG.Dungeon.Generator.Digger.prototype._firstRoom = function() {

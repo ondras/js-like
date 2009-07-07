@@ -6,7 +6,8 @@ RPG.UI.Itemlist = OZ.Class();
 RPG.UI.Itemlist.prototype._groups = {
 	"Weapons": RPG.Items.Weapon,
 	"Consumables": RPG.Items.Edible,
-	"Gold": RPG.Items.Gold
+	"Gold": RPG.Items.Gold,
+	"Gems": RPG.Items.Gem
 }
 
 RPG.UI.Itemlist.prototype.init = function(data) {
@@ -32,7 +33,7 @@ RPG.UI.Itemlist.prototype.init = function(data) {
 	this._eventsLocal = [];
 	this._checked = [];
 	this._checkboxes = [];
-	this._pageSize = 20;
+	this._pageSize = 15;
 	this._page = 0;
 	this._dom = {
 		container: null,
@@ -218,6 +219,7 @@ RPG.UI.Itemlist.prototype._done = function() {
 }
 
 RPG.UI.Itemlist.prototype._keyPress = function(e) {
+	OZ.Event.prevent(e);
 	var ch = e.charCode;
 	if (ch == "z".charCodeAt(0)) {
 		this._done();
@@ -229,7 +231,7 @@ RPG.UI.Itemlist.prototype._keyPress = function(e) {
 		var index = ch - "a".charCodeAt(0);
 		index += this._page * this._pageSize;
 		if (index < this._data.items.length) {
-			this._toggle(index);
+			this._toggle(index); /* FIXME only in relevant mode! */
 		}
 	}
 }
