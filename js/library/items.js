@@ -21,6 +21,7 @@ RPG.Items.Dagger.prototype.init = function() {
 	this.parent(0, new RPG.Misc.Interval(1, 4));
 	this._image = "dagger";
 	this._description = "dagger";
+	this._descriptionPlural = "daggers";
 }
 
 /**
@@ -33,6 +34,7 @@ RPG.Items.KlingonSword.prototype.init = function() {
 	this._color = "gold";
 	this._image = "klingon-sword";
 	this._description = "Klingon ceremonial sword";
+	this._descriptionPlural = "Klingon ceremonial swords";
 }
 
 /**
@@ -60,6 +62,7 @@ RPG.Items.Corpse.prototype.init = function(being) {
 	this._image = "corpse";
 	this._color = being.getColor();
 	this._description = being.describe() + " corpse";
+	this._descriptionPlural = being.describe() + " corpses";
 }
 
 /**
@@ -68,23 +71,19 @@ RPG.Items.Corpse.prototype.init = function(being) {
  */
 RPG.Items.Gold = OZ.Class().extend(RPG.Items.BaseItem);
 
-RPG.Items.Gold.prototype.init = function(amount) {
+RPG.Items.Gold.prototype.init = function() {
 	this.parent();
 	this._image = "gold";
 	this._color = "gold";
 	this._char = "$";
-	this._amount = null;
-	this._description = "";
-	
-	this.setAmount(amount || 1);
+	this._description = "piece of gold";
+	this._descriptionPlural = "pieces";
 }
 
-RPG.Items.Gold.prototype.getAmount = function() {
-	return this._amount;
+RPG.Items.Gold.prototype.describe = function() {
+	if (this._amount == 1) {
+		return this._description;
+	} else {
+		return "heap of gold ("+this._amount + " " + this._descriptionPlural + ")";
+	}
 }
-
-RPG.Items.Gold.prototype.setAmount = function(amount) {
-	this._amount = amount;
-	this._description = "heap of gold ("+amount+")";
-}
-

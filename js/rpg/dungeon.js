@@ -17,17 +17,7 @@ RPG.Cells.BaseCell.prototype.init = function() {
 }
 
 RPG.Cells.BaseCell.prototype.addItem = function(item) {
-	if (item instanceof RPG.Items.Gold) {
-		for (var i=0;i<this._items.length;i++) {
-			var our = this._items[i];
-			if (our instanceof RPG.Items.Gold) {
-				our.setAmount(our.getAmount() + item.getAmount());
-				return;
-			}
-		}
-	}
-	
-	this._items.push(item);
+	item.mergeInto(this._items);
 }
 
 RPG.Cells.BaseCell.prototype.removeItem = function(item) {

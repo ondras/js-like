@@ -47,8 +47,54 @@ RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Misc.ModifierInterface);
 RPG.Items.BaseItem.prototype.init = function() {
 	this._initVisuals();
+	this._descriptionPlural = null;
 	this._modifiers = [];
+	this._amount = 1;
 	this.flags = 0;
+}
+
+RPG.Items.BaseItem.prototype.getAmount = function() {
+	return this._amount;
+}
+
+RPG.Items.BaseItem.prototype.setAmount = function(amount) {
+	this._amount = amount;
+}
+
+RPG.Items.BaseItem.prototype.describe = function() {
+	if (this._amount == 1) {
+		return this._description;
+	} else {
+		return "heap of " + this._amount + " " + this._descriptionPlural;
+	}
+}
+
+/**
+ * Can this item be merged with other one? This is possible only when items are truly the same.
+ * @param {RPG.Items.BaseItem}
+ */
+RPG.Items.BaseItem.prototype.isSameAs = function(item) {
+	if (item.constructor != this.constructor) { return false; }
+	return true;
+}
+
+/**
+ * Merge this item into a list of items.
+ * @param {RPG.Items.BaseItem[]} listOfItems
+ * @returns {bool} Was this item merged? false = no, it was appended
+ */
+RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
+	for (var i=0;i<listOfItems.length;i++) {
+		var item = listOfItems[i];
+		if (item.isSameAs(this)) {
+			/* merge! */
+			item.setAmount(item.getAmount() + this.getAmount());
+			return true;
+		}
+	}
+	
+	listOfItems.push(this);
+	return false;
 }
 
 /**
