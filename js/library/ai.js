@@ -43,10 +43,8 @@ RPG.Engine.AI.prototype._action = function(e) {
 	/* only actions which target us */
 	if (a.getTarget() != this._being) { return; }
 
-
 	/* not interested if not alive */
 	if (!this._being.isAlive()) { return; }
-	
 	
 	if (a instanceof RPG.Actions.Attack) {
 		/* somebody is attacking us! */
@@ -90,26 +88,32 @@ RPG.Engine.AI.prototype.yourTurn = function() {
 	var task = false;
 	var goal = false;
 	var result = result;
+	var taskPtr = this._tasks.length-1;
 	
 	do {
 		/* pick top non-satisfied goal of top task */
 		do {
-			task = this._tasks[this._tasks.length-1];
+			task = this._tasks[taskPtr];
 			goal = task[task.length-1];
-			if (goal.isSatisfied() && this._tasks.length > 1) {
-				/* remove the goal if it is not the last one */
+			if (goal.isSatisfied() && taskPtr > 0) {
+				/* remove the goal if it is not the fallback task */
 				task.pop();
 				/* remove the task if it is empty */
-				if (!task.length) { this._tasks.pop(); }
+				if (!task.length) { 
+					this._tasks.pop(); 
+					taskPtr--;
+				}
 				goal = false;
 			}
 		} while (!goal);
 		
 		/* execute the goal */
 		result = goal.go();
+		
+		/* this goal is not possible ATM, switch to previous task */
+		if (result == RPG.AI_IMPOSSIBLE) { taskPtr--; }
 	
-	/* nothing was done, goal are possibly changed (added), try again */
-	} while (!result);
+	} while (result != RPG.AI_OK);
 }
 
 RPG.Engine.AI.prototype.getBeing = function() {
@@ -154,13 +158,13 @@ RPG.Engine.AI.Goal.prototype.setAI = function(ai) {
 }
 
 /**
- * Execute the goal. Returned value specifies if some action was taken or not. 
- * If this value is false, AI should repeat goal selection process.
- * @returns {bool} 
+ * Execute the goal. Returned value specifies how this goal is being completed.
+ * @returns {int} One of RPG.AI_* constants
  */
 RPG.Engine.AI.Goal.prototype.go = function() {
-	return false;
+	return RPG.AI_OK;
 }
+
 /**
  * Is this goal satisfied?
  * @returns {bool}
@@ -205,7 +209,7 @@ RPG.Engine.AI.Wander.prototype.go = function() {
 	}
 	
 	this._wandered = true;
-	return true;
+	return RPG.AI_OK;
 }
 
 RPG.Engine.AI.Wander.prototype.isSatisfied = function() {
@@ -229,7 +233,7 @@ RPG.Engine.AI.Kill.prototype.init = function(target) {
 RPG.Engine.AI.Kill.prototype.go = function() {
 	var attack = new RPG.Engine.AI.Attack(this._target);
 	ai.addGoal(attack);
-	return false;
+	return RPG.AI_RETRY;
 }
 
 RPG.Engine.AI.Kill.prototype.isSatisfied = function() {
@@ -266,13 +270,13 @@ RPG.Engine.AI.Attack.prototype.go = function() {
 		this._approached = true;
 		
 		/* nothing was done yet */
-		return false;
+		return RPG.AI_RETRY;
 	}  else {
 		/* perform an attack */
 		var being = this._ai.getBeing();
 		this._attacked = true;
 		RPG.World.action(new RPG.Actions.Attack(being, this._target, being.getWeapon()));
-		return true;
+		return RPG.AI_OK;
 	}
 }
 
@@ -318,13 +322,12 @@ RPG.Engine.AI.Approach.prototype.go = function() {
 	if (this._lastCoords) {
 		/* we know where to go */
 		goal = new RPG.Engine.AI.GetToDistance(this._lastCoords, 0);
+		this._ai.addGoal(goal);
+		return RPG.AI_RETRY;
 	} else {
-		/* we do not know anything. wander. */
-		goal = new RPG.Engine.AI.Wander();
+		/* we do not know anything */
+		return RPG.AI_IMPOSSIBLE;
 	}
-	this._ai.addGoal(goal);
-	
-	return false;
 }
 
 /**
@@ -346,13 +349,12 @@ RPG.Engine.AI.Retreat.prototype.go = function() {
 	if (being.canSee(c2)) {
 		/* we see the target so we know how to run away */
 		goal = new RPG.Engine.AI.GetToDistance(c2, 10000);
+		this._ai.addGoal(goal);
+		return RPG.AI_RETRY;
 	} else {
-		/* we do not know anything. wander. */
-		goal = new RPG.Engine.AI.Wander();
+		/* we do not know anything */
+		return RPG.AI_IMPOSSIBLE;
 	}
-	this._ai.addGoal(goal);
-	
-	return false;
 }
 
 RPG.Engine.AI.Retreat.prototype.isSatisfied = function() {
@@ -465,7 +467,7 @@ RPG.Engine.AI.GetToDistance.prototype.go = function() {
 	}
 	
 	this._done = true;
-	return true;
+	return RPG.AI_OK;
 }
 
 RPG.Engine.AI.GetToDistance.prototype._isBetter = function(what, current) {

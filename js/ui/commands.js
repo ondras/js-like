@@ -10,6 +10,8 @@ RPG.UI.Command.prototype.init = function(label) {
 	RPG.UI._commands.push(this);
 	this._charCodes = [];
 	this._keyCodes = [];
+	this._ctrlKey = false;
+	this._altKey = false;
 	this._button = OZ.DOM.elm("input", {type:"button", value:label});
 	OZ.Event.add(this._button, "click", this.bind(this._click));
 }
@@ -17,6 +19,14 @@ RPG.UI.Command.prototype.init = function(label) {
 
 RPG.UI.Command.prototype.getButton = function() {
 	return this._button;
+}
+
+RPG.UI.Command.prototype.setCtrl = function() {
+	this._ctrlKey = true;
+}
+
+RPG.UI.Command.prototype.setAlt = function() {
+	this._altKey = true;
 }
 
 RPG.UI.Command.prototype.addKeyCode = function(keyCode) {
@@ -27,9 +37,12 @@ RPG.UI.Command.prototype.addCharCode = function(charCode) {
 	this._charCodes.push(charCode);
 }
 
-RPG.UI.Command.prototype.test = function(charCode, keyCode) {
+RPG.UI.Command.prototype.test = function(event) {
 	if (this._button.disabled) { return false; }
-	return (this._charCodes.indexOf(charCode) != -1 || this._keyCodes.indexOf(keyCode) != -1);
+	if (event.ctrlKey != this._ctrlKey) { return false; }
+	if (event.altKey != this._altKey) { return false; }
+	
+	return (this._charCodes.indexOf(event.charCode) != -1 || this._keyCodes.indexOf(event.keyCode) != -1);
 }
 
 RPG.UI.Command.prototype.exec = function() {
@@ -535,6 +548,27 @@ RPG.UI.Command.Autowalk.prototype._step = function() {
 	}
 }
 
+/**
+ * @class Message buffer backlog
+ */
+RPG.UI.Command.Backlog = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.Backlog.prototype.init = function() {
+	this.parent("Message backlog (^m)");
+	this.addCharCode(109);
+	this.setCtrl();
+	this._visible = false;
+}
+
+RPG.UI.Command.Backlog.prototype.exec = function() {
+	if (this._visible) {
+		RPG.UI.hideBacklog();
+		this._visible = false;
+	} else {
+		RPG.UI.showBacklog();
+		this._visible = true;
+	}
+}
 
 /**
  * @class Keypad

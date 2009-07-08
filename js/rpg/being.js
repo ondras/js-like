@@ -71,6 +71,7 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
  */
 RPG.Beings.BaseBeing.prototype.setCoords = function(coords) {
 	this._coords = coords;
+	return this;
 }
 
 RPG.Beings.BaseBeing.prototype.getCoords = function() {
@@ -79,6 +80,7 @@ RPG.Beings.BaseBeing.prototype.getCoords = function() {
 
 RPG.Beings.BaseBeing.prototype.setMap = function(map) {
 	this._map = map;
+	return this;
 }
 
 RPG.Beings.BaseBeing.prototype.getMap = function() {
@@ -91,12 +93,14 @@ RPG.Beings.BaseBeing.prototype.getRace = function() {
 
 RPG.Beings.BaseBeing.prototype.addItem = function(item) { 
 	item.mergeInto(this._items);
+	return this;
 }
 
 RPG.Beings.BaseBeing.prototype.removeItem = function(item) { 
 	var index = this._items.indexOf(item);
 	if (index == -1) { throw new Error("Item '"+item.describe()+"' not found!"); }
 	this._items.splice(index, 1);
+	return this;
 }
 
 RPG.Beings.BaseBeing.prototype.getItems = function() { 
@@ -109,7 +113,9 @@ RPG.Beings.BaseBeing.prototype.getFoot = function() {
 
 RPG.Beings.BaseBeing.prototype.setChat = function(chat) {
 	this._chat = chat;
+	return this;
 }
+
 
 RPG.Beings.BaseBeing.prototype.getChat = function() {
 	return this._chat;

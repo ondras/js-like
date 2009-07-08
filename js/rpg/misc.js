@@ -160,3 +160,40 @@ RPG.Misc.Chat.prototype.getOptions = function() {
 RPG.Misc.Chat.prototype.getEnd = function() {
 	return this._end;
 }
+
+/**
+ * @class Object factory
+ */ 
+RPG.Misc.Factory = OZ.Class();
+
+/**
+ * @param {object} searchBase Object with classes
+ * @param {function} commonAncestor Class to search for
+ */
+RPG.Misc.Factory.prototype.init = function(searchBase, commonAncestor) {
+	this._classList = [];
+	
+	for (var p in searchBase) {
+		var ctor = searchBase[p];
+		if (this._hasAncestor(ctor, commonAncestor)) { this._classList.push(ctor); }
+	}
+}
+
+/**
+ * Return a random instance
+ */ 
+RPG.Misc.Factory.prototype.getInstance = function() {
+	var len = this._classList.length;
+	if (len == 0) { throw new Error("No available classes"); }
+	
+	return new (this._classList[Math.floor(Math.random() * len)])();
+}
+
+RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {
+	var current = ctor;
+	while (current._extend) {
+		current = current._extend;
+		if (current == ancestor) { return true; }
+	}
+	return false;
+}

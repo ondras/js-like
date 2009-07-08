@@ -119,7 +119,7 @@ RPG.Actions.Death.prototype.execute = function() {
 	RPG.World.removeActor(this._source);
 	
 	if (RPG.World.getPC() == this.getSource()) {
-		RPG.World.pause();
+		RPG.World.lock();
 		alert("MWHAHAHA you are dead!");
 	}
 }
@@ -139,7 +139,7 @@ RPG.Actions.Open.prototype.execute = function() {
 	var locked = door.isLocked();
 	if (locked) {
 		if (you) {
-			RPG.UI.message("The door is locked.");
+			RPG.UI.message("The door is locked. You do not have appropriate key.");
 		}
 		return;
 	}
@@ -277,25 +277,32 @@ RPG.Actions.Pick.prototype.execute = function() {
 }
 
 /**
- * @class Droping item(s). Target = item || item[]
+ * @class Droping item(s). Target = array of [item, amount]
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.Drop = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Drop.prototype.execute = function() {
-	var items = this._target;
-	if (!(items instanceof Array)) { items = [items]; }
+	var arr = this._target;
 	
 	var map = this._source.getMap();
 	var cell = map.at(this._source.getCoords());
 	var you = (this._source == RPG.World.getPC());
 	
-	for (var i=0;i<items.length;i++) {
-		var item = items[i];
-		this._source.removeItem(item);
-		cell.addItem(item);
+	for (var i=0;i<arr.length;i++) {
+		var pair = arr[i];
+		var item = pair[0];
+		var amount = pair[1];
 		
-		/* FIXME! */
-		if (this._source.getWeapon() == item) { this._source.setWeapon(item); }
+		if (amount == item.getAmount()) {
+			/* easy, just remove item */
+			this._source.removeItem(item);
+		} else {
+			/* complicated, split heap */
+			var clone = item.clone().setAmount(amount);
+			item.setAmount(item.getAmount() - amount);
+			item = clone;
+		}
+		cell.addItem(item);
 		
 		var str = (you ? "you" : this._source.describeA()).capitalize();
 		str += " " + (you ? "drop" : "drops") + " ";
@@ -334,9 +341,9 @@ RPG.Actions.Kick.prototype.execute = function() {
 		var dmg = this._source.getDamage(this._source.getFoot());
 		var result = feature.damage(dmg);
 		if (result) {
-			RPG.UI.message("You kick the door.");
+			RPG.UI.message("You kick the door, but it does not budge.");
 		} else {
-			RPG.UI.message("You kick the door and destroy it!");
+			RPG.UI.message("You shatter the door with a mighty kick!");
 			RPG.UI.redraw();
 		}
 		return;

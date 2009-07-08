@@ -1,4 +1,6 @@
-var mg = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(40, 20));
+RPG.init();
+
+var mg = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(80, 20));
 var map = mg.generate().addHiddenCorridors(0.01).getMap();
 
 var rooms = map.getRooms();
@@ -15,6 +17,8 @@ var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
 var pc = new RPG.Beings.Human();
 map.setBeing(room.getCenter(), pc);
 RPG.World.setPC(pc);
+var dagger = new RPG.Items.Dagger();
+pc.addItem(dagger);
 
 /* room #2 - orc */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
@@ -38,9 +42,6 @@ mg.decorateRoomInterior(room, {treasure: 1});
 var c = map.getFreeCoords(true);
 var t = new RPG.Features.Teleport();
 map.at(c).setFeature(t);
-
-/* setup the world */
-RPG.World.setScheduler(new RPG.Engine.Queue());
 
 /* build ui */
 var buffer = RPG.UI.buildBuffer();

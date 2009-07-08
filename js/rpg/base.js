@@ -53,12 +53,21 @@ RPG.Items.BaseItem.prototype.init = function() {
 	this.flags = 0;
 }
 
+RPG.Items.BaseItem.prototype.clone = function() {
+	var tmp = function() {};
+	tmp.prototype = this.constructor.prototype;
+	var clone = new tmp();
+	for (var p in this) { clone[p] = this[p]; }
+	return clone;
+}
+
 RPG.Items.BaseItem.prototype.getAmount = function() {
 	return this._amount;
 }
 
 RPG.Items.BaseItem.prototype.setAmount = function(amount) {
 	this._amount = amount;
+	return this;
 }
 
 RPG.Items.BaseItem.prototype.describe = function() {

@@ -20,6 +20,9 @@ RPG.Dungeon = {};
 RPG.Engine = {};
 
 /** @namespace */
+RPG.Factories = {};
+
+/** @namespace */
 RPG.Feats = {};
 
 /** @namespace */
@@ -87,6 +90,12 @@ RPG.UI_DONE_ITEMS		= 5;
 /** @constant */
 RPG.UI_DONE_CHAT		= 6;
 
+/** @constant */
+RPG.AI_OK				= 0;
+/** @constant */
+RPG.AI_RETRY			= 1;
+/** @constant */
+RPG.AI_IMPOSSIBLE		= 2;
 
 /**
  * Generates a normally distributed random number, mean = 0.
@@ -105,4 +114,9 @@ Math.randomNormal = function(stddev) {
 
 String.prototype.capitalize = function() {
 	return this.charAt(0).toUpperCase() + this.substring(1);
+}
+
+RPG.init = function() {
+	RPG.Factories.Gem = new RPG.Misc.Factory(RPG.Items, RPG.Items.Gem);
+	RPG.World._scheduler = new RPG.Engine.Queue();
 }

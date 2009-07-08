@@ -49,7 +49,7 @@ RPG.Dungeon.Generator.prototype.decorateRoomDoors = function(room, options) {
 	var o = {
 		doors: true,
 		closed: 0.5,
-		locked: 0.08,
+		locked: 0.05,
 		fakeDoors: 0.1,
 		fakeCorridors: 1
 	}
@@ -155,6 +155,7 @@ RPG.Dungeon.Generator.prototype._generateTreasure = function() {
 		gold.setAmount(1+Math.floor(Math.random()*100));
 		return gold;
 	} else {
+		return RPG.Factories.Gem.getInstance();
 		var gems = [];
 		for (var p in RPG.Items) {
 			var item = RPG.Items[p];

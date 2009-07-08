@@ -2,15 +2,13 @@
  * @namespace Game world
  */
 RPG.World = {
-	_running: 0,
+	_actions: [],
+	_running: false, /* is the engine running? */
+	_lock: 0, /* lock level */
 	_ticks: 0,
 	_map: null,
 	_scheduler: null,
-	_pc: null,
-	
-	_newActorNeeded: true,
-	_nothingToDo: false,
-	_actions: []
+	_pc: null
 };
 
 /**
@@ -62,8 +60,17 @@ RPG.World.setPC = function(being) {
 	this._pc = being;
 }
 
-RPG.World.setScheduler = function(scheduler) {
-	this._scheduler = scheduler;
+/**
+ * Enter main loop
+ */
+RPG.World.run = function() {
+	if (this._lock) { return; }
+	if (this._running) { return; }
+	this._running = true;
+	while (1) {
+		if (!this._running) { break; }
+		this._decide();
+	}
 }
 
 /**
@@ -72,55 +79,62 @@ RPG.World.setScheduler = function(scheduler) {
  */
 RPG.World.action = function(a) {
 	this._actions.push(a);
-	if (this._nothingToDo) { 
-		this._nothingToDo = false;
-		this.run(); 
-	}
+	this.run(); 
 }
 
-/**
- * Enter main loop
- */
-RPG.World.run = function() {
-	this._running++;
-	if (this._running > 1) { throw new Error("Running too much"); }
-	if (this._running > 0) { this._loop(); }
-}
 
 /**
  * Pause 
  */
-RPG.World.pause = function() {
-	this._running--;
+RPG.World.lock = function() {
+	this._lock++;
+	this._running = false;
 }
 
 /**
- * Main loop
+ * Resume 
  */
-RPG.World._loop = function() {
-	while (1) {
-		if (this._running < 1) { return; }
-		if (this._actions.length) { /* there are actions to process */
-			var action = this._actions.shift(); /* get first action */
-			action.execute(); /* execute it */
-			this.dispatch("action", action); /* let everyone know it happened */
-			if (action.tookTime()) { /* our actor has made a non-null action */
-				RPG.UI.setMode(RPG.UI_LOCKED); /* lock ui */
-				this._ticks++;
-				this._newActorNeeded = true; 
-			} 
-		} else if (this._newActorNeeded) { /* no pending actions, we need new actor */
-			var actor = this._scheduler.scheduleActor(); /* find next actor */
-			if (actor) {
-				if (actor == this._pc) { RPG.UI.setMode(RPG.UI_NORMAL); }
-				this._newActorNeeded = false;
-				actor.yourTurn(); /* let actor know he should do some action */
-			} else { /* no actor available, just sleep */
-				this.pause();
-			}
-		} else { /* nothing to do, waiting for the action */
-			this._nothingToDo = true;
-			this.pause();
-		}
+RPG.World.unlock = function() {
+	this._lock--;
+	this.run();
+}
+
+/**
+ * Act
+ */ 
+RPG.World._decide = function() {
+	if (this._actions.length) { /* there are actions to process */
+		/* get first action */
+		var action = this._actions.shift(); 
+		/* execute it */
+		action.execute();
+		/* let everyone know it happened */
+		this.dispatch("action", action);
+		/* if this action took some time, our actor's turn is over */
+		if (action.tookTime()) { this._clearActor(); }
+	} else if (!this._actor) { /* no actions and no actor - pick one */
+		this._setActor();
+	} else { /* no actions, actor selected - he is probably deciding */
+		this._running = false;
+	}
+}
+
+RPG.World._clearActor = function() {
+	if (this._actor == this._pc) { 
+		RPG.UI.setMode(RPG.UI_LOCKED); 
+		this._ticks++;
+	}
+	this._actor = null;
+}
+
+RPG.World._setActor = function() {
+	this._actor = this._scheduler.scheduleActor();
+
+	if (this._actor == this._pc) { RPG.UI.setMode(RPG.UI_NORMAL); }
+	
+	if (this._actor) { 
+		this._actor.yourTurn(); 
+	} else { /* no actor available */
+		this._running = false;
 	}
 }

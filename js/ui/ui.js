@@ -79,6 +79,14 @@ RPG.UI.message = function(str) {
 	if (this._buffer) { this._buffer.message(str); }
 }
 
+RPG.UI.showBacklog = function() {
+	if (this._buffer) { this._buffer.showBacklog(); }
+}
+
+RPG.UI.hideBacklog = function() {
+	if (this._buffer) { this._buffer.hideBacklog(); }
+}
+
 RPG.UI.clear = function() {
 	if (this._buffer) { this._buffer.clear(); }
 }
@@ -159,6 +167,7 @@ RPG.UI.buildCommands = function() {
 	div.appendChild(new RPG.UI.Command.Kick().getButton());
 	div.appendChild(new RPG.UI.Command.Chat().getButton());
 	div.appendChild(new RPG.UI.Command.Search().getButton());
+	div.appendChild(new RPG.UI.Command.Backlog().getButton());
 	div.appendChild(new RPG.UI.Command.Cancel().getButton());
 
 	return result;
@@ -195,7 +204,7 @@ RPG.UI._adjustButtons = function(data) {
 RPG.UI._keyPress = function(e) {
 	for (var i=0;i<RPG.UI._commands.length;i++) {
 		var c = RPG.UI._commands[i];
-		if (c.test(e.charCode, e.keyCode)) { 
+		if (c.test(e)) { 
 			this.command(c); 
 			OZ.Event.prevent(e);
 		}
@@ -210,7 +219,7 @@ RPG.UI._dim = function() {
 	document.body.appendChild(div);
 	this._dimmer = div;
 	
-	/** ... */
+	
 	var sync = function() {
 		var port = OZ.DOM.win();
 		var scroll = OZ.DOM.scroll();
@@ -220,8 +229,9 @@ RPG.UI._dim = function() {
 		div.style.height = port[1]+"px";
 	}
 	
-	OZ.Event.add(window, "scroll", sync);
-	OZ.Event.add(window, "resize", sync);
+	this._ec = [];
+	this._ec.push(OZ.Event.add(window, "scroll", sync));
+	this._ec.push(OZ.Event.add(window, "resize", sync));
 	sync();
 }
 
@@ -230,6 +240,7 @@ RPG.UI._dim = function() {
  */ 
 RPG.UI._undim = function() {
 	if (!this._dimmer) { return; }
+	this._ec.forEach(OZ.Event.remove);
 	this._dimmer.parentNode.removeChild(this._dimmer);
 	this._dimmer = null;
 }

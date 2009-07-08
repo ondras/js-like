@@ -58,6 +58,7 @@ RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Edible);
 RPG.Items.Corpse.prototype.init = function(being) {
 	this.parent();
 	this._image = "corpse";
+	this._being = being;
 	this._color = being.getColor();
 	this._description = being.describe() + " corpse";
 }

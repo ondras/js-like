@@ -14,9 +14,16 @@ body {
 }
 
 .buffer {
-	width: 50%;
+	background-color: #eee;
+	margin: 0px;
+	width: 100%;
 	height: 50px;
 	border: none;
+}
+
+.buffer.backlog {
+	height: 250px;
+	background-color: #ddd;
 }
 
 .keypad {
@@ -31,12 +38,13 @@ body {
 
 .keypad input, .commands input {
 	margin: 1px;
+	font: menu;
 }
 
 .items {
 	background-color: white;
 	border: 2px solid brown;
-	padding: 1em;
+	padding: 0.5em;
 	opacity: 0.95;
 }
 
@@ -45,7 +53,7 @@ body {
 }
 
 .items h1 {
-	font-size: 100%;
+	font-size: 90%;
 	margin: 0px 0px 0.5em 0px;
 }
 
@@ -59,6 +67,7 @@ body {
 }
 .items input {
 	vertical-align: middle;
+	font: menu;
 }
 
 .items table {
