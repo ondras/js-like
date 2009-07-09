@@ -38,6 +38,7 @@ RPG.UI.TextBuffer.prototype.showBacklog = function() {
 	OZ.DOM.addClass(this._dom.textarea, "backlog");
 	this._flushBacklog();
 	this._dom.textarea.value = this._backlog;
+	this._dom.textarea.scrollTop = this._dom.textarea.scrollHeight;
 }
 
 RPG.UI.TextBuffer.prototype.hideBacklog = function() {

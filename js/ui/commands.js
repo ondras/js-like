@@ -337,7 +337,9 @@ RPG.UI.Command.Pick.prototype.exec = function(selectedItems) {
 		}
 		
 		if (items.length == 1) {
-			RPG.UI.action(RPG.Actions.Pick, items[0]);
+			var item = items[0];
+			var amount = item.getAmount();
+			RPG.UI.action(RPG.Actions.Pick, [[item, amount]]);
 			return; 
 		}
 		

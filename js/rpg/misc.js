@@ -197,3 +197,17 @@ RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {
 	}
 	return false;
 }
+
+/**
+ * @class Interface for objects which can be cloned and (de)serialized
+ */
+RPG.Misc.SerializableInterface = OZ.Class();
+RPG.Misc.SerializableInterface.prototype.setup = function() {
+	return this;
+}
+RPG.Misc.SerializableInterface.prototype.setupFromXML = function(node) {
+	return this;
+}
+RPG.Misc.SerializableInterface.prototype.setupFromClone = function(clone) {
+	return this;
+}

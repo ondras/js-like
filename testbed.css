@@ -1,6 +1,7 @@
 body {
 	margin: 0px;
 	font-family: georgia;
+	background-image: url(img/scroll.jpg);
 }
 
 .map {
@@ -14,7 +15,7 @@ body {
 }
 
 .buffer {
-	background-color: #eee;
+	background-image: url(img/scroll.jpg);
 	margin: 0px;
 	width: 100%;
 	height: 50px;
@@ -42,7 +43,7 @@ body {
 }
 
 .items {
-	background-color: white;
+	background-image: url(img/scroll.jpg);
 	border: 2px solid brown;
 	padding: 0.5em;
 	opacity: 0.95;

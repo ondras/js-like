@@ -41,6 +41,11 @@ RPG.UI.Itemlist.prototype.init = function(data) {
 	this._update(0);
 }
 
+RPG.UI.Itemlist.prototype.close = function() {
+	this._events.forEach(OZ.Event.remove);
+	this._dom.container.parentNode.removeChild(this._dom.container);
+}
+
 RPG.UI.Itemlist.prototype._prepare = function(items) {
 	/* sort items by groups */
 	var arr = [];
@@ -64,11 +69,6 @@ RPG.UI.Itemlist.prototype._prepare = function(items) {
 		obj.label.innerHTML = arr[i].describe();
 		this._data.push(obj);
 	}
-}
-
-RPG.UI.Itemlist.prototype.close = function() {
-	this._events.forEach(OZ.Event.remove);
-	this._dom.container.parentNode.removeChild(this._dom.container);
 }
 
 RPG.UI.Itemlist.prototype._addEvents = function() {
@@ -117,7 +117,7 @@ RPG.UI.Itemlist.prototype._position = function() {
 RPG.UI.Itemlist.prototype._build = function() {
 	this._dom.container = OZ.DOM.elm("div", {"class":"items", position:"absolute"});
 	
-	if (this._data.label) {
+	if (this._options.label) {
 		var h = OZ.DOM.elm("h1");
 		h.innerHTML = this._options.label;
 		this._dom.container.appendChild(h);

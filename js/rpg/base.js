@@ -41,10 +41,13 @@ RPG.Feats.BaseFeat.prototype.standardModifier = function(modifierHolder) {
  * @class Basic item
  * @augments RPG.Visual.VisualInterface
  * @augments RPG.Misc.ModifierInterface
+ * @augments RPG.Misc.SerializableInterface
  */
 RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
-						.implement(RPG.Misc.ModifierInterface);
+						.implement(RPG.Misc.ModifierInterface)
+						.implement(RPG.Misc.SerializableInterface);
+						
 RPG.Items.BaseItem.prototype.init = function() {
 	this._initVisuals();
 	this._descriptionPlural = null;
@@ -53,11 +56,35 @@ RPG.Items.BaseItem.prototype.init = function() {
 	this.flags = 0;
 }
 
-RPG.Items.BaseItem.prototype.clone = function() {
-	var tmp = function() {};
-	tmp.prototype = this.constructor.prototype;
-	var clone = new tmp();
-	for (var p in this) { clone[p] = this[p]; }
+/**
+ * @see RPG.Misc.SerializableInterface#setupFromClone
+ */
+RPG.Items.BaseItem.prototype.setupFromClone = function(clone) {
+	for (var p in clone) { this[p] = clone[p]; }
+
+	this._modifiers = [];
+	/* copy modifiers to avoid references */
+	for (var i=0;i<clone._modifiers.length;i++) {
+		var modifier = clone._modifiers[i];
+		var mod2 = [modifier[0], modifier[1], modifier[2]];
+		this._modifiers.push(mod2);
+	}
+	return this;
+}
+
+/**
+ * Create an item which represent a subset of this item
+ * @param {int} amount How many items do we subtract?
+ * @returns {RPG.Items.BaseItem} Sub-heap
+ */
+RPG.Items.BaseItem.prototype.subtract = function(amount) {
+	if (amount == 0 || amount >= this._amount) { throw new Error("Incorrect amount to subtract"); }
+	var clone = new this.constructor();
+	clone.setupFromClone(this);
+	
+	this.setAmount(this._amount - amount);
+	clone.setAmount(amount);
+	
 	return clone;
 }
 

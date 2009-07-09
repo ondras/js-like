@@ -248,22 +248,31 @@ RPG.Actions.Teleport.prototype.execute = function() {
 }
 
 /**
- * @class Picking item(s). Target = item || item[]
+ * @class Picking item(s). Target = array of [item, amount]
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.Pick = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Pick.prototype.execute = function() {
-	var items = this._target;
-	if (!(items instanceof Array)) { items = [items]; }
+	var arr = this._target;
 	
 	var map = this._source.getMap();
 	var cell = map.at(this._source.getCoords());
 	var you = (this._source == RPG.World.getPC());
 	
-	for (var i=0;i<items.length;i++) {
-		var item = items[i];
+	for (var i=0;i<arr.length;i++) {
+		var pair = arr[i];
+		var item = pair[0];
+		var amount = pair[1];
+		
+		if (amount == item.getAmount()) {
+			/* easy, just remove item */
+			cell.removeItem(item);
+		} else {
+			/* split heap */
+			item = item.subtract(amount);
+		}
+
 		this._source.addItem(item);
-		cell.removeItem(item);
 		
 		/* FIXME! */
 		if (item instanceof RPG.Items.Weapon) { this._source.setWeapon(item); }
@@ -297,10 +306,8 @@ RPG.Actions.Drop.prototype.execute = function() {
 			/* easy, just remove item */
 			this._source.removeItem(item);
 		} else {
-			/* complicated, split heap */
-			var clone = item.clone().setAmount(amount);
-			item.setAmount(item.getAmount() - amount);
-			item = clone;
+			/* split heap */
+			item = item.subtract(amount);
 		}
 		cell.addItem(item);
 		

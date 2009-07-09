@@ -3,7 +3,7 @@ RPG.UI._map = null; /* map instance */
 RPG.UI._commands = []; /* avail commands */
 RPG.UI._pending = null; /* command awaiting specification */
 RPG.UI._dimmer = null; /* dimmer element */
-RPG.UI._mode = RPG.UI_NORMAL;
+RPG.UI._mode = -1;
 
 /**
  * Static version of bind
