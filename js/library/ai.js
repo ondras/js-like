@@ -15,6 +15,7 @@ RPG.Engine.AI = OZ.Class();
 RPG.Engine.AI.prototype.init = function(being) {
 	this._being = being;
 	this._tasks = [];
+	this._taskPtr = null;
 	
 	being.yourTurn = this.bind(this.yourTurn);
 	being.addTask = this.bind(this.addTask);
@@ -88,20 +89,20 @@ RPG.Engine.AI.prototype.yourTurn = function() {
 	var task = false;
 	var goal = false;
 	var result = result;
-	var taskPtr = this._tasks.length-1;
+	this._taskPtr = this._tasks.length-1;
 	
 	do {
 		/* pick top non-satisfied goal of top task */
 		do {
-			task = this._tasks[taskPtr];
+			task = this._tasks[this._taskPtr];
 			goal = task[task.length-1];
-			if (goal.isSatisfied() && taskPtr > 0) {
+			if (goal.isSatisfied() && this._taskPtr > 0) {
 				/* remove the goal if it is not the fallback task */
 				task.pop();
 				/* remove the task if it is empty */
 				if (!task.length) { 
 					this._tasks.pop(); 
-					taskPtr--;
+					this._taskPtr--;
 				}
 				goal = false;
 			}
@@ -111,7 +112,7 @@ RPG.Engine.AI.prototype.yourTurn = function() {
 		result = goal.go();
 		
 		/* this goal is not possible ATM, switch to previous task */
-		if (result == RPG.AI_IMPOSSIBLE) { taskPtr--; }
+		if (result == RPG.AI_IMPOSSIBLE) { this._taskPtr--; }
 	
 	} while (result != RPG.AI_OK);
 }
@@ -121,12 +122,13 @@ RPG.Engine.AI.prototype.getBeing = function() {
 }
 
 RPG.Engine.AI.prototype.addGoal = function(goal) {
-	this._tasks[this._tasks.length-1].push(goal);
+	this._tasks[this._taskPtr].push(goal);
 	goal.setAI(this);
 }
 
 RPG.Engine.AI.prototype.addTask = function(goal) {
 	this._tasks.push([]);
+	this._taskPtr = this._tasks.length-1;
 	this.addGoal(goal);
 }
 

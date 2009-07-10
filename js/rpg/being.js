@@ -240,6 +240,22 @@ RPG.Beings.BaseBeing.prototype.getPV = function() {
 	return this._feats.pv.modifiedValue(this);
 }
 
+RPG.Beings.BaseBeing.prototype.getStrength = function() {
+	return this._feats.strength.modifiedValue(this);
+}
+
+RPG.Beings.BaseBeing.prototype.getToughness = function() {
+	return this._feats.toughness.modifiedValue(this);
+}
+
+RPG.Beings.BaseBeing.prototype.getIntelligence = function() {
+	return this._feats.intelligence.modifiedValue(this);
+}
+
+RPG.Beings.BaseBeing.prototype.getDexterity = function() {
+	return this._feats.dexterity.modifiedValue(this);
+}
+
 RPG.Beings.BaseBeing.prototype.getHit = function(weapon) {
 	return weapon.getHit(this);
 }

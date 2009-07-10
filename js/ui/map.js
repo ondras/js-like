@@ -86,6 +86,7 @@ RPG.UI.BaseCell.prototype.update = function(state) {
 RPG.UI.ImageMap = OZ.Class().extend(RPG.UI.BaseMap);
 RPG.UI.ImageMap.prototype.init = function(container, cell, options) {
 	this.parent(container, RPG.UI.ImageCell);
+	OZ.DOM.addClass(container, "map");
 	this.options = {
 		tileSize: new RPG.Misc.Coords(32, 32)
 	}
@@ -208,6 +209,7 @@ RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 RPG.UI.ASCIIMap = OZ.Class().extend(RPG.UI.BaseMap);
 RPG.UI.ASCIIMap.prototype.init = function(container) {
 	this.parent(container, RPG.UI.ASCIICell);
+	OZ.DOM.addClass(container, "ascii");
 }
 
 RPG.UI.ASCIIMap.prototype._computeWidth = function() {

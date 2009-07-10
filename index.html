@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<link rel="stylesheet" type="text/css" href="testbed.css" />
+		<link rel="stylesheet" type="text/css" href="style.css" />
 
 		<script type="text/javascript" src="js/oz.js"></script>
 		<script type="text/javascript" src="js/oop.oz.js"></script>
@@ -31,19 +31,23 @@
 		<script type="text/javascript" src="js/ui/commands.js"></script>
 		<script type="text/javascript" src="js/ui/chat.js"></script>
 		<script type="text/javascript" src="js/ui/itemlist.js"></script>
+		<script type="text/javascript" src="js/ui/mapswitch.js"></script>
+		<script type="text/javascript" src="js/ui/status.js"></script>
 
 	</head>
 
 	<body>
-		
+		<textarea id="buffer"></textarea>
 		<div id="map"></div>
-		<ul id="mapswitch">
-			<li><a id="map_ascii" href="#">ASCII</a></li>
-			<li><a id="map_image" href="#">Graphics</a></li>
-		</ul>
+		<ul id="mapswitch"></ul>
 		<div style="clear:both"></div>
-
+		
+		<div id="keypad"></div>
+		<div id="commands"></div>
+		
+		<div id="status"></div>
+		
 		<script type="text/javascript" src="js/debug/graph.js"></script>
-		<script type="text/javascript" src="testbed.js"></script>
+		<script type="text/javascript" src="main.js"></script>
 	</body>
 </html>

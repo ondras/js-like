@@ -5,7 +5,7 @@ RPG.World = {
 	_actions: [],
 	_running: false, /* is the engine running? */
 	_lock: 0, /* lock level */
-	_ticks: 0,
+	_rounds: 0,
 	_map: null,
 	_scheduler: null,
 	_pc: null
@@ -100,6 +100,13 @@ RPG.World.unlock = function() {
 }
 
 /**
+ * Number of elapsed game rounds
+ */
+RPG.World.getRounds = function() {
+	return this._rounds;
+}
+
+/**
  * Act
  */ 
 RPG.World._decide = function() {
@@ -108,10 +115,10 @@ RPG.World._decide = function() {
 		var action = this._actions.shift(); 
 		/* execute it */
 		action.execute();
-		/* let everyone know it happened */
-		this.dispatch("action", action);
 		/* if this action took some time, our actor's turn is over */
 		if (action.tookTime()) { this._clearActor(); }
+		/* let everyone know it happened */
+		this.dispatch("action", action);
 	} else if (!this._actor) { /* no actions and no actor - pick one */
 		this._setActor();
 	} else { /* no actions, actor selected - he is probably deciding */
@@ -122,7 +129,7 @@ RPG.World._decide = function() {
 RPG.World._clearActor = function() {
 	if (this._actor == this._pc) { 
 		RPG.UI.setMode(RPG.UI_LOCKED); 
-		this._ticks++;
+		this._rounds++;
 	}
 	this._actor = null;
 }

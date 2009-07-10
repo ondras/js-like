@@ -577,10 +577,11 @@ RPG.UI.Command.Backlog.prototype.exec = function() {
  */
 RPG.UI.Command.Table = OZ.Class();
 
-RPG.UI.Command.Table.prototype.init = function() {
-	var table = OZ.DOM.elm("table", {"class":"keypad"});
+RPG.UI.Command.Table.prototype.init = function(container) {
+	var table = OZ.DOM.elm("table");
 	var tb = OZ.DOM.elm("tbody");
 	table.appendChild(tb);
+	container.appendChild(table);
 
 	var tr = OZ.DOM.elm("tr");
 	tb.appendChild(tr);
@@ -645,10 +646,4 @@ RPG.UI.Command.Table.prototype.init = function() {
 	OZ.DOM.append([tr, td], [td, c.getButton()]);
 	c.addCharCode(51);
 	c.addKeyCode(34);
-
-	this._table = table;
-}
-
-RPG.UI.Command.Table.prototype.getContainer = function() {
-	return this._table;
 }

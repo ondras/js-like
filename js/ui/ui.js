@@ -115,49 +115,20 @@ RPG.UI.action = function(ctor, target, params) {
 	RPG.World.action(a);
 }
 
-/**
- * Perform a dialogue
- * @param {RPG.Misc.Chat} chat
- * @param {RPG.Actions.BaseAction} action Action which invoked this chat
- */
-
-/**
- * Build image-based map
- */
-RPG.UI.buildMap = function(options) {
-	var map = OZ.DOM.elm("div", {"class":"map"});
-	this._map = new RPG.UI.ImageMap(map, options);
-	return map;
-}
-
-/**
- * Build ascii-based map
- */
-RPG.UI.buildASCII = function(options) {
-	var map = OZ.DOM.elm("div", {"class":"ascii"});
-	this._map = new RPG.UI.ASCIIMap(map, options);
-	return map;
-}
-
-/**
- * Build text output buffer
- */
-RPG.UI.buildBuffer = function() {
-	var ta = OZ.DOM.elm("textarea", {"class":"buffer"});
+RPG.UI.build = function() {
+	var ta = OZ.$("buffer");
 	this._buffer = new RPG.UI.TextBuffer(ta);
-	return ta;
-}
 
-/**
- * Build command buttons
- */
-RPG.UI.buildCommands = function() {
-	var result = [];
-	result.push(new RPG.UI.Command.Table().getContainer());
+	var keypad = OZ.$("keypad");
+	new RPG.UI.Command.Table(keypad);
 	
-	var div = OZ.DOM.elm("div", {"class":"commands"});
-	result.push(div);
+	var mapswitch = OZ.$("mapswitch");
+	new RPG.UI.Mapswitch(mapswitch);
 	
+	var status = OZ.$("status");
+	new RPG.UI.Status(status);
+	
+	var div = OZ.$("commands");
 	div.appendChild(new RPG.UI.Command.Autowalk().getButton());
 	div.appendChild(new RPG.UI.Command.Pick().getButton());
 	div.appendChild(new RPG.UI.Command.Drop().getButton());
@@ -169,8 +140,6 @@ RPG.UI.buildCommands = function() {
 	div.appendChild(new RPG.UI.Command.Search().getButton());
 	div.appendChild(new RPG.UI.Command.Backlog().getButton());
 	div.appendChild(new RPG.UI.Command.Cancel().getButton());
-
-	return result;
 }
 
 /**

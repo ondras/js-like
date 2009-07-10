@@ -132,19 +132,23 @@ var OZ = {
 			var y = node.clientHeight;
 			return [x,y];
 		},
-		hasClass:function(node,className) {
-			var arr = OZ.$(node).className.toString().split(" ");
+		hasClass:function(node, className) {
+			var cn = OZ.$(node).className;
+			var arr = (cn ? cn.split(" ") : []);
 			return (arr.indexOf(className) != -1);
 		},
 		addClass:function(node,className) {
-			if (OZ.DOM.hasClass(node,className)) { return; }
-			var arr = OZ.$(node).className.toString().split(" ");
+			if (OZ.DOM.hasClass(node, className)) { return; }
+			var cn = OZ.$(node).className;
+			var arr = (cn ? cn.split(" ") : []);
 			arr.push(className);
 			OZ.$(node).className = arr.join(" ");
 		},
-		removeClass:function(node,className) {
-			if (!OZ.DOM.hasClass(node,className)) { return; }
-			var arr = OZ.$(node).className.toString().split(" ").filter(function($){ return $ != className; });
+		removeClass:function(node, className) {
+			if (!OZ.DOM.hasClass(node, className)) { return; }
+			var cn = OZ.$(node).className;
+			var arr = (cn ? cn.split(" ") : []);
+			var arr = arr.filter(function($){ return $ != className; });
 			OZ.$(node).className = arr.join(" ");
 		},
 		append:function() {

@@ -44,38 +44,7 @@ var t = new RPG.Features.Teleport();
 map.at(c).setFeature(t);
 
 /* build ui */
-var buffer = RPG.UI.buildBuffer();
-document.body.insertBefore(buffer, document.body.firstChild);
-
-var commands = RPG.UI.buildCommands();
-for (var i=0;i<commands.length;i++) {
-	document.body.appendChild(commands[i]);
-}
-
-function use(name) { 
-	var map ={
-		"map_ascii": "buildASCII",
-		"map_image": "buildMap"
-	}
-	var func = RPG.UI[map[name]];
-	var c = OZ.$("map");
-	OZ.DOM.clear(c);
-	var m = func.call(RPG.UI);
-	c.appendChild(m);
-	
-	if (RPG.World.getMap()) { RPG.UI.adjust(RPG.World.getMap()); }
-
-	var a = OZ.$(name);
-	var ul = a.parentNode.parentNode;
-	var as = ul.getElementsByTagName("a");
-	for (var i=0;i<as.length;i++) { as[i].className = ""; }
-	OZ.$(name).className = "active";
-}
-
-OZ.Event.add(OZ.$("map_ascii"), "click", function() { use("map_ascii"); });
-OZ.Event.add(OZ.$("map_image"), "click", function() { use("map_image"); });
-
-use("map_ascii");
+RPG.UI.build();
 
 /* go! :-) */
 RPG.World.setMap(map);
