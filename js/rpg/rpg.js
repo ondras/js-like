@@ -32,6 +32,9 @@ RPG.Features = {};
 RPG.Items = {};
 
 /** @namespace */
+RPG.Memory = {};
+
+/** @namespace */
 RPG.Misc = {};
 
 /** @namespace */
@@ -96,6 +99,13 @@ RPG.AI_OK				= 0;
 RPG.AI_RETRY			= 1;
 /** @constant */
 RPG.AI_IMPOSSIBLE		= 2;
+
+/** @constant */
+RPG.MAP_UNKNOWN			= 0;
+/** @constant */
+RPG.MAP_VISIBLE			= 1;
+/** @constant */
+RPG.MAP_REMEMBERED		= 2;
 
 /**
  * Generates a normally distributed random number, mean = 0.

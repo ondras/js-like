@@ -68,10 +68,9 @@ RPG.Actions.BaseAction.prototype.execute = function() {
 }
 
 RPG.Actions.BaseAction.prototype._describe = function() {
-	var coords = RPG.World.getPC().getCoords();
-	var map = RPG.World.getMap();
+	var cell = RPG.World.getPC().getCell();
 	
-	var items = map.at(coords).getItems();
+	var items = cell.getItems();
 	
 	if (items.length > 1) {
 		RPG.UI.message("Several items are lying here.");

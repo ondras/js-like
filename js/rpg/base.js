@@ -57,17 +57,18 @@ RPG.Items.BaseItem.prototype.init = function() {
 }
 
 /**
- * @see RPG.Misc.SerializableInterface#setupFromClone
+ * @see RPG.Misc.SerializableInterface#clone
  */
-RPG.Items.BaseItem.prototype.setupFromClone = function(clone) {
-	for (var p in clone) { this[p] = clone[p]; }
+RPG.Items.BaseItem.prototype.clone = function() {
+	var clone = new this.constructor();
+	for (var p in this) { clone[p] = this[p]; }
 
 	this._modifiers = [];
 	/* copy modifiers to avoid references */
-	for (var i=0;i<clone._modifiers.length;i++) {
-		var modifier = clone._modifiers[i];
+	for (var i=0;i<this._modifiers.length;i++) {
+		var modifier = this._modifiers[i];
 		var mod2 = [modifier[0], modifier[1], modifier[2]];
-		this._modifiers.push(mod2);
+		clone._modifiers.push(mod2);
 	}
 	return this;
 }
@@ -79,8 +80,7 @@ RPG.Items.BaseItem.prototype.setupFromClone = function(clone) {
  */
 RPG.Items.BaseItem.prototype.subtract = function(amount) {
 	if (amount == 0 || amount >= this._amount) { throw new Error("Incorrect amount to subtract"); }
-	var clone = new this.constructor();
-	clone.setupFromClone(this);
+	var clone = this.clone();
 	
 	this.setAmount(this._amount - amount);
 	clone.setAmount(amount);

@@ -188,15 +188,16 @@ RPG.Engine.AI.Wander.prototype.init = function(ai) {
 
 RPG.Engine.AI.Wander.prototype.go = function() {
 	var being = this._ai.getBeing();
-	var map = being.getMap();
+	var cell = being.getCell();
+	var map = cell.getMap();
 	
-	var myCoords = being.getCoords();
+	var center = cell.getCoords();
 	var avail = [null];
 	
 	for (var i=-1;i<=1;i++) {
 		for (var j=-1;j<=1;j++) {
 			if (Math.abs(i) == Math.abs(j)) { continue; }
-			var coords = myCoords.clone();
+			var coords = center.clone();
 			coords.x += i;
 			coords.y += j;
 			if (map.at(coords).isFree()) { avail.push(coords); }
@@ -298,8 +299,8 @@ RPG.Engine.AI.Approach.prototype.init = function(target) {
 
 RPG.Engine.AI.Approach.prototype.isSatisfied = function() {
 	var being = this._ai.getBeing();
-	var c1 = being.getCoords();
-	var c2 = this._target.getCoords();
+	var c1 = being.getCell().getCoords();
+	var c2 = this._target.getCell().getCoords();
 	
 	/* we are happy when distance==1 */
 	return (c1.distance(c2) == 1);
@@ -307,8 +308,8 @@ RPG.Engine.AI.Approach.prototype.isSatisfied = function() {
 
 RPG.Engine.AI.Approach.prototype.go = function() {
 	var being = this._ai.getBeing();
-	var c1 = being.getCoords();
-	var c2 = this._target.getCoords();
+	var c1 = being.getCell().getCoords();
+	var c2 = this._target.getCell().getCoords();
 
 	if (being.canSee(c2)) {
 		/* we can see the victim; record where is it standing */
@@ -345,8 +346,8 @@ RPG.Engine.AI.Retreat.prototype.init = function(target) {
 
 RPG.Engine.AI.Retreat.prototype.go = function() {
 	var being = this._ai.getBeing();
-	var c1 = being.getCoords();
-	var c2 = this._target.getCoords();
+	var c1 = being.getCell().getCoords();
+	var c2 = this._target.getCell().getCoords();
 
 	if (being.canSee(c2)) {
 		/* we see the target so we know how to run away */
@@ -386,8 +387,9 @@ RPG.Engine.AI.GetToDistance.prototype.isSatisfied = function() {
 
 RPG.Engine.AI.GetToDistance.prototype.go = function() {
 	var being = this._ai.getBeing();
-	var map = being.getMap();
-	var current = being.getCoords();
+	var cell = being.getCell();
+	var map = cell.getMap();
+	var current = cell.getCoords();
 
 	/**
 	 * For a given starting coords and depth, this function returns two values:

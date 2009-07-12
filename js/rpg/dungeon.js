@@ -2,17 +2,19 @@
  * @class Dungeon cell
  * @augments RPG.Misc.ModifierInterface
  * @augments RPG.Visual.VisualInterface
+ * @augments RPG.Misc.SerializableInterface
  */
 RPG.Cells.BaseCell = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
-						.implement(RPG.Misc.ModifierInterface);
-
+						.implement(RPG.Misc.ModifierInterface)
+						.implement(RPG.Misc.SerializableInterface);
 RPG.Cells.BaseCell.prototype.init = function() {
 	this._initVisuals();
 	this._items = [];
 	this._modifiers = [];
 	this._being = null;
 	this._feature = null;
+	this._map = null;
 	this.flags = 0;
 }
 
@@ -32,10 +34,27 @@ RPG.Cells.BaseCell.prototype.getItems = function() {
 
 RPG.Cells.BaseCell.prototype.setBeing = function(being) {
 	this._being = being || null;
+	if (being) { being.setCell(this); }
 }
 
 RPG.Cells.BaseCell.prototype.getBeing = function() {
 	return this._being;
+}
+
+RPG.Cells.BaseCell.prototype.setMap = function(map) {
+	this._map = map;
+}
+
+RPG.Cells.BaseCell.prototype.getMap = function() {
+	return this._map;
+}
+
+RPG.Cells.BaseCell.prototype.setCoords = function(coords) {
+	this._coords = coords.clone();
+}
+
+RPG.Cells.BaseCell.prototype.getCoords = function() {
+	return this._coords;
 }
 
 RPG.Cells.BaseCell.prototype.setFeature = function(feature) {
@@ -99,9 +118,11 @@ RPG.Rooms.BaseRoom.prototype.getCenter = function() {
 /**
  * @class Dungeon feature
  * @augments RPG.Visual.VisualInterface
+ * @augments RPG.Misc.SerializableInterface
  */
 RPG.Features.BaseFeature = OZ.Class()
 							.implement(RPG.Visual.VisualInterface)
+							.implement(RPG.Misc.SerializableInterface);
 RPG.Features.BaseFeature.prototype.init = function() {
 	this._cell = null;
 	this._initVisuals();
@@ -114,9 +135,14 @@ RPG.Features.BaseFeature.prototype.setCell = function(cell) {
 
 /**
  * @class Dungeon map
+ * @augments RPG.Misc.SerializableInterface
  */
-RPG.Dungeon.Map = OZ.Class();
-RPG.Dungeon.Map.prototype.init = function(size) {
+RPG.Dungeon.Map = OZ.Class().implement(RPG.Misc.SerializableInterface);
+RPG.Dungeon.Map.prototype.init = function() {
+}
+
+RPG.Dungeon.Map.prototype.setup = function(id, size) {
+	this._id = id;
 	this._size = size;
 	this._data = [];
 	this._rooms = [];
@@ -128,6 +154,10 @@ RPG.Dungeon.Map.prototype.init = function(size) {
 		}
 		this._data.push(col);
 	}
+}
+
+RPG.Dungeon.Map.prototype.getId = function() {
+	return this._id;
 }
 
 /**
@@ -151,16 +181,11 @@ RPG.Dungeon.Map.prototype.getSize = function() {
 }
 RPG.Dungeon.Map.prototype.setCell = function(coords, cell) {
 	this._data[coords.x][coords.y] = cell;
+	cell.setCoords(coords);
+	cell.setMap(this);
 }
 RPG.Dungeon.Map.prototype.at = function(coords) {
 	return this._data[coords.x][coords.y];
-}
-RPG.Dungeon.Map.prototype.setBeing = function(coords, being) {
-	if (being) { 
-		being.setMap(this);
-		being.setCoords(coords); 
-	}
-	this.at(coords).setBeing(being);
 }
 RPG.Dungeon.Map.prototype.isValid = function(coords) {
 	var size = this._size;

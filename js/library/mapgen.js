@@ -12,8 +12,8 @@ RPG.Dungeon.Generator.prototype.init = function(size) {
 	this._map = null;
 }
 
-RPG.Dungeon.Generator.prototype.generate = function() {
-	this._blankMap();
+RPG.Dungeon.Generator.prototype.generate = function(id) {
+	this._blankMap(id);
 	return this;
 }
 
@@ -37,7 +37,8 @@ RPG.Dungeon.Generator.prototype.addHiddenCorridors = function(percentage) {
 			if (this._freeNeighbors(c) != 2) { continue; }
 			if (Math.random() >= percentage) { continue; }
 			
-			var fake = new RPG.Cells.Wall.Fake(cell);
+			var fake = new RPG.Cells.Wall.Fake();
+			fake.setup(cell);
 			this._map.setCell(c, fake);
 		}
 	}
@@ -97,7 +98,8 @@ RPG.Dungeon.Generator.prototype.decorateRoomDoors = function(room, options) {
 				if (!this._map.isValid(after) || !(this._map.at(after) instanceof RPG.Cells.Corridor)) { continue; } /* bad layout */
 				
 				/* fake corridor */
-				var fake = new RPG.Cells.Wall.Fake(new this._corridor());
+				var fake = new RPG.Cells.Wall.Fake();
+				fake.setup(new this._corridor());
 				this._map.setCell(c, fake);
 				continue;
 			}
@@ -114,7 +116,8 @@ RPG.Dungeon.Generator.prototype.decorateRoomDoors = function(room, options) {
 
 			/* fake wall */
 			if (Math.random() < o.fakeDoors) {
-				var fake = new RPG.Cells.Wall.Fake(cell);
+				var fake = new RPG.Cells.Wall.Fake();
+				fake.setup(cell);
 				this._map.setCell(c, fake);
 			} /* if fake */
 
@@ -182,8 +185,9 @@ RPG.Dungeon.Generator.prototype._freeNeighbors = function(center) {
 	return result;
 }
 
-RPG.Dungeon.Generator.prototype._blankMap = function() {
-	this._map = new RPG.Dungeon.Map(this._size);
+RPG.Dungeon.Generator.prototype._blankMap = function(id) {
+	this._map = new RPG.Dungeon.Map();
+	this._map.setup(id, this._size);
 	var c = new RPG.Misc.Coords(0, 0);
 	for (var i=0;i<this._size.x;i++) {
 		for (var j=0;j<this._size.y;j++) {
@@ -252,8 +256,8 @@ RPG.Dungeon.Generator.prototype._freeSpace = function(corner1, corner2) {
  */
 RPG.Dungeon.Generator.Arena = OZ.Class().extend(RPG.Dungeon.Generator);
 
-RPG.Dungeon.Generator.Arena.prototype.generate = function() {
-	this._blankMap();
+RPG.Dungeon.Generator.Arena.prototype.generate = function(id) {
+	this._blankMap(id);
 	var c1 = new RPG.Misc.Coords(1, 1);
 	var c2 = new RPG.Misc.Coords(this._size.x-1, this._size.y-1);
 	var room = this._map.addRoom(this._room, c1, c2);
@@ -279,9 +283,9 @@ RPG.Dungeon.Generator.Uniform.prototype.init = function(size) {
 	this._digged = 0;
 }
 
-RPG.Dungeon.Generator.Uniform.prototype.generate = function() {
+RPG.Dungeon.Generator.Uniform.prototype.generate = function(id) {
 	while (1) {
-		this._blankMap();
+		this._blankMap(id);
 		this._generateRooms();
 		var result = this._generateCorridors();
 		if (result == 1) { 
@@ -386,8 +390,8 @@ RPG.Dungeon.Generator.Digger.prototype.init = function(size) {
 
 }
 
-RPG.Dungeon.Generator.Digger.prototype.generate = function() {
-	this._blankMap();
+RPG.Dungeon.Generator.Digger.prototype.generate = function(id) {
+	this._blankMap(id);
 	this._digged = 0;
 
 	this._firstRoom();

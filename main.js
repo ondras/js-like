@@ -1,7 +1,7 @@
 RPG.init();
 
 var mg = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(80, 20));
-var map = mg.generate().addHiddenCorridors(0.01).getMap();
+var map = mg.generate("dungeon").addHiddenCorridors(0.01).getMap();
 
 var rooms = map.getRooms();
 for (var i=0;i<rooms.length;i++) { mg.decorateRoomDoors(rooms[i]); }
@@ -15,7 +15,7 @@ for (var i=0;i<max;i++) {
 /* room #1 - player */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];
 var pc = new RPG.Beings.Human();
-map.setBeing(room.getCenter(), pc);
+map.at(room.getCenter()).setBeing(pc);
 RPG.World.setPC(pc);
 var dagger = new RPG.Items.Dagger();
 pc.addItem(dagger);
@@ -27,7 +27,7 @@ var dagger = new RPG.Items.Dagger();
 orc.addItem(dagger);
 orc.setWeapon(dagger);
 var ai = new RPG.Engine.AI(orc);
-map.setBeing(room.getCenter(), orc);
+map.at(room.getCenter()).setBeing(orc);
 
 /* room #3 - item */
 var room = arr.splice(Math.floor(Math.random()*arr.length), 1)[0];

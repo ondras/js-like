@@ -13,8 +13,7 @@ RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._initVisuals();
 	this._modifiers = []; /* to comply with ModifierInterface */
 
-	this._coords = null;
-	this._map = null;
+	this._cell = null;
 	this._chat = null;
 	
 	this._race = r;
@@ -69,22 +68,13 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 /**
  * @param {SMap.Misc.Coords}
  */
-RPG.Beings.BaseBeing.prototype.setCoords = function(coords) {
-	this._coords = coords;
+RPG.Beings.BaseBeing.prototype.setCell = function(cell) {
+	this._cell = cell;
 	return this;
 }
 
-RPG.Beings.BaseBeing.prototype.getCoords = function() {
-	return this._coords;
-}
-
-RPG.Beings.BaseBeing.prototype.setMap = function(map) {
-	this._map = map;
-	return this;
-}
-
-RPG.Beings.BaseBeing.prototype.getMap = function() {
-	return this._map;
+RPG.Beings.BaseBeing.prototype.getCell = function() {
+	return this._cell;
 }
 
 RPG.Beings.BaseBeing.prototype.getRace = function() {
@@ -306,7 +296,7 @@ RPG.Beings.BaseBeing.prototype.sightDistance = function() {
  */
 RPG.Beings.BaseBeing.prototype.dropAll = function() {
 	for (var i=0;i<this._items.length;i++) { /* drop items */
-		this._map.at(this._coords).addItem(this._items[i]);
+		this._cell.addItem(this._items[i]);
 	}
 }
 
@@ -317,7 +307,7 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 	this._alive = false;
 	this.dropAll();
 	var corpse = new RPG.Items.Corpse(this);
-	this._map.at(this._coords).addItem(corpse);
+	this._cell.addItem(corpse);
 	RPG.World.action(new RPG.Actions.Death(this)); 
 }
 
@@ -327,7 +317,8 @@ RPG.Beings.BaseBeing.prototype.die = function() {
  * @returns {bool}
  */
 RPG.Beings.BaseBeing.prototype.canSee = function(target) {
-	var source = this._coords;
+	var source = this._cell.getCoords();
+	var map = this._cell.getMap();
 	if (source.distance(target) <= 1) { return true; } /* optimalization: can see self & surroundings */
 	if (source.distance(target) > this.sightDistance()) { return false; } 
 
@@ -345,9 +336,9 @@ RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 		
 		/* test alternate starting cell for validity */
 		if (i) {
-			if (!this._map.isValid(c) || !this._map.at(c).isFree()) { continue; }
+			if (!map.isValid(c) || !map.at(c).isFree()) { continue; }
 		}
-		var tmp = this._map.lineOfSight(c, target);
+		var tmp = map.lineOfSight(c, target);
 		if (tmp == true) { return true; }
 	}
 	return false;

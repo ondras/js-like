@@ -32,8 +32,12 @@ RPG.Cells.Wall.prototype.init = function() {
  */
 RPG.Cells.Wall.Fake = OZ.Class().extend(RPG.Cells.Wall);
 
-RPG.Cells.Wall.Fake.prototype.init = function(realCell) {
+RPG.Cells.Wall.Fake.prototype.init = function() {
 	this.parent();
+	this._cell = null;
+}
+
+RPG.Cells.Wall.Fake.prototype.setup = function(realCell) {
 	this._cell = realCell;
 }
 
@@ -47,14 +51,17 @@ RPG.Cells.Wall.Fake.prototype.getRealCell = function() {
  */
 RPG.Features.Door = OZ.Class().extend(RPG.Features.BaseFeature);
 
-RPG.Features.Door.prototype.init = function(coords, hp) {
-	this.parent(coords);
-	
-	this._hp = hp || 4;
+RPG.Features.Door.prototype.init = function() {
+	this.parent();
+	this._hp = 4;
 	this._closed = null;
 	this._locked = null;
 	this._color = "chocolate";
 	this.open();
+}
+
+RPG.Features.Door.prototype.setup = function(hp) {
+	this._hp = hp;
 }
 
 RPG.Features.Door.prototype.lock = function() {
@@ -109,15 +116,27 @@ RPG.Features.Door.prototype.damage = function(amount) {
 }
 
 /**
- * @class Teleport
+ * @class Generic trap
  * @augments RPG.Features.BaseFeature
  */
-RPG.Features.Teleport = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.Trap = OZ.Class().extend(RPG.Features.BaseFeature);
 
-RPG.Features.Teleport.prototype.init = function(coords) {
-	this.parent(coords);
+RPG.Features.Trap.prototype.init = function() {
+	this.parent();
+	this._char = "^";
+}
+
+
+
+/**
+ * @class Teleport
+ * @augments RPG.Features.Trap
+ */
+RPG.Features.Teleport = OZ.Class().extend(RPG.Features.Trap);
+
+RPG.Features.Teleport.prototype.init = function() {
+	this.parent();
 	
-	this._char = "*";
 	this._color = "fuchsia";
 	this._image = "teleport";
 	this._description = "teleport";
@@ -137,3 +156,69 @@ RPG.Features.Teleport.prototype._action = function(e) {
 	var a = new RPG.Actions.Teleport(action.getSource(), c);
 	RPG.World.action(a);
 }
+
+
+/**
+ * @class Staircase leading up/down
+ * @augments RPG.Features.BaseFeature
+ */
+RPG.Features.Staircase = OZ.Class().extend(RPG.Features.BaseFeature);
+
+RPG.Features.Staircase.prototype.init = function() {
+	this.parent();
+	this._color = "silver";
+	this._targetGenerator = null;
+	this._targetMap = null;
+	this._targetCoords = null;
+}
+
+RPG.Features.Staircase.prototype.setTargetGenerator = function(func) {
+	this._targetGenerator = func;
+}
+
+RPG.Features.Staircase.prototype.setTargetMap = function(map) {
+	this._targetMap = map;
+}
+
+RPG.Features.Staircase.prototype.setTargetCoords = function(coords) {
+	this._targetCoords = coords.clone();
+}
+
+RPG.Features.Staircase.prototype.generateTarget = function() {
+	if (!this._targetGenerator) { throw new Error("Cannot generate without a generator"); }
+	this._targetGenerator(this);
+	return this;
+}
+
+RPG.Features.Staircase.prototype.getTargetMap = function() {
+	return this._targetMap;
+}
+
+RPG.Features.Staircase.prototype.getTargetCoords = function() {
+	return this._targetCoords;
+}
+
+/**
+ * Staircase down
+ * @augments RPG.Features.Staircase
+ */
+RPG.Features.Staircase.Down = OZ.Class().extend(RPG.Features.Staircase);
+RPG.Features.Staircase.Down.prototype.init = function() {
+	this.parent();
+	this._char = ">";
+	this._description = "staircase leading down";
+	this._image = "staircase-down";
+}
+
+/**
+ * Staircase up
+ * @augments RPG.Features.Staircase
+ */
+RPG.Features.Staircase.Up = OZ.Class().extend(RPG.Features.Staircase);
+RPG.Features.Staircase.Up.prototype.init = function() {
+	this.parent();
+	this._char = "<";
+	this._description = "staircase leading up";
+	this._image = "staircase-up";
+}
+

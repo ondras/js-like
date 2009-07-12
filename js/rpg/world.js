@@ -45,7 +45,7 @@ RPG.World.setMap = function(map) {
 		this.addActor(beings[i]);
 	}
 	
-	RPG.UI.adjust(map);
+	RPG.Memory.setMap(map);
 }
 
 RPG.World.getMap = function() {

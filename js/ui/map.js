@@ -12,46 +12,28 @@ RPG.UI.BaseMap.prototype.init = function(container, cellCtor) {
 	}
 }
 
-RPG.UI.BaseMap.prototype.adjust = function(map) {
-	this._size = map.getSize();
+RPG.UI.BaseMap.prototype.resize = function(size) {
+	this._size = size.clone();
 	OZ.DOM.clear(this._dom.container);
 	this._resize();
-	this._dom.data = new Array(this._size.x);
 	
-	var coords = new RPG.Misc.Coords(0, 0);
+	/* create cells */
+	var c = new RPG.Misc.Coords(0, 0);
+	this._dom.data = new Array(this._size.x);
 	for (var j=0;j<this._size.y;j++) {
 		for (var i=0;i<this._size.x;i++) {
+			c.x = i;
+			c.y = j;
 			if (!j) { this._dom.data[i] = new Array(this._size.y); }
-			coords.x = i;
-			coords.y = j;
-			var cell = new this._cellCtor(this, coords);
-			cell.update(cell.HIDDEN);
+			var cell = new this._cellCtor(this, c);
 			this._dom.data[i][j] = cell;
 		}
 	}
-	this.redraw();
 }
 
-RPG.UI.BaseMap.prototype.redraw = function() {
-	var c = new RPG.Misc.Coords(0, 0);
-	for (c.x=0;c.x<this._size.x;c.x++) {
-		for (c.y=0;c.y<this._size.y;c.y++) {
-			this.redrawCoords(c);
-		}
-	}
-}
-
-RPG.UI.BaseMap.prototype.redrawCoords = function(coords) {
-	var pc = RPG.World.getPC();
-	var pccoords = pc.getCoords();
-	var dist = pc.sightDistance();
+RPG.UI.BaseMap.prototype.redrawCoords = function(coords, data, remembered) {
 	var cell = this._dom.data[coords.x][coords.y];
-
-	if (pccoords.distance(coords) > dist || !pc.canSee(coords)) { /* cell is not visible */
-		if (cell.state == cell.VISIBLE) { cell.update(cell.INVISIBLE); }
-	} else { /* cell is visible */
-		cell.update(cell.VISIBLE);
-	}
+	cell.update(data, remembered);
 }
 
 RPG.UI.BaseMap.prototype._resize = function() {
@@ -62,21 +44,16 @@ RPG.UI.BaseMap.prototype._resize = function() {
  */
 RPG.UI.BaseCell = OZ.Class();
 RPG.UI.BaseCell.prototype.init = function(owner, coords) {
-	this.HIDDEN = 0;
-	this.INVISIBLE = 1;
-	this.VISIBLE = 2;
-	
-	this.state = this.HIDDEN; /* 0 = not seen, 1 = seen but old, 2 = visible */
 	this._owner = owner;
-	this._coords = coords.clone();
+	this._dom = {};
 }
 
 /**
- * Update state
- * @param {int} new state
+ * Update cell contents
+ * @param {RPG.Visual.VisualInterface[]} data Array of data to be shown
+ * @param {bool} remembered Is this a remembered part of a map?
  */
-RPG.UI.BaseCell.prototype.update = function(state) {
-	this.state = state;
+RPG.UI.BaseCell.prototype.update = function(data, remembered) {
 }
 
 /**
@@ -84,14 +61,14 @@ RPG.UI.BaseCell.prototype.update = function(state) {
  * @augments RPG.UI.BaseMap
  */
 RPG.UI.ImageMap = OZ.Class().extend(RPG.UI.BaseMap);
-RPG.UI.ImageMap.prototype.init = function(container, cell, options) {
+RPG.UI.ImageMap.prototype.init = function(container, options) {
 	this.parent(container, RPG.UI.ImageCell);
 	OZ.DOM.addClass(container, "map");
 	this.options = {
 		tileSize: new RPG.Misc.Coords(32, 32)
 	}
-	this._dom.container.style.position = "relative";
 	for (var p in options) { this.options[p] = options[p]; }
+	this._dom.container.style.position = "relative";
 }
 
 RPG.UI.ImageMap.prototype._resize = function() {
@@ -105,79 +82,40 @@ RPG.UI.ImageMap.prototype._resize = function() {
  */
 RPG.UI.ImageCell = OZ.Class().extend(RPG.UI.BaseCell);
 RPG.UI.ImageCell.prototype.init = function(owner, coords) {
-	this.parent(owner, coords);
+	this.parent(owner);
 
 	var ts = owner.options.tileSize;
 	var container = owner._dom.container;
 	var x = coords.x * ts.x;
 	var y = coords.y * ts.y;
-	this.container = OZ.DOM.elm("div", {position:"absolute", left:x+"px", top:y+"px", width:ts.x+"px", height:ts.y+"px"});
-	this.node1 = OZ.DOM.elm("img", {position:"absolute", left:"0px", top:"0px"});
-	this.node2 = OZ.DOM.elm("img", {position:"absolute", left:"0px", top:"0px"});
+	this._dom.container = OZ.DOM.elm("div", {position:"absolute", left:x+"px", top:y+"px", width:ts.x+"px", height:ts.y+"px"});
+	this._dom.nodes = [];
 	
-	container.appendChild(this.container);
-	this.container.appendChild(this.node1);
-	this.container.appendChild(this.node2);
-	
-	/* node2 value when not visible */
-	this._invisNode = null;
+	for (var i=0;i<2;i++) {
+		var node = OZ.DOM.elm("img", {position:"absolute", left:"0px", top:"0px", width:ts.x+"px", height:ts.y+"px"});
+		this._dom.nodes.push(node);
+		this._dom.container.appendChild(node);
+	}
+	container.appendChild(this._dom.container);
 }
 
 /**
  * @see RPG.UI.BaseCell#update
  */
-RPG.UI.ImageCell.prototype.update = function(state) {
-	this.state = state;
-	switch (state) {
-		case this.HIDDEN:
-			this.node1.style.visibility = "hidden";
-			this.node2.style.visibility = "hidden";
-		break;
-
-		case this.INVISIBLE:
-			this.container.style.opacity = 0.5;
-			if (this._invisNode) {
-				this._updateImage(this.node2, this._invisNode);
-			} else {
-				this.node2.style.visibility = "hidden";
-			}
-		break;
-
-		case this.VISIBLE:
-			this._draw();
-		break;
-	}
-}
-
-/**
- * Complete cell redraw
- */
-RPG.UI.ImageCell.prototype._draw = function() {
-	this.container.style.opacity = 1;
-	var cell = RPG.World.getMap().at(this._coords);
-	this._updateImage(this.node1, cell);
-	
-	/* find proper node for invisibility mode */
-	var top = cell.getItems();
-	if (top.length) { 
-		top = top[top.length-1]; 
-	} else {
-		top = cell.getFeature();
-	}
-	
-	this._invisNode = top;
-	
-	var b = cell.getBeing();
-	if (b) { 
-		this._updateImage(this.node2, b);
-	} else if (top) {
-		this._updateImage(this.node2, top);
-	} else {
-		this.node2.style.visibility = "hidden";
+RPG.UI.ImageCell.prototype.update = function(data, remembered) {
+	this._dom.container.style.opacity = (remembered ? 0.5 : 1);
+	for (var i=0;i<this._dom.nodes.length;i++) {
+		var what = (data.length > i ? data[i] : null);
+		this._updateImage(this._dom.nodes[i], what);
 	}
 }
 
 RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
+	if (!what) {
+		node.style.visibility = "hidden";
+		return;
+	}
+	
 	node.style.visibility = "visible";
 	var src = what.getImage();
 	var text = what.describeA();
@@ -231,98 +169,42 @@ RPG.UI.ASCIIMap.prototype._resize = function() {
  */
 RPG.UI.ASCIICell = OZ.Class().extend(RPG.UI.BaseCell);
 RPG.UI.ASCIICell.prototype.init = function(owner, coords) {
-	this.parent(owner, coords);
+	this.parent(owner);
 
 	var container = owner._dom.container;
-	this.node = OZ.DOM.elm("span", {backgroundColor: "black"});
-	container.appendChild(this.node);
+	this._dom.node = OZ.DOM.elm("span", {backgroundColor: "black"});
+	container.appendChild(this._dom.node);
 	if (coords.x + 1 == owner._size.x) {
 		container.appendChild(OZ.DOM.elm("br"));
 	}
 	
 	this._currentChar = null;
 	this._currentColor = null;
-	this._invisChar = null;
-	this._invisColor = null;
-	this._invisTitle = null;
 }
 
 /**
  * @see RPG.UI.BaseCell#update
  */
-RPG.UI.ASCIICell.prototype.update = function(state) {
-	this.state = state;
-	switch (state) {
-		case this.HIDDEN:
-			this.node.innerHTML = "&nbsp;";
-		break;
-		case this.INVISIBLE:
-			this.node.style.opacity = 0.5;
-		
-			if (this._currentChar != this._invisChar) {
-				this._currentChar = this._invisChar;
-				this.node.innerHTML = this._currentChar;
-			}
-			
-			if (this._currentColor != this._invisColor) {
-				this._currentColor = this._invisColor;
-				this.node.style.color = this._currentColor;
-			}
-			
-			this.node.title = this._invisTitle;
-		break;
-		case this.VISIBLE:
-			this._draw();
-		break;
+RPG.UI.ASCIICell.prototype.update = function(data, remembered) {
+	this._dom.node.style.opacity = (remembered ? 0.5 : 1);
+	
+	var item = (data.length ? data[data.length-1] : null);
+	if (!item) {
+		this._dom.node.innerHTML = "&nbsp;"
+		return;
 	}
-}
 
-/**
- * Complete cell redraw
- */
-RPG.UI.ASCIICell.prototype._draw = function() {
-	this.node.style.opacity = 1;
-	var cell = RPG.World.getMap().at(this._coords);
+	var ch = item.getChar();
+	var color = item.getColor();
+	var title = item.describeA();
 	
-	var ch;
-	var color;
-	var title;
-	
-	var top = cell.getItems();
-	if (top.length) {
-		top = top[top.length-1];
-	} else {
-		top = cell.getFeature();
-	}
-	
-	if (top) {
-		this._invisChar = top.getChar();
-		this._invisColor = top.getColor();
-		this._invisTitle = top.describeA();
-	} else {
-		this._invisChar = cell.getChar();
-		this._invisColor = cell.getColor();
-		this._invisTitle = cell.describeA();
-	}
-	
-	var b = cell.getBeing();
-	if (b) { 
-		ch = b.getChar();
-		color = b.getColor();
-		title = b.describeA();
-	} else {
-		ch = this._invisChar;
-		color = this._invisColor;
-		title = this._invisTitle;
-	}
-	
-	this.node.title = title;
+	this._dom.node.title = title;
 	if (ch != this._currentChar) {
 		this._currentChar = ch;
-		this.node.innerHTML = ch;
+		this._dom.node.innerHTML = ch;
 	}
 	if (color != this._currentColor) {
 		this._currentColor = color;
-		this.node.style.color = color;
+		this._dom.node.style.color = color;
 	}
 }

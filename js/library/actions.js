@@ -10,20 +10,20 @@ RPG.Actions.Wait = OZ.Class().extend(RPG.Actions.BaseAction);
  */
 RPG.Actions.Move = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Move.prototype.execute = function() {
-	var level = this._source.getMap();
-	var source = this._source.getCoords();
-	var target = this._target;
+	var sourceCoords = this._source.getCell().getCoords();
+	var targetCoords = this._target;
 	var you = (this._source == RPG.World.getPC());
 
-	level.setBeing(source, null);
-	level.setBeing(target, this._source);
+	var map = this._source.getCell().getMap();
+	this._source.getCell().setBeing(null);
+	map.at(targetCoords).setBeing(this._source);
 
 	if (you) {
 		this._describe();
-		RPG.UI.redraw();
+		RPG.Memory.updateMapVisible();
 	} else {
-		RPG.UI.redrawCoords(source);
-		RPG.UI.redrawCoords(target);
+		RPG.Memory.updateMapCoords(sourceCoords);
+		RPG.Memory.updateMapCoords(targetCoords);
 	}
 }
 
@@ -113,12 +113,14 @@ RPG.Actions.Attack.prototype._describe = function() {
 RPG.Actions.Death = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Death.prototype.execute = function() {
 	var map = RPG.World.getMap();
-	map.setBeing(this._source.getCoords(), null); /* remove being */
+	var coords = this._source.getCell().getCoords();
 	
-	RPG.UI.redrawCoords(this._source.getCoords());
+	this._source.getCell().setBeing(null); /* remove being */
+	
+	RPG.Memory.updateMapCoords(coords);
 	RPG.World.removeActor(this._source);
 	
-	if (RPG.World.getPC() == this.getSource()) {
+	if (RPG.World.getPC() == this._source) {
 		RPG.World.lock();
 		alert("MWHAHAHA you are dead!");
 	}
@@ -130,7 +132,7 @@ RPG.Actions.Death.prototype.execute = function() {
  */
 RPG.Actions.Open = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Open.prototype.execute = function() {
-	var map = this._source.getMap();
+	var map = this._source.getCell().getMap();
 	var coords = this._target;
 	var you = (this._source == RPG.World.getPC());
 	
@@ -165,7 +167,7 @@ RPG.Actions.Open.prototype.execute = function() {
 	str += " the door.";
 	
 	RPG.UI.message(str);
-	RPG.UI.redraw();
+	RPG.Memory.updateMapVisible();
 }
 
 /**
@@ -174,7 +176,7 @@ RPG.Actions.Open.prototype.execute = function() {
  */
 RPG.Actions.Close = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Close.prototype.execute = function() {
-	var map = this._source.getMap();
+	var map = this._source.getCell().getMap();
 	var coords = this._target;
 	
 	var cell = map.at(coords);
@@ -208,7 +210,7 @@ RPG.Actions.Close.prototype.execute = function() {
 	str += " the door.";
 	
 	RPG.UI.message(str);
-	RPG.UI.redraw();
+	RPG.Memory.updateMapVisible();
 }
 
 /**
@@ -217,24 +219,25 @@ RPG.Actions.Close.prototype.execute = function() {
  */
 RPG.Actions.Teleport = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Teleport.prototype.execute = function() {
-	var level = this._source.getMap();
-	var source = this._source.getCoords();
-	var target = this._target;
 	var pc = RPG.World.getPC();
-	var you = (this._source == RPG.World.getPC());
+	var you = (this._source == pc);
+	
+	var sourceCell = this._source.getCell();
+	var sourceCoords = sourceCell.getCoords();
+	var targetCoords = this._target;
 
 	if (you) {
 		RPG.UI.message("You suddenly teleport away!");
 	} else {
-		if (pc.canSee(source)) {
+		if (pc.canSee(sourceCoords)) {
 			var str = this._source.describeA().capitalize();
 			str += " suddenly disappears!";
 			RPG.UI.message(str);
 		}
 		
-		if (pc.canSee(target)) {
+		if (pc.canSee(targetCoords)) {
 			var str = this._source.describeA().capitalize();
-			if (pc.canSee(source)) {
+			if (pc.canSee(sourceCoords)) {
 				str += " immediately reappears!";
 			} else {
 				str += " suddenly appears from nowhere!";
@@ -255,8 +258,7 @@ RPG.Actions.Pick = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Pick.prototype.execute = function() {
 	var arr = this._target;
 	
-	var map = this._source.getMap();
-	var cell = map.at(this._source.getCoords());
+	var cell = this._source.getCell();
 	var you = (this._source == RPG.World.getPC());
 	
 	for (var i=0;i<arr.length;i++) {
@@ -293,8 +295,7 @@ RPG.Actions.Drop = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Drop.prototype.execute = function() {
 	var arr = this._target;
 	
-	var map = this._source.getMap();
-	var cell = map.at(this._source.getCoords());
+	var cell = this._source.getCell();
 	var you = (this._source == RPG.World.getPC());
 	
 	for (var i=0;i<arr.length;i++) {
@@ -325,10 +326,9 @@ RPG.Actions.Drop.prototype.execute = function() {
  */
 RPG.Actions.Kick = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Kick.prototype.execute = function() {
-	/* FIXME only PC is allowed to kick */
-	var coords = this._target;
-	var map = this._source.getMap();
-	var cell = map.at(coords);
+	/* only PC is allowed to kick */
+	var map = this._source.getCell().getMap();
+	var cell = map.at(this._target);
 	var feature = cell.getFeature();
 	var being = cell.getBeing();
 	var items = cell.getItems();
@@ -351,7 +351,7 @@ RPG.Actions.Kick.prototype.execute = function() {
 			RPG.UI.message("You kick the door, but it does not budge.");
 		} else {
 			RPG.UI.message("You shatter the door with a mighty kick!");
-			RPG.UI.redraw();
+			RPG.Memory.updateMapVisible();
 		}
 		return;
 	}
@@ -366,17 +366,18 @@ RPG.Actions.Kick.prototype.execute = function() {
 	
 	if (items.length) {
 		/* try kicking items */
-		var target = coords.clone().minus(this._source.getCoords()).plus(coords);
-		if (map.isValid(target) && map.at(target).isFree()) {
+		var sourceCoords = this._source.getCell().getCoords();
+		var targetCoords = this._target.clone().minus(sourceCoords).plus(this._target);
+		if (map.isValid(targetCoords) && map.at(targetCoords).isFree()) {
 			/* kick topmost item */
 			var item = items[items.length-1];
-			map.at(coords).removeItem(item);
-			map.at(target).addItem(item);
+			map.at(this._target).removeItem(item);
+			map.at(targetCoords).addItem(item);
 			var str = "You kick " + item.describeThe() + ". ";
 			str += "It slides away.";
 			RPG.UI.message(str);
-			RPG.UI.redrawCoords(coords);
-			RPG.UI.redrawCoords(target);
+			RPG.Memory.updateMapCoords(this._target);
+			RPG.Memory.updateMapCoords(targetCoords);
 			return;
 		}
 	}
@@ -390,7 +391,7 @@ RPG.Actions.Kick.prototype.execute = function() {
  */
 RPG.Actions.Chat = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Chat.prototype.execute = function() {
-	/* FIXME only PC is allowed to chat */
+	/* only PC is allowed to chat */
 	RPG.UI.message("You talk to "+this._target.describe()+".");
 	
 	var chat = this._target.getChat();
@@ -407,37 +408,98 @@ RPG.Actions.Chat.prototype.execute = function() {
  */
 RPG.Actions.Search = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Search.prototype.execute = function() {
-	/* FIXME only PC is allowed to search */
+	var map = RPG.World.getMap();
+
+	/* only PC is allowed to search */
 	RPG.UI.message("You search your surroundings...");
 	var found = 0;
 	
-	var center = this._source.getCoords();
+	var center = this._source.getCell().getCoords();
 	for (var i=-1;i<=1;i++) {
 		for (var j=-1;j<=1;j++) {
 			if (!i && !j) { continue; }
 			var coords = new RPG.Misc.Coords(i, j).plus(center);
-			found += this._search(coords);
+			found += this._search(map.at(coords));
 		}
 	}
 	
-	if (found) { RPG.UI.redraw(); }
+	if (found) { RPG.Memory.updateMapVisible(); }
 }
 
 /**
  * @returns {int} 1 = revealed, 0 = not revealed
  */
-RPG.Actions.Search.prototype._search = function(coords) {
-	var map = this._source.getMap();
-	var cell = map.at(coords);
+RPG.Actions.Search.prototype._search = function(cell) {
 	if (!(cell instanceof RPG.Cells.Wall.Fake)) { return 0; }
 	if (!RPG.Rules.isFakeDetected(this._source, cell)) { return 0; }
 
 	/* reveal! */
 	var realCell = cell.getRealCell();
-	map.setCell(coords, realCell);
+	cell.getMap().setCell(cell.getCoords(), realCell);
 	
 	var desc = "passage";
 	if (realCell.getFeature()) { desc = realCell.getFeature().describe(); }
 	RPG.UI.message("you discovered a hidden "+desc+"!");
 	return 1;
+}
+
+/**
+ * @class Change current level. Target == new map, params == new coords
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.ChangeMap = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.ChangeMap.prototype.execute = function() {
+	var pc = RPG.World.getPC();
+	var newMap = this._target;
+	
+	var oldCell = pc.getCell();
+	var newCell = newMap.at(this._params);
+	
+	/* remove from old map */
+	oldCell.setBeing(null);
+	
+	/* add to new map */
+	newCell.setBeing(pc);
+	
+	/* set new map */
+	RPG.World.setMap(newMap);
+}
+
+/**
+ * @class Enter staircase or other level-changer. Target == staircase
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.EnterStaircase = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.EnterStaircase.prototype.execute = function() {
+	var stair = this._target;
+	var newMap = stair.getTargetMap();
+	
+	if (!newMap) { 
+		stair.generateTarget(); 
+		newMap = stair.getTargetMap();
+	}
+	
+	var coords = stair.getTargetCoords();
+	
+	var a = new RPG.Actions.ChangeMap(this._source, newMap, coords);
+}
+
+/**
+ * @class Enter staircase leading upwards
+ * @augments RPG.Actions.EnterStaircase
+ */
+RPG.Actions.Ascend = OZ.Class().extend(RPG.Actions.EnterStaircase);
+RPG.Actions.Ascend.prototype.execute = function() {
+	RPG.UI.message("You climb upwards... ");
+	this.parent();
+}
+
+/**
+ * @class Enter staircase leading downwards
+ * @augments RPG.Actions.EnterStaircase
+ */
+RPG.Actions.Descent = OZ.Class().extend(RPG.Actions.EnterStaircase);
+RPG.Actions.Descent.prototype.execute = function() {
+	RPG.UI.message("You climb downwards... ");
+	this.parent();
 }

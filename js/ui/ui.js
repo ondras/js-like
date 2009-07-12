@@ -91,16 +91,12 @@ RPG.UI.clear = function() {
 	if (this._buffer) { this._buffer.clear(); }
 }
 
-RPG.UI.redraw = function() {
-	if (this._map) { this._map.redraw(); }
+RPG.UI.resize = function(size) {
+	if (this._map) { this._map.resize(size); }
 }
 
-RPG.UI.redrawCoords = function(coords) {
-	if (this._map) { this._map.redrawCoords(coords); }
-}
-
-RPG.UI.adjust = function(map) {
-	if (this._map) { this._map.adjust(map); }
+RPG.UI.redrawCoords = function(coords, data, remembered) {
+	if (this._map) { this._map.redrawCoords(coords, data, remembered); }
 }
 
 /**

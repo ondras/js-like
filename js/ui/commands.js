@@ -59,13 +59,15 @@ RPG.UI.Command.prototype._surroundingDoors = function(closed) {
 	var coords = false;
 	var dc = 0;
 	var pc = RPG.World.getPC();
-	var map = pc.getMap();
+	var cell = pc.getCell();
+	var map = cell.getMap();
+	var center = cell.getCoords();
 	
 	for (var i=-1;i<=1;i++) {
 		for (var j=-1;j<=1;j++) {
 			if (!i && !j) { continue; }
 			
-			var c = pc.getCoords().clone().plus(new RPG.Misc.Coords(i, j));
+			var c = center.clone().plus(new RPG.Misc.Coords(i, j));
 			var f = map.at(c).getFeature();
 			if (f && f instanceof RPG.Features.Door && f.isClosed() == closed) {
 				dc++;
@@ -87,13 +89,15 @@ RPG.UI.Command.prototype._surroundingDoors = function(closed) {
 RPG.UI.Command.prototype._surroundingBeings = function(closed) {
 	var list = [];
 	var pc = RPG.World.getPC();
-	var map = pc.getMap();
+	var cell = pc.getCell();
+	var map = cell.getMap();
+	var center = cell.getCoords();
 	
 	for (var i=-1;i<=1;i++) {
 		for (var j=-1;j<=1;j++) {
 			if (!i && !j) { continue; }
 			
-			var c = pc.getCoords().clone().plus(new RPG.Misc.Coords(i, j));
+			var c = center.clone().plus(new RPG.Misc.Coords(i, j));
 			var b = map.at(c).getBeing();
 			if (b) { list.push(b); }
 		}
@@ -127,8 +131,9 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	}
 	
 	var pc = RPG.World.getPC();
-	var map = RPG.World.getMap();
-	var coords = pc.getCoords().clone().plus(this._coords);
+	var cell = pc.getCell();
+	var map = cell.getMap();
+	var coords = cell.getCoords().clone().plus(this._coords);
 	
 	/* invalid move */
 	if (!map.isValid(coords)) { 
@@ -184,7 +189,7 @@ RPG.UI.Command.Open.prototype.exec = function(cmd) {
 
 	if (cmd) {
 		/* direction given */
-		var coords = pc.getCoords().clone().plus(cmd.getCoords());
+		var coords = pc.getCell().getCoords().clone().plus(cmd.getCoords());
 		var f = map.at(coords).getFeature();
 		if (f && f instanceof RPG.Features.Door && f.isClosed()) {
 			/* correct direction */
@@ -222,7 +227,7 @@ RPG.UI.Command.Close.prototype.exec = function(cmd) {
 
 	if (cmd) {
 		/* direction given */
-		var coords = pc.getCoords().clone().plus(cmd.getCoords());
+		var coords = pc.getCell().getCoords().clone().plus(cmd.getCoords());
 		var f = map.at(coords).getFeature();
 		if (f && f instanceof RPG.Features.Door && !f.isClosed()) {
 			/* correct direction */
@@ -259,7 +264,7 @@ RPG.UI.Command.Kick.prototype.exec = function(cmd) {
 	if (!cmd) {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Kick");
 	} else {
-		var coords = RPG.World.getPC().getCoords().clone().plus(cmd.getCoords());
+		var coords = RPG.World.getPC().getCell().getCoords().clone().plus(cmd.getCoords());
 		RPG.UI.action(RPG.Actions.Kick, coords);
 	}
 }
@@ -276,11 +281,13 @@ RPG.UI.Command.Chat.prototype.init = function() {
 RPG.UI.Command.Chat.prototype.exec = function(cmd) {
 	var errMsg = "There is noone to chat with.";
 	var pc = RPG.World.getPC();
+	var cell = pc.getCell();
+	var map = cell.getMap();
 
 	if (cmd) {
 		/* direction given */
-		var coords = pc.getCoords().clone().plus(cmd.getCoords());
-		var being = pc.getMap().at(coords).getBeing();
+		var coords = cell.getCoords().clone().plus(cmd.getCoords());
+		var being = map.at(coords).getBeing();
 		if (!being) {
 			RPG.UI.message(errMsg);
 		} else {
@@ -322,14 +329,13 @@ RPG.UI.Command.Pick.prototype.init = function() {
 }
 RPG.UI.Command.Pick.prototype.exec = function(selectedItems) {
 	var arr = [];
-	var pc = RPG.World.getPC();
 	
 	if (selectedItems) {
 		if (selectedItems) {
 			RPG.UI.action(RPG.Actions.Pick, selectedItems);
 		}
 	} else {
-		var items = pc.getMap().at(pc.getCoords()).getItems();
+		var items = pc.getCell().getItems();
 		
 		if (!items.length) {
 			RPG.UI.message("There is nothing to pick up!");
@@ -363,7 +369,6 @@ RPG.UI.Command.Drop.prototype.init = function() {
 }
 RPG.UI.Command.Drop.prototype.exec = function(selectedItems) {
 	var arr = [];
-	var pc = RPG.World.getPC();
 	
 	if (selectedItems) {
 		if (selectedItems.length) {
@@ -441,8 +446,9 @@ RPG.UI.Command.Autowalk.prototype.exec = function(cmd) {
 
 RPG.UI.Command.Autowalk.prototype._start = function(coords) {
 	var pc = RPG.World.getPC();
-	var map = pc.getMap();
-	var target = pc.getCoords().clone().plus(coords);
+	var cell = pc.getCell();
+	var map = cell.getMap();
+	var target = cell.getCoords().clone().plus(coords);
 
 	/* cannot walk to the wall */
 	if (!map.at(target).isFree()) { return; }
@@ -461,11 +467,11 @@ RPG.UI.Command.Autowalk.prototype._start = function(coords) {
 RPG.UI.Command.Autowalk.prototype._saveState = function(coords) {
 	this._coords = coords.clone();
 	var pc = RPG.World.getPC();
-	var map = pc.getMap();
+	var cell = pc.getCell();
 	var leftC = new RPG.Misc.Coords(-coords.y, coords.x);
 	var rightC = new RPG.Misc.Coords(coords.y, -coords.x);
-	this._left = map.at(leftC.plus(pc.getCoords())).isFree();
-	this._right = map.at(rightC.plus(pc.getCoords())).isFree();
+	this._left = map.at(leftC.plus(cell.getCoords())).isFree();
+	this._right = map.at(rightC.plus(cell.getCoords())).isFree();
 }
 
 RPG.UI.Command.Autowalk.prototype._yourTurn = function() {
@@ -483,9 +489,9 @@ RPG.UI.Command.Autowalk.prototype._yourTurn = function() {
  */
 RPG.UI.Command.Autowalk.prototype._check = function() {
 	var pc = RPG.World.getPC();
-	var map = pc.getMap();
-	var coords = pc.getCoords();
-	var cell = map.at(coords);
+	var cell = pc.getCell();
+	var map = cell.getMap();
+	var coords = cell.getCoords();
 
 	if (this._steps == 50) { return false; } /* too much steps */
 	if (cell.getItems().length) { return false; } /* we stepped across some items */
@@ -544,7 +550,7 @@ RPG.UI.Command.Autowalk.prototype._step = function() {
 	var pc = RPG.World.getPC();
 	
 	if (this._coords.x || this._coords.y) {
-		RPG.UI.action(RPG.Actions.Move, pc.getCoords().clone().plus(this._coords));
+		RPG.UI.action(RPG.Actions.Move, pc.getCell().getCoords().clone().plus(this._coords));
 	} else {
 		RPG.UI.action(RPG.Actions.Wait);
 	}
@@ -552,6 +558,7 @@ RPG.UI.Command.Autowalk.prototype._step = function() {
 
 /**
  * @class Message buffer backlog
+ * @augments RPG.UI.Command
  */
 RPG.UI.Command.Backlog = OZ.Class().extend(RPG.UI.Command);
 

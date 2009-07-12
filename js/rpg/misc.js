@@ -205,9 +205,11 @@ RPG.Misc.SerializableInterface = OZ.Class();
 RPG.Misc.SerializableInterface.prototype.setup = function() {
 	return this;
 }
-RPG.Misc.SerializableInterface.prototype.setupFromXML = function(node) {
+RPG.Misc.SerializableInterface.prototype.fromXML = function(node) {
 	return this;
 }
-RPG.Misc.SerializableInterface.prototype.setupFromClone = function(clone) {
-	return this;
+RPG.Misc.SerializableInterface.prototype.clone = function() {
+	var clone = new this.constructor();
+	for (var p in this) { clone[p] = this[p]; }
+	return clone;
 }
