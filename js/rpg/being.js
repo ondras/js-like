@@ -322,25 +322,24 @@ RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 	if (source.distance(target) <= 1) { return true; } /* optimalization: can see self & surroundings */
 	if (source.distance(target) > this.sightDistance()) { return false; } 
 
+	/* direct visibility */
+	if (map.lineOfSight(source,target)) { return true; }
+
+	/* test alternate starting cell for validity */
 	var offsets = [
-		[0, 0],
 		[1, 0],
 		[-1, 0],
 		[0, 1],
 		[0, -1]
 	];
-	var c = source.clone();
+	var c = new RPG.Misc.Coords(0, 0);
 	for (var i=0;i<offsets.length;i++) {
 		c.x = source.x + offsets[i][0];
 		c.y = source.y + offsets[i][1];
-		
-		/* test alternate starting cell for validity */
-		if (i) {
-			if (!map.isValid(c) || !map.at(c).isFree()) { continue; }
-		}
-		var tmp = map.lineOfSight(c, target);
-		if (tmp == true) { return true; }
+		if (!map.isValid(c) || !map.at(c).isFree()) { continue; }
+		if (map.lineOfSight(c, target)) { return true; }
 	}
+
 	return false;
 }
 

@@ -219,6 +219,7 @@ RPG.Actions.Close.prototype.execute = function() {
  */
 RPG.Actions.Teleport = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Teleport.prototype.execute = function() {
+	this._tookTime = false;
 	var pc = RPG.World.getPC();
 	var you = (this._source == pc);
 	
@@ -444,44 +445,32 @@ RPG.Actions.Search.prototype._search = function(cell) {
 }
 
 /**
- * @class Change current level. Target == new map, params == new coords
- * @augments RPG.Actions.BaseAction
- */
-RPG.Actions.ChangeMap = OZ.Class().extend(RPG.Actions.BaseAction);
-RPG.Actions.ChangeMap.prototype.execute = function() {
-	var pc = RPG.World.getPC();
-	var newMap = this._target;
-	
-	var oldCell = pc.getCell();
-	var newCell = newMap.at(this._params);
-	
-	/* remove from old map */
-	oldCell.setBeing(null);
-	
-	/* add to new map */
-	newCell.setBeing(pc);
-	
-	/* set new map */
-	RPG.World.setMap(newMap);
-}
-
-/**
  * @class Enter staircase or other level-changer. Target == staircase
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.EnterStaircase = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.EnterStaircase.prototype.execute = function() {
+	var pc = RPG.World.getPC();
+
+	/* find new map & entry coordinates */
 	var stair = this._target;
 	var newMap = stair.getTargetMap();
-	
 	if (!newMap) { 
 		stair.generateTarget(); 
 		newMap = stair.getTargetMap();
 	}
-	
 	var coords = stair.getTargetCoords();
 	
-	var a = new RPG.Actions.ChangeMap(this._source, newMap, coords);
+	/* move what is necessary to new map */
+	var oldCell = pc.getCell();
+	oldCell.setBeing(null);
+	newMap.at(coords).setBeing(pc);
+
+	/* switch maps */
+	RPG.World.setMap(newMap);
+	
+	/* describe what we see */
+	this._describe();
 }
 
 /**
@@ -498,8 +487,8 @@ RPG.Actions.Ascend.prototype.execute = function() {
  * @class Enter staircase leading downwards
  * @augments RPG.Actions.EnterStaircase
  */
-RPG.Actions.Descent = OZ.Class().extend(RPG.Actions.EnterStaircase);
-RPG.Actions.Descent.prototype.execute = function() {
+RPG.Actions.Descend = OZ.Class().extend(RPG.Actions.EnterStaircase);
+RPG.Actions.Descend.prototype.execute = function() {
 	RPG.UI.message("You climb downwards... ");
 	this.parent();
 }

@@ -235,7 +235,7 @@ RPG.Engine.AI.Kill.prototype.init = function(target) {
  */
 RPG.Engine.AI.Kill.prototype.go = function() {
 	var attack = new RPG.Engine.AI.Attack(this._target);
-	ai.addGoal(attack);
+	this._ai.addGoal(attack);
 	return RPG.AI_RETRY;
 }
 

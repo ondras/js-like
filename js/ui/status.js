@@ -8,7 +8,7 @@ RPG.UI.Status.prototype.init = function(container) {
 	this._dom = {};
 
 	this._build(container);
-	this._redraw();
+//	this._redraw();
 }
 
 RPG.UI.Status.prototype._build = function(container) {

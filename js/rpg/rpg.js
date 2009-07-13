@@ -126,7 +126,12 @@ String.prototype.capitalize = function() {
 	return this.charAt(0).toUpperCase() + this.substring(1);
 }
 
+Array.prototype.random = function() {
+	return this[Math.floor(Math.random() * this.length)];
+}
+
 RPG.init = function() {
 	RPG.Factories.Gem = new RPG.Misc.Factory(RPG.Items, RPG.Items.Gem);
 	RPG.World._scheduler = new RPG.Engine.Queue();
 }
+

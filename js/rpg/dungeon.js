@@ -133,6 +133,10 @@ RPG.Features.BaseFeature.prototype.setCell = function(cell) {
 	this._cell = cell;
 }
 
+RPG.Features.BaseFeature.prototype.getCell = function() {
+	return this._cell;
+}
+
 /**
  * @class Dungeon map
  * @augments RPG.Misc.SerializableInterface
@@ -184,15 +188,31 @@ RPG.Dungeon.Map.prototype.setCell = function(coords, cell) {
 	cell.setCoords(coords);
 	cell.setMap(this);
 }
+
 RPG.Dungeon.Map.prototype.at = function(coords) {
 	return this._data[coords.x][coords.y];
 }
+
 RPG.Dungeon.Map.prototype.isValid = function(coords) {
 	var size = this._size;
 	if (Math.min(coords.x, coords.y) < 0) { return false; }
 	if (coords.x >= size.x) { return false; }
 	if (coords.y >= size.y) { return false; }
 	return true;
+}
+
+/**
+ * Return all features of a given type
+ */
+RPG.Dungeon.Map.prototype.getFeatures = function(ctor) {
+	var arr = [];
+	for (var i=0;i<this._size.x;i++) {
+		for (var j=0;j<this._size.y;j++) {
+			var f = this._data[i][j].getFeature();
+			if (f && f instanceof ctor) { arr.push(f); }
+		}
+	}
+	return arr;
 }
 
 /**

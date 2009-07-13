@@ -467,6 +467,7 @@ RPG.UI.Command.Autowalk.prototype._start = function(coords) {
 RPG.UI.Command.Autowalk.prototype._saveState = function(coords) {
 	this._coords = coords.clone();
 	var pc = RPG.World.getPC();
+	var map = RPG.World.getMap();
 	var cell = pc.getCell();
 	var leftC = new RPG.Misc.Coords(-coords.y, coords.x);
 	var rightC = new RPG.Misc.Coords(coords.y, -coords.x);
@@ -576,6 +577,41 @@ RPG.UI.Command.Backlog.prototype.exec = function() {
 	} else {
 		RPG.UI.showBacklog();
 		this._visible = true;
+	}
+}
+
+RPG.UI.Command.Ascend = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.Ascend.prototype.init = function() {
+	this.parent("Ascend (<)");
+	this.addCharCode(60);
+}
+
+RPG.UI.Command.Ascend.prototype.exec = function() {
+	var pc = RPG.World.getPC();
+	var f = pc.getCell().getFeature();
+	if (f && f instanceof RPG.Features.Staircase.Up) {
+		RPG.UI.action(RPG.Actions.Ascend, f);
+	} else {
+		RPG.UI.message("You don't see any stairs leading upwards.");
+	}
+}
+
+
+RPG.UI.Command.Descend = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.Descend.prototype.init = function() {
+	this.parent("Descend (>)");
+	this.addCharCode(62);
+}
+
+RPG.UI.Command.Descend.prototype.exec = function() {
+	var pc = RPG.World.getPC();
+	var f = pc.getCell().getFeature();
+	if (f && f instanceof RPG.Features.Staircase.Down) {
+		RPG.UI.action(RPG.Actions.Descend, f);
+	} else {
+		RPG.UI.message("You don't see any stairs leading downwards.");
 	}
 }
 

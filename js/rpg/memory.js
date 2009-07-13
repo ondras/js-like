@@ -45,11 +45,14 @@ RPG.Memory.forgetMap = function() {
 RPG.Memory.Map = OZ.Class();
 
 RPG.Memory.Map.prototype.init = function() {
-	this._size = null;
+	this.map = null;
+	
+	/* cached list of visible cells */
+	this.visibleCells = [];
 }
 
 RPG.Memory.Map.prototype.setup = function(map) {
-	this._map = map;
+	this.map = map;
 	this._data = [];
 	var size = map.getSize();
 	var c = new RPG.Misc.Coords();
@@ -59,40 +62,48 @@ RPG.Memory.Map.prototype.setup = function(map) {
 			c.x = i;
 			c.y = j;
 			var cell = new RPG.Memory.Map.Cell();
-			cell.setup(this._map, c);
+			cell.setup(this, c);
 			this._data[i].push(cell);
 		}
 	}
 }
 
 /**
- * The game states that these coordinates have changed and we need to update them
+ * The game states that these coordinates have changed and we need to update them.
+ * Cell gets updated only if it is visible
  * @param {RPG.Misc.Coords} coords
  */
 RPG.Memory.Map.prototype.updateCoords = function(coords) {
-	this._data[coords.x][coords.y].update();
-	var pc = RPG.World.getPC();
+	var cell = this._data[coords.x][coords.y];
+	if (cell.state == RPG.MAP_VISIBLE) { cell.update();	}
 }
 
 /**
- * Visible area has changed - need to refresh whole map subset 
+ * Visible area has changed - need to refresh whole map subset. This is the _slowest_ part.
  */
 RPG.Memory.Map.prototype.updateVisible = function() {
 	var pc = RPG.World.getPC();
-	var size = this._map.getSize();
+	var size = this.map.getSize();
 	var coords = RPG.World.getPC().getCell().getCoords();
 	var dist = pc.sightDistance();
 	
+	/* first, walk through all visible and hide them if necessaray */
+	for (var i=this.visibleCells.length-1;i>=0;i--) {
+		var cell = this.visibleCells[i];
+		cell.update();
+		if (cell.state != RPG.MAP_VISIBLE) { this.visibleCells.splice(i, 1); }
+	}
+	
+	/* second, check area around PC's current position to add new visible cells */
 	var minX = Math.max(0, coords.x - dist);
 	var maxX = Math.min(size.x-1, coords.x + dist);
 	var minY = Math.max(0, coords.y - dist);
 	var maxY = Math.min(size.y-1, coords.y + dist);
 	
 	var c = new RPG.Misc.Coords(0, 0);
-	for (var i=0; i<size.x; i++) {
-		for (var j=0; j<size.y; j++) {
-			var tooFar = (i < minX || i > maxX || j < minY || j > maxY);
-			this._data[i][j].update(tooFar);
+	for (var i=minX; i<=maxX; i++) {
+		for (var j=minY; j<=maxY; j++) {
+			this._data[i][j].update();
 		}
 	}
 }
@@ -101,6 +112,8 @@ RPG.Memory.Map.prototype.updateVisible = function() {
  * Memorize what is available, we are leaving this map
  */
 RPG.Memory.Map.prototype.save = function() {
+	this.visibleCells = [];
+	var size = this.map.getSize();
 	for (var i=0;i<size.x;i++) {
 		for (var j=0;j<size.y;j++) {
 			this._data[i][j].save();
@@ -112,7 +125,7 @@ RPG.Memory.Map.prototype.save = function() {
  * Recall from memory, we just came to this map
  */
 RPG.Memory.Map.prototype.load = function() {
-	var size = this._map.getSize();
+	var size = this.map.getSize();
 	RPG.UI.resize(size);
 	for (var i=0;i<size.x;i++) {
 		for (var j=0;j<size.y;j++) {
@@ -127,28 +140,27 @@ RPG.Memory.Map.prototype.load = function() {
  */
 RPG.Memory.Map.Cell = OZ.Class().implement(RPG.Misc.SerializableInterface);
 RPG.Memory.Map.Cell.prototype.init = function() {
-	this._state = null;
-	this._map = null;
-	this._visible = [];
+	this.state = null;
+	this._owner = null;
 	this._remembered = [];
 }
-RPG.Memory.Map.Cell.prototype.setup = function(map, coords) {
-	this._map = map;
+RPG.Memory.Map.Cell.prototype.setup = function(owner, coords) {
+	this._owner = owner;
 	this._coords = coords.clone();
-	this._state = RPG.MAP_UNKNOWN;
+	this.state = RPG.MAP_UNKNOWN;
 }
 
 /**
  * Update cell's status from the actual map
  */
-RPG.Memory.Map.Cell.prototype.update = function(isTooFar) {
-	if (!isTooFar) {
-		var pc = RPG.World.getPC();
-		isTooFar = !pc.canSee(this._coords);
-	}
-	if (!isTooFar) {
+RPG.Memory.Map.Cell.prototype.update = function() {
+	var pc = RPG.World.getPC();
+	if (pc.canSee(this._coords)) {
+		if (this.state != RPG.MAP_VISIBLE) {
+			this._owner.visibleCells.push(this);
+		}
 		this.setState(RPG.MAP_VISIBLE);
-	} else if (this._state == RPG.MAP_VISIBLE) {
+	} else if (this.state == RPG.MAP_VISIBLE) {
 		this.setState(RPG.MAP_REMEMBERED);
 	}
 }
@@ -162,8 +174,7 @@ RPG.Memory.Map.Cell.prototype.setState = function(state) {
 	switch (state) {
 		case RPG.MAP_VISIBLE:
 			var stack = this._visibleStack();
-			this._visible = stack;
-			RPG.UI.redrawCoords(this._coords, this._visible, false);
+			RPG.UI.redrawCoords(this._coords, stack, false);
 		break;
 		
 		case RPG.MAP_REMEMBERED:
@@ -174,28 +185,28 @@ RPG.Memory.Map.Cell.prototype.setState = function(state) {
 		
 		case RPG.MAP_UNKNOWN:
 			/* completely erase memory cell */
-			this._visible = [];
 			this._remembered = [];
 			RPG.UI.redrawCoords(this._coords, [], false);
 		break;
 	}
 
-	this._state = state;
+	this.state = state;
 }
 
+/**
+ * Prepare memory for leaving the map: switch all visible to remembered
+ */
 RPG.Memory.Map.Cell.prototype.save = function() {
-	if (this._state != RPG.MAP_VISIBLE) { return; }
-	this._state = RPG.MAP_REMEMBERED;
+	if (this.state != RPG.MAP_VISIBLE) { return; }
+	this.state = RPG.MAP_REMEMBERED;
 	this._remembered = this._rememberedStack();
-	this._visible = [];
 }
 
+/**
+ * Load map from memory. Only remembered and unknown cells should be present
+ */
 RPG.Memory.Map.Cell.prototype.load = function() {
-	switch (this._state) {
-		case RPG.MAP_VISIBLE:
-			RPG.UI.redrawCoords(this._coords, this._visible, false);
-		break;
-		
+	switch (this.state) {
 		case RPG.MAP_REMEMBERED:
 			RPG.UI.redrawCoords(this._coords, this._remembered, true);
 		break;
@@ -211,7 +222,7 @@ RPG.Memory.Map.Cell.prototype.load = function() {
  */
 RPG.Memory.Map.Cell.prototype._visibleStack = function() {
 	var arr = [];
-	var cell = this._map.at(this._coords);
+	var cell = this._owner.map.at(this._coords);
 	
 	/* add cell */
 	arr.push(cell);
@@ -245,7 +256,7 @@ RPG.Memory.Map.Cell.prototype._visibleStack = function() {
  */
 RPG.Memory.Map.Cell.prototype._rememberedStack = function() {
 	var arr = [];
-	var cell = this._map.at(this._coords);
+	var cell = this._owner.map.at(this._coords);
 	
 	/* add cell */
 	var c = cell.clone();

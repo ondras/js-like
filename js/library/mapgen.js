@@ -387,10 +387,12 @@ RPG.Dungeon.Generator.Digger.prototype.init = function(size) {
 	
 	this._freeWalls = []; /* these are available for digging */
 	this._forcedWalls = []; /* these are forced for digging */
-
 }
 
 RPG.Dungeon.Generator.Digger.prototype.generate = function(id) {
+	this._freeWalls = []; /* these are available for digging */
+	this._forcedWalls = []; /* these are forced for digging */
+
 	this._blankMap(id);
 	this._digged = 0;
 
@@ -485,6 +487,7 @@ RPG.Dungeon.Generator.Digger.prototype._getFeature = function() {
 RPG.Dungeon.Generator.Digger.prototype._featureRoom = function(wall) {
 	/* corridor vector */
 	var direction = this._emptyDirection(wall);
+	if (!direction) { debugger; }
 	var normal = new RPG.Misc.Coords(direction.y, -direction.x);
 
 	var diffX = this._maxWidth - this._minSize + 1;

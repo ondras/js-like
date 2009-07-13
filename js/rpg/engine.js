@@ -70,8 +70,12 @@ RPG.Actions.BaseAction.prototype.execute = function() {
 RPG.Actions.BaseAction.prototype._describe = function() {
 	var cell = RPG.World.getPC().getCell();
 	
-	var items = cell.getItems();
+	var f = cell.getFeature();
+	if (f) {
+		RPG.UI.message("You see " + f.describeA() + ".");
+	}
 	
+	var items = cell.getItems();
 	if (items.length > 1) {
 		RPG.UI.message("Several items are lying here.");
 	} else if (items.length == 1) {
