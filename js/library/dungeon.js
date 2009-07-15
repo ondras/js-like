@@ -56,7 +56,7 @@ RPG.Features.Door.prototype.init = function() {
 	this._hp = 4;
 	this._closed = null;
 	this._locked = null;
-	this._color = "chocolate";
+	this._color = "sienna";
 	this.open();
 }
 
@@ -126,6 +126,17 @@ RPG.Features.Trap.prototype.init = function() {
 	this._char = "^";
 }
 
+RPG.Features.Trap.prototype.knowsAbout = function(being) {
+	return being.trapMemory().remembers(this);
+}
+
+RPG.Features.Trap.prototype.notify = function(being) {
+	var a = new RPG.Actions.TrapEncounter(being, this);
+	RPG.World.action(a);
+}
+
+RPG.Features.Trap.prototype.setOff = function() {
+}
 
 
 /**
@@ -137,23 +148,14 @@ RPG.Features.Teleport = OZ.Class().extend(RPG.Features.Trap);
 RPG.Features.Teleport.prototype.init = function() {
 	this.parent();
 	
-	this._color = "fuchsia";
+	this._color = "limegreen";
 	this._image = "teleport";
-	this._description = "teleport";
-	
-	OZ.Event.add(RPG.World, "action", this.bind(this._action));
+	this._description = "teleport trap";
 }
 
-RPG.Features.Teleport.prototype._action = function(e) {
-	var action = e.data;
-	if (!(action instanceof RPG.Actions.Move)) { return; }
-	var target = action.getTarget();
-	var map = RPG.World.getMap();
-	
-	if (map.at(target).getFeature() != this) { return; }
-	
-	var c = map.getFreeCoords();
-	var a = new RPG.Actions.Teleport(action.getSource(), c);
+RPG.Features.Teleport.prototype.setOff = function(e) {
+	var c = RPG.World.getMap().getFreeCoords();
+	var a = new RPG.Actions.Teleport(this._cell.getBeing(), c);
 	RPG.World.action(a);
 }
 

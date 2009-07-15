@@ -55,9 +55,12 @@ RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Edible);
 /**
  * @param {RPG.Beings.BaseBeing} being The one who died
  */
-RPG.Items.Corpse.prototype.init = function(being) {
+RPG.Items.Corpse.prototype.init = function() {
 	this.parent();
 	this._image = "corpse";
+}
+
+RPG.Items.Corpse.prototype.setup = function(being) {
 	this._being = being;
 	this._color = being.getColor();
 	this._description = being.describe() + " corpse";

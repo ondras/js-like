@@ -41,10 +41,10 @@ RPG.UI.Mapswitch.prototype._use = function(target) {
 	/* create new */
 	var div = OZ.DOM.elm("div");
 	c.appendChild(div);
-	RPG.UI._map = new ctor(div);
+	RPG.UI.map = new ctor(div);
 
 	/* adjust */
-	if (RPG.World.getMap()) { RPG.Memory.updateMapComplete(); }
+	if (RPG.World.getMap()) { RPG.World.getPC().mapMemory().updateComplete(); }
 
 	/* add class */
 	var as = this._ul.getElementsByTagName("a");

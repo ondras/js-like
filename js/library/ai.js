@@ -63,7 +63,7 @@ RPG.Engine.AI.prototype._action = function(e) {
 		if (!kill) {
 			/* let's kill the bastard! */
 			var str = this._being.describeThe().capitalize() + " gets very angry!";
-			RPG.UI.message(str);
+			RPG.UI.buffer.message(str);
 			var goal = new RPG.Engine.AI.Kill(a.getSource());
 			this.addTask(goal);
 		}
@@ -71,7 +71,7 @@ RPG.Engine.AI.prototype._action = function(e) {
 		if (!retreat && (this._being.getHP() / this._being.getMaxHP()) < 0.5) {
 			/* too much damage, run for your life! */
 			var str = this._being.describeThe().capitalize() + " runs away!";
-			RPG.UI.message(str);
+			RPG.UI.buffer.message(str);
 			var goal = new RPG.Engine.AI.Retreat(a.getSource());
 			this.addTask(goal);
 			

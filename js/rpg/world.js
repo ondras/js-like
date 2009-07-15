@@ -45,7 +45,8 @@ RPG.World.setMap = function(map) {
 		this.addActor(beings[i]);
 	}
 	
-	RPG.Memory.setMap(map);
+	this._pc.mapMemory().setMap(map);
+	RPG.UI.status.updateMap(map.getId());
 }
 
 RPG.World.getMap = function() {
@@ -100,13 +101,6 @@ RPG.World.unlock = function() {
 }
 
 /**
- * Number of elapsed game rounds
- */
-RPG.World.getRounds = function() {
-	return this._rounds;
-}
-
-/**
  * Act
  */ 
 RPG.World._decide = function() {
@@ -130,6 +124,7 @@ RPG.World._clearActor = function() {
 	if (this._actor == this._pc) { 
 		RPG.UI.setMode(RPG.UI_LOCKED); 
 		this._rounds++;
+		RPG.UI.status.updateRounds(this._rounds);
 	}
 	this._actor = null;
 }

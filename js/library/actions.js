@@ -13,17 +13,19 @@ RPG.Actions.Move.prototype.execute = function() {
 	var sourceCoords = this._source.getCell().getCoords();
 	var targetCoords = this._target;
 	var you = (this._source == RPG.World.getPC());
+	var memory = RPG.World.getPC().mapMemory();
 
 	var map = this._source.getCell().getMap();
+	var targetCell = map.at(targetCoords);
 	this._source.getCell().setBeing(null);
-	map.at(targetCoords).setBeing(this._source);
+	targetCell.setBeing(this._source);
 
 	if (you) {
 		this._describe();
-		RPG.Memory.updateMapVisible();
+		memory.updateVisible();
 	} else {
-		RPG.Memory.updateMapCoords(sourceCoords);
-		RPG.Memory.updateMapCoords(targetCoords);
+		memory.updateCoords(sourceCoords);
+		memory.updateCoords(targetCoords);
 	}
 }
 
@@ -57,7 +59,7 @@ RPG.Actions.Attack.prototype.execute = function() {
 	}
 	
 	var str = this._describe();
-	RPG.UI.message(str);
+	RPG.UI.buffer.message(str);
 }
 
 RPG.Actions.Attack.prototype._describe = function() {
@@ -112,12 +114,13 @@ RPG.Actions.Attack.prototype._describe = function() {
  */
 RPG.Actions.Death = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Death.prototype.execute = function() {
+	var memory = RPG.World.getPC().mapMemory();
 	var map = RPG.World.getMap();
 	var coords = this._source.getCell().getCoords();
 	
 	this._source.getCell().setBeing(null); /* remove being */
 	
-	RPG.Memory.updateMapCoords(coords);
+	memory.updateCoords(coords);
 	RPG.World.removeActor(this._source);
 	
 	if (RPG.World.getPC() == this._source) {
@@ -132,6 +135,7 @@ RPG.Actions.Death.prototype.execute = function() {
  */
 RPG.Actions.Open = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Open.prototype.execute = function() {
+	var pc = RPG.World.getPC();
 	var map = this._source.getCell().getMap();
 	var coords = this._target;
 	var you = (this._source == RPG.World.getPC());
@@ -141,7 +145,7 @@ RPG.Actions.Open.prototype.execute = function() {
 	var locked = door.isLocked();
 	if (locked) {
 		if (you) {
-			RPG.UI.message("The door is locked. You do not have appropriate key.");
+			RPG.UI.buffer.message("The door is locked. You do not have appropriate key.");
 		}
 		return;
 	}
@@ -149,7 +153,7 @@ RPG.Actions.Open.prototype.execute = function() {
 	var stuck = RPG.Rules.isDoorStuck(this._source, door);
 	if (stuck) {
 		if (you) {
-			RPG.UI.message("Ooops! The door is stuck.");
+			RPG.UI.buffer.message("Ooops! The door is stuck.");
 		}
 		return;
 	}
@@ -166,8 +170,8 @@ RPG.Actions.Open.prototype.execute = function() {
 	
 	str += " the door.";
 	
-	RPG.UI.message(str);
-	RPG.Memory.updateMapVisible();
+	RPG.UI.buffer.message(str);
+	pc.mapMemory().updateVisible();
 }
 
 /**
@@ -181,7 +185,7 @@ RPG.Actions.Close.prototype.execute = function() {
 	
 	var cell = map.at(coords);
 	if (cell.getBeing()) {
-		RPG.UI.message("There is someone standing at the door.");
+		RPG.UI.buffer.message("There is someone standing at the door.");
 		this._tookTime = false;
 		return;
 	}
@@ -189,9 +193,9 @@ RPG.Actions.Close.prototype.execute = function() {
 	var items = cell.getItems();
 	if (items.length) {
 		if (items.length == 1) {
-			RPG.UI.message("An item blocks the door.");
+			RPG.UI.buffer.message("An item blocks the door.");
 		} else {
-			RPG.UI.message("Several items block the door.");
+			RPG.UI.buffer.message("Several items block the door.");
 		}
 		this._tookTime = false;
 		return;
@@ -209,8 +213,8 @@ RPG.Actions.Close.prototype.execute = function() {
 	str = str.capitalize();
 	str += " the door.";
 	
-	RPG.UI.message(str);
-	RPG.Memory.updateMapVisible();
+	RPG.UI.buffer.message(str);
+	RPG.World.getPC().mapMemory().updateVisible();
 }
 
 /**
@@ -228,12 +232,12 @@ RPG.Actions.Teleport.prototype.execute = function() {
 	var targetCoords = this._target;
 
 	if (you) {
-		RPG.UI.message("You suddenly teleport away!");
+		RPG.UI.buffer.message("You suddenly teleport away!");
 	} else {
 		if (pc.canSee(sourceCoords)) {
 			var str = this._source.describeA().capitalize();
 			str += " suddenly disappears!";
-			RPG.UI.message(str);
+			RPG.UI.buffer.message(str);
 		}
 		
 		if (pc.canSee(targetCoords)) {
@@ -243,7 +247,7 @@ RPG.Actions.Teleport.prototype.execute = function() {
 			} else {
 				str += " suddenly appears from nowhere!";
 			}
-			RPG.UI.message(str);
+			RPG.UI.buffer.message(str);
 		}
 	}
 	
@@ -284,7 +288,7 @@ RPG.Actions.Pick.prototype.execute = function() {
 		str += " " + (you ? "pick" : "picks") + " up ";
 		str += (you ? item.describeThe() : item.describeA());
 		str += ".";
-		RPG.UI.message(str);
+		RPG.UI.buffer.message(str);
 	}
 }
 
@@ -317,7 +321,7 @@ RPG.Actions.Drop.prototype.execute = function() {
 		str += " " + (you ? "drop" : "drops") + " ";
 		str += (you ? item.describeThe() : item.describeA());
 		str += ".";
-		RPG.UI.message(str);
+		RPG.UI.buffer.message(str);
 	}
 }
 
@@ -335,12 +339,12 @@ RPG.Actions.Kick.prototype.execute = function() {
 	var items = cell.getItems();
 	
 	if (this._source == being) {
-		RPG.UI.message("You wouldn't do that, would you?");
+		RPG.UI.buffer.message("You wouldn't do that, would you?");
 		return;
 	}
 	
 	if (cell.flags & RPG.CELL_OBSTACLE) {
-		RPG.UI.message("Ouch! That hurts!");
+		RPG.UI.buffer.message("Ouch! That hurts!");
 		return;
 	}
 	
@@ -349,10 +353,10 @@ RPG.Actions.Kick.prototype.execute = function() {
 		var dmg = this._source.getDamage(this._source.getFoot());
 		var result = feature.damage(dmg);
 		if (result) {
-			RPG.UI.message("You kick the door, but it does not budge.");
+			RPG.UI.buffer.message("You kick the door, but it does not budge.");
 		} else {
-			RPG.UI.message("You shatter the door with a mighty kick!");
-			RPG.Memory.updateMapVisible();
+			RPG.UI.buffer.message("You shatter the door with a mighty kick!");
+			RPG.World.getPC().mapMemory().updateVisible();
 		}
 		return;
 	}
@@ -376,14 +380,15 @@ RPG.Actions.Kick.prototype.execute = function() {
 			map.at(targetCoords).addItem(item);
 			var str = "You kick " + item.describeThe() + ". ";
 			str += "It slides away.";
-			RPG.UI.message(str);
-			RPG.Memory.updateMapCoords(this._target);
-			RPG.Memory.updateMapCoords(targetCoords);
+			RPG.UI.buffer.message(str);
+			var memory = RPG.World.getPC().mapMemory();
+			memory.updateCoords(this._target);
+			memory.updateCoords(targetCoords);
 			return;
 		}
 	}
 	
-	RPG.UI.message("You kick in empty air.");
+	RPG.UI.buffer.message("You kick in empty air.");
 }
 
 /**
@@ -393,13 +398,13 @@ RPG.Actions.Kick.prototype.execute = function() {
 RPG.Actions.Chat = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Chat.prototype.execute = function() {
 	/* only PC is allowed to chat */
-	RPG.UI.message("You talk to "+this._target.describe()+".");
+	RPG.UI.buffer.message("You talk to "+this._target.describe()+".");
 	
 	var chat = this._target.getChat();
 	if (chat) {
 		RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, chat);
 	} else {
-		RPG.UI.message(this._target.describeIt() + " does not reply.");
+		RPG.UI.buffer.message(this._target.describeIt() + " does not reply.");
 	}
 }
 
@@ -412,7 +417,7 @@ RPG.Actions.Search.prototype.execute = function() {
 	var map = RPG.World.getMap();
 
 	/* only PC is allowed to search */
-	RPG.UI.message("You search your surroundings...");
+	RPG.UI.buffer.message("You search your surroundings...");
 	var found = 0;
 	
 	var center = this._source.getCell().getCoords();
@@ -424,7 +429,7 @@ RPG.Actions.Search.prototype.execute = function() {
 		}
 	}
 	
-	if (found) { RPG.Memory.updateMapVisible(); }
+	if (found) { RPG.World.getPC().mapMemory().updateVisible(); }
 }
 
 /**
@@ -440,7 +445,7 @@ RPG.Actions.Search.prototype._search = function(cell) {
 	
 	var desc = "passage";
 	if (realCell.getFeature()) { desc = realCell.getFeature().describe(); }
-	RPG.UI.message("you discovered a hidden "+desc+"!");
+	RPG.UI.buffer.message("you discovered a hidden "+desc+"!");
 	return 1;
 }
 
@@ -479,7 +484,7 @@ RPG.Actions.EnterStaircase.prototype.execute = function() {
  */
 RPG.Actions.Ascend = OZ.Class().extend(RPG.Actions.EnterStaircase);
 RPG.Actions.Ascend.prototype.execute = function() {
-	RPG.UI.message("You climb upwards... ");
+	RPG.UI.buffer.message("You climb upwards... ");
 	this.parent();
 }
 
@@ -489,6 +494,33 @@ RPG.Actions.Ascend.prototype.execute = function() {
  */
 RPG.Actions.Descend = OZ.Class().extend(RPG.Actions.EnterStaircase);
 RPG.Actions.Descend.prototype.execute = function() {
-	RPG.UI.message("You climb downwards... ");
+	RPG.UI.buffer.message("You climb downwards... ");
 	this.parent();
+}
+
+/**
+ * @class Moving across a trap
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.TrapEncounter = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.TrapEncounter.prototype.execute = function() {
+	var pc = RPG.World.getPC();
+	var you = (this._source == pc);
+
+	var knows = this._source.trapMemory().remembers(this._target);
+	var activated = true;
+	if (knows) { activated = RPG.Rules.isTrapActivated(this._source, this._target); }
+
+	if (activated) {
+		/* dmg or whateva */
+		this._target.setOff();
+
+		/* let the being know about this */
+		this._source.trapMemory().remember(this._target);
+		pc.mapMemory().updateCoords(this._target.getCell().getCoords());
+	} else {
+		/* already knows */
+		var str = this._source.describeA().capitalize() + " " + (you ? "sidestep" : "sidesteps") + " a trap.";
+		RPG.UI.buffer.message(str);
+	}
 }

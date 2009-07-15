@@ -1,7 +1,20 @@
-RPG.Memory._maps = {};
-RPG.Memory._current = null;
+/**
+ * @class Generic memory
+ * @augments RPG.Misc.SerializableInterface
+ */
+RPG.Memory = OZ.Class().implement(RPG.Misc.SerializableInterface);
 
-RPG.Memory.setMap = function(map) {
+/**
+ * @class Mapping memory
+ * @augments RPG.Memory
+ */
+RPG.Memory.MapMemory = OZ.Class().extend(RPG.Memory);
+RPG.Memory.MapMemory.prototype.init = function() {
+	this._maps = {};
+	this._current = null;
+}
+
+RPG.Memory.MapMemory.prototype.setMap = function(map) {
 	if (this._current) { this._current.save(); }
 
 	var id = map.getId();
@@ -15,23 +28,23 @@ RPG.Memory.setMap = function(map) {
 	}
 	
 	this._current = m;
-	this.updateMapComplete();
+	this.updateComplete();
 }
 
-RPG.Memory.updateMapComplete = function() {
+RPG.Memory.MapMemory.prototype.updateComplete = function() {
 	this._current.load();
 	this._current.updateVisible();
 }
 
-RPG.Memory.updateMapCoords = function(coords) {
+RPG.Memory.MapMemory.prototype.updateCoords = function(coords) {
 	this._current.updateCoords(coords);
 }
 
-RPG.Memory.updateMapVisible = function() {
+RPG.Memory.MapMemory.prototype.updateVisible = function() {
 	this._current.updateVisible();
 }
 
-RPG.Memory.forgetMap = function() {
+RPG.Memory.MapMemory.prototype.forget = function() {
 	this._current = null;
 	var map = RPG.World.getMap();
 	var id = map.getId();
@@ -126,7 +139,7 @@ RPG.Memory.Map.prototype.save = function() {
  */
 RPG.Memory.Map.prototype.load = function() {
 	var size = this.map.getSize();
-	RPG.UI.resize(size);
+	RPG.UI.map.resize(size);
 	for (var i=0;i<size.x;i++) {
 		for (var j=0;j<size.y;j++) {
 			this._data[i][j].load();
@@ -174,19 +187,19 @@ RPG.Memory.Map.Cell.prototype.setState = function(state) {
 	switch (state) {
 		case RPG.MAP_VISIBLE:
 			var stack = this._visibleStack();
-			RPG.UI.redrawCoords(this._coords, stack, false);
+			RPG.UI.map.redrawCoords(this._coords, stack, false);
 		break;
 		
 		case RPG.MAP_REMEMBERED:
 			/* clone everything into memory */
 			this.save();
-			RPG.UI.redrawCoords(this._coords, this._remembered, true);
+			RPG.UI.map.redrawCoords(this._coords, this._remembered, true);
 		break;
 		
 		case RPG.MAP_UNKNOWN:
 			/* completely erase memory cell */
 			this._remembered = [];
-			RPG.UI.redrawCoords(this._coords, [], false);
+			RPG.UI.map.redrawCoords(this._coords, [], false);
 		break;
 	}
 
@@ -208,11 +221,11 @@ RPG.Memory.Map.Cell.prototype.save = function() {
 RPG.Memory.Map.Cell.prototype.load = function() {
 	switch (this.state) {
 		case RPG.MAP_REMEMBERED:
-			RPG.UI.redrawCoords(this._coords, this._remembered, true);
+			RPG.UI.map.redrawCoords(this._coords, this._remembered, true);
 		break;
 
 		case RPG.MAP_UNKNOWN:
-			RPG.UI.redrawCoords(this._coords, [], false);
+			RPG.UI.map.redrawCoords(this._coords, [], false);
 		break;
 	}
 }
@@ -221,6 +234,7 @@ RPG.Memory.Map.Cell.prototype.load = function() {
  * Get a stack of visible objects, typically a cell [+ something]
  */
 RPG.Memory.Map.Cell.prototype._visibleStack = function() {
+	var pc = RPG.World.getPC();
 	var arr = [];
 	var cell = this._owner.map.at(this._coords);
 	
@@ -243,7 +257,7 @@ RPG.Memory.Map.Cell.prototype._visibleStack = function() {
 	
 	/* feature? */
 	var f = cell.getFeature();
-	if (f) {
+	if (f && f.knowsAbout(pc)) {
 		arr.push(f);
 		return arr;
 	}
@@ -255,6 +269,7 @@ RPG.Memory.Map.Cell.prototype._visibleStack = function() {
  * Get a stack of cloned remembered objects
  */
 RPG.Memory.Map.Cell.prototype._rememberedStack = function() {
+	var pc = RPG.World.getPC();
 	var arr = [];
 	var cell = this._owner.map.at(this._coords);
 	
@@ -272,10 +287,29 @@ RPG.Memory.Map.Cell.prototype._rememberedStack = function() {
 	
 	/* feature? */
 	var f = cell.getFeature();
-	if (f) {
+	if (f && f.knowsAbout(pc)) {
 		arr.push(f.clone());
 		return arr;
 	}
 	
 	return arr;
+}
+
+/**
+ * @class Trap memory
+ * @augments RPG.Memory
+ */ 
+RPG.Memory.TrapMemory = OZ.Class().extend(RPG.Memory);
+
+RPG.Memory.TrapMemory.prototype.init = function() {
+	this._data = [];
+}
+
+RPG.Memory.TrapMemory.prototype.remember = function(trap) {
+	if (this.remembers(trap)) { return; }
+	this._data.push(trap);
+}
+
+RPG.Memory.TrapMemory.prototype.remembers = function(trap) {
+	return this._data.indexOf(trap) != -1;
 }

@@ -11,16 +11,22 @@ RPG.Beings.BaseBeing = OZ.Class()
 
 RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._initVisuals();
+	this._trapMemory = null;
+
 	this._modifiers = []; /* to comply with ModifierInterface */
 
 	this._cell = null;
 	this._chat = null;
-	
-	this._race = r;
-	this._items = [];
 	this._gender = RPG.GENDER_NEUTER;
+	this._items = [];
 	this._stats = {};
 	this._feats = {};
+	this._alive = true;
+}
+
+RPG.Beings.BaseBeing.prototype.setup = function(race) {
+	this._trapMemory = new RPG.Memory.TrapMemory();
+	this._race = race;
 	
 	this._weapons = {
 		current: null,
@@ -28,7 +34,6 @@ RPG.Beings.BaseBeing.prototype.init = function(r) {
 		foot: new RPG.Misc.Foot(0, 2)
 	}
 
-	this._alive = true;
 	this._char = this._race.getChar();
 	this._color = this._race.getColor();
 	this._image = this._race.getImage();
@@ -37,6 +42,11 @@ RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._initStatsAndFeats();
 
 	this.fullHP();
+	return this;
+}
+
+RPG.Beings.BaseBeing.prototype.trapMemory = function() {
+	return this._trapMemory;
 }
 
 /**
@@ -212,10 +222,17 @@ RPG.Beings.BaseBeing.prototype.describeIt = function() {
 	return table[this._gender];
 }
 
-/* ============================= FEAT GETTERS ============================= */
+/* ============================= STAT & FEAT GETTERS ============================= */
 
 RPG.Beings.BaseBeing.prototype.getHP = function() {
 	return this._stats.hp;
+}
+
+RPG.Beings.BaseBeing.prototype.getFeatValue = function(ctor) {
+	for (var p in this._feats) {
+		var f = this._feats[p];
+		if (f instanceof ctor) { return f.modifiedValue(this); }
+	}
 }
 
 RPG.Beings.BaseBeing.prototype.getMaxHP = function() {
@@ -228,22 +245,6 @@ RPG.Beings.BaseBeing.prototype.getDV = function() {
 
 RPG.Beings.BaseBeing.prototype.getPV = function() {
 	return this._feats.pv.modifiedValue(this);
-}
-
-RPG.Beings.BaseBeing.prototype.getStrength = function() {
-	return this._feats.strength.modifiedValue(this);
-}
-
-RPG.Beings.BaseBeing.prototype.getToughness = function() {
-	return this._feats.toughness.modifiedValue(this);
-}
-
-RPG.Beings.BaseBeing.prototype.getIntelligence = function() {
-	return this._feats.intelligence.modifiedValue(this);
-}
-
-RPG.Beings.BaseBeing.prototype.getDexterity = function() {
-	return this._feats.dexterity.modifiedValue(this);
 }
 
 RPG.Beings.BaseBeing.prototype.getHit = function(weapon) {
@@ -267,13 +268,18 @@ RPG.Beings.BaseBeing.prototype.isAlive = function() {
  */
 RPG.Beings.BaseBeing.prototype.adjustHP = function(amount) {
 	this._stats.hp += amount;
+	if (this._stats.hp > this.getMaxHP()) {
+		this.fullHP();
+	}
+
+	RPG.UI.status.updateHP();
+
 	if (this._stats.hp <= 0) {
 		this.die();
 		return false;
-	} else if (this._stats.hp > this.getMaxHP()) {
-		this.fullHP();
+	} else {
+		return true;
 	}
-	return true;
 }
 
 /**
@@ -306,7 +312,8 @@ RPG.Beings.BaseBeing.prototype.dropAll = function() {
 RPG.Beings.BaseBeing.prototype.die = function() {
 	this._alive = false;
 	this.dropAll();
-	var corpse = new RPG.Items.Corpse(this);
+	var corpse = new RPG.Items.Corpse();
+	corpse.setup(this);
 	this._cell.addItem(corpse);
 	RPG.World.action(new RPG.Actions.Death(this)); 
 }
@@ -351,4 +358,25 @@ RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	var frac = 1 - hp/max;
 	var index = Math.floor(frac * def.length);
 	return def[index];
+}
+
+/**
+ * @class Player character
+ * @augments RPG.Beings.BaseBeing
+ */
+RPG.Beings.PC = OZ.Class().extend(RPG.Beings.BaseBeing);
+
+RPG.Beings.PC.prototype.init = function() {
+	this.parent();
+	this._mapMemory = null;
+}
+
+RPG.Beings.PC.prototype.setup = function(race) {
+	this.parent(race);
+	this._mapMemory = new RPG.Memory.MapMemory();
+	return this;
+}
+
+RPG.Beings.PC.prototype.mapMemory = function() {
+	return this._mapMemory;
 }

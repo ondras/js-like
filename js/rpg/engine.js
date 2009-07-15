@@ -68,21 +68,22 @@ RPG.Actions.BaseAction.prototype.execute = function() {
 }
 
 RPG.Actions.BaseAction.prototype._describe = function() {
-	var cell = RPG.World.getPC().getCell();
+	var pc = RPG.World.getPC();
+	var cell = pc.getCell();
 	
 	var f = cell.getFeature();
-	if (f) {
-		RPG.UI.message("You see " + f.describeA() + ".");
+	if (f && f.knowsAbout(pc)) {
+		RPG.UI.buffer.message("You see " + f.describeA() + ".");
 	}
 	
 	var items = cell.getItems();
 	if (items.length > 1) {
-		RPG.UI.message("Several items are lying here.");
+		RPG.UI.buffer.message("Several items are lying here.");
 	} else if (items.length == 1) {
 		var item = items[0];
 		var str = item.describeA().capitalize();
 		str += " is lying here.";
-		RPG.UI.message(str);
+		RPG.UI.buffer.message(str);
 	}
 }
 

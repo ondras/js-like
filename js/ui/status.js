@@ -4,11 +4,42 @@
 RPG.UI.Status = OZ.Class();
 
 RPG.UI.Status.prototype.init = function(container) {
-	OZ.Event.add(RPG.World, "action", this.bind(this._action));
 	this._dom = {};
-
+	
+	this._ctors = {
+		"maxhp": RPG.Feats.MaxHP,
+		"dv": RPG.Feats.DV,
+		"pv": RPG.Feats.PV,
+		"strength": RPG.Feats.Strength,
+		"toughness": RPG.Feats.Toughness,
+		"intelligence": RPG.Feats.Intelligence,
+		"dexterity": RPG.Feats.Dexterity
+	}
+	
 	this._build(container);
-//	this._redraw();
+}
+
+RPG.UI.Status.prototype.updateMap = function(str) {
+	this._dom.map.innerHTML = str;
+}
+
+RPG.UI.Status.prototype.updateRounds = function(rounds) {
+	this._dom.rounds.innerHTML = rounds;
+}
+
+RPG.UI.Status.prototype.updateFeat = function(ctor) {
+	for (var p in this._ctors) {
+		var c = this._ctors[p];
+		var ok = (!ctor || c == ctor);
+		if (ok) { 
+			var value = RPG.World.getPC().getFeatValue(c);
+			this._dom[p].innerHTML = value; 
+		}
+	}
+}
+
+RPG.UI.Status.prototype.updateHP = function() {
+	this._dom.hp.innerHTML = RPG.World.getPC().getHP();
 }
 
 RPG.UI.Status.prototype._build = function(container) {
@@ -44,7 +75,8 @@ RPG.UI.Status.prototype._build = function(container) {
 		"toughness": "Toughness",
 		"intelligence": "Intelligence",
 		"dexterity": "Dexterity",
-		"rounds": "Game rounds"
+		"rounds": "Game rounds",
+		"map": "Map"
 	}
 	
 	for (var p in map) {
@@ -55,24 +87,6 @@ RPG.UI.Status.prototype._build = function(container) {
 		this._dom[p] = s;
 		td.appendChild(s);
 	}
-}
-
-RPG.UI.Status.prototype._action = function(e) {
-	var source = e.data.getSource();
-	var target = e.data.getTarget();
-	var pc = RPG.World.getPC();
-	if (source == pc || target == pc) { this._redraw(); }
-}
-
-RPG.UI.Status.prototype._redraw = function() {
-	var pc = RPG.World.getPC();
-	this._dom.hp.innerHTML = pc.getHP();
-	this._dom.maxhp.innerHTML = pc.getMaxHP();
-	this._dom.dv.innerHTML = pc.getDV();
-	this._dom.pv.innerHTML = pc.getPV();
-	this._dom.strength.innerHTML = pc.getStrength();
-	this._dom.toughness.innerHTML = pc.getToughness();
-	this._dom.intelligence.innerHTML = pc.getIntelligence();
-	this._dom.dexterity.innerHTML = pc.getDexterity();
-	this._dom.rounds.innerHTML = RPG.World.getRounds();
+	
+	this._dom.rounds.innerHTML = "0";
 }

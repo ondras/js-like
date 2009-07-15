@@ -137,7 +137,7 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	
 	/* invalid move */
 	if (!map.isValid(coords)) { 
-		RPG.UI.message("You cannot move there!");
+		RPG.UI.buffer.message("You cannot move there!");
 		return; 
 	} 
 	
@@ -196,7 +196,7 @@ RPG.UI.Command.Open.prototype.exec = function(cmd) {
 			RPG.UI.action(RPG.Actions.Open, coords);
 		} else {
 			/* incorrect direction */
-			RPG.UI.message("there is no door at that location.");
+			RPG.UI.buffer.message("there is no door at that location.");
 		}
 	} else {
 		/* no direction, check surroundings */
@@ -205,7 +205,7 @@ RPG.UI.Command.Open.prototype.exec = function(cmd) {
 			/* exactly one door found */
 			RPG.UI.action(RPG.Actions.Open, doors);
 		} else if (doors == 0) {
-			RPG.UI.message("There are no closed doors nearby.");
+			RPG.UI.buffer.message("There are no closed doors nearby.");
 		} else {
 			/* too many doors */
 			RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Open a door");
@@ -234,7 +234,7 @@ RPG.UI.Command.Close.prototype.exec = function(cmd) {
 			RPG.UI.action(RPG.Actions.Close, coords);
 		} else {
 			/* incorrect direction */
-			RPG.UI.message("there is no door at that location.");
+			RPG.UI.buffer.message("there is no door at that location.");
 		}
 	} else {
 		/* no direction, check surroundings */
@@ -243,7 +243,7 @@ RPG.UI.Command.Close.prototype.exec = function(cmd) {
 			/* exactly one door found */
 			RPG.UI.action(RPG.Actions.Close, doors);
 		} else if (doors == 0) {
-			RPG.UI.message("There are no opened doors nearby.");
+			RPG.UI.buffer.message("There are no opened doors nearby.");
 		} else {
 			/* too many doors */
 			RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Close a door");
@@ -289,14 +289,14 @@ RPG.UI.Command.Chat.prototype.exec = function(cmd) {
 		var coords = cell.getCoords().clone().plus(cmd.getCoords());
 		var being = map.at(coords).getBeing();
 		if (!being) {
-			RPG.UI.message(errMsg);
+			RPG.UI.buffer.message(errMsg);
 		} else {
 			RPG.UI.action(RPG.Actions.Chat, being);
 		}
 	} else {
 		var beings = this._surroundingBeings();
 		if (!beings.length) {
-			RPG.UI.message(errMsg);
+			RPG.UI.buffer.message(errMsg);
 		} else if (beings.length == 1) {
 			RPG.UI.action(RPG.Actions.Chat, beings[0]);
 		} else {
@@ -335,10 +335,11 @@ RPG.UI.Command.Pick.prototype.exec = function(selectedItems) {
 			RPG.UI.action(RPG.Actions.Pick, selectedItems);
 		}
 	} else {
+		var pc = RPG.World.getPC();
 		var items = pc.getCell().getItems();
 		
 		if (!items.length) {
-			RPG.UI.message("There is nothing to pick up!");
+			RPG.UI.buffer.message("There is nothing to pick up!");
 			return;
 		}
 		
@@ -384,7 +385,7 @@ RPG.UI.Command.Drop.prototype.exec = function(selectedItems) {
 			}
 			RPG.UI.setMode(RPG.UI_WAIT_ITEMS, this, obj);
 		} else {
-			RPG.UI.message("You don't own anything!");
+			RPG.UI.buffer.message("You don't own anything!");
 		}
 	}
 }
@@ -416,7 +417,7 @@ RPG.UI.Command.Inventory.prototype.exec = function() {
 			}
 			RPG.UI.setMode(RPG.UI_WAIT_ITEMS, this, obj);
 		} else {
-			RPG.UI.message("You don't own anything!");
+			RPG.UI.buffer.message("You don't own anything!");
 		}
 	}
 }
@@ -541,7 +542,7 @@ RPG.UI.Command.Autowalk.prototype._check = function() {
 	
 	var cell = map.at(this._coords.clone().plus(coords));
 	if (cell.getBeing()) { return false; } /* standing against a being */
-	if (cell.getFeature()) { return false; } /* standing against a feature */
+	if (cell.getFeature() && cell.getFeature().knowsAbout(pc)) { return false; } /* standing against a feature */
 
 	return true;
 }
@@ -572,10 +573,10 @@ RPG.UI.Command.Backlog.prototype.init = function() {
 
 RPG.UI.Command.Backlog.prototype.exec = function() {
 	if (this._visible) {
-		RPG.UI.hideBacklog();
+		RPG.UI.buffer.hideBacklog();
 		this._visible = false;
 	} else {
-		RPG.UI.showBacklog();
+		RPG.UI.buffer.showBacklog();
 		this._visible = true;
 	}
 }
@@ -593,7 +594,7 @@ RPG.UI.Command.Ascend.prototype.exec = function() {
 	if (f && f instanceof RPG.Features.Staircase.Up) {
 		RPG.UI.action(RPG.Actions.Ascend, f);
 	} else {
-		RPG.UI.message("You don't see any stairs leading upwards.");
+		RPG.UI.buffer.message("You don't see any stairs leading upwards.");
 	}
 }
 
@@ -611,7 +612,7 @@ RPG.UI.Command.Descend.prototype.exec = function() {
 	if (f && f instanceof RPG.Features.Staircase.Down) {
 		RPG.UI.action(RPG.Actions.Descend, f);
 	} else {
-		RPG.UI.message("You don't see any stairs leading downwards.");
+		RPG.UI.buffer.message("You don't see any stairs leading downwards.");
 	}
 }
 

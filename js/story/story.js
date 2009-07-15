@@ -11,6 +11,8 @@ Story.prototype.init = function() {
 
 Story.prototype.go = function() {
 	var map = this._buildMap();
+	RPG.UI.status.updateFeat();
+	RPG.UI.status.updateHP();
 	RPG.World.setMap(map);
 	RPG.World.run();
 }
@@ -23,7 +25,7 @@ Story.prototype._buildMap = function() {
 	for (var i=0;i<rooms.length;i++) { this._mapgen.decorateRoomDoors(rooms[i]); }
 
 	/* orc */
-	var orc = new RPG.Beings.Orc();
+	var orc = new RPG.Beings.Orc().setup();
 	var dagger = new RPG.Items.Dagger();
 	orc.addItem(dagger);
 	orc.setWeapon(dagger);
@@ -34,11 +36,6 @@ Story.prototype._buildMap = function() {
 	/* add some chatting */
 	orc.setChat(this._chat);
 
-	/* teleport */
-	var c = map.getFreeCoords(true);
-	var t = new RPG.Features.Teleport();
-	map.at(c).setFeature(t);
-
 	/* item */
 	var c = map.getFreeCoords(true);
 	map.at(c).addItem(new RPG.Items.KlingonSword());
@@ -47,6 +44,12 @@ Story.prototype._buildMap = function() {
 	var treasure = rooms.random();
 	this._mapgen.decorateRoomDoors(treasure, {locked: 1});
 	this._mapgen.decorateRoomInterior(treasure, {treasure: 1});
+
+	/* teleport */
+	var c = map.getFreeCoords(true);
+	console.log(c);
+	var t = new RPG.Features.Teleport();
+	map.at(c).setFeature(t);
 
 	/* player or stairs up */
 	var start = null;
@@ -64,7 +67,7 @@ Story.prototype._buildMap = function() {
 		up.setTargetCoords(down.getCell().getCoords());
 	} else {
 		/* player */
-		var pc = new RPG.Beings.Human();
+		var pc = new RPG.Beings.PC().setup(new RPG.Races.Human());
 		RPG.World.setPC(pc);
 		map.at(start.getCenter()).setBeing(pc);
 		var dagger = new RPG.Items.Dagger();

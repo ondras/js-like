@@ -34,7 +34,10 @@ RPG.Cells.BaseCell.prototype.getItems = function() {
 
 RPG.Cells.BaseCell.prototype.setBeing = function(being) {
 	this._being = being || null;
-	if (being) { being.setCell(this); }
+	if (being) { 
+		being.setCell(this); 
+		if (this._feature) { this._feature.notify(being); }
+	}
 }
 
 RPG.Cells.BaseCell.prototype.getBeing = function() {
@@ -85,6 +88,7 @@ RPG.Cells.BaseCell.prototype.visibleThrough = function() {
 	return true;
 }
 
+
 /**
  * @class Room, a logical group of cells
  */
@@ -129,12 +133,23 @@ RPG.Features.BaseFeature.prototype.init = function() {
 	this.flags = 0;
 }
 
+RPG.Features.BaseFeature.prototype.knowsAbout = function(being) {
+	return true;
+}
+
 RPG.Features.BaseFeature.prototype.setCell = function(cell) {
 	this._cell = cell;
 }
 
 RPG.Features.BaseFeature.prototype.getCell = function() {
 	return this._cell;
+}
+
+/**
+ * Notify feature that a being came here
+ * @param {RPG.Beings.BaseBeing} being
+ */
+RPG.Features.BaseFeature.prototype.notify = function(being) {
 }
 
 /**

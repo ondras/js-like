@@ -28,6 +28,14 @@ RPG.Rules.isFakeDetected = function(being, cell) {
 	return new RPG.Misc.Interval(1, 2).roll() < 2;
 }
 
+RPG.Rules.isTrapDetected = function(being, trap) {
+	return true;
+}
+
+RPG.Rules.isTrapActivated = function(being, trap) {
+	return false;
+}
+
 /**
  * How much damage does this attacker with a given weapon to a defender
  */
@@ -39,7 +47,6 @@ RPG.Rules.getMeleeDamage = function(attacker, defender, weapon, isCritical) {
 	
 	var pv = defender.getPV();
 	if (isCritical) {
-		console.log("critical!");
 		damage *= 2;
 	}
 //	console.log("damage("+damage+") vs. pv("+pv+")");

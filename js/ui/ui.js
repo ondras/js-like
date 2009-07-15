@@ -1,5 +1,7 @@
-RPG.UI._buffer = null; /* text message display */
-RPG.UI._map = null; /* map instance */
+RPG.UI.buffer = null; /* text message display */
+RPG.UI.map = null; /* map instance */
+RPG.UI.status = null; /* statusbar */
+
 RPG.UI._commands = []; /* avail commands */
 RPG.UI._pending = null; /* command awaiting specification */
 RPG.UI._dimmer = null; /* dimmer element */
@@ -24,7 +26,7 @@ RPG.UI.setMode = function(mode, command, data) {
 		break;
 		case RPG.UI_WAIT_DIRECTION:
 			this._pending = command;
-			this.message(data+": select direction...");
+			this.buffer.message(data+": select direction...");
 			this._adjustButtons({commands:false, cancel:true, dir:true});
 		break;
 		case RPG.UI_WAIT_ITEMS:
@@ -50,7 +52,7 @@ RPG.UI.setMode = function(mode, command, data) {
  * This command wants to be executed
  */
 RPG.UI.command = function(command) {
-	this.clear();
+	this.buffer.clear();
 
 	/* no sry */
 	if (this._mode == RPG.UI_LOCKED) { return; } 
@@ -75,30 +77,6 @@ RPG.UI.command = function(command) {
 	}
 }
 
-RPG.UI.message = function(str) {
-	if (this._buffer) { this._buffer.message(str); }
-}
-
-RPG.UI.showBacklog = function() {
-	if (this._buffer) { this._buffer.showBacklog(); }
-}
-
-RPG.UI.hideBacklog = function() {
-	if (this._buffer) { this._buffer.hideBacklog(); }
-}
-
-RPG.UI.clear = function() {
-	if (this._buffer) { this._buffer.clear(); }
-}
-
-RPG.UI.resize = function(size) {
-	if (this._map) { this._map.resize(size); }
-}
-
-RPG.UI.redrawCoords = function(coords, data, remembered) {
-	if (this._map) { this._map.redrawCoords(coords, data, remembered); }
-}
-
 /**
  * Pass an action to the World
  * @param {function} ctor action constructor
@@ -113,7 +91,7 @@ RPG.UI.action = function(ctor, target, params) {
 
 RPG.UI.build = function() {
 	var ta = OZ.$("buffer");
-	this._buffer = new RPG.UI.TextBuffer(ta);
+	this.buffer = new RPG.UI.TextBuffer(ta);
 
 	var keypad = OZ.$("keypad");
 	new RPG.UI.Command.Table(keypad);
@@ -122,7 +100,7 @@ RPG.UI.build = function() {
 	new RPG.UI.Mapswitch(mapswitch);
 	
 	var status = OZ.$("status");
-	new RPG.UI.Status(status);
+	this.status = new RPG.UI.Status(status);
 	
 	var div = OZ.$("commands");
 	div.appendChild(new RPG.UI.Command.Autowalk().getButton());
