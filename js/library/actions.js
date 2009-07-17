@@ -436,17 +436,25 @@ RPG.Actions.Search.prototype.execute = function() {
  * @returns {int} 1 = revealed, 0 = not revealed
  */
 RPG.Actions.Search.prototype._search = function(cell) {
-	if (!(cell instanceof RPG.Cells.Wall.Fake)) { return 0; }
-	if (!RPG.Rules.isFakeDetected(this._source, cell)) { return 0; }
+	if (cell instanceof RPG.Cells.Wall.Fake && RPG.Rules.isFakeDetected(this._source, cell)) {
+		/* reveal! */
+		var realCell = cell.getRealCell();
+		cell.getMap().setCell(cell.getCoords(), realCell);
 
-	/* reveal! */
-	var realCell = cell.getRealCell();
-	cell.getMap().setCell(cell.getCoords(), realCell);
+		var desc = "passage";
+		if (realCell.getFeature()) { desc = realCell.getFeature().describe(); }
+		RPG.UI.buffer.message("You discovered a hidden "+desc+"!");
+		return 1;
+	}
 	
-	var desc = "passage";
-	if (realCell.getFeature()) { desc = realCell.getFeature().describe(); }
-	RPG.UI.buffer.message("you discovered a hidden "+desc+"!");
-	return 1;
+	var f = cell.getFeature();
+	if (f && f instanceof RPG.Features.Trap && !f.knowsAbout(this._source) && RPG.Rules.isTrapDetected(this._source, f)) {
+		this._source.trapMemory().remember(f);
+		RPG.UI.buffer.message("You discover " + f.describeA() + "!");
+		return 1;
+	}
+	
+	return 0;
 }
 
 /**
@@ -520,7 +528,29 @@ RPG.Actions.TrapEncounter.prototype.execute = function() {
 		pc.mapMemory().updateCoords(this._target.getCell().getCoords());
 	} else {
 		/* already knows */
-		var str = this._source.describeA().capitalize() + " " + (you ? "sidestep" : "sidesteps") + " a trap.";
+		var str = this._source.describeA().capitalize() + " ";
+		if (you) {
+			str += "sidestep "+this._target.describeThe();
+		} else {
+			str += "sidesteps "+this._target.describeA();
+		}
+		str += ".";
 		RPG.UI.buffer.message(str);
 	}
+}
+
+/**
+ * @class Falling into a pit
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Pit = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.Pit.prototype.execute = function() {
+	var pc = RPG.World.getPC();
+	var you = (this._source == pc);
+
+	var str = this._source.describeA().capitalize();
+	str += " " + (you ? "fall" : "falls") + " into a pit!";
+	RPG.UI.buffer.message(str);
+	var dmg = RPG.Rules.getTrapDamage(this._source, this._target);
+	this._source.adjustHP(-dmg);
 }

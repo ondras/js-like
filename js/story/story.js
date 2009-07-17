@@ -45,10 +45,12 @@ Story.prototype._buildMap = function() {
 	this._mapgen.decorateRoomDoors(treasure, {locked: 1});
 	this._mapgen.decorateRoomInterior(treasure, {treasure: 1});
 
-	/* teleport */
+	/* traps */
 	var c = map.getFreeCoords(true);
-	console.log(c);
-	var t = new RPG.Features.Teleport();
+	var t = new RPG.Features.Trap.Pit();
+	map.at(c).setFeature(t);
+	var c = map.getFreeCoords(true);
+	var t = new RPG.Features.Trap.Teleport();
 	map.at(c).setFeature(t);
 
 	/* player or stairs up */

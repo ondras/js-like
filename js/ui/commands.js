@@ -163,6 +163,82 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 }
 
 /**
+ * @class Keypad
+ */
+RPG.UI.Command.Table = OZ.Class();
+
+RPG.UI.Command.Table.prototype.init = function(container) {
+	var table = OZ.DOM.elm("table");
+	var tb = OZ.DOM.elm("tbody");
+	table.appendChild(tb);
+	container.appendChild(table);
+
+	var tr = OZ.DOM.elm("tr");
+	tb.appendChild(tr);
+	
+	var td = OZ.DOM.elm("td");
+	var c = new RPG.UI.Command.Direction("◤", new RPG.Misc.Coords(-1, -1));
+	OZ.DOM.append([tr, td], [td, c.getButton()]);
+	c.addCharCode(55);
+	c.addKeyCode(36);
+
+	var td = OZ.DOM.elm("td");
+	var c = new RPG.UI.Command.Direction("▲", new RPG.Misc.Coords(0, -1));
+	OZ.DOM.append([tr, td], [td, c.getButton()]);
+	c.addCharCode(56);
+	c.addKeyCode(38);
+
+	var td = OZ.DOM.elm("td");
+	var c = new RPG.UI.Command.Direction("◥", new RPG.Misc.Coords(1, -1));
+	OZ.DOM.append([tr, td], [td, c.getButton()]);
+	c.addCharCode(57);
+	c.addKeyCode(33);
+
+	var tr = OZ.DOM.elm("tr");
+	tb.appendChild(tr);
+	
+	var td = OZ.DOM.elm("td");
+	var c = new RPG.UI.Command.Direction("◀", new RPG.Misc.Coords(-1, 0));
+	OZ.DOM.append([tr, td], [td, c.getButton()]);
+	c.addCharCode(52);
+	c.addKeyCode(37);
+
+	var td = OZ.DOM.elm("td");
+	var c = new RPG.UI.Command.Direction("⋯", new RPG.Misc.Coords(0, 0));
+	OZ.DOM.append([tr, td], [td, c.getButton()]);
+	c.addCharCode(46);
+	c.addCharCode(53);
+	c.addKeyCode(12);
+
+	var td = OZ.DOM.elm("td");
+	var c = new RPG.UI.Command.Direction("▶", new RPG.Misc.Coords(1, 0));
+	OZ.DOM.append([tr, td], [td, c.getButton()]);
+	c.addCharCode(54);
+	c.addKeyCode(39);
+
+	var tr = OZ.DOM.elm("tr");
+	tb.appendChild(tr);
+
+	var td = OZ.DOM.elm("td");
+	var c = new RPG.UI.Command.Direction("◣", new RPG.Misc.Coords(-1, 1));
+	OZ.DOM.append([tr, td], [td, c.getButton()]);
+	c.addCharCode(49);
+	c.addKeyCode(35);
+
+	var td = OZ.DOM.elm("td");
+	var c = new RPG.UI.Command.Direction("▼", new RPG.Misc.Coords(0, 1));
+	OZ.DOM.append([tr, td], [td, c.getButton()]);
+	c.addCharCode(50);
+	c.addKeyCode(40);
+
+	var td = OZ.DOM.elm("td");
+	var c = new RPG.UI.Command.Direction("◢", new RPG.Misc.Coords(1, 1));
+	OZ.DOM.append([tr, td], [td, c.getButton()]);
+	c.addCharCode(51);
+	c.addKeyCode(34);
+}
+
+/**
  * @class Cancel command
  * @augments RPG.UI.Command
  */
@@ -376,6 +452,7 @@ RPG.UI.Command.Drop.prototype.exec = function(selectedItems) {
 			RPG.UI.action(RPG.Actions.Drop, selectedItems);
 		}
 	} else {
+		varpc = RPG.World.getPC();
 		var items = pc.getItems();
 		if (items.length) {
 			var obj = {
@@ -581,6 +658,10 @@ RPG.UI.Command.Backlog.prototype.exec = function() {
 	}
 }
 
+/**
+ * @class Ascend
+ * @augments RPG.UI.Command
+ */
 RPG.UI.Command.Ascend = OZ.Class().extend(RPG.UI.Command);
 
 RPG.UI.Command.Ascend.prototype.init = function() {
@@ -599,6 +680,10 @@ RPG.UI.Command.Ascend.prototype.exec = function() {
 }
 
 
+/**
+ * @class Descend
+ * @augments RPG.UI.Command
+ */
 RPG.UI.Command.Descend = OZ.Class().extend(RPG.UI.Command);
 
 RPG.UI.Command.Descend.prototype.init = function() {
@@ -617,77 +702,23 @@ RPG.UI.Command.Descend.prototype.exec = function() {
 }
 
 /**
- * @class Keypad
+ * @class Activate trap
+ * @augments RPG.UI.Command
  */
-RPG.UI.Command.Table = OZ.Class();
+RPG.UI.Command.Trap = OZ.Class().extend(RPG.UI.Command);
 
-RPG.UI.Command.Table.prototype.init = function(container) {
-	var table = OZ.DOM.elm("table");
-	var tb = OZ.DOM.elm("tbody");
-	table.appendChild(tb);
-	container.appendChild(table);
+RPG.UI.Command.Trap.prototype.init = function() {
+	this.parent("Activate trap (^t)");
+	this.addCharCode(116);
+	this.setCtrl();
+}
 
-	var tr = OZ.DOM.elm("tr");
-	tb.appendChild(tr);
-	
-	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("◤", new RPG.Misc.Coords(-1, -1));
-	OZ.DOM.append([tr, td], [td, c.getButton()]);
-	c.addCharCode(55);
-	c.addKeyCode(36);
-
-	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("▲", new RPG.Misc.Coords(0, -1));
-	OZ.DOM.append([tr, td], [td, c.getButton()]);
-	c.addCharCode(56);
-	c.addKeyCode(38);
-
-	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("◥", new RPG.Misc.Coords(1, -1));
-	OZ.DOM.append([tr, td], [td, c.getButton()]);
-	c.addCharCode(57);
-	c.addKeyCode(33);
-
-	var tr = OZ.DOM.elm("tr");
-	tb.appendChild(tr);
-	
-	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("◀", new RPG.Misc.Coords(-1, 0));
-	OZ.DOM.append([tr, td], [td, c.getButton()]);
-	c.addCharCode(52);
-	c.addKeyCode(37);
-
-	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("⋯", new RPG.Misc.Coords(0, 0));
-	OZ.DOM.append([tr, td], [td, c.getButton()]);
-	c.addCharCode(46);
-	c.addCharCode(53);
-	c.addKeyCode(12);
-
-	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("▶", new RPG.Misc.Coords(1, 0));
-	OZ.DOM.append([tr, td], [td, c.getButton()]);
-	c.addCharCode(54);
-	c.addKeyCode(39);
-
-	var tr = OZ.DOM.elm("tr");
-	tb.appendChild(tr);
-
-	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("◣", new RPG.Misc.Coords(-1, 1));
-	OZ.DOM.append([tr, td], [td, c.getButton()]);
-	c.addCharCode(49);
-	c.addKeyCode(35);
-
-	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("▼", new RPG.Misc.Coords(0, 1));
-	OZ.DOM.append([tr, td], [td, c.getButton()]);
-	c.addCharCode(50);
-	c.addKeyCode(40);
-
-	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("◢", new RPG.Misc.Coords(1, 1));
-	OZ.DOM.append([tr, td], [td, c.getButton()]);
-	c.addCharCode(51);
-	c.addKeyCode(34);
+RPG.UI.Command.Trap.prototype.exec = function() {
+	var pc = RPG.World.getPC();
+	var f = pc.getCell().getFeature();
+	if (f && f instanceof RPG.Features.Trap && f.knowsAbout(pc)) {
+		f.setOff();
+	} else {
+		RPG.UI.buffer.message("There is no trap you are aware of.");
+	}
 }

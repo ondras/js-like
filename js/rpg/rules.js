@@ -53,3 +53,6 @@ RPG.Rules.getMeleeDamage = function(attacker, defender, weapon, isCritical) {
 	return Math.max(0, damage - pv);
 }
 
+RPG.Rules.getTrapDamage = function(being, trap) {
+	return 3;
+}

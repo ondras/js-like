@@ -138,27 +138,44 @@ RPG.Features.Trap.prototype.notify = function(being) {
 RPG.Features.Trap.prototype.setOff = function() {
 }
 
-
 /**
- * @class Teleport
+ * @class Teleport trap
  * @augments RPG.Features.Trap
  */
-RPG.Features.Teleport = OZ.Class().extend(RPG.Features.Trap);
+RPG.Features.Trap.Teleport = OZ.Class().extend(RPG.Features.Trap);
 
-RPG.Features.Teleport.prototype.init = function() {
+RPG.Features.Trap.Teleport.prototype.init = function() {
 	this.parent();
 	
 	this._color = "limegreen";
-	this._image = "teleport";
+	this._image = "trap-teleport";
 	this._description = "teleport trap";
 }
 
-RPG.Features.Teleport.prototype.setOff = function(e) {
+RPG.Features.Trap.Teleport.prototype.setOff = function(e) {
 	var c = RPG.World.getMap().getFreeCoords();
 	var a = new RPG.Actions.Teleport(this._cell.getBeing(), c);
 	RPG.World.action(a);
 }
 
+/**
+ * @class Pit trap
+ * @augments RPG.Features.Trap
+ */
+RPG.Features.Trap.Pit = OZ.Class().extend(RPG.Features.Trap);
+
+RPG.Features.Trap.Pit.prototype.init = function() {
+	this.parent();
+	
+	this._color = "sienna";
+	this._image = "trap-pit";
+	this._description = "pit trap";
+}
+
+RPG.Features.Trap.Pit.prototype.setOff = function(e) {
+	var a = new RPG.Actions.Pit(this._cell.getBeing(), this);
+	RPG.World.action(a);
+}
 
 /**
  * @class Staircase leading up/down
