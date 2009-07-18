@@ -275,7 +275,9 @@ RPG.Dungeon.Map.prototype.getFeatures = function(ctor) {
 	var arr = [];
 	for (var i=0;i<this._size.x;i++) {
 		for (var j=0;j<this._size.y;j++) {
-			var f = this._data[i][j].getFeature();
+			var cell = this._data[i][j];
+			if (!cell) { continue; }
+			var f = cell.getFeature();
 			if (f && f instanceof ctor) { arr.push(f); }
 		}
 	}

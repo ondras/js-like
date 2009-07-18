@@ -492,7 +492,7 @@ RPG.Actions.EnterStaircase.prototype.execute = function() {
  */
 RPG.Actions.Ascend = OZ.Class().extend(RPG.Actions.EnterStaircase);
 RPG.Actions.Ascend.prototype.execute = function() {
-	RPG.UI.buffer.message("You climb upwards... ");
+	RPG.UI.buffer.message("You climb upwards...");
 	this.parent();
 }
 
@@ -502,7 +502,7 @@ RPG.Actions.Ascend.prototype.execute = function() {
  */
 RPG.Actions.Descend = OZ.Class().extend(RPG.Actions.EnterStaircase);
 RPG.Actions.Descend.prototype.execute = function() {
-	RPG.UI.buffer.message("You climb downwards... ");
+	RPG.UI.buffer.message("You climb downwards...");
 	this.parent();
 }
 
