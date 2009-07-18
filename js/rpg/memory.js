@@ -61,7 +61,7 @@ RPG.Memory.Map.prototype.init = function() {
 	this.map = null;
 	
 	/* cached list of visible cells */
-	this.visibleCells = [];
+	this._lastVisibleCoords = [];
 }
 
 RPG.Memory.Map.prototype.setup = function(map) {
@@ -88,65 +88,37 @@ RPG.Memory.Map.prototype.setup = function(map) {
  */
 RPG.Memory.Map.prototype.updateCoords = function(coords) {
 	var cell = this._data[coords.x][coords.y];
-	if (cell.state == RPG.MAP_VISIBLE) { cell.update();	}
+	if (cell.state == RPG.MAP_VISIBLE) { cell.setState(RPG.MAP_VISIBLE);	}
 }
 
 /**
  * Visible area has changed - need to refresh whole map subset. This is the _slowest_ part.
  */
 RPG.Memory.Map.prototype.updateVisible = function() {
-	/*
 	var pc = RPG.World.getPC();
-	var size = this.map.getSize();
-	var coords = RPG.World.getPC().getCell().getCoords();
-	var dist = pc.sightDistance();
+	pc.updateVisibility(); /* tell PC to update its set of visible coordinates */
 	
-	// first, walk through all visible and hide them if necessaray
-	for (var i=this.visibleCells.length-1;i>=0;i--) {
-		var cell = this.visibleCells[i];
-		cell.update();
-		if (cell.state != RPG.MAP_VISIBLE) { this.visibleCells.splice(i, 1); }
-	}
+	var visible = pc.getVisibleCoords();
+	var coords = null;
 	
-	// second, check area around PC's current position to add new visible cells 
-	var minX = Math.max(0, coords.x - dist);
-	var maxX = Math.min(size.x-1, coords.x + dist);
-	var minY = Math.max(0, coords.y - dist);
-	var maxY = Math.min(size.y-1, coords.y + dist);
-	
-	var c = new RPG.Misc.Coords(0, 0);
-	for (var i=minX; i<=maxX; i++) {
-		for (var j=minY; j<=maxY; j++) {
-			this._data[i][j].update();
-		}
-	}*/
-
-	var visible = RPG.World.getPC().visibleCoords();
-	visible.push(RPG.World.getPC().getCell().getCoords());
-	
-	for (var i=this.visibleCells.length-1;i>=0;i--) {
-		var cell = this.visibleCells[i];
+	/* check all cells visible before; if some is not visible now, mark it as remembered */
+	for (var i=0; i<this._lastVisibleCoords.length; i++) {
+		coords = this._lastVisibleCoords[i];
 		var ok = false;
 		for (var j=0;j<visible.length;j++) {
 			var vis = visible[j];
-			if (vis.x == cell._coords.x && vis.y == cell._coords.y) { ok = true; }
+			if (vis.x == coords.x && vis.y == coords.y) { ok = true; }
 		}
-		if (!ok) { 
-			cell.setState(RPG.MAP_REMEMBERED);
-			this.visibleCells.splice(i, 1);
-		}
+		if (!ok) { this._data[coords.x][coords.y].setState(RPG.MAP_REMEMBERED); }
 	}
 	
-	this.visibleCells = [];
-	for (var j=0;j<visible.length;j++) {
-		var vis = visible[j];
-		var cell = this._data[vis.x][vis.y];
-		cell.setState(RPG.MAP_VISIBLE);
-		this.visibleCells.push(cell);
+	/* take all currently visible and mark them as visible */
+	for (var i=0;i<visible.length;i++) {
+		coords = visible[i];
+		this._data[coords.x][coords.y].setState(RPG.MAP_VISIBLE);
 	}
-
 	
-	
+	this._lastVisibleCoords = visible;
 }
 
 /**
@@ -189,21 +161,6 @@ RPG.Memory.Map.Cell.prototype.setup = function(owner, coords) {
 	this._owner = owner;
 	this._coords = coords.clone();
 	this.state = RPG.MAP_UNKNOWN;
-}
-
-/**
- * Update cell's status from the actual map
- */
-RPG.Memory.Map.Cell.prototype.update = function() {
-	var pc = RPG.World.getPC();
-	if (pc.canSee(this._coords)) {
-		if (this.state != RPG.MAP_VISIBLE) {
-			this._owner.visibleCells.push(this);
-		}
-		this.setState(RPG.MAP_VISIBLE);
-	} else if (this.state == RPG.MAP_VISIBLE) {
-		this.setState(RPG.MAP_REMEMBERED);
-	}
 }
 
 /**
@@ -266,6 +223,8 @@ RPG.Memory.Map.Cell.prototype._visibleStack = function() {
 	var arr = [];
 	var cell = this._owner.map.at(this._coords);
 	
+	if (!cell) { return arr; }
+	
 	/* add cell */
 	arr.push(cell);
 	
@@ -301,6 +260,8 @@ RPG.Memory.Map.Cell.prototype._rememberedStack = function() {
 	var arr = [];
 	var cell = this._owner.map.at(this._coords);
 	
+	if (!cell) { return arr; }
+
 	/* add cell */
 	var c = cell.clone();
 	c.setBeing(null);

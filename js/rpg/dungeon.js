@@ -157,14 +157,64 @@ RPG.Features.BaseFeature.prototype.notify = function(being) {
  * @augments RPG.Misc.SerializableInterface
  */
 RPG.Dungeon.Map = OZ.Class().implement(RPG.Misc.SerializableInterface);
+
+/**
+ * Factory method. Creates map from an array of arrays of bools.
+ * false = corridor, true = wall
+ */
+RPG.Dungeon.Map.fromBitMap = function(id, bitMap, wall, corridor) {
+	var width = bitMap.length;
+	var height = bitMap[0].length;
+	
+	var map = new RPG.Dungeon.Map();
+	var coords = new RPG.Misc.Coords(width, height);
+	map.setup(id, coords);
+	
+	for (var x=0;x<width;x++) { 
+		for (var y=0;y<height;y++) {
+			coords.x = x;
+			coords.y = y;
+			if (!bitMap[x][y]) {
+				/* create corridor */
+				var cell = new corridor();
+				map.setCell(coords, cell);
+				continue;
+			}
+			
+			/* check neighbors; create wall only if there is at least one corridor neighbor */
+			var ok = false;
+			var neighbor = coords.clone();
+			for (var i=-1;i<=1;i++) {
+				for (var j=-1;j<=1;j++) {
+					neighbor.x = coords.x + i;
+					neighbor.y = coords.y + j;
+					if (map.isValid(neighbor) && !bitMap[neighbor.x][neighbor.y]) { ok = true; }
+				}
+			}
+			
+			if (ok) {
+				/* okay, create wall */
+				var cell = new wall();
+				map.setCell(coords, cell);
+				continue;
+			}
+			
+		}
+	}
+
+	return map;
+}
+
 RPG.Dungeon.Map.prototype.init = function() {
+	this._id = null;
+	this._size = null;
+	this._data = [];
+	this._rooms = [];
 }
 
 RPG.Dungeon.Map.prototype.setup = function(id, size) {
 	this._id = id;
-	this._size = size;
-	this._data = [];
-	this._rooms = [];
+	this._size = size.clone();
 	
 	for (var i=0;i<this._size.x;i++) {
 		var col = [];
@@ -186,7 +236,9 @@ RPG.Dungeon.Map.prototype.getBeings = function() {
 	var all = [];
 	for (var i=0;i<this._size.x;i++) {
 		for (var j=0;j<this._size.y;j++) {
-			var b = this._data[i][j].getBeing();
+			var cell = this._data[i][j];
+			if (!cell) { continue; }
+			var b = cell.getBeing();
 			if (b) { all.push(b); }
 		}
 	}
@@ -296,6 +348,7 @@ RPG.Dungeon.Map.prototype.getFreeCoords = function(noItems) {
 			c.x = i;
 			c.y = j;
 			var cell = this._data[i][j];
+			if (!cell) { continue; }
 			if (!cell.isFree()) { continue; }
 			if (cell.getFeature()) { continue; }
 			if (noItems && cell.getItems().length) { continue; }

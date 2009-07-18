@@ -22,8 +22,22 @@ RPG.Beings.Human.prototype.setup = function() {
  */
 RPG.Beings.God = OZ.Class().extend(RPG.Beings.PC);
 
-RPG.Beings.God.prototype.sightDistance = function() {
-	return Number.POSITIVE_INFINITY;
+RPG.Beings.God.prototype.getVisibleCoords = function() {
+	var arr = [];
+	var map = this._cell.getMap();
+	var size = map.getSize();
+	var c = new RPG.Misc.Coords(0, 0);
+	for (var i=0;i<size.x;i++) {
+		for (var j=0;j<size.y;j++) {
+			c.x = i;
+			c.y = j;
+			arr.push(c.clone());
+		}
+	}
+	return arr;
+}
+
+RPG.Beings.God.prototype.updateVisibility = function() {
 }
 
 RPG.Beings.God.prototype.canSee = function(coords) {

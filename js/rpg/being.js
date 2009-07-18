@@ -360,309 +360,6 @@ RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	return def[index];
 }
 
-
-/**
- * Returns an array with all coordinates visible
- */
-RPG.Beings.BaseBeing.prototype.visibleCoords = function() {
-	var eps = 1e-4;
-	
-	var oneCell = function(coords, centralBlocker) {
-		var blocks = !map.at(coords).visibleThrough();
-		var start = centralBlocker - blockersPerCell/2;
-		var startIndex = Math.floor(start);
-		
-		var ptr = startIndex;
-		var visible = false;
-		var given = 0;
-		var amount = 0;
-		var ok = false;
-		do {
-			var index = ptr; /* ptr recomputed to avail range */
-			if (index < 0) { index += blockers.length; }
-			if (index >= blockers.length) { index -= blockers.length; }
-			var blocker = blockers[index];
-			
-			/* is this angle is already totally obstructed? */
-			var chance = (blocker.left + blocker.right + eps < 1);
-
-			if (ptr < start) {
-				/* blocks left part of blocker (with right cell part) */
-				amount += ptr + 1 - start;
-				if (amount > blocker.left+eps && chance) {
-					/* blocker not blocked yet, this cell is visible */
-					ok = true;
-					/* adjust blocking amount */
-					if (blocks) { blocker.left = amount; }
-				}
-			} else if (given + 1 > blockersPerCell)  { 
-				/* blocks right part of blocker (with left cell part) */
-				amount = blockersPerCell - given;
-				if (amount > blocker.right+eps && chance) {
-					/* blocker not blocked yet, this cell is visible */
-					ok = true;
-					/* adjust blocking amount */
-					if (blocks) { blocker.right = amount; }
-				}
-			} else {
-				/* this cell completely blocks a blocker */
-				amount = 1;
-				if (chance) {
-					ok = true;
-					if (blocks) {
-						blocker.left = 1;
-						blocker.right = 1;
-					}
-				}
-			}
-			
-//			console.log("cell "+coords.toString()+ " blocks #"+index+" by "+amount);
-			given += amount;
-			ptr++;
-		} while (given < blockersPerCell);
-		
-		return ok;
-	}
-
-
-	var R = this.sightDistance();
-	var center = this._cell.getCoords();
-	var current = new RPG.Misc.Coords(0, 0);
-	var map = this._cell.getMap();
-
-	/* directions blocked */
-	var blockers = [];
-	
-	/* results */
-	var arr = [];
-	
-	/* number of cells in current ring */
-	var cellCount = 0;
-
-	/* one edge before turning */
-	var edgeLength = 0;
-
-	/* step directions */
-	var directions = [
-		[0, -1], /* up */
-		[-1, 0], /* left */
-		[0, 1],  /* down */
-		[1, 0]   /* right */
-	];
-	
-	var blockerCount = R*8; /* length of longest ring */
-	for (var i=0;i<blockerCount;i++) { blockers.push({left:0, right:0}); }
-	
-	/* analyze surrounding cells in concentric rings, starting from the center */
-	for (var r=1; r<=R; r++) {
-		cellCount += 8;
-		edgeLength += 2;
-		blockersPerCell = blockerCount / cellCount; /* number of blockers per cell */
-//		console.log(" --- ring " + r+ ", bc "+blockerCount+", bpc "+blockersPerCell+" --- ");
-
-		/* start in the lower right corner of current ring */
-		current.x = center.x + r;
-		current.y = center.y + r;
-		var counter = 0;
-		var directionIndex = 0;
-		do {
-			counter++;
-			if (map.isValid(current)) { 
-				/* check individual cell */
-				
-				/* uhel (blocker) nejblizsi tento bunce */
-				var centralBlocker = (counter-1) * blockersPerCell + 0.5;
-//				console.log(current.toString() + " - " + centralBlocker);
-				
-				if (oneCell(current, centralBlocker)) { arr.push(current.clone()); }
-			}
-			current.x += directions[directionIndex][0];
-			current.y += directions[directionIndex][1];
-
-			/* do a turn */
-			if (!(counter % edgeLength)) { directionIndex++; }
-
-		} while (counter < cellCount);
-		
-//		console.log(blockers.toSource());
-	}
-	
-	return arr;
-}
-
-
-/**
- * Returns an array with all coordinates visible
- */
-RPG.Beings.BaseBeing.prototype.visibleCoordsOLD = function() {
-	var blocks = [];
-
-	var eps = 0.0001;
-	var approx = function(a, b) { return Math.abs(a-b) < eps; }
-	
-	var merge = function(first, second) {
-		/* first pass - find overlapping block */
-		var overlapping = -1;
-		for (var i=0;i<blocks.length;i++) {
-			var block = blocks[i];
-			var a = block[0];
-			var b = block[1];
-			
-			if (b > a) {
-				inFirst = (first+eps >= a && first <= b+eps);
-				inSecond = (second+eps >= a && second <= b+eps);
-			} else {
-				inFirst = (first+eps >= a || first <= b+eps);
-				inSecond = (second+eps >= a || second <= b+eps);
-			}
-			
-			/* complete overlap: either a bogus small block or a full circle */
-			if (inFirst && inSecond) { 
-				if (approx(a, second) || approx(b, first)) {
-					/* full circle */
-					block[0] = 0;
-					block[1] = 0;
-					return;
-				} else {
-					/* bogus */
-					return;
-				}
-			}	
-			
-			/* not overlapped with any other block */
-			if (!inFirst && !inSecond) { continue; }
-			
-			overlapping = i;
-			if (inFirst) { block[1] = second; }
-			if (inSecond) { block[0] = first; }
-			break;
-		}
-		
-		if (overlapping == -1) {
-			blocks.push([first, second]);
-			return;
-		}
-		
-		/* second pass - overlapping block enlarged, possibility of second overlap */
-		first = blocks[overlapping][0];
-		second = blocks[overlapping][1];
-		for (var i=0;i<blocks.length;i++) {
-			if (i == overlapping) { continue; }
-			var block = blocks[i];
-			var a = block[0];
-			var b = block[1];
-			
-			if (b > a) {
-				inFirst = (first+eps >= a && first <= b+eps);
-				inSecond = (second+eps >= a && second <= b+eps);
-			} else {
-				inFirst = (first+eps >= a || first <= b+eps);
-				inSecond = (second+eps >= a || second <= b+eps);
-			}
-			
-			if (!inFirst && !inSecond) { continue; }
-			
-			if (inFirst) { block[1] = second; }
-			if (inSecond) { block[0] = first; }
-			blocks.splice(overlapping, 1);
-			return;
-		}
-		
-	}
-	
-	var oneCell = function(c, angle) {
-		var unitAngle = 2*Math.PI / cellCount;
-		
-		// var angle = Math.atan2(dy, dx);
-		
-		if (angle < 0) { angle += 2*Math.PI; }
-		var first = angle - unitAngle/2;
-		var second = angle + unitAngle/2;
-		if (first < 0) { first += 2*Math.PI; }
-		if (second > 2*Math.PI) { second -= 2*Math.PI; }
-		
-		for (var i=0;i<blocks.length;i++) {
-			var block = blocks[i];
-			var a = block[0];
-			var b = block[1];
-			
-			if (b > a) {
-				inFirst = (first >= a && first <= b);
-				inSecond = (second >= a && second <= b);
-			} else {
-				inFirst = (first >= a || first <= b);
-				inSecond = (second >= a || second <= b);
-			}
-			if (inFirst && inSecond) { 
-				/* area complementary to a block */
-				if (!approx(first, b) || !approx(second, a)) {
-					return false; 
-				}
-			}
-		}
-		
-		if (!map.at(c).visibleThrough()) { merge(first, second); }
-		return true;
-	}
-
-
-
-	var R = this.sightDistance();
-	var arr = [];
-	
-	var center = this._cell.getCoords();
-	var current = new RPG.Misc.Coords(0, 0);
-	var map = this._cell.getMap();
-	/* number of cells in current ring */
-	var cellCount = 0;
-	/* one edge before turning */
-	var edgeLength = 0;
-	/* step directions */
-	var directions = [
-		[0, -1], /* up */
-		[-1, 0], /* left */
-		[0, 1],  /* down */
-		[1, 0]   /* right */
-	];
-	
-	
-	/* analyze surrounding cells in concentric rings, starting from the center */
-	for (var r=1; r<=R; r++) {
-//		console.log(" --- ring " + r+ " --- ");
-		cellCount += 8;
-		edgeLength += 2;
-
-		/* start in the lower right corner of current ring */
-		current.x = center.x + r;
-		current.y = center.y + r;
-		var counter = 0;
-		var directionIndex = 0;
-		do {
-			counter++;
-			if (map.isValid(current)) { 
-				/* check individual cell here */
-//				console.log(current.toString());
-
-				var angle = (counter-1) * (Math.PI*2 / cellCount) - Math.PI/4;
-				if (angle < 0) { angle += Math.PI*2; }
-
-				if (oneCell(current, angle)) { arr.push(current.clone()); }
-
-
-			}
-			current.x += directions[directionIndex][0];
-			current.y += directions[directionIndex][1];
-
-			/* do a turn */
-			if (!(counter % edgeLength)) { directionIndex++; }
-
-		} while (counter < cellCount);
-	}
-	
-	
-	return arr;
-}
-
 /**
  * @class Player character
  * @augments RPG.Beings.BaseBeing
@@ -672,6 +369,7 @@ RPG.Beings.PC = OZ.Class().extend(RPG.Beings.BaseBeing);
 RPG.Beings.PC.prototype.init = function() {
 	this.parent();
 	this._mapMemory = null;
+	this._visibleCells = [];
 }
 
 RPG.Beings.PC.prototype.setup = function(race) {
@@ -682,4 +380,150 @@ RPG.Beings.PC.prototype.setup = function(race) {
 
 RPG.Beings.PC.prototype.mapMemory = function() {
 	return this._mapMemory;
+}
+
+RPG.Beings.PC.prototype.getVisibleCoords = function() {
+	return this._visibleCoords;
+}
+
+/**
+ * PC uses a different approach - maintains a list of visible coords
+ */
+RPG.Beings.PC.prototype.canSee = function(coords) {
+	for (var i=0;i<this._visibleCoords.length;i++) {
+		var c = this._visibleCoords[i];
+		if (c.x == coords.x && c.y == coords.y) { return true; }
+		return false;
+	}
+}
+
+/**
+ * Update the array with all visible coordinates
+ */
+RPG.Beings.BaseBeing.prototype.updateVisibility = function() {
+	var R = this.sightDistance();
+	var center = this._cell.getCoords();
+	var current = new RPG.Misc.Coords(0, 0);
+	var map = this._cell.getMap();
+	var cell = null;
+
+	/* directions blocked */
+	var angles = [];
+	
+	/* results */
+	this._visibleCoords = [this._cell.getCoords().clone()];
+	
+	/* number of cells in current ring */
+	var cellCount = 0;
+
+	/* one edge before turning */
+	var edgeLength = 0;
+
+	/* step directions */
+	var directions = [
+		[0, -1], /* up */
+		[-1, 0], /* left */
+		[0, 1],  /* down */
+		[1, 0]   /* right */
+	];
+	
+	var angleCount = R*8; /* length of longest ring */
+	for (var i=0;i<angleCount;i++) { angles.push([0, 0]); }
+	
+	/* analyze surrounding cells in concentric rings, starting from the center */
+	for (var r=1; r<=R; r++) {
+		cellCount += 8;
+		edgeLength += 2;
+		anglesPerCell = angleCount / cellCount; /* number of angles per cell */
+
+		/* start in the lower right corner of current ring */
+		current.x = center.x + r;
+		current.y = center.y + r;
+		var counter = 0;
+		var directionIndex = 0;
+		do {
+			counter++;
+			if (map.isValid(current)) { 
+				/* check individual cell */
+				var centralAngle = (counter-1) * anglesPerCell + 0.5;
+				cell = map.at(current);
+				
+				if (cell && this._visibleCell(cell, centralAngle, anglesPerCell, angles)) { 
+					this._visibleCoords.push(current.clone()); 
+				}
+			}
+			current.x += directions[directionIndex][0];
+			current.y += directions[directionIndex][1];
+
+			/* do a turn */
+			if (!(counter % edgeLength)) { directionIndex++; }
+
+		} while (counter < cellCount);
+	}
+}
+
+/**
+ * Subroutine for updateVisibility(). For a given cell, checks if it is visible and adjusts angles it blocks.
+ * @param {RPG.Cells.BaseCell} cell
+ * @param {float} centralAngle Angle which best corresponds with a given cell
+ * @param {float} anglesPerCell How many angles are shaded by this one
+ * @param {angle[]} array of available angles
+ */
+RPG.Beings.BaseBeing.prototype._visibleCell = function(cell, centralAngle, anglesPerCell, angles) {
+	var eps = 1e-4;
+	var map = cell.getMap();
+	var blocks = !cell.visibleThrough();
+	var start = centralAngle - anglesPerCell/2;
+	var startIndex = Math.floor(start);
+	var angleCount = angles.length;
+	
+	var ptr = startIndex;
+	var given = 0; /* amount already distributed */
+	var amount = 0;
+	var angle = null;
+	var ok = false;
+	do {
+		var index = ptr; /* ptr recomputed to avail range */
+		if (index < 0) { index += angleCount; }
+		if (index >= angleCount) { index -= angleCount; }
+		angle = angles[index];
+		
+		/* is this angle is already totally obstructed? */
+		var chance = (angle[0] + angle[1] + eps < 1);
+
+		if (ptr < start) {
+			/* blocks left part of blocker (with right cell part) */
+			amount += ptr + 1 - start;
+			if (chance && amount > angle[0]+eps) {
+				/* blocker not blocked yet, this cell is visible */
+				ok = true;
+				/* adjust blocking amount */
+				if (blocks) { angle[0] = amount; }
+			}
+		} else if (given + 1 > anglesPerCell)  { 
+			/* blocks right part of blocker (with left cell part) */
+			amount = anglesPerCell - given;
+			if (chance && amount > angle[1]+eps) {
+				/* blocker not blocked yet, this cell is visible */
+				ok = true;
+				/* adjust blocking amount */
+				if (blocks) { angle[1] = amount; }
+			}
+		} else {
+			/* this cell completely blocks a blocker */
+			amount = 1;
+			if (chance) {
+				ok = true;
+				if (blocks) {
+					angle[0] = 1;
+					angle[1] = 1;
+				}
+			}
+		}
+		
+		given += amount;
+		ptr++;
+	} while (given < anglesPerCell);
+	
+	return ok;
 }

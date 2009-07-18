@@ -507,13 +507,14 @@ RPG.Actions.Descend.prototype.execute = function() {
 }
 
 /**
- * @class Moving across a trap
+ * @class Moving across a trap. target == trap
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.TrapEncounter = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.TrapEncounter.prototype.execute = function() {
 	var pc = RPG.World.getPC();
 	var you = (this._source == pc);
+	var coords = this._target.getCell().getCoords();
 
 	var knows = this._source.trapMemory().remembers(this._target);
 	var activated = true;
@@ -525,8 +526,8 @@ RPG.Actions.TrapEncounter.prototype.execute = function() {
 
 		/* let the being know about this */
 		this._source.trapMemory().remember(this._target);
-		pc.mapMemory().updateCoords(this._target.getCell().getCoords());
-	} else {
+		pc.mapMemory().updateCoords(coords);
+	} else if (pc.canSee(coords)) {
 		/* already knows */
 		var str = this._source.describeA().capitalize() + " ";
 		if (you) {

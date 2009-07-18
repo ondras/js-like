@@ -7,6 +7,7 @@ Story.prototype.init = function() {
 	this._maps = [];
 	this._chat = this._buildChat();
 	this._mapgen = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(80, 20));
+	this._mapdec = new RPG.Dungeon.Decorator();
 }
 
 Story.prototype.go = function() {
@@ -19,10 +20,12 @@ Story.prototype.go = function() {
 
 Story.prototype._buildMap = function() {
 	var index = this._maps.length + 1;
-	var map = this._mapgen.generate("Dungeon #" + index).addHiddenCorridors(0.01).getMap();
+	var map = this._mapgen.generate("Dungeon #" + index);
+	window.m = map;
+	this._mapdec.setMap(map).addHiddenCorridors(0.01);
 
 	var rooms = map.getRooms();
-	for (var i=0;i<rooms.length;i++) { this._mapgen.decorateRoomDoors(rooms[i]); }
+	for (var i=0;i<rooms.length;i++) { this._mapdec.decorateRoomDoors(rooms[i]); }
 
 	/* orc */
 	var orc = new RPG.Beings.Orc().setup();
@@ -42,8 +45,8 @@ Story.prototype._buildMap = function() {
 
 	/* treasure */
 	var treasure = rooms.random();
-	this._mapgen.decorateRoomDoors(treasure, {locked: 1});
-	this._mapgen.decorateRoomInterior(treasure, {treasure: 1});
+	this._mapdec.decorateRoomDoors(treasure, {locked: 1});
+	this._mapdec.decorateRoomInterior(treasure, {treasure: 1});
 
 	/* traps */
 	var c = map.getFreeCoords(true);
