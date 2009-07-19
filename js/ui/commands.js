@@ -452,7 +452,7 @@ RPG.UI.Command.Drop.prototype.exec = function(selectedItems) {
 			RPG.UI.action(RPG.Actions.Drop, selectedItems);
 		}
 	} else {
-		varpc = RPG.World.getPC();
+		var pc = RPG.World.getPC();
 		var items = pc.getItems();
 		if (items.length) {
 			var obj = {
