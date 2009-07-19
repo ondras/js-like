@@ -722,3 +722,39 @@ RPG.UI.Command.Trap.prototype.exec = function() {
 		RPG.UI.buffer.message("There is no trap you are aware of.");
 	}
 }
+
+/**
+ * @class Show current hit/dmg
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.WeaponStats = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.WeaponStats.prototype.init = function() {
+	this.parent("Display weapon statistics (W)");
+	this.addCharCode(87);
+}
+
+RPG.UI.Command.WeaponStats.prototype.exec = function() {
+	var pc = RPG.World.getPC();
+	var hit = pc.getHit(pc.getWeapon());
+	var dmg = pc.getDamage(pc.getWeapon());
+	alert("Current hit/damage: "+hit.toString()+"/"+dmg.toString());
+}
+
+/**
+ * @class Show kick hit/dmg
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.KickStats = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.KickStats.prototype.init = function() {
+	this.parent("Display kick statistics (K)");
+	this.addCharCode(75);
+}
+
+RPG.UI.Command.KickStats.prototype.exec = function() {
+	var pc = RPG.World.getPC();
+	var hit = pc.getHit(pc.getFoot());
+	var dmg = pc.getDamage(pc.getFoot());
+	alert("Current hit/damage: "+hit.toString()+"/"+dmg.toString());
+}

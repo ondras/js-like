@@ -2,15 +2,14 @@
  * Is this door stuck?
  */
 RPG.Rules.isDoorStuck = function(being, door) {
-	return new RPG.Misc.Interval(1, 8).roll(1) < 2;
+	return Math.randomPercentage() < 13;
 }
 
 /**
  * Does this attacked hit its target?
  */
 RPG.Rules.isMeleeHit = function(attacker, defender, weapon) {
-	var hit = attacker.getHit(weapon);
-	hit += new RPG.Misc.Interval(-3, 3).roll(1);
+	var hit = attacker.getHit(weapon).roll();
 
 	var dv = defender.getDV();
 //	console.log("hit("+hit+") vs. dv("+dv+")");
@@ -21,11 +20,11 @@ RPG.Rules.isMeleeHit = function(attacker, defender, weapon) {
  * TEH WIN
  */
 RPG.Rules.isCritical = function(being) {
-	return new RPG.Misc.Interval(3, 18).roll() < 5;
+	return Math.randomPercentage() <= 5;
 }
 
 RPG.Rules.isFakeDetected = function(being, cell) {
-	return new RPG.Misc.Interval(1, 2).roll() < 2;
+	return Math.randomPercentage() <= 50;
 }
 
 RPG.Rules.isTrapDetected = function(being, trap) {
@@ -40,19 +39,15 @@ RPG.Rules.isTrapActivated = function(being, trap) {
  * How much damage does this attacker with a given weapon to a defender
  */
 RPG.Rules.getMeleeDamage = function(attacker, defender, weapon, isCritical) {
-	var damage = attacker.getDamage(weapon);
-	if (damage instanceof RPG.Misc.Interval) { damage = damage.roll(); }
-	
-	damage += new RPG.Misc.Interval(-3, 3).roll(1);
-	
+	var damage = attacker.getDamage(weapon).roll();
+	if (isCritical) { damage *= 2; }
+
 	var pv = defender.getPV();
-	if (isCritical) {
-		damage *= 2;
-	}
 //	console.log("damage("+damage+") vs. pv("+pv+")");
 	return Math.max(0, damage - pv);
 }
 
 RPG.Rules.getTrapDamage = function(being, trap) {
+	/* FIXME */
 	return 3;
 }

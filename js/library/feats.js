@@ -17,16 +17,42 @@ RPG.Feats.DV = OZ.Class().extend(RPG.Feats.BaseFeat);
 RPG.Feats.PV = OZ.Class().extend(RPG.Feats.BaseFeat);
 
 /**
- * @class Damage specification
+ * @class Enhanced, randomvalue-based feat. Does not modify other feats.
  * @augments RPG.Feats.BaseFeat
  */
-RPG.Feats.Damage = OZ.Class().extend(RPG.Feats.BaseFeat);
+RPG.Feats.RandomValue = OZ.Class().extend(RPG.Feats.BaseFeat);
+
+RPG.Feats.RandomValue.prototype.init = function(rv) {
+	this._rv = rv;
+}
+
+RPG.Feats.RandomValue.prototype.baseValue = function() {
+	return this._rv;
+};
+
+RPG.Feats.RandomValue.prototype.modifiedValue = function(modifierHolder) {
+	var plus = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_PLUS, modifierHolder);
+	var times = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_TIMES, modifierHolder);
+	var rv = this._rv;
+
+	var mean = rv.mean;
+	var variance = rv.variance;
+	mean = (mean + plus) * times;
+	mean = Math.max(0, mean);
+	return new RPG.Misc.RandomValue(mean, variance);
+};
+
+/**
+ * @class Damage specification
+ * @augments RPG.Feats.RandomValue
+ */
+RPG.Feats.Damage = OZ.Class().extend(RPG.Feats.RandomValue);
 
 /**
  * @class To-hit specification
- * @augments RPG.Feats.BaseFeat
+ * @augments RPG.Feats.RandomValue
  */
-RPG.Feats.Hit = OZ.Class().extend(RPG.Feats.BaseFeat);
+RPG.Feats.Hit = OZ.Class().extend(RPG.Feats.RandomValue);
 
 /**
  * @class Strength attribute

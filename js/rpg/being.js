@@ -30,8 +30,8 @@ RPG.Beings.BaseBeing.prototype.setup = function(race) {
 	
 	this._weapons = {
 		current: null,
-		hands: new RPG.Misc.Hands(2, 1),
-		foot: new RPG.Misc.Foot(0, 2)
+		hands: new RPG.Misc.Hands(new RPG.Misc.RandomValue(2, 0), new RPG.Misc.RandomValue(1, 0)),
+		foot: new RPG.Misc.Foot(new RPG.Misc.RandomValue(0, 0), new RPG.Misc.RandomValue(2, 0))
 	}
 
 	this._char = this._race.getChar();
@@ -70,8 +70,8 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	}
 	for (var name in attrs) {
 		var ctor = attrs[name];
-		var dice = new RPG.Misc.Interval(1, 6);
-		this._feats[name] = new ctor(dice.roll());
+		var rv = new RPG.Misc.RandomValue(3.5, 2.5)
+		this._feats[name] = new ctor(rv.roll());
 	}
 }
 
@@ -177,39 +177,6 @@ RPG.Beings.BaseBeing.prototype.getChar = function() {
 }
 
 /**
- * @see RPG.Visual.VisualInterface#describe
- */
-RPG.Beings.BaseBeing.prototype.describe = function() {
-	if (RPG.World.getPC() == this) {
-		return "you";
-	} else {
-		return this._description;
-	}
-}
-
-/**
- * @see RPG.Visual.VisualInterface#describeA
- */
-RPG.Beings.BaseBeing.prototype.describeA = function() {
-	if (RPG.World.getPC() == this) {
-		return "you";
-	} else {
-		return RPG.Visual.VisualInterface.prototype.describeA.call(this);
-	}
-}
-
-/**
- * @see RPG.Visual.VisualInterface#describeThe
- */
-RPG.Beings.BaseBeing.prototype.describeThe = function() {
-	if (RPG.World.getPC() == this) {
-		return "you";
-	} else {
-		return RPG.Visual.VisualInterface.prototype.describeThe.call(this);
-	}
-}
-
-/**
  * Return him/her/it string for this being
  * @returns {string}
  */
@@ -235,14 +202,17 @@ RPG.Beings.BaseBeing.prototype.getFeatValue = function(ctor) {
 	}
 }
 
+/* FIXME obsolete */
 RPG.Beings.BaseBeing.prototype.getMaxHP = function() {
 	return this._feats.maxhp.modifiedValue(this);
 }
 
+/* FIXME obsolete */
 RPG.Beings.BaseBeing.prototype.getDV = function() {
 	return this._feats.dv.modifiedValue(this);
 }
 
+/* FIXME obsolete */
 RPG.Beings.BaseBeing.prototype.getPV = function() {
 	return this._feats.pv.modifiedValue(this);
 }
@@ -384,6 +354,27 @@ RPG.Beings.PC.prototype.mapMemory = function() {
 
 RPG.Beings.PC.prototype.getVisibleCoords = function() {
 	return this._visibleCoords;
+}
+
+/**
+ * @see RPG.Visual.VisualInterface#describe
+ */
+RPG.Beings.PC.prototype.describe = function() {
+	return "you";
+}
+
+/**
+ * @see RPG.Visual.VisualInterface#describeA
+ */
+RPG.Beings.PC.prototype.describeA = function() {
+	return "you";
+}
+
+/**
+ * @see RPG.Visual.VisualInterface#describeThe
+ */
+RPG.Beings.PC.prototype.describeThe = function() {
+	return "you";
 }
 
 /**

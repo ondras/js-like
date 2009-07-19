@@ -350,7 +350,7 @@ RPG.Actions.Kick.prototype.execute = function() {
 	
 	if (feature && feature instanceof RPG.Features.Door && feature.isClosed()) {
 		/* kick door */
-		var dmg = this._source.getDamage(this._source.getFoot());
+		var dmg = this._source.getDamage(this._source.getFoot()).roll();
 		var result = feature.damage(dmg);
 		if (result) {
 			RPG.UI.buffer.message("You kick the door, but it does not budge.");

@@ -12,25 +12,16 @@ RPG.Feats.BaseFeat.prototype.baseValue = function() {
 	return this._value;
 };
 /**
- * Returns a feat value, modified by modifierHolder. This can be a number or an interval.
+ * Returns a feat value, modified by modifierHolder.
  */
 RPG.Feats.BaseFeat.prototype.modifiedValue = function(modifierHolder) {
 	var plus = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_PLUS, modifierHolder);
 	var times = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_TIMES, modifierHolder);
 	var value = this._value;
-	if (value instanceof RPG.Misc.Interval) { 
-		var min = value.min;
-		var max = value.max;
-		min = (min + plus) * times;
-		max = (max + plus) * times;
-		min = Math.max(0, min); 
-		max = Math.max(0, max); 
-		return new RPG.Misc.Interval(min, max);
-	} else {
-		var exact = (value + plus) * times;
-		return Math.max(0, exact);
-	}
-};
+	var exact = (value + plus) * times;
+	return Math.max(0, exact);
+}
+
 RPG.Feats.BaseFeat.prototype.standardModifier = function(modifierHolder) {
 	var value = this.modifiedValue(modifierHolder);
 	var num = (value-11)*10/21;

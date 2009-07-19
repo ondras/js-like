@@ -116,6 +116,8 @@ RPG.UI.build = function() {
 	div.appendChild(new RPG.UI.Command.Descend().getButton());
 	div.appendChild(new RPG.UI.Command.Backlog().getButton());
 	div.appendChild(new RPG.UI.Command.Trap().getButton());
+	div.appendChild(new RPG.UI.Command.WeaponStats().getButton());
+	div.appendChild(new RPG.UI.Command.KickStats().getButton());
 	div.appendChild(new RPG.UI.Command.Cancel().getButton());
 }
 

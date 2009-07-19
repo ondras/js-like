@@ -122,6 +122,13 @@ Math.randomNormal = function(stddev) {
     return gauss*stddev;
 }
 
+/**
+ * Returns number between 1 and 100 inclusive
+ */
+Math.randomPercentage = function() {
+	return 1 + Math.floor(Math.random() * 100);
+}
+
 String.prototype.capitalize = function() {
 	return this.charAt(0).toUpperCase() + this.substring(1);
 }

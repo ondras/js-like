@@ -1,30 +1,20 @@
 /**
- * @class Interval - generalized throwing dice
+ * @class Random value - generalized throwing dice
  */
-RPG.Misc.Interval = OZ.Class();
-RPG.Misc.Interval.prototype.init = function(min, max) {
-	this.min = min;
-	this.max = max;
+RPG.Misc.RandomValue = OZ.Class();
+RPG.Misc.RandomValue.prototype.init = function(mean, variance) {
+	this.mean = mean;
+	this.variance = variance;
 }
-RPG.Misc.Interval.prototype.toString = function() {
-	return this.min + "-" + this.max;
+RPG.Misc.RandomValue.prototype.toString = function() {
+	return this.mean + "±" + this.variance;
 }
 
 /**
  * Roll the dice.
- * @param {int} [rollCount=3] How many rolls to perform in order to get final number.
- * Higher number means "more normal" distribution.
  */
-RPG.Misc.Interval.prototype.roll = function(rollCount) {
-	var result = 0;
-	var count = rollCount || 3;
-	
-	var diff = (this.max - this.min)/count;
-	for (var i=0;i<count;i++) {
-		result += Math.random()*diff;
-	}
-	
-	return this.min + Math.round(result);
+RPG.Misc.RandomValue.prototype.roll = function() {
+	return Math.round(this.mean + Math.randomNormal(this.variance/2));
 }
 
 /**
@@ -99,12 +89,12 @@ RPG.Misc.ModifierInterface.prototype.getModifier = function(feat, type, modifier
  * @class Weapon interface. Separated from items, because "hands" and "foot" are also weapons.
  */
 RPG.Misc.WeaponInterface = OZ.Class();
-RPG.Misc.WeaponInterface.prototype.setHit = function(hit) {
-	this._hit = new RPG.Feats.Hit(hit);
+RPG.Misc.WeaponInterface.prototype.setHit = function(rv) {
+	this._hit = new RPG.Feats.Hit(rv);
 	
 }
-RPG.Misc.WeaponInterface.prototype.setDamage = function(damage) {
-	this._damage = new RPG.Feats.Hit(damage);
+RPG.Misc.WeaponInterface.prototype.setDamage = function(rv) {
+	this._damage = new RPG.Feats.Damage(rv);
 }
 RPG.Misc.WeaponInterface.prototype.getHit = function(modifierHolder) {
 	return this._hit.modifiedValue(modifierHolder);
@@ -207,6 +197,9 @@ RPG.Misc.SerializableInterface.prototype.setup = function() {
 }
 RPG.Misc.SerializableInterface.prototype.fromXML = function(node) {
 	return this;
+}
+RPG.Misc.SerializableInterface.prototype.toXML = function(node) {
+	return "";
 }
 RPG.Misc.SerializableInterface.prototype.clone = function() {
 	var clone = new this.constructor();
