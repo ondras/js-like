@@ -2,12 +2,14 @@
  * @class Textual description area
  */
 RPG.UI.TextBuffer = OZ.Class();
-RPG.UI.TextBuffer.prototype.init = function(textarea) {
+RPG.UI.TextBuffer.prototype.init = function(container) {
 	this._dom = {
-		textarea: textarea
+		container: container,
+		textarea: OZ.DOM.elm("textarea")
 	}
 	this._dom.textarea.value = "";
 	this._dom.textarea.readOnly = true;
+	container.appendChild(this._dom.textarea);
 	
 	this._backlog = "";
 	this._lastMessage = "";
@@ -35,14 +37,14 @@ RPG.UI.TextBuffer.prototype.message = function(str) {
 }
 
 RPG.UI.TextBuffer.prototype.showBacklog = function() {
-	OZ.DOM.addClass(this._dom.textarea, "backlog");
+	OZ.DOM.addClass(this._dom.container, "backlog");
 	this._flushBacklog();
 	this._dom.textarea.value = this._backlog;
 	this._dom.textarea.scrollTop = this._dom.textarea.scrollHeight;
 }
 
 RPG.UI.TextBuffer.prototype.hideBacklog = function() {
-	OZ.DOM.removeClass(this._dom.textarea, "backlog");
+	OZ.DOM.removeClass(this._dom.container, "backlog");
 	this._dom.textarea.value = this._lastMessage;
 }
 

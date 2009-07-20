@@ -262,6 +262,7 @@ RPG.UI.Command.Open.prototype.init = function() {
 }
 RPG.UI.Command.Open.prototype.exec = function(cmd) {
 	var pc = RPG.World.getPC();
+	var map = pc.getCell().getMap();
 
 	if (cmd) {
 		/* direction given */
@@ -300,6 +301,7 @@ RPG.UI.Command.Close.prototype.init = function() {
 }
 RPG.UI.Command.Close.prototype.exec = function(cmd) {
 	var pc = RPG.World.getPC();
+	var map = pc.getCell().getMap();
 
 	if (cmd) {
 		/* direction given */
@@ -730,7 +732,7 @@ RPG.UI.Command.Trap.prototype.exec = function() {
 RPG.UI.Command.WeaponStats = OZ.Class().extend(RPG.UI.Command);
 
 RPG.UI.Command.WeaponStats.prototype.init = function() {
-	this.parent("Display weapon statistics (W)");
+	this.parent("Weapon statistics (W)");
 	this.addCharCode(87);
 }
 
@@ -748,7 +750,7 @@ RPG.UI.Command.WeaponStats.prototype.exec = function() {
 RPG.UI.Command.KickStats = OZ.Class().extend(RPG.UI.Command);
 
 RPG.UI.Command.KickStats.prototype.init = function() {
-	this.parent("Display kick statistics (K)");
+	this.parent("Kick statistics (K)");
 	this.addCharCode(75);
 }
 

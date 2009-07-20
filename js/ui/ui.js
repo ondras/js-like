@@ -95,6 +95,7 @@ RPG.UI.build = function() {
 
 	var keypad = OZ.$("keypad");
 	new RPG.UI.Command.Table(keypad);
+	keypad.appendChild(new RPG.UI.Command.Cancel().getButton());
 	
 	var mapswitch = OZ.$("mapswitch");
 	new RPG.UI.Mapswitch(mapswitch);
@@ -102,24 +103,36 @@ RPG.UI.build = function() {
 	var status = OZ.$("status");
 	this.status = new RPG.UI.Status(status);
 	
-	var div = OZ.$("commands");
-	div.appendChild(new RPG.UI.Command.Autowalk().getButton());
-	div.appendChild(new RPG.UI.Command.Pick().getButton());
-	div.appendChild(new RPG.UI.Command.Drop().getButton());
-	div.appendChild(new RPG.UI.Command.Inventory().getButton());
-	div.appendChild(new RPG.UI.Command.Open().getButton());
-	div.appendChild(new RPG.UI.Command.Close().getButton());
-	div.appendChild(new RPG.UI.Command.Kick().getButton());
-	div.appendChild(new RPG.UI.Command.Chat().getButton());
-	div.appendChild(new RPG.UI.Command.Search().getButton());
-	div.appendChild(new RPG.UI.Command.Ascend().getButton());
-	div.appendChild(new RPG.UI.Command.Descend().getButton());
-	div.appendChild(new RPG.UI.Command.Backlog().getButton());
-	div.appendChild(new RPG.UI.Command.Trap().getButton());
-	div.appendChild(new RPG.UI.Command.WeaponStats().getButton());
-	div.appendChild(new RPG.UI.Command.KickStats().getButton());
-	div.appendChild(new RPG.UI.Command.Cancel().getButton());
+	var c = OZ.$("commands");
+	
+	var d = OZ.DOM.elm("div", {innerHTML:"Movement: "});
+	c.appendChild(d);
+	d.appendChild(new RPG.UI.Command.Autowalk().getButton());
+	d.appendChild(new RPG.UI.Command.Ascend().getButton());
+	d.appendChild(new RPG.UI.Command.Descend().getButton());
+	
+	var d = OZ.DOM.elm("div", {innerHTML:"Interaction: "});
+	c.appendChild(d);
+	d.appendChild(new RPG.UI.Command.Open().getButton());
+	d.appendChild(new RPG.UI.Command.Close().getButton());
+	d.appendChild(new RPG.UI.Command.Kick().getButton());
+	d.appendChild(new RPG.UI.Command.Chat().getButton());
+	d.appendChild(new RPG.UI.Command.Search().getButton());
+	d.appendChild(new RPG.UI.Command.Trap().getButton());
+
+	var d = OZ.DOM.elm("div", {innerHTML:"Item management: "});
+	c.appendChild(d);
+	d.appendChild(new RPG.UI.Command.Pick().getButton());
+	d.appendChild(new RPG.UI.Command.Drop().getButton());
+	d.appendChild(new RPG.UI.Command.Inventory().getButton());
+
+	var d = OZ.DOM.elm("div", {innerHTML:"Information: "});
+	c.appendChild(d);
+	d.appendChild(new RPG.UI.Command.Backlog().getButton());
+	d.appendChild(new RPG.UI.Command.WeaponStats().getButton());
+	d.appendChild(new RPG.UI.Command.KickStats().getButton());
 }
+
 
 /**
  * @param {bool} [data.commands]
