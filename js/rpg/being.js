@@ -9,9 +9,9 @@ RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Misc.ModifierInterface)
 						.implement(RPG.Engine.ActorInterface);
 
-RPG.Beings.BaseBeing.prototype.init = function(r) {
+RPG.Beings.BaseBeing.prototype.init = function() {
 	this._initVisuals();
-	this._trapMemory = null;
+	this._trapMemory = new RPG.Memory.TrapMemory();
 
 	this._modifiers = []; /* to comply with ModifierInterface */
 
@@ -22,22 +22,25 @@ RPG.Beings.BaseBeing.prototype.init = function(r) {
 	this._stats = {};
 	this._feats = {};
 	this._alive = true;
+	this._weapons = {}; /* fixme */
+	
+	this._default = {
+		maxhp: 5,
+		dv: 0,
+		pv: 0,
+		strength: 9,
+		toughness: 9,
+		dexterity: 9,
+		intelligence: 9
+	}
 }
 
-RPG.Beings.BaseBeing.prototype.setup = function(race) {
-	this._trapMemory = new RPG.Memory.TrapMemory();
-	this._race = race;
-	
+RPG.Beings.BaseBeing.prototype.setup = function() {
 	this._weapons = {
 		current: null,
-		hands: new RPG.Misc.Hands(new RPG.Misc.RandomValue(2, 0), new RPG.Misc.RandomValue(1, 0)),
-		foot: new RPG.Misc.Foot(new RPG.Misc.RandomValue(0, 0), new RPG.Misc.RandomValue(2, 0))
+		hands: new RPG.Misc.Hands(new RPG.Misc.RandomValue(4, 2), new RPG.Misc.RandomValue(2, 1)),
+		foot: new RPG.Misc.Foot(new RPG.Misc.RandomValue(4, 3), new RPG.Misc.RandomValue(3, 1))
 	}
-
-	this._char = this._race.getChar();
-	this._color = this._race.getColor();
-	this._image = this._race.getImage();
-	this._description = this._race.describe();
 
 	this._initStatsAndFeats();
 
@@ -57,9 +60,9 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 		hp: 0
 	}
 	this._feats = {
-		maxhp: new RPG.Feats.MaxHP(10),
-		dv: new RPG.Feats.DV(0),
-		pv: new RPG.Feats.PV(0)
+		maxhp: new RPG.Feats.MaxHP(this._default.maxhp),
+		dv: new RPG.Feats.DV(this._default.dv),
+		pv: new RPG.Feats.PV(this._default.pv)
 	}
 	
 	var attrs = {
@@ -70,7 +73,7 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	}
 	for (var name in attrs) {
 		var ctor = attrs[name];
-		var rv = new RPG.Misc.RandomValue(3.5, 2.5)
+		var rv = new RPG.Misc.RandomValue(this._default[name], 2)
 		this._feats[name] = new ctor(rv.roll());
 	}
 }
@@ -85,10 +88,6 @@ RPG.Beings.BaseBeing.prototype.setCell = function(cell) {
 
 RPG.Beings.BaseBeing.prototype.getCell = function() {
 	return this._cell;
-}
-
-RPG.Beings.BaseBeing.prototype.getRace = function() {
-	return this._race;
 }
 
 RPG.Beings.BaseBeing.prototype.addItem = function(item) { 
@@ -122,21 +121,20 @@ RPG.Beings.BaseBeing.prototype.getChat = function() {
 }
 
 /**
- * Being combines modifiers from various sources: equpped items, feats, race, ...
+ * Being combines modifiers from various sources: equipped items, feats, ...
  * @see RPG.Base.ModifierInterface
  */
 RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type, modifierHolder) {
-	var modifierHolders = [];
-	for (var p in this._feats) {
-		modifierHolders.push(this._feats[p]);
-	}
-	modifierHolders.push(this._race);
-	
+	var modifierHolders = this._getModifierHolders();
+
 	var values = [];
 	for (var i=0;i<modifierHolders.length;i++) {
 		var mod = modifierHolders[i].getModifier(feat, type, modifierHolder);
 		if (mod !== null) { values.push(mod); }
 	}
+	
+	var val = RPG.Misc.ModifierInterface.prototype.getModifier.call(this, feat, type, modifierHolder);
+	if (val !== null) { values.push(val); }
 	
 	var total = (type == RPG.MODIFIER_PLUS ? 0 : 1);
 	for (var i=0;i<values.length;i++) {
@@ -163,17 +161,6 @@ RPG.Beings.BaseBeing.prototype.setWeapon = function(item) {
  */
 RPG.Beings.BaseBeing.prototype.getWeapon = function() {
 	return this._weapons.current || this._weapons.hands;
-}
-
-/**
- * @see RPG.Visual.VisualInterface#getChar
- */
-RPG.Beings.BaseBeing.prototype.getChar = function() {
-	if (RPG.World.getPC() == this) { 
-		return "@"; 
-	} else {
-		return this._char;
-	}
 }
 
 /**
@@ -282,9 +269,12 @@ RPG.Beings.BaseBeing.prototype.dropAll = function() {
 RPG.Beings.BaseBeing.prototype.die = function() {
 	this._alive = false;
 	this.dropAll();
-	var corpse = new RPG.Items.Corpse();
-	corpse.setup(this);
-	this._cell.addItem(corpse);
+	
+	if (Math.randomPercentage() < 34) {
+		var corpse = new RPG.Items.Corpse();
+		corpse.setup(this);
+		this._cell.addItem(corpse);
+	}
 	RPG.World.action(new RPG.Actions.Death(this)); 
 }
 
@@ -330,6 +320,15 @@ RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	return def[index];
 }
 
+RPG.Beings.BaseBeing.prototype._getModifierHolders = function() {
+	var arr = [];
+	for (var p in this._feats) {
+		arr.push(this._feats[p]);
+	}
+	return arr;
+}
+
+
 /**
  * @class Player character
  * @augments RPG.Beings.BaseBeing
@@ -338,14 +337,31 @@ RPG.Beings.PC = OZ.Class().extend(RPG.Beings.BaseBeing);
 
 RPG.Beings.PC.prototype.init = function() {
 	this.parent();
+	this._race = null;
 	this._mapMemory = null;
 	this._visibleCells = [];
+
+	this._default = {
+		maxhp: 10,
+		dv: 5,
+		pv: 0,
+		strength: 11,
+		toughness: 11,
+		dexterity: 11,
+		intelligence: 11
+	}
+	
 }
 
 RPG.Beings.PC.prototype.setup = function(race) {
-	this.parent(race);
+	this._race = race;
 	this._mapMemory = new RPG.Memory.MapMemory();
-	return this;
+	
+	this._char = "@";
+	this._color = race.getColor();
+	this._image = race.getImage();
+	this._description = "you";
+	return this.parent();
 }
 
 RPG.Beings.PC.prototype.mapMemory = function() {
@@ -357,24 +373,17 @@ RPG.Beings.PC.prototype.getVisibleCoords = function() {
 }
 
 /**
- * @see RPG.Visual.VisualInterface#describe
- */
-RPG.Beings.PC.prototype.describe = function() {
-	return "you";
-}
-
-/**
  * @see RPG.Visual.VisualInterface#describeA
  */
 RPG.Beings.PC.prototype.describeA = function() {
-	return "you";
+	return this.describe();
 }
 
 /**
  * @see RPG.Visual.VisualInterface#describeThe
  */
 RPG.Beings.PC.prototype.describeThe = function() {
-	return "you";
+	return this.describe();
 }
 
 /**
@@ -384,14 +393,14 @@ RPG.Beings.PC.prototype.canSee = function(coords) {
 	for (var i=0;i<this._visibleCoords.length;i++) {
 		var c = this._visibleCoords[i];
 		if (c.x == coords.x && c.y == coords.y) { return true; }
-		return false;
 	}
+	return false;
 }
 
 /**
  * Update the array with all visible coordinates
  */
-RPG.Beings.BaseBeing.prototype.updateVisibility = function() {
+RPG.Beings.PC.prototype.updateVisibility = function() {
 	var R = this.sightDistance();
 	var center = this._cell.getCoords();
 	var current = new RPG.Misc.Coords(0, 0);
@@ -460,7 +469,7 @@ RPG.Beings.BaseBeing.prototype.updateVisibility = function() {
  * @param {float} anglesPerCell How many angles are shaded by this one
  * @param {angle[]} array of available angles
  */
-RPG.Beings.BaseBeing.prototype._visibleCell = function(cell, centralAngle, anglesPerCell, angles) {
+RPG.Beings.PC.prototype._visibleCell = function(cell, centralAngle, anglesPerCell, angles) {
 	var eps = 1e-4;
 	var map = cell.getMap();
 	var blocks = !cell.visibleThrough();
@@ -517,4 +526,13 @@ RPG.Beings.BaseBeing.prototype._visibleCell = function(cell, centralAngle, angle
 	} while (given < anglesPerCell);
 	
 	return ok;
+}
+
+/**
+ * PC incorporates his/hers race into a set of modifier holders
+ */
+RPG.Beings.PC.prototype._getModifierHolders = function() {
+	var arr = this.parent();
+	arr.push(this._race);
+	return arr;
 }

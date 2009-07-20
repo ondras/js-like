@@ -14,7 +14,8 @@ RPG.Misc.RandomValue.prototype.toString = function() {
  * Roll the dice.
  */
 RPG.Misc.RandomValue.prototype.roll = function() {
-	return Math.round(this.mean + Math.randomNormal(this.variance/2));
+	var value = Math.round(this.mean + Math.randomNormal(this.variance/2));
+	return Math.max(0, value);
 }
 
 /**

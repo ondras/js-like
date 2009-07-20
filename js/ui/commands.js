@@ -740,7 +740,7 @@ RPG.UI.Command.WeaponStats.prototype.exec = function() {
 	var pc = RPG.World.getPC();
 	var hit = pc.getHit(pc.getWeapon());
 	var dmg = pc.getDamage(pc.getWeapon());
-	alert("Current hit/damage: "+hit.toString()+"/"+dmg.toString());
+	alert("Current weapon hit/damage: "+hit.toString()+"/"+dmg.toString());
 }
 
 /**
@@ -758,5 +758,5 @@ RPG.UI.Command.KickStats.prototype.exec = function() {
 	var pc = RPG.World.getPC();
 	var hit = pc.getHit(pc.getFoot());
 	var dmg = pc.getDamage(pc.getFoot());
-	alert("Current hit/damage: "+hit.toString()+"/"+dmg.toString());
+	alert("Current kick hit/damage: "+hit.toString()+"/"+dmg.toString());
 }

@@ -18,7 +18,7 @@ RPG.Items.Weapon.prototype.init = function(hit, damage) {
  */
 RPG.Items.Dagger = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Dagger.prototype.init = function() {
-	this.parent(new RPG.Misc.RandomValue(0, 0), new RPG.Misc.RandomValue(2, 1));
+	this.parent(new RPG.Misc.RandomValue(3, 1), new RPG.Misc.RandomValue(5, 3));
 	this._image = "dagger";
 	this._description = "dagger";
 }
@@ -29,7 +29,7 @@ RPG.Items.Dagger.prototype.init = function() {
  */
 RPG.Items.KlingonSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.KlingonSword.prototype.init = function() {
-	this.parent(new RPG.Misc.RandomValue(10, 0), new RPG.Misc.RandomValue(10, 0));
+	this.parent(new RPG.Misc.RandomValue(10, 3), new RPG.Misc.RandomValue(10, 3));
 	this._color = "gold";
 	this._image = "klingon-sword";
 	this._description = "Klingon ceremonial sword";

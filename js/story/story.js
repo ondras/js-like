@@ -11,11 +11,34 @@ Story.prototype.init = function() {
 }
 
 Story.prototype.go = function() {
+	this._pc = this._createPC();
+	
 	var map = this._buildMap();
 	RPG.UI.status.updateFeat();
 	RPG.UI.status.updateHP();
 	RPG.World.setMap(map);
 	RPG.World.run();
+}
+
+Story.prototype._createPC = function() {
+	var def = {
+		1: RPG.Races.Human, 
+		2: RPG.Races.Orc, 
+		3: RPG.Races.Elf, 
+		4: RPG.Races.Dwarf
+	};
+	
+	var race = 0;
+	do {
+		race = prompt("Pick your race: \n\n1. Human\n2. Orc\n3. Elf\n4. Dwarf", 1);
+	} while (!(race in def));
+	race = def[race];
+
+	var pc = new RPG.Beings.PC().setup(new race());
+	RPG.World.setPC(pc);
+	var dagger = new RPG.Items.Dagger();
+	pc.addItem(dagger);
+	return pc;
 }
 
 Story.prototype._buildMap = function() {
@@ -27,17 +50,25 @@ Story.prototype._buildMap = function() {
 	var rooms = map.getRooms();
 	for (var i=0;i<rooms.length;i++) { this._mapdec.decorateRoomDoors(rooms[i]); }
 
-	/* orc */
-	var orc = new RPG.Beings.Orc().setup();
-	var dagger = new RPG.Items.Dagger();
-	orc.addItem(dagger);
-	orc.setWeapon(dagger);
-	new RPG.Engine.AI(orc);
+	/* enemies */
+	var b = new RPG.Beings.Troll().setup();
+	var ai = new RPG.Engine.AI(b);
+	ai.addTask(new RPG.Engine.AI.Kill(this._pc));
 	var c = map.getFreeCoords(true);
-	map.at(c).setBeing(orc);
+	map.at(c).setBeing(b);
+	
+	var max = 5 + Math.floor(Math.random()*10);
+	for (var i=0;i<max;i++) {
+		var b = new RPG.Beings.Goblin().setup();
+		var ai = new RPG.Engine.AI(b);
+		ai.addTask(new RPG.Engine.AI.Kill(this._pc));
+		var c = map.getFreeCoords(true);
+		map.at(c).setBeing(b);
+	}
+	
 	
 	/* add some chatting */
-	orc.setChat(this._chat);
+	// b.setChat(this._chat);
 
 	/* item */
 	var c = map.getFreeCoords(true);
@@ -72,11 +103,7 @@ Story.prototype._buildMap = function() {
 		up.setTargetCoords(down.getCell().getCoords());
 	} else {
 		/* player */
-		var pc = new RPG.Beings.PC().setup(new RPG.Races.Human());
-		RPG.World.setPC(pc);
-		map.at(start.getCenter()).setBeing(pc);
-		var dagger = new RPG.Items.Dagger();
-		pc.addItem(dagger);
+		map.at(start.getCenter()).setBeing(this._pc);
 	}
 	
 	var end = null;

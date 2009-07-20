@@ -13,6 +13,7 @@ RPG.Dungeon.Generator.prototype.init = function(size, options) {
 	
 	this._size = size;
 	this._bitMap = null;
+	this._rooms = [];
 }
 
 RPG.Dungeon.Generator.prototype.generate = function(id) {
@@ -134,12 +135,19 @@ RPG.Dungeon.Generator.Uniform.prototype.init = function(size) {
 	this.parent(size);
 	
 	this._roomAttempts = 10; /* new room is created N-times until is considered as impossible to generate */
-	this._roomPercentage = 0.2; /* we stop after this percentage of level area has been dug out */
+	this._corridorAttemps = 50; /* corridors are tried N-times until the level is considered as impossible to connect */
+	this._roomPercentage = 0.15; /* we stop after this percentage of level area has been dug out */
 	this._minSize = 3; /* minimum room dimension */
 	this._maxWidth = 7; /* maximum room width */
 	this._maxHeight = 5; /* maximum room height */
 	this._roomSeparation = 2; /* minimum amount of cells between two rooms */
 	this._digged = 0;
+	this._usedWalls = [];
+	
+	this.NORTH = 0;
+	this.EAST = 1;
+	this.SOUTH = 2;
+	this.WEST = 3;
 }
 
 RPG.Dungeon.Generator.Uniform.prototype.generate = function(id) {
@@ -151,6 +159,21 @@ RPG.Dungeon.Generator.Uniform.prototype.generate = function(id) {
 			return this._dig(id); 
 		}
 	}
+}
+
+RPG.Dungeon.Generator.Uniform.prototype._blankMap = function() {
+	this._usedWalls = [];
+	this.parent();
+}
+
+RPG.Dungeon.Generator.Uniform.prototype._digRoom = function(c1, c2) {
+	this.parent(c1, c2);
+	var o = {};
+	o[this.NORTH] = 0;
+	o[this.EAST] = 0;
+	o[this.SOUTH] = 0;
+	o[this.WEST] = 0;
+	this._usedWalls.push(o);
 }
 
 /**
@@ -172,7 +195,30 @@ RPG.Dungeon.Generator.Uniform.prototype._generateRooms = function() {
  * @returns {bool} success Was this attempt successfull?
  */
 RPG.Dungeon.Generator.Uniform.prototype._generateCorridors = function() {
-	return 1;
+	var cnt = 0;
+		
+	do {
+		/* get two distinct rooms with unused walls */
+		var rooms = this._findRoomPair();
+
+		/* no such rooms - fuck! */
+		if (!rooms) { return false; }
+		
+		/* connect those two walls with a corridor */
+		var result = this._tryCorridor(rooms);
+		if (result) {
+			/* corridor created */
+			cnt = 0;
+		} else {
+			/* failed to create */
+			cnt++;
+		}
+		/* are we done? */
+		if (this._noFreeRooms()) { return true; }
+		
+	} while (cnt < this._corridorAttempts);
+	
+	return false;
 }
 
 /**
@@ -217,6 +263,99 @@ RPG.Dungeon.Generator.Uniform.prototype._generateRoom = function() {
 	/* no room was generated in a given number of attempts */
 	return false;
 }
+
+/**
+ * Find two rooms that can be connected
+ * @returns {false || int[]} [room1index, wall1, room2index, wall2] 
+ */
+RPG.Dungeon.Generator.Uniform.prototype._findRoomPair = function() {
+	var freeIndexes = [];
+	for (var i=0;i<this._usedWalls.length;i++) {
+		var w = this._usedWalls[i];
+		if (!w[this.NORTH] || !w[this.EAST] || !w[this.SOUTH] || !w[this.WEST]) { freeIndexes.push(i); }
+	}
+	
+	/* we are unable to find 2 rooms */
+	if (freeIndexes.length < 2) { return false; }
+	
+	while (1) {
+		var room1i = freeIndexes.random();
+		var room2i = room1i;
+		while (room1i == room2i) { room2i = freeIndexes.random(); }
+		
+		var room1 = this._rooms[room1i];
+		var room2 = this._rooms[room2i];
+		var walls1 = this._usedWalls[room1i];
+		var walls2 = this._usedWalls[room2i];
+		var avail1 = [];
+		var avail2 = [];
+		
+		/* find maximum horizontal/vertical distance */
+		var width1 = Math.abs(room1[0].x - room2[1].x);
+		var width2 = Math.abs(room1[1].x - room2[0].x);
+		var height1 = Math.abs(room1[0].y - room2[1].y);
+		var height2 = Math.abs(room1[1].y - room2[0].y);
+		
+		var w = Math.max(width1, width2);
+		var h = Math.max(height1, height2);
+		var total = Math.max(w, h);
+		
+		/* get list of available walls for both rooms */
+		for (var i=0;i<4;i++) {
+			switch (i) {
+				case this.WEST:
+					if (!walls1[i] && (total != w || room1[0].x > room2[0].x)) { avail1.push(i); }
+					if (!walls2[i] && (total != w || room2[0].x > room1[0].x)) { avail2.push(i); }
+				break;
+				case this.EAST:
+					if (!walls1[i] && (total != w || room1[1].x < room2[1].x)) { avail1.push(i); }
+					if (!walls2[i] && (total != w || room2[1].x < room1[1].x)) { avail2.push(i); }
+				break;
+				case this.NORTH:
+					if (!walls1[i] && (total != h || room1[0].y > room2[0].y)) { avail1.push(i); }
+					if (!walls2[i] && (total != h || room2[0].y > room1[0].y)) { avail2.push(i); }
+				break;
+				case this.SOUTH:
+					if (!walls1[i] && (total != h || room1[1].y < room2[1].y)) { avail1.push(i); }
+					if (!walls2[i] && (total != h || room2[1].y < room1[1].y)) { avail2.push(i); }
+				break;
+			}
+		}
+		
+		/* these two rooms have no suitable walls */
+		if (!avail1.length || !avail2.length) { continue; }
+		
+		return [room1i, avail1.random(), room2i, avail2.random()];
+	}
+}
+
+/**
+ * Try connecting two rooms with given walls
+ * @param {array} rooms [room1, wall1, room2, wall2]
+ */
+RPG.Dungeon.Generator.Uniform.prototype._tryCorridor = function(rooms) {
+	var room1i = rooms[0];
+	var wall1 = rooms[1];
+	var room2i = rooms[2];
+	var wall2 = rooms[3];
+	var room1 = this._rooms[room1i];
+	var room2 = this._rooms[room2i];
+	
+	return false;
+}
+
+/**
+ * Are there no unconnected rooms remaining?
+ */
+RPG.Dungeon.Generator.Uniform.prototype._noFreeRooms = function() {
+	return true;
+	for (var i=0;i<this._usedWalls.length;i++) {
+		var w = this._usedWalls[i];
+		if (w[this.NORTH] + w[this.EAST] + w[this.SOUTH] + w[this.WEST] == 0) { return false; }
+	}
+	return true;
+}
+
 
 /**
  * @class Random dungeon generator using human-like digging patterns.

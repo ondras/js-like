@@ -38,7 +38,6 @@ RPG.Feats.RandomValue.prototype.modifiedValue = function(modifierHolder) {
 	var mean = rv.mean;
 	var variance = rv.variance;
 	mean = (mean + plus) * times;
-	mean = Math.max(0, mean);
 	return new RPG.Misc.RandomValue(mean, variance);
 };
 
