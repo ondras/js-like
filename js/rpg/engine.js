@@ -14,21 +14,21 @@ RPG.Engine.ActorInterface.prototype.yourTurn = function() {
  */
 RPG.Engine.Scheduler = OZ.Class();
 RPG.Engine.Scheduler.prototype.init = function() {
-	this.actors = [];
+	this._actors = [];
 }
 RPG.Engine.Scheduler.prototype.addActor = function(actor) {
-	this.actors.push(actor);
+	this._actors.push(actor);
+	return this;
 }
 RPG.Engine.Scheduler.prototype.clearActors = function(actor) {
-	this.actors = [];
+	this._actors = [];
+	return this;
 }
 RPG.Engine.Scheduler.prototype.removeActor = function(actor) {
-	var index = this.actors.indexOf(actor);
+	var index = this._actors.indexOf(actor);
 	if (index == -1) { throw new Error("Actor cannot be removed: not found"); }
-	this.actors.splice(index, 1);
-}
-RPG.Engine.Scheduler.prototype.getActors = function() {
-	return this.actors();
+	this._actors.splice(index, 1);
+	return this;
 }
 RPG.Engine.Scheduler.prototype.scheduleActor = function() {}
 

@@ -5,6 +5,12 @@
 RPG.Feats.MaxHP = OZ.Class().extend(RPG.Feats.BaseFeat);
 
 /**
+ * @class Speed
+ * @augments RPG.Feats.BaseFeat
+ */
+RPG.Feats.Speed = OZ.Class().extend(RPG.Feats.BaseFeat);
+
+/**
  * @class Defensive value
  * @augments RPG.Feats.BaseFeat
  */

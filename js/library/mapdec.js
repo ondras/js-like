@@ -148,14 +148,7 @@ RPG.Dungeon.Decorator.prototype._generateTreasure = function() {
 		gold.setAmount(1+Math.floor(Math.random()*100));
 		return gold;
 	} else {
-		return RPG.Factories.Gem.getInstance();
-		var gems = [];
-		for (var p in RPG.Items) {
-			var item = RPG.Items[p];
-			if (item._extend == RPG.Items.Gem) { gems.push(item); }
-		}
-		var gem = gems[Math.floor(Math.random() * gems.length)];
-		return new gem();
+		return RPG.Items.Gem.getInstance();
 	}
 }
 

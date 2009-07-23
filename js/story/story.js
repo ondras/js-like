@@ -51,15 +51,9 @@ Story.prototype._buildMap = function() {
 	for (var i=0;i<rooms.length;i++) { this._mapdec.decorateRoomDoors(rooms[i]); }
 
 	/* enemies */
-	var b = new RPG.Beings.Troll().setup();
-	var ai = new RPG.Engine.AI(b);
-	ai.addTask(new RPG.Engine.AI.Kill(this._pc));
-	var c = map.getFreeCoords(true);
-	map.at(c).setBeing(b);
-	
 	var max = 5 + Math.floor(Math.random()*10);
 	for (var i=0;i<max;i++) {
-		var b = new RPG.Beings.Goblin().setup();
+		var b = RPG.Beings.getInstance().setup();
 		var ai = new RPG.Engine.AI(b);
 		ai.addTask(new RPG.Engine.AI.Kill(this._pc));
 		var c = map.getFreeCoords(true);

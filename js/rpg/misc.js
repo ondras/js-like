@@ -153,43 +153,6 @@ RPG.Misc.Chat.prototype.getEnd = function() {
 }
 
 /**
- * @class Object factory
- */ 
-RPG.Misc.Factory = OZ.Class();
-
-/**
- * @param {object} searchBase Object with classes
- * @param {function} commonAncestor Class to search for
- */
-RPG.Misc.Factory.prototype.init = function(searchBase, commonAncestor) {
-	this._classList = [];
-	
-	for (var p in searchBase) {
-		var ctor = searchBase[p];
-		if (this._hasAncestor(ctor, commonAncestor)) { this._classList.push(ctor); }
-	}
-}
-
-/**
- * Return a random instance
- */ 
-RPG.Misc.Factory.prototype.getInstance = function() {
-	var len = this._classList.length;
-	if (len == 0) { throw new Error("No available classes"); }
-	
-	return new (this._classList[Math.floor(Math.random() * len)])();
-}
-
-RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {
-	var current = ctor;
-	while (current._extend) {
-		current = current._extend;
-		if (current == ancestor) { return true; }
-	}
-	return false;
-}
-
-/**
  * @class Interface for objects which can be cloned and (de)serialized
  */
 RPG.Misc.SerializableInterface = OZ.Class();
@@ -206,4 +169,57 @@ RPG.Misc.SerializableInterface.prototype.clone = function() {
 	var clone = new this.constructor();
 	for (var p in this) { clone[p] = this[p]; }
 	return clone;
+}
+
+/**
+ * @class Object factory
+ */ 
+RPG.Misc.Factory = OZ.Class();
+
+/**
+ * @param {object} searchBase Object with classes
+ * @param {function} commonAncestor Class to search for
+ */
+RPG.Misc.Factory.prototype.init = function() {
+	this._classList = [];	
+	this._total = 0;
+}
+
+RPG.Misc.Factory.prototype.add = function(ancestor) {
+	for (var i=0;i<OZ.Class.all.length;i++) {
+		var ctor = OZ.Class.all[i];
+		if (ctor.flags.abstr4ct) { continue; }
+		if (this._hasAncestor(ctor, ancestor)) { 
+			this._classList.push(ctor); 
+			this._total += ctor.flags.frequency;
+		}
+	}
+	return this;
+}
+
+/**
+ * Return a random instance
+ */ 
+RPG.Misc.Factory.prototype.getInstance = function() {
+	var len = this._classList.length;
+	if (len == 0) { throw new Error("No available classes"); }
+	
+	var random = Math.floor(Math.random()*this._total);
+	
+	var sub = 0;
+	var ctor = null;
+	for (var i=0;i<this._classList.length;i++) {
+		ctor = this._classList[i];
+		sub += ctor.flags.frequency;
+		if (random < sub) { return new ctor(); }
+	}
+}
+
+RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {
+	var current = ctor;
+	while (current) {
+		if (current == ancestor) { return true; }
+		current = current._extend;
+	}
+	return false;
 }

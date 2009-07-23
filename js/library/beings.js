@@ -7,7 +7,7 @@ RPG.Beings.Goblin.prototype.init = function() {
 	this.parent();
 	
 	this._char = "g";
-	this._color = "forestgreen";
+	this._color = "mediumblue";
 	this._description = "goblin";
 	this._image = "goblin";
 
@@ -17,10 +17,44 @@ RPG.Beings.Goblin.prototype.init = function() {
 }
 
 /**
+ * @class Hoboblin
+ * @augments RPG.Beings.Goblin
+ */
+RPG.Beings.Hobgoblin = OZ.Class().extend(RPG.Beings.Goblin);
+RPG.Beings.Hobgoblin.prototype.init = function() {
+	this.parent();
+	
+	this._color = "yellowgreen";
+	this._description = "hobgoblin";
+	this._image = "hobgoblin";
+	
+	this._default.strength += 1;
+	this._default.toughness += 1;
+}
+
+/**
+ * @class Hobgoblin leader
+ * @augments RPG.Beings.Hobgoblin
+ */
+RPG.Beings.HobgoblinLeader = OZ.Class().extend(RPG.Beings.Hobgoblin);
+RPG.Beings.HobgoblinLeader.flags.frequency = 10;
+RPG.Beings.HobgoblinLeader.prototype.init = function() {
+	this.parent();
+	
+	this._color = "forestgreen";
+	this._description = "hobgoblin leader";
+	this._image = "hobgoblin-leader";
+	
+	this._default.strength += 1;
+	this._default.toughness += 1;
+}
+
+/**
  * @class Troll
  * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.Troll = OZ.Class().extend(RPG.Beings.BaseBeing);
+RPG.Beings.Troll.flags.frequency = 5;
 RPG.Beings.Troll.prototype.init = function() {
 	this.parent();
 	
@@ -42,7 +76,7 @@ RPG.Beings.Troll.prototype.init = function() {
  * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.God = OZ.Class().extend(RPG.Beings.PC);
-
+RPG.Beings.God.flags.abstr4ct = true;
 RPG.Beings.God.prototype.getVisibleCoords = function() {
 	var arr = [];
 	var map = this._cell.getMap();

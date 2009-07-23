@@ -4,6 +4,14 @@ OZ.Class = function() {
 		var init = arguments.callee.prototype.init;
 		if (init) { init.apply(this,arguments); }
 	};
+
+	c.flags = {
+		danger: 1,
+		frequency: 100,
+		abstr4ct: false
+	}
+	arguments.callee.all.push(c);
+	
 	c._implement = [];
 	c.implement = function(parent) {
 		this._implement.push(parent);
@@ -53,3 +61,5 @@ OZ.Class = function() {
 	};
 	return c;
 }
+
+OZ.Class.all = [];

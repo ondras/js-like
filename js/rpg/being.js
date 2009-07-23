@@ -8,7 +8,7 @@ RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
 						.implement(RPG.Misc.ModifierInterface)
 						.implement(RPG.Engine.ActorInterface);
-
+RPG.Beings.BaseBeing.flags.abstr4ct = true;
 RPG.Beings.BaseBeing.prototype.init = function() {
 	this._initVisuals();
 	this._trapMemory = new RPG.Memory.TrapMemory();
@@ -23,8 +23,11 @@ RPG.Beings.BaseBeing.prototype.init = function() {
 	this._feats = {};
 	this._alive = true;
 	this._weapons = {}; /* fixme */
+	this._effects = [];
+	this._turnCounter = null;
 	
 	this._default = {
+		speed: 100,
 		maxhp: 5,
 		dv: 0,
 		pv: 0,
@@ -62,7 +65,8 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	this._feats = {
 		maxhp: new RPG.Feats.MaxHP(this._default.maxhp),
 		dv: new RPG.Feats.DV(this._default.dv),
-		pv: new RPG.Feats.PV(this._default.pv)
+		pv: new RPG.Feats.PV(this._default.pv),
+		speed: new RPG.Feats.Speed(this._default.speed)
 	}
 	
 	var attrs = {
@@ -76,6 +80,9 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 		var rv = new RPG.Misc.RandomValue(this._default[name], 2)
 		this._feats[name] = new ctor(rv.roll());
 	}
+	
+	var regen = new RPG.Effects.Regeneration(this);
+	this.addEffect(regen);
 }
 
 /**
@@ -176,6 +183,22 @@ RPG.Beings.BaseBeing.prototype.describeIt = function() {
 	return table[this._gender];
 }
 
+RPG.Beings.BaseBeing.prototype.getEffects = function() {
+	return this._effects;
+}
+
+RPG.Beings.BaseBeing.prototype.addEffect = function(e) {
+	this._effects.push(e);
+	return this;
+}
+
+RPG.Beings.BaseBeing.prototype.removeEffect = function(e) {
+	var index = this._effects.indexOf(e);
+	if (index == -1) { throw new Error("Cannot find effect"); }
+	this._effects.splice(index, 1);
+	return this;
+}
+
 /* ============================= STAT & FEAT GETTERS ============================= */
 
 RPG.Beings.BaseBeing.prototype.getHP = function() {
@@ -189,17 +212,22 @@ RPG.Beings.BaseBeing.prototype.getFeatValue = function(ctor) {
 	}
 }
 
-/* FIXME obsolete */
+/* FIXME obsolete? */
+RPG.Beings.BaseBeing.prototype.getSpeed = function() {
+	return this._feats.speed.modifiedValue(this);
+}
+
+/* FIXME obsolete? */
 RPG.Beings.BaseBeing.prototype.getMaxHP = function() {
 	return this._feats.maxhp.modifiedValue(this);
 }
 
-/* FIXME obsolete */
+/* FIXME obsolete? */
 RPG.Beings.BaseBeing.prototype.getDV = function() {
 	return this._feats.dv.modifiedValue(this);
 }
 
-/* FIXME obsolete */
+/* FIXME obsolete? */
 RPG.Beings.BaseBeing.prototype.getPV = function() {
 	return this._feats.pv.modifiedValue(this);
 }
@@ -334,7 +362,7 @@ RPG.Beings.BaseBeing.prototype._getModifierHolders = function() {
  * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.PC = OZ.Class().extend(RPG.Beings.BaseBeing);
-
+RPG.Beings.PC.flags.abstr4ct = true;
 RPG.Beings.PC.prototype.init = function() {
 	this.parent();
 	this._race = null;
@@ -342,6 +370,7 @@ RPG.Beings.PC.prototype.init = function() {
 	this._visibleCells = [];
 
 	this._default = {
+		speed: 100,
 		maxhp: 10,
 		dv: 5,
 		pv: 0,
@@ -361,7 +390,25 @@ RPG.Beings.PC.prototype.setup = function(race) {
 	this._color = race.getColor();
 	this._image = race.getImage();
 	this._description = "you";
+	
+	var tc = new RPG.Effects.TurnCounter();
+	tc.setup();
+	this._turnCounter = tc;
+	this.addEffect(tc);
+	
 	return this.parent();
+}
+
+/**
+ * @see RPG.Beings.BaseBeing#setCell
+ */
+RPG.Beings.PC.prototype.setCell = function(cell) {
+	RPG.UI.map.setFocus(cell.getCoords());
+	return this.parent(cell);
+}
+
+RPG.Beings.PC.prototype.getTurnCount = function() {
+	return this._turnCounter.getCount();
 }
 
 RPG.Beings.PC.prototype.mapMemory = function() {

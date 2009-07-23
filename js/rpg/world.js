@@ -5,7 +5,6 @@ RPG.World = {
 	_actions: [],
 	_running: false, /* is the engine running? */
 	_lock: 0, /* lock level */
-	_rounds: 0,
 	_map: null,
 	_scheduler: null,
 	_pc: null
@@ -15,6 +14,20 @@ RPG.World = {
  * Event dispatcher, static version
  */
 RPG.World.dispatch = OZ.Class().prototype.dispatch;
+
+
+RPG.World.init = function() {
+	this._scheduler = new RPG.Engine.Queue();
+
+	var f = new RPG.Misc.Factory().add(RPG.Items.Gem);
+	RPG.Items.Gem.getInstance = f.bind(f.getInstance);
+
+	var f = new RPG.Misc.Factory().add(RPG.Beings.Goblin);
+	RPG.Beings.Goblin.getInstance = f.bind(f.getInstance);
+
+	var f = new RPG.Misc.Factory().add(RPG.Beings.BaseBeing);
+	RPG.Beings.getInstance = f.bind(f.getInstance);
+}
 
 /**
  * Add new actor
@@ -123,8 +136,7 @@ RPG.World._decide = function() {
 RPG.World._clearActor = function() {
 	if (this._actor == this._pc) { 
 		RPG.UI.setMode(RPG.UI_LOCKED); 
-		this._rounds++;
-		RPG.UI.status.updateRounds(this._rounds);
+		RPG.UI.status.updateRounds(this._pc.getTurnCount());
 	}
 	this._actor = null;
 }
@@ -135,6 +147,11 @@ RPG.World._setActor = function() {
 	if (this._actor == this._pc) { RPG.UI.setMode(RPG.UI_NORMAL); }
 	
 	if (this._actor) { 
+		var effects = this._actor.getEffects();
+		for (var i=0;i<effects.length;i++) {
+			effects[i].go();
+		}
+	
 		this._actor.yourTurn(); 
 	} else { /* no actor available */
 		this._running = false;

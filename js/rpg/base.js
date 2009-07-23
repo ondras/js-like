@@ -137,3 +137,15 @@ RPG.Races.BaseRace.prototype.init = function() {
 	this._initVisuals();
 	this._modifiers = [];
 }
+
+/**
+ * @class Basic per-turn effect
+ * @augments RPG.Misc.SerializableInterface
+ */
+RPG.Effects.BaseEffect = OZ.Class().implement(RPG.Misc.SerializableInterface);
+RPG.Effects.BaseEffect.prototype.init = function(being) {
+	this._being = being;
+}
+RPG.Effects.BaseEffect.prototype.go = function() {
+}
+

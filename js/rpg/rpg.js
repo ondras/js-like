@@ -20,7 +20,7 @@ RPG.Dungeon = {};
 RPG.Engine = {};
 
 /** @namespace */
-RPG.Factories = {};
+RPG.Effects = {};
 
 /** @namespace */
 RPG.Feats = {};
@@ -57,9 +57,6 @@ RPG.Visual = {};
 RPG.CELL_OBSTACLE 		= 1 << 0; /* can not be moved onto, e.g. wall */
 /** @constant */
 RPG.CELL_SOLID	 		= 1 << 1; /* can not be seen through */
-
-/** @constant */
-RPG.ITEM_EDIBLE			= 1 << 0; /* can be eaten */
 
 /** @constant */
 RPG.FEATURE_OBSTACLE	= 1 << 0; /* can not be moved onto, e.g. closed door, tree */
@@ -136,9 +133,3 @@ String.prototype.capitalize = function() {
 Array.prototype.random = function() {
 	return this[Math.floor(Math.random() * this.length)];
 }
-
-RPG.init = function() {
-	RPG.Factories.Gem = new RPG.Misc.Factory(RPG.Items, RPG.Items.Gem);
-	RPG.World._scheduler = new RPG.Engine.Queue();
-}
-

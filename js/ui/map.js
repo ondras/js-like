@@ -6,6 +6,7 @@ RPG.UI.BaseMap = OZ.Class();
 RPG.UI.BaseMap.prototype.init = function(container, cellCtor) {
 	this._size = null;
 	this._cellCtor = cellCtor;
+	this._focus = null;
 	this._dom = {
 		container: container,
 		data: null
@@ -29,11 +30,24 @@ RPG.UI.BaseMap.prototype.resize = function(size) {
 			this._dom.data[i][j] = cell;
 		}
 	}
+	
+	this.setFocus(RPG.World.getPC().getCell().getCoords());
 }
 
 RPG.UI.BaseMap.prototype.redrawCoords = function(coords, data, remembered) {
 	var cell = this._dom.data[coords.x][coords.y];
 	cell.update(data, remembered);
+}
+
+RPG.UI.BaseMap.prototype.setFocus = function(coords) {
+	if (this._focus) {
+		var c = this._focus;
+		this._dom.data[c.x][c.y].removeFocus();
+	}
+	if (this._dom.data) {
+		this._dom.data[coords.x][coords.y].addFocus();
+	}
+	this._focus = coords.clone();
 }
 
 RPG.UI.BaseMap.prototype._resize = function() {
@@ -56,6 +70,12 @@ RPG.UI.BaseCell.prototype.init = function(owner, coords) {
 RPG.UI.BaseCell.prototype.update = function(data, remembered) {
 }
 
+RPG.UI.BaseCell.prototype.addFocus = function() {
+}
+
+RPG.UI.BaseCell.prototype.removeFocus = function() {
+}
+
 /**
  * @class Image map
  * @augments RPG.UI.BaseMap
@@ -69,6 +89,7 @@ RPG.UI.ImageMap.prototype.init = function(container, options) {
 	}
 	for (var p in options) { this.options[p] = options[p]; }
 	this._dom.container.style.position = "relative";
+	this._dom.focus = OZ.DOM.elm("div", {className:"focus"});
 }
 
 RPG.UI.ImageMap.prototype._resize = function() {
@@ -84,15 +105,17 @@ RPG.UI.ImageCell = OZ.Class().extend(RPG.UI.BaseCell);
 RPG.UI.ImageCell.prototype.init = function(owner, coords) {
 	this.parent(owner);
 
+	this._dom.focus = owner._dom.focus;
+	
 	var ts = owner.options.tileSize;
 	var container = owner._dom.container;
 	var x = coords.x * ts.x;
 	var y = coords.y * ts.y;
-	this._dom.container = OZ.DOM.elm("div", {position:"absolute", left:x+"px", top:y+"px", width:ts.x+"px", height:ts.y+"px"});
+	this._dom.container = OZ.DOM.elm("div", {position:"absolute", left:x+"px", top:y+"px"});
 	this._dom.nodes = [];
 	
 	for (var i=0;i<2;i++) {
-		var node = OZ.DOM.elm("img", {position:"absolute", left:"0px", top:"0px", width:ts.x+"px", height:ts.y+"px"});
+		var node = OZ.DOM.elm("img", {position:"absolute", left:"0px", top:"0px"});
 		this._dom.nodes.push(node);
 		this._dom.container.appendChild(node);
 	}
@@ -110,6 +133,10 @@ RPG.UI.ImageCell.prototype.update = function(data, remembered) {
 	}
 }
 
+RPG.UI.ImageCell.prototype.addFocus = function() {
+	this._dom.container.appendChild(this._dom.focus);
+}
+
 RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 	if (!what) {
 		node.style.visibility = "hidden";
@@ -118,7 +145,7 @@ RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 	
 	node.style.visibility = "visible";
 	var src = what.getImage();
-	var text = what.describeA();
+	var text = what.describe();
 
 	var type = "";
 	if (what instanceof RPG.Beings.BaseBeing) {
@@ -196,7 +223,7 @@ RPG.UI.ASCIICell.prototype.update = function(data, remembered) {
 
 	var ch = item.getChar();
 	var color = item.getColor();
-	var title = item.describeA();
+	var title = item.describe();
 	
 	this._dom.node.title = title;
 	if (ch != this._currentChar) {
@@ -207,4 +234,12 @@ RPG.UI.ASCIICell.prototype.update = function(data, remembered) {
 		this._currentColor = color;
 		this._dom.node.style.color = color;
 	}
+}
+
+RPG.UI.ASCIICell.prototype.addFocus = function() {
+	OZ.DOM.addClass(this._dom.node, "focus");
+}
+
+RPG.UI.ASCIICell.prototype.removeFocus = function() {
+	OZ.DOM.removeClass(this._dom.node, "focus");
 }

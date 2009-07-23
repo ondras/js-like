@@ -39,18 +39,17 @@ RPG.Items.KlingonSword.prototype.init = function() {
  * @class Anything that can be eaten
  * @augments RPG.Items.BaseItem
  */
-RPG.Items.Edible = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Edible.prototype.init = function() {
+RPG.Items.Consumable = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Consumable.prototype.init = function() {
 	this.parent();
-	this.flags |= RPG.ITEM_EDIBLE;
 	this._char = "%";
 }
 
 /**
  * @class Corpse, after being dies
- * @augments RPG.Items.Edible
+ * @augments RPG.Items.Consumable
  */
-RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Edible);
+RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Consumable);
 
 /**
  * @param {RPG.Beings.BaseBeing} being The one who died
@@ -94,6 +93,7 @@ RPG.Items.Gold.prototype.describe = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Gem = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Gem.flags.abstr4ct = true;
 RPG.Items.Gem.prototype.init = function() {
 	this.parent();
 	this._char = "*";

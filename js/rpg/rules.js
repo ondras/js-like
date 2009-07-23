@@ -6,7 +6,7 @@ RPG.Rules.isDoorStuck = function(being, door) {
 }
 
 /**
- * Does this attacked hit its target?
+ * Does this attacker hit its target?
  */
 RPG.Rules.isMeleeHit = function(attacker, defender, weapon) {
 	var hit = attacker.getHit(weapon).roll();
