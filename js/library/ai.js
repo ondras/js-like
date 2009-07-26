@@ -278,7 +278,8 @@ RPG.Engine.AI.Attack.prototype.go = function() {
 		/* perform an attack */
 		var being = this._ai.getBeing();
 		this._attacked = true;
-		RPG.World.action(new RPG.Actions.Attack(being, this._target, being.getWeapon()));
+		var slot = being.getSlot(RPG.Slots.Hand);
+		RPG.World.action(new RPG.Actions.Attack(being, this._target, slot));
 		return RPG.AI_OK;
 	}
 }

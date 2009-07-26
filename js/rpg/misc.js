@@ -9,7 +9,6 @@ RPG.Misc.RandomValue.prototype.init = function(mean, variance) {
 RPG.Misc.RandomValue.prototype.toString = function() {
 	return this.mean + "±" + this.variance;
 }
-
 /**
  * Roll the dice.
  */
@@ -61,7 +60,6 @@ RPG.Misc.ModifierInterface.prototype.addModifier = function(feat, type, value) {
 	var item = [feat, type, value];
 	this._modifiers.push(item);
 }
-
 /**
  * Ask for a modifier to a given feat. Third argument is necessary for 
  * recursive scenarios, for example: to retrieve modifier for MaxHP, 
@@ -105,49 +103,24 @@ RPG.Misc.WeaponInterface.prototype.getDamage = function(modifierHolder) {
 }
 
 /**
- * @class Hands, basic weapon
- * @augments RPG.Misc.WeaponInterface
- */
-RPG.Misc.Hands = OZ.Class().implement(RPG.Misc.WeaponInterface);
-RPG.Misc.Hands.prototype.init = function(hit, damage) {
-	this.setHit(hit);
-	this.setDamage(damage);
-}
-
-/**
- * @class Foot, useful for kicking
- * @augments RPG.Misc.WeaponInterface
- */
-RPG.Misc.Foot = OZ.Class().implement(RPG.Misc.WeaponInterface);
-RPG.Misc.Foot.prototype.init = function(hit, damage) {
-	this.setHit(hit);
-	this.setDamage(damage);
-}
-
-/**
  * @class Chat - hierarchical dialog structure
  */
 RPG.Misc.Chat = OZ.Class();
-
 RPG.Misc.Chat.prototype.init = function(text, end) {
 	this._text = text;
 	this._options = [];
 	this._end = end;
 }
-
 RPG.Misc.Chat.prototype.addOption = function(text, something) {
 	this._options.push([text, something]);
 	return this;
 }
-
 RPG.Misc.Chat.prototype.getText = function() {
 	return this._text;
 }
-
 RPG.Misc.Chat.prototype.getOptions = function() {
 	return this._options;
 }
-
 RPG.Misc.Chat.prototype.getEnd = function() {
 	return this._end;
 }
@@ -175,7 +148,6 @@ RPG.Misc.SerializableInterface.prototype.clone = function() {
  * @class Object factory
  */ 
 RPG.Misc.Factory = OZ.Class();
-
 /**
  * @param {object} searchBase Object with classes
  * @param {function} commonAncestor Class to search for
@@ -184,7 +156,6 @@ RPG.Misc.Factory.prototype.init = function() {
 	this._classList = [];	
 	this._total = 0;
 }
-
 RPG.Misc.Factory.prototype.add = function(ancestor) {
 	for (var i=0;i<OZ.Class.all.length;i++) {
 		var ctor = OZ.Class.all[i];
@@ -196,7 +167,6 @@ RPG.Misc.Factory.prototype.add = function(ancestor) {
 	}
 	return this;
 }
-
 /**
  * Return a random instance
  */ 
@@ -214,7 +184,6 @@ RPG.Misc.Factory.prototype.getInstance = function() {
 		if (random < sub) { return new ctor(); }
 	}
 }
-
 RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {
 	var current = ctor;
 	while (current) {

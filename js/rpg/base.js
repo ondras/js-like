@@ -61,7 +61,7 @@ RPG.Items.BaseItem.prototype.clone = function() {
 		var mod2 = [modifier[0], modifier[1], modifier[2]];
 		clone._modifiers.push(mod2);
 	}
-	return this;
+	return clone;
 }
 
 /**
@@ -149,3 +149,143 @@ RPG.Effects.BaseEffect.prototype.init = function(being) {
 RPG.Effects.BaseEffect.prototype.go = function() {
 }
 
+/** 
+ * @class Basic action
+ */
+RPG.Actions.BaseAction = OZ.Class();
+
+/**
+ * @param {?} source Something that performs this action
+ * @param {?} target Action target
+ * @param {?} params Any params necessary
+ */
+RPG.Actions.BaseAction.prototype.init = function(source, target, params) {
+	this._source = source;
+	this._target = target;
+	this._params = params;
+	this._tookTime = true;
+}
+RPG.Actions.BaseAction.prototype.getSource = function() {
+	return this._source;
+}
+RPG.Actions.BaseAction.prototype.getTarget = function() {
+	return this._target;
+}
+/**
+ * @returns {bool} Did this action took some time?
+ */
+RPG.Actions.BaseAction.prototype.tookTime = function() {
+	return this._tookTime;
+}
+/**
+ * Process this action
+ */
+RPG.Actions.BaseAction.prototype.execute = function() {
+}
+
+RPG.Actions.BaseAction.prototype._describeLocal = function() {
+	var pc = RPG.World.getPC();
+	var cell = pc.getCell();
+	
+	var f = cell.getFeature();
+	if (f && f.knowsAbout(pc)) {
+		RPG.UI.buffer.message("You see " + f.describeA() + ".");
+	}
+	
+	var items = cell.getItems();
+	if (items.length > 1) {
+		RPG.UI.buffer.message("Several items are lying here.");
+	} else if (items.length == 1) {
+		var item = items[0];
+		var str = item.describeA().capitalize();
+		str += " is lying here.";
+		RPG.UI.buffer.message(str);
+	}
+}
+
+RPG.Actions.BaseAction.prototype._describeRemote = function(coords) {
+	var map = RPG.World.getMap();
+	var pc = RPG.World.getPC();
+	
+	if (!pc.canSee(coords)) {
+		RPG.UI.buffer.message("You do not see that place.");
+		return;
+	}
+	
+	var cell = map.at(coords);
+	
+	var b = cell.getBeing();
+	if (b) {
+		if (b == pc) {
+			RPG.UI.buffer.message("You see yourself. You are " + b.woundedState() + " wounded.");
+		} else {
+			var str = "";
+			str += "You see " + b.describeA()+". ";
+			str += b.describeHe().capitalize() + " is " + b.woundedState() + " wounded. ";
+			if (b.isHostile()) {
+				str += b.describeThe().capitalize() + " is hostile.";
+			} else {
+				str += b.describeThe().capitalize() + " does not seem to be hostile.";
+			}
+			RPG.UI.buffer.message(str);
+		}
+		return;
+	}
+	
+	var arr = [];
+	
+	var f = cell.getFeature();
+	if (f && f.knowsAbout(pc)) {
+		arr.push(f.describeA());
+	}
+	
+	var items = cell.getItems();
+	if (items.length > 1) {
+		arr.push("several items");
+	} else if (items.length > 0) {
+		arr.push(items[0].describeA());
+	}
+	
+	if (!arr.length) {
+		arr.push(cell.describeA());
+	}
+
+	RPG.UI.buffer.message("You see " + arr.join(" and ")+".");
+}
+
+
+/**
+ * @class Body part - place for an item
+ * @augments RPG.Misc.SerializableInterface
+ */
+RPG.Slots.BaseSlot = OZ.Class().implement(RPG.Misc.SerializableInterface);
+RPG.Slots.BaseSlot.prototype.init = function() {
+	this._item = null;
+	this._being = null;
+	this._name = "";
+	this._allowed = [];
+}
+RPG.Slots.BaseSlot.prototype.setup = function(being) {
+	this._being = being;
+	return this;
+}
+RPG.Slots.BaseSlot.prototype.filterAllowed = function(itemList) {
+	var arr = [];
+	for (var i=0;i<itemList.length;i++) {
+		var item = itemList[i];
+		for (var j=0;j<this._allowed.length;j++) {
+			var allowed = this._allowed[j];
+			if (item instanceof allowed) { arr.push(item); }
+		}
+	}
+	return arr;
+}
+RPG.Slots.BaseSlot.prototype.setItem = function(item) {
+	this._item = item;
+}
+RPG.Slots.BaseSlot.prototype.getItem = function() {
+	return this._item;
+}
+RPG.Slots.BaseSlot.prototype.getName = function() {
+	return this._name;
+}

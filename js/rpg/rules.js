@@ -8,8 +8,8 @@ RPG.Rules.isDoorStuck = function(being, door) {
 /**
  * Does this attacker hit its target?
  */
-RPG.Rules.isMeleeHit = function(attacker, defender, weapon) {
-	var hit = attacker.getHit(weapon).roll();
+RPG.Rules.isMeleeHit = function(attacker, defender, slot) {
+	var hit = slot.getHit().roll();
 
 	var dv = defender.getDV();
 //	console.log("hit("+hit+") vs. dv("+dv+")");
@@ -36,10 +36,10 @@ RPG.Rules.isTrapActivated = function(being, trap) {
 }
 
 /**
- * How much damage does this attacker with a given weapon to a defender
+ * How much damage does this attacker with a given slot to a defender
  */
-RPG.Rules.getMeleeDamage = function(attacker, defender, weapon, isCritical) {
-	var damage = attacker.getDamage(weapon).roll();
+RPG.Rules.getMeleeDamage = function(attacker, defender, slot, isCritical) {
+	var damage = slot.getDamage().roll();
 	if (isCritical) { damage *= 2; }
 
 	var pv = defender.getPV();

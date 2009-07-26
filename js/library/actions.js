@@ -21,7 +21,7 @@ RPG.Actions.Move.prototype.execute = function() {
 	targetCell.setBeing(this._source);
 
 	if (you) {
-		this._describe();
+		this._describeLocal();
 		memory.updateVisible();
 	} else {
 		memory.updateCoords(sourceCoords);
@@ -30,7 +30,7 @@ RPG.Actions.Move.prototype.execute = function() {
 }
 
 /**
- * @class Attacking other being. Target == being, params == weapon
+ * @class Attacking other being. Target == being, params == slot
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.Attack = OZ.Class().extend(RPG.Actions.BaseAction);
@@ -41,16 +41,16 @@ RPG.Actions.Attack.prototype.init = function(source, target, params) {
 	this._kill = false;
 }
 RPG.Actions.Attack.prototype.execute = function() {
-	var weapon = this._params;
+	var slot = this._params;
 	
 	/* hit? */
-	var hit = RPG.Rules.isMeleeHit(this._source, this._target, weapon);
+	var hit = RPG.Rules.isMeleeHit(this._source, this._target, slot);
 	if (hit) { 
 		this._hit = true;
 
 		/* damage? */
 		var crit = RPG.Rules.isCritical(this._source);
-		var damage = RPG.Rules.getMeleeDamage(this._source, this._target, weapon, crit);
+		var damage = RPG.Rules.getMeleeDamage(this._source, this._target, slot, crit);
 		
 		if (damage) {
 			this._damage = true;
@@ -63,44 +63,39 @@ RPG.Actions.Attack.prototype.execute = function() {
 }
 
 RPG.Actions.Attack.prototype._describe = function() {
+	var killVerbs = ["kill", "slay"];
 	var youAttacker = (this._source == RPG.World.getPC());
 	var youDefender = (this._target == RPG.World.getPC());
-	var attacker = (youAttacker ? "you" : this._source.describeThe());
-	var defender = (youDefender ? "you" : this._target.describeThe());
 	var missVerb = (youAttacker ? "miss" : "misses");
 	var kickVerb = (youAttacker ? "kick" : "kicks");
 	var hitVerb = (youAttacker ? "hit" : "hits");
-	if (this._params instanceof RPG.Misc.Foot) { hitVerb = kickVerb; }
+	var killVerb = (youAttacker ? killVerbs.random() : killVerbs.random() + "s");
+	if (this._params instanceof RPG.Slots.Feet) { hitVerb = kickVerb; }
 	
-	var str = attacker.capitalize() + " ";
-	str = (youAttacker ? "you" : this._source.describeThe()).capitalize() + " ";
+	var str = this._source.describeThe().capitalize() + " ";
 	
 	if (!this._hit) {
-		str += missVerb + " " + defender + ".";
+		str += missVerb + " " + this._target.describeThe() + ".";
 		return str;
 	}
 	
 	if (!this._damage) {
 		if (youAttacker) {
-			str += hitVerb + " " + defender;
-			str += ", but do not manage to harm " + this._target.describeIt();
+			str += hitVerb + " " + this._target.describeThe();
+			str += ", but do not manage to harm " + this._target.describeHim();
 		} else {
-			str += "fails to hurt " + defender;
+			str += "fails to hurt " + this._target.describeThe();
 		}
 		str += ".";
 		return str;
 	}
 	
-	str += hitVerb + " " + defender;
+	str += hitVerb + " " + this._target.describeThe();
 	if (this._kill) {
-		if (youDefender) {
-			str += " and kills " + defender;
-		} else {
-			str += " and kill "+this._target.describeIt();
-		}
+		str += " and " + killVerb + " " + this._target.describeHim();
 		str += "!";
 	} else if (!youDefender) {
-		str += " and "+this._target.woundedState()+ " wound "+this._target.describeIt();
+		str += " and "+this._target.woundedState()+ " wound "+this._target.describeHim();
 		str += ".";
 	} else {
 		str += ".";
@@ -160,14 +155,12 @@ RPG.Actions.Open.prototype.execute = function() {
 	
 	map.at(coords).getFeature().open();
 	
-	var str = "";
+	var str = this._source.describeA().capitalize() + " ";
 	if (you) {
-		str += "you open";
+		str += "open";
 	} else {
-		str += this._source.describeA() + " opens";
+		str += "opens";
 	}
-	str = str.capitalize();
-	
 	str += " the door.";
 	
 	RPG.UI.buffer.message(str);
@@ -203,14 +196,13 @@ RPG.Actions.Close.prototype.execute = function() {
 
 	cell.getFeature().close();
 	
-	var str = "";
+	var str = this._source.describeA().capitalize() + " ";
 	var you = (this._source == RPG.World.getPC());
 	if (you) {
-		str += "you close";
+		str += "close";
 	} else {
-		str += this._source.describeA() + " closes";
+		str += "closes";
 	}
-	str = str.capitalize();
 	str += " the door.";
 	
 	RPG.UI.buffer.message(str);
@@ -281,10 +273,7 @@ RPG.Actions.Pick.prototype.execute = function() {
 
 		this._source.addItem(item);
 		
-		/* FIXME! */
-		if (item instanceof RPG.Items.Weapon) { this._source.setWeapon(item); }
-		
-		var str = (you ? "you" : this._source.describeA()).capitalize();
+		var str = this._source.describeA().capitalize();
 		str += " " + (you ? "pick" : "picks") + " up ";
 		str += (you ? item.describeThe() : item.describeA());
 		str += ".";
@@ -317,7 +306,7 @@ RPG.Actions.Drop.prototype.execute = function() {
 		}
 		cell.addItem(item);
 		
-		var str = (you ? "you" : this._source.describeA()).capitalize();
+		var str = this._source.describeA().capitalize();
 		str += " " + (you ? "drop" : "drops") + " ";
 		str += (you ? item.describeThe() : item.describeA());
 		str += ".";
@@ -350,7 +339,8 @@ RPG.Actions.Kick.prototype.execute = function() {
 	
 	if (feature && feature instanceof RPG.Features.Door && feature.isClosed()) {
 		/* kick door */
-		var dmg = this._source.getDamage(this._source.getFoot()).roll();
+		var feet = this._source.getSlot(RPG.Slots.Feet);
+		var dmg = feet.getDamage().roll();
 		var result = feature.damage(dmg);
 		if (result) {
 			RPG.UI.buffer.message("You kick the door, but it does not budge.");
@@ -404,7 +394,7 @@ RPG.Actions.Chat.prototype.execute = function() {
 	if (chat) {
 		RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, chat);
 	} else {
-		RPG.UI.buffer.message(this._target.describeIt() + " does not reply.");
+		RPG.UI.buffer.message(this._target.describeHe().capitalize() + " does not reply.");
 	}
 }
 
@@ -483,7 +473,7 @@ RPG.Actions.EnterStaircase.prototype.execute = function() {
 	RPG.World.setMap(newMap);
 	
 	/* describe what we see */
-	this._describe();
+	this._describeLocal();
 }
 
 /**
@@ -549,9 +539,31 @@ RPG.Actions.Pit.prototype.execute = function() {
 	var pc = RPG.World.getPC();
 	var you = (this._source == pc);
 
-	var str = this._source.describeA().capitalize();
-	str += " " + (you ? "fall" : "falls") + " into a pit!";
-	RPG.UI.buffer.message(str);
+	if (pc.canSee(this._target.getCell().getCoords())) {
+		var str = this._source.describeA().capitalize();
+		str += " " + (you ? "fall" : "falls") + " into a pit!";
+		RPG.UI.buffer.message(str);
+	}
+	
 	var dmg = RPG.Rules.getTrapDamage(this._source, this._target);
 	this._source.adjustHP(-dmg);
+}
+
+/**
+ * @class Looking around, target = coords
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Look = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.Look.prototype.execute = function() {
+	this._tookTime = false; /* these are free */
+	this._describeRemote(this._target);
+}
+
+/**
+ * @class Equipping items. This is a dummy action, items are switched during UI interaction.
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Equip = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.Equip.prototype.execute = function() {
+	RPG.UI.buffer.message("You adjust your equipment.");
 }

@@ -11,9 +11,14 @@ RPG.Beings.Goblin.prototype.init = function() {
 	this._description = "goblin";
 	this._image = "goblin";
 
+}
+RPG.Beings.Goblin.prototype.setup = function() {
+	this.parent();
+
 	var dagger = new RPG.Items.Dagger();
-	this.addItem(dagger);
-	this.setWeapon(dagger);
+	this.getSlot(RPG.Slots.Hand).setItem(dagger);
+	
+	return this;
 }
 
 /**
@@ -37,7 +42,7 @@ RPG.Beings.Hobgoblin.prototype.init = function() {
  * @augments RPG.Beings.Hobgoblin
  */
 RPG.Beings.HobgoblinLeader = OZ.Class().extend(RPG.Beings.Hobgoblin);
-RPG.Beings.HobgoblinLeader.flags.frequency = 10;
+RPG.Beings.HobgoblinLeader.flags.frequency = 15;
 RPG.Beings.HobgoblinLeader.prototype.init = function() {
 	this.parent();
 	
@@ -54,7 +59,7 @@ RPG.Beings.HobgoblinLeader.prototype.init = function() {
  * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.Troll = OZ.Class().extend(RPG.Beings.BaseBeing);
-RPG.Beings.Troll.flags.frequency = 5;
+RPG.Beings.Troll.flags.frequency = 10;
 RPG.Beings.Troll.prototype.init = function() {
 	this.parent();
 	

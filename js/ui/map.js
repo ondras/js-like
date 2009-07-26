@@ -44,9 +44,7 @@ RPG.UI.BaseMap.prototype.setFocus = function(coords) {
 		var c = this._focus;
 		this._dom.data[c.x][c.y].removeFocus();
 	}
-	if (this._dom.data) {
-		this._dom.data[coords.x][coords.y].addFocus();
-	}
+	this._dom.data[coords.x][coords.y].addFocus();
 	this._focus = coords.clone();
 }
 
@@ -217,7 +215,8 @@ RPG.UI.ASCIICell.prototype.update = function(data, remembered) {
 	
 	var item = (data.length ? data[data.length-1] : null);
 	if (!item) {
-		this._dom.node.innerHTML = "&nbsp;"
+		this._dom.node.innerHTML = "&nbsp;";
+		this._dom.node.style.color = "white";
 		return;
 	}
 

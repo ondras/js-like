@@ -9,6 +9,7 @@ RPG.Effects.TurnCounter.prototype.init = function(being) {
 }
 RPG.Effects.TurnCounter.prototype.setup = function() {
 	this._turns = 0;
+	return this;
 }
 
 RPG.Effects.TurnCounter.prototype.go = function() {

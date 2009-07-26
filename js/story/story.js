@@ -44,7 +44,6 @@ Story.prototype._createPC = function() {
 Story.prototype._buildMap = function() {
 	var index = this._maps.length + 1;
 	var map = this._mapgen.generate("Dungeon #" + index);
-	window.m = map;
 	this._mapdec.setMap(map).addHiddenCorridors(0.01);
 
 	var rooms = map.getRooms();

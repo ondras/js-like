@@ -17,12 +17,11 @@ RPG.Beings.BaseBeing.prototype.init = function() {
 
 	this._cell = null;
 	this._chat = null;
-	this._gender = RPG.GENDER_NEUTER;
+	this._gender = null;
 	this._items = [];
 	this._stats = {};
 	this._feats = {};
 	this._alive = true;
-	this._weapons = {}; /* fixme */
 	this._effects = [];
 	this._turnCounter = null;
 	
@@ -36,13 +35,25 @@ RPG.Beings.BaseBeing.prototype.init = function() {
 		dexterity: 9,
 		intelligence: 9
 	}
+	
+	this._slots = [];
 }
 
 RPG.Beings.BaseBeing.prototype.setup = function() {
-	this._weapons = {
-		current: null,
-		hands: new RPG.Misc.Hands(new RPG.Misc.RandomValue(4, 2), new RPG.Misc.RandomValue(2, 1)),
-		foot: new RPG.Misc.Foot(new RPG.Misc.RandomValue(4, 3), new RPG.Misc.RandomValue(3, 1))
+	var hand = new RPG.Slots.Hand().setup(this);
+	var feet = new RPG.Slots.Feet().setup(this);
+	hand.setHit(new RPG.Misc.RandomValue(4, 2));
+	hand.setDamage(new RPG.Misc.RandomValue(2, 1));
+	feet.setHit(new RPG.Misc.RandomValue(4, 3));
+	feet.setDamage(new RPG.Misc.RandomValue(3, 1));
+	this._slots.push(hand);
+	this._slots.push(feet);
+
+	if (Math.randomPercentage() < 34) {
+		this._gender = RPG.GENDER_FEMALE;
+		this._description = "female " + this._description;
+	} else {
+		this._gender = RPG.GENDER_MALE;
 	}
 
 	this._initStatsAndFeats();
@@ -113,15 +124,10 @@ RPG.Beings.BaseBeing.prototype.getItems = function() {
 	return this._items;
 }
 
-RPG.Beings.BaseBeing.prototype.getFoot = function() {
-	return this._weapons.foot;
-}
-
 RPG.Beings.BaseBeing.prototype.setChat = function(chat) {
 	this._chat = chat;
 	return this;
 }
-
 
 RPG.Beings.BaseBeing.prototype.getChat = function() {
 	return this._chat;
@@ -155,26 +161,41 @@ RPG.Beings.BaseBeing.prototype.getModifier = function(feat, type, modifierHolder
 }
 
 /**
- * Sets an item as a current weapon. FIXME this should be reworked into an inventory.
- * @param {RPG.Misc.WeaponInterface}
+ * Return all available slots
  */
-RPG.Beings.BaseBeing.prototype.setWeapon = function(item) {
-	this._weapons.current = item;
+RPG.Beings.BaseBeing.prototype.getSlots = function() {
+	return this._slots;
 }
 
 /**
- * Gets current weapon. FIXME this should be reqorked into an inventory.
- * @returns {RPG.Misc.WeaponInterface}
+ * Get a particular slot
  */
-RPG.Beings.BaseBeing.prototype.getWeapon = function() {
-	return this._weapons.current || this._weapons.hands;
+RPG.Beings.BaseBeing.prototype.getSlot = function(type) {
+	for (var i=0;i<this._slots.length;i++) {
+		var slot = this._slots[i];
+		if (slot instanceof type) { return slot; }
+	}
+	return null;
+}
+
+/**
+ * Return he/she/it string for this being
+ * @returns {string}
+ */
+RPG.Beings.BaseBeing.prototype.describeHe = function() {
+	var table = {};
+	table[RPG.GENDER_MALE] = "he";
+	table[RPG.GENDER_FEMALE] = "she";
+	table[RPG.GENDER_NEUTER] = "it";
+	
+	return table[this._gender];
 }
 
 /**
  * Return him/her/it string for this being
  * @returns {string}
  */
-RPG.Beings.BaseBeing.prototype.describeIt = function() {
+RPG.Beings.BaseBeing.prototype.describeHim = function() {
 	var table = {};
 	table[RPG.GENDER_MALE] = "him";
 	table[RPG.GENDER_FEMALE] = "her";
@@ -232,15 +253,12 @@ RPG.Beings.BaseBeing.prototype.getPV = function() {
 	return this._feats.pv.modifiedValue(this);
 }
 
-RPG.Beings.BaseBeing.prototype.getHit = function(weapon) {
-	return weapon.getHit(this);
-}
-
-RPG.Beings.BaseBeing.prototype.getDamage = function(weapon) {
-	return weapon.getDamage(this);
-}
-
 /* ============================== MISC ==================================== */
+
+RPG.Beings.BaseBeing.prototype.isHostile = function() {
+	/* FIXME! */
+	return true;
+}
 
 RPG.Beings.BaseBeing.prototype.isAlive = function() {
 	return this._alive;
@@ -380,31 +398,22 @@ RPG.Beings.PC.prototype.init = function() {
 		intelligence: 11
 	}
 	
+	this._char = "@";
+	this._description = "you";
 }
 
 RPG.Beings.PC.prototype.setup = function(race) {
 	this._race = race;
 	this._mapMemory = new RPG.Memory.MapMemory();
 	
-	this._char = "@";
 	this._color = race.getColor();
 	this._image = race.getImage();
-	this._description = "you";
 	
-	var tc = new RPG.Effects.TurnCounter();
-	tc.setup();
+	var tc = new RPG.Effects.TurnCounter().setup();
 	this._turnCounter = tc;
 	this.addEffect(tc);
 	
 	return this.parent();
-}
-
-/**
- * @see RPG.Beings.BaseBeing#setCell
- */
-RPG.Beings.PC.prototype.setCell = function(cell) {
-	RPG.UI.map.setFocus(cell.getCoords());
-	return this.parent(cell);
 }
 
 RPG.Beings.PC.prototype.getTurnCount = function() {
@@ -431,6 +440,20 @@ RPG.Beings.PC.prototype.describeA = function() {
  */
 RPG.Beings.PC.prototype.describeThe = function() {
 	return this.describe();
+}
+
+/**
+ * @see RPG.Beings.BaseBeing#describeHe
+ */
+RPG.Beings.PC.prototype.describeHe = function() {
+	return "you";
+}
+
+/**
+ * @see RPG.Beings.BaseBeing#describeHim
+ */
+RPG.Beings.PC.prototype.describeHim = function() {
+	return "you";
 }
 
 /**

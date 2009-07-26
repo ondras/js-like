@@ -40,6 +40,19 @@ body {
 	font-size:125%;
 }
 
+.ascii .focus {
+	text-decoration: underline;
+}
+
+.map .focus {
+	position: absolute;
+	width: 32px;
+	height: 1px;
+	background-color: white;
+	bottom: 0px;
+	top: 31px;
+}
+
 #keypad {
 	float: left;
 	text-align: center;
@@ -65,36 +78,37 @@ body {
 	font-weight: bold;
 }
 
-.items {
+.dialog {
 	background-image: url(img/scroll.jpg);
 	border: 2px solid brown;
 	padding: 0.5em;
 	opacity: 0.95;
+	min-width:40%; 
 }
 
-.items td {
+.dialog td {
 	font-size: 80%;
 }
 
-.items h1 {
-	font-size: 90%;
+.dialog h1 {
+	font-size: 100%;
 	margin: 0px 0px 0.5em 0px;
 }
 
-.items thead {
+.dialog thead {
 	font-weight: bold;
 }
 
-.items thead td {
+.dialog thead td {
 	padding-top: 0.5em;
 	border-bottom: 1px solid black;
 }
-.items input {
+.dialog input {
 	vertical-align: middle;
 	font: menu;
 }
 
-.items table {
+.dialog table {
 	margin-bottom: 1em;
 	border-collapse: collapse;
 }

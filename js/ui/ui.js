@@ -5,6 +5,7 @@ RPG.UI.status = null; /* statusbar */
 RPG.UI._commands = []; /* avail commands */
 RPG.UI._pending = null; /* command awaiting specification */
 RPG.UI._dimmer = null; /* dimmer element */
+RPG.UI._dialog = null;
 RPG.UI._mode = -1;
 
 /**
@@ -20,6 +21,7 @@ RPG.UI.setMode = function(mode, command, data) {
 			this._pending = null;
 			this._undim();
 			this._adjustButtons({commands:true, cancel:false, dir:true});
+			this.map.setFocus(RPG.World.getPC().getCell().getCoords());
 		break;
 		case RPG.UI_LOCKED:
 			this._adjustButtons({commands:false, cancel:false, dir:false});
@@ -29,21 +31,12 @@ RPG.UI.setMode = function(mode, command, data) {
 			this.buffer.message(data+": select direction...");
 			this._adjustButtons({commands:false, cancel:true, dir:true});
 		break;
-		case RPG.UI_WAIT_ITEMS:
-			this._pending = command;
+		case RPG.UI_WAIT_DIALOG:
 			this._dim();
 			this._adjustButtons({commands:false, cancel:false, dir:false});
-			new this.Itemlist(data);
 		break;
 		case RPG.UI_WAIT_CHAT:
 			new RPG.UI.Chat(data, command);
-		break;
-		case RPG.UI_DONE_ITEMS:
-			this._pending.exec(data);
-			this.setMode(RPG.UI_NORMAL);
-		break;
-		case RPG.UI_DONE_CHAT:
-			this.setMode(RPG.UI_NORMAL);
 		break;
 	}
 }
@@ -63,15 +56,14 @@ RPG.UI.command = function(command) {
 		return; 
 	} 
 	
-	/* no commands in itemlist (bar cancel) */
-	if (this._mode == RPG.UI_WAIT_ITEMS) { return; } 
+	/* no commands in menumode (bar cancel) */
+	if (this._mode == RPG.UI_WAIT_MENU) { return; } 
 	
 	/* non-dir when direction is needed */
 	if (!(command instanceof RPG.UI.Command.Direction) && this._mode == RPG.UI_WAIT_DIRECTION) { return; } 
 	
 	if (this._pending) {
 		this._pending.exec(command);
-		this.setMode(RPG.UI_NORMAL);
 	} else {
 		command.exec();
 	}
@@ -95,7 +87,7 @@ RPG.UI.build = function() {
 
 	var keypad = OZ.$("keypad");
 	new RPG.UI.Command.Table(keypad);
-	keypad.appendChild(new RPG.UI.Command.Cancel().getButton());
+	keypad.appendChild(new RPG.UI.Command.Cancel().getButton().getInput());
 	
 	var mapswitch = OZ.$("mapswitch");
 	new RPG.UI.Mapswitch(mapswitch);
@@ -107,32 +99,59 @@ RPG.UI.build = function() {
 	
 	var d = OZ.DOM.elm("div", {innerHTML:"Movement: "});
 	c.appendChild(d);
-	d.appendChild(new RPG.UI.Command.Autowalk().getButton());
-	d.appendChild(new RPG.UI.Command.Ascend().getButton());
-	d.appendChild(new RPG.UI.Command.Descend().getButton());
+	d.appendChild(new RPG.UI.Command.Autowalk().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Ascend().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Descend().getButton().getInput());
 	
 	var d = OZ.DOM.elm("div", {innerHTML:"Interaction: "});
 	c.appendChild(d);
-	d.appendChild(new RPG.UI.Command.Open().getButton());
-	d.appendChild(new RPG.UI.Command.Close().getButton());
-	d.appendChild(new RPG.UI.Command.Kick().getButton());
-	d.appendChild(new RPG.UI.Command.Chat().getButton());
-	d.appendChild(new RPG.UI.Command.Search().getButton());
-	d.appendChild(new RPG.UI.Command.Trap().getButton());
+	d.appendChild(new RPG.UI.Command.Open().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Close().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Kick().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Chat().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Search().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Trap().getButton().getInput());
 
 	var d = OZ.DOM.elm("div", {innerHTML:"Item management: "});
 	c.appendChild(d);
-	d.appendChild(new RPG.UI.Command.Pick().getButton());
-	d.appendChild(new RPG.UI.Command.Drop().getButton());
-	d.appendChild(new RPG.UI.Command.Inventory().getButton());
+	d.appendChild(new RPG.UI.Command.Pick().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Drop().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Inventory().getButton().getInput());
 
 	var d = OZ.DOM.elm("div", {innerHTML:"Information: "});
 	c.appendChild(d);
-	d.appendChild(new RPG.UI.Command.Backlog().getButton());
-	d.appendChild(new RPG.UI.Command.WeaponStats().getButton());
-	d.appendChild(new RPG.UI.Command.KickStats().getButton());
+	d.appendChild(new RPG.UI.Command.Look().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Backlog().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.WeaponStats().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.KickStats().getButton().getInput());
 }
 
+RPG.UI.showDialog = function(data, title) {
+	if (!this._dialog) {
+		this._dialog = OZ.DOM.elm("div", {"class":"dialog", position:"absolute"});
+	}
+	OZ.DOM.clear(this._dialog);
+	document.body.appendChild(this._dialog);
+	var h = OZ.DOM.elm("h1");
+	h.innerHTML = title;
+	this._dialog.appendChild(h);
+	this._dialog.appendChild(data);
+	this.syncDialog();
+}
+
+RPG.UI.syncDialog = function() {
+	var c = this._dialog;
+	var w = c.offsetWidth;
+	var h = c.offsetHeight;
+	var win = OZ.DOM.win();
+	var scroll = OZ.DOM.scroll();
+	c.style.left = (scroll[0] + Math.round((win[0]-w)/2)) + "px";
+	c.style.top = (scroll[1] + Math.round((win[1]-h)/2)) + "px";
+}
+
+RPG.UI.hideDialog = function() {
+	this._dialog.parentNode.removeChild(this._dialog);
+}
 
 /**
  * @param {bool} [data.commands]
@@ -142,8 +161,7 @@ RPG.UI.build = function() {
 RPG.UI._adjustButtons = function(data) {
 	for (var i=0;i<this._commands.length;i++) {
 		var c = this._commands[i];
-		var b = c.getButton();
-		if (!b) { continue; }
+		var b = c.getButton().getInput();
 		
 		if (c instanceof RPG.UI.Command.Direction) {
 			/* directional */
@@ -154,20 +172,6 @@ RPG.UI._adjustButtons = function(data) {
 		} else {
 			/* standard buttons */
 			b.disabled = !data.commands;
-		}
-	}
-}
-
-/**
- * Keydown handler
- * @param {event} e
- */
-RPG.UI._keyPress = function(e) {
-	for (var i=0;i<RPG.UI._commands.length;i++) {
-		var c = RPG.UI._commands[i];
-		if (c.test(e)) { 
-			this.command(c); 
-			OZ.Event.prevent(e);
 		}
 	}
 }
@@ -205,7 +209,4 @@ RPG.UI._undim = function() {
 	this._dimmer.parentNode.removeChild(this._dimmer);
 	this._dimmer = null;
 }
-
-
-OZ.Event.add(document, "keypress", RPG.UI.bind(RPG.UI._keyPress));
 

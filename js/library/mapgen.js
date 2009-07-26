@@ -595,6 +595,14 @@ RPG.Dungeon.Generator.Digger.prototype._featureCorridor = function(wall) {
 	var ok = this._freeSpace(corner1, corner2);
 	if (!ok) { return false; }
 	
+	/* if the last cell of wall is a corner of a corridor, cancel */
+	for (var i=0;i<this._rooms.length;i++) {
+		var room = this._rooms[i];
+		var c1 = room[0];
+		var c2 = room[1];
+		if ((end.x == c1.x || end.x == c2.x) && (end.y == c1.y || end.y == c2.y)) { return false; }
+	}
+	
 	/* dig the wall + corridor */
 	this._digged += length;
 	var c = start.clone();
