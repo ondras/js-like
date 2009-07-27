@@ -38,6 +38,8 @@ Story.prototype._createPC = function() {
 	RPG.World.setPC(pc);
 	var dagger = new RPG.Items.Dagger();
 	pc.addItem(dagger);
+	var cap = new RPG.Items.MetalCap();
+	pc.addItem(cap);
 	return pc;
 }
 
@@ -52,7 +54,7 @@ Story.prototype._buildMap = function() {
 	/* enemies */
 	var max = 5 + Math.floor(Math.random()*10);
 	for (var i=0;i<max;i++) {
-		var b = RPG.Beings.getInstance().setup();
+		var b = RPG.Beings.NPC.getInstance().setup();
 		var ai = new RPG.Engine.AI(b);
 		ai.addTask(new RPG.Engine.AI.Kill(this._pc));
 		var c = map.getFreeCoords(true);

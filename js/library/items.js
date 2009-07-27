@@ -12,6 +12,10 @@ RPG.Items.Weapon.prototype.init = function(hit, damage) {
 	this._color = "lightgray";
 }
 
+RPG.Items.Weapon.prototype._describeModifiers = function(who) {
+	return "(" + this._hit.baseValue().toString() + ", " + this._damage.baseValue().toString() + ")";
+}
+
 /**
  * @class Dagger
  * @augments RPG.Items.Weapon
@@ -157,4 +161,27 @@ RPG.Items.Turquoise.prototype.init = function() {
 	this._color = "turquoise";
 	this._image = "turquoise";
 	this._description = "turquoise";
+}
+
+/**
+ * @class Head gear
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.HeadGear = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.HeadGear.prototype.init = function(dv, pv) {
+	this.parent();
+	this._char = "[";
+	this._color = "lightgray";
+	this.addModifier(RPG.Feats.DV, dv || 0);
+	this.addModifier(RPG.Feats.PV, pv || 0);
+}
+
+/**
+ * @class Metal cap
+ * @augments RPG.Items.HeadGear
+ */
+RPG.Items.MetalCap = OZ.Class().extend(RPG.Items.HeadGear);
+RPG.Items.MetalCap.prototype.init = function() {
+	this.parent(0, 1);
+	this._description = "metal cap";
 }

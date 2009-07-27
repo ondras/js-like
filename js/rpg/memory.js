@@ -302,3 +302,27 @@ RPG.Memory.TrapMemory.prototype.remember = function(trap) {
 RPG.Memory.TrapMemory.prototype.remembers = function(trap) {
 	return this._data.indexOf(trap) != -1;
 }
+
+/**
+ * @class Item memory
+ * @augments RPG.Memory
+ */ 
+RPG.Memory.ItemMemory = OZ.Class().extend(RPG.Memory);
+
+RPG.Memory.ItemMemory.prototype.init = function() {
+	this._data = [];
+}
+
+RPG.Memory.ItemMemory.prototype.remember = function(item) {
+	if (this.remembers(item)) { return; }
+	this._data.push(item);
+}
+
+RPG.Memory.ItemMemory.prototype.remembers = function(item) {
+	return this._data.indexOf(item) != -1;
+}
+
+RPG.Memory.ItemMemory.prototype.forget = function(item) {
+	var index = this._data.indexOf(item);
+	if (index != -1) { this._data.splice(index, 1); }
+}

@@ -25,8 +25,8 @@ RPG.World.init = function() {
 	var f = new RPG.Misc.Factory().add(RPG.Beings.Goblin);
 	RPG.Beings.Goblin.getInstance = f.bind(f.getInstance);
 
-	var f = new RPG.Misc.Factory().add(RPG.Beings.BaseBeing);
-	RPG.Beings.getInstance = f.bind(f.getInstance);
+	var f = new RPG.Misc.Factory().add(RPG.Beings.NPC);
+	RPG.Beings.NPC.getInstance = f.bind(f.getInstance);
 }
 
 /**

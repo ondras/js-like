@@ -2,9 +2,9 @@
  * @class Goblin
  * @augments RPG.Beings.BaseBeing
  */
-RPG.Beings.Goblin = OZ.Class().extend(RPG.Beings.BaseBeing);
+RPG.Beings.Goblin = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Goblin.prototype.init = function() {
-	this.parent();
+	this.parent(new RPG.Races.Humanoid());
 	
 	this._char = "g";
 	this._color = "mediumblue";
@@ -16,7 +16,7 @@ RPG.Beings.Goblin.prototype.setup = function() {
 	this.parent();
 
 	var dagger = new RPG.Items.Dagger();
-	this.getSlot(RPG.Slots.Hand).setItem(dagger);
+	this.getMeleeSlot().setItem(dagger);
 	
 	return this;
 }
@@ -27,7 +27,7 @@ RPG.Beings.Goblin.prototype.setup = function() {
  */
 RPG.Beings.Hobgoblin = OZ.Class().extend(RPG.Beings.Goblin);
 RPG.Beings.Hobgoblin.prototype.init = function() {
-	this.parent();
+	this.parent(new RPG.Races.Humanoid());
 	
 	this._color = "yellowgreen";
 	this._description = "hobgoblin";
@@ -44,7 +44,7 @@ RPG.Beings.Hobgoblin.prototype.init = function() {
 RPG.Beings.HobgoblinLeader = OZ.Class().extend(RPG.Beings.Hobgoblin);
 RPG.Beings.HobgoblinLeader.flags.frequency = 15;
 RPG.Beings.HobgoblinLeader.prototype.init = function() {
-	this.parent();
+	this.parent(new RPG.Races.Humanoid());
 	
 	this._color = "forestgreen";
 	this._description = "hobgoblin leader";
@@ -58,10 +58,10 @@ RPG.Beings.HobgoblinLeader.prototype.init = function() {
  * @class Troll
  * @augments RPG.Beings.BaseBeing
  */
-RPG.Beings.Troll = OZ.Class().extend(RPG.Beings.BaseBeing);
+RPG.Beings.Troll = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Troll.flags.frequency = 10;
 RPG.Beings.Troll.prototype.init = function() {
-	this.parent();
+	this.parent(new RPG.Races.Humanoid());
 	
 	this._char = "T";
 	this._color = "darkgray";
@@ -73,7 +73,7 @@ RPG.Beings.Troll.prototype.init = function() {
 	this._default.dexterity = 11;
 	this._default.pv = 5;
 	
-	this.addModifier(RPG.Feats.Hit, RPG.MODIFIER_PLUS, 5);
+	this.addModifier(RPG.Feats.Hit, 5);
 }
 
 /**
@@ -81,7 +81,6 @@ RPG.Beings.Troll.prototype.init = function() {
  * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.God = OZ.Class().extend(RPG.Beings.PC);
-RPG.Beings.God.flags.abstr4ct = true;
 RPG.Beings.God.prototype.getVisibleCoords = function() {
 	var arr = [];
 	var map = this._cell.getMap();

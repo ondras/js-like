@@ -67,11 +67,6 @@ RPG.FEATURE_OBSTACLE	= 1 << 0; /* can not be moved onto, e.g. closed door, tree 
 RPG.FEATURE_SOLID		= 1 << 1; /* can not be seen through, e.g. closed door */
 
 /** @constant */
-RPG.MODIFIER_PLUS		= 0;
-/** @constant */
-RPG.MODIFIER_TIMES		= 1;
-
-/** @constant */
 RPG.GENDER_MALE			= 0;
 /** @constant */
 RPG.GENDER_FEMALE		= 1;

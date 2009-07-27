@@ -5,21 +5,27 @@
  */
 RPG.Feats.BaseFeat = OZ.Class().implement(RPG.Misc.ModifierInterface);
 RPG.Feats.BaseFeat.prototype.init = function(baseValue) {
+	this._name = "";
+	this._abbr = "";
 	this._value = baseValue;
 	this._modifiers = [];
 }
 RPG.Feats.BaseFeat.prototype.baseValue = function() {
 	return this._value;
 };
+RPG.Feats.BaseFeat.prototype.getName = function() {
+	return this._name;
+};
+RPG.Feats.BaseFeat.prototype.getAbbr = function() {
+	return this._abbr;
+};
+
 /**
  * Returns a feat value, modified by modifierHolder.
  */
 RPG.Feats.BaseFeat.prototype.modifiedValue = function(modifierHolder) {
-	var plus = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_PLUS, modifierHolder);
-	var times = modifierHolder.getModifier(this.constructor, RPG.MODIFIER_TIMES, modifierHolder);
-	var value = this._value;
-	var exact = (value + plus) * times;
-	return Math.max(0, exact);
+	var total = this._value + modifierHolder.getModifier(this.constructor, modifierHolder);
+	return Math.max(0, total);
 }
 
 RPG.Feats.BaseFeat.prototype.standardModifier = function(modifierHolder) {
@@ -44,7 +50,6 @@ RPG.Items.BaseItem.prototype.init = function() {
 	this._descriptionPlural = null;
 	this._modifiers = [];
 	this._amount = 1;
-	this.flags = 0;
 }
 
 /**
@@ -76,6 +81,12 @@ RPG.Items.BaseItem.prototype.subtract = function(amount) {
 	this.setAmount(this._amount - amount);
 	clone.setAmount(amount);
 	
+	/* if owner knows original item, let him know also the cloned version */
+	var im = RPG.World.getPC().itemMemory();
+	if (im.remembers(this)) {
+		im.remember(clone);
+	}
+	
 	return clone;
 }
 
@@ -88,13 +99,40 @@ RPG.Items.BaseItem.prototype.setAmount = function(amount) {
 	return this;
 }
 
+/**
+ * Items are described with respect to PC's itemMemory
+ * @see RPG.Visual.VisualInterface#describe
+ */
 RPG.Items.BaseItem.prototype.describe = function() {
-	var plural = this._descriptionPlural || this._description + "s";
+	var im = RPG.World.getPC().itemMemory();
+	var s = this._describePlural();
+	if (im.remembers(this)) {
+		var mods = this._describeModifiers();
+		if (mods) { s += " " + mods; }
+	}
+	return s;
+}
+
+RPG.Items.BaseItem.prototype._describePlural = function() {
 	if (this._amount == 1) {
 		return this._description;
 	} else {
+		var plural = this._descriptionPlural || (this._description + "s");
 		return "heap of " + this._amount + " " + plural;
 	}
+}
+
+RPG.Items.BaseItem.prototype._describeModifiers = function() {
+	var dv = this.getModifier(RPG.Feats.DV);
+	var pv = this.getModifier(RPG.Feats.PV);
+	if (dv !== null || pv !== null) {
+		dv = dv || 0;
+		pv = pv || 0;
+		if (dv >= 0) { dv = "+"+dv; }
+		if (pv >= 0) { pv = "+"+pv; }
+		return "("+dv+","+pv+")";
+	}
+	return "";
 }
 
 /**
@@ -112,11 +150,20 @@ RPG.Items.BaseItem.prototype.isSameAs = function(item) {
  * @returns {bool} Was this item merged? false = no, it was appended
  */
 RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
+	var im = RPG.World.getPC().itemMemory();
+	
 	for (var i=0;i<listOfItems.length;i++) {
 		var item = listOfItems[i];
 		if (item.isSameAs(this)) {
 			/* merge! */
 			item.setAmount(item.getAmount() + this.getAmount());
+			
+			if (im.remembers(this)) { 
+				/* this item was remembered, mark the heap as remembered as well */
+				im.remember(item); 
+				/* item disappears, remove from memory */
+				im.forget(this);
+			}
 			return true;
 		}
 	}
@@ -127,15 +174,35 @@ RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
 
 /**
  * @class Basic race
- * @augments RPG.Visual.VisualInterface
  * @augments RPG.Misc.ModifierInterface
+ * @augments RPG.Visual.VisualInterface
  */
 RPG.Races.BaseRace = OZ.Class()
 							.implement(RPG.Misc.ModifierInterface)
-							.implement(RPG.Visual.VisualInterface)
+							.implement(RPG.Visual.VisualInterface);
 RPG.Races.BaseRace.prototype.init = function() {
 	this._initVisuals();
 	this._modifiers = [];
+	this._slots = [];
+	this._meleeSlot = null;
+	this._rangedSlot = null;
+	this._kickSlot = null;
+}
+
+RPG.Races.BaseRace.prototype.getSlots = function() {
+	return this._slots;
+}
+
+RPG.Races.BaseRace.prototype.getMeleeSlot = function() {
+	return this._meleeSlot;
+}
+
+RPG.Races.BaseRace.prototype.getRangedSlot = function() {
+	return this._rangedSlot;
+}
+
+RPG.Races.BaseRace.prototype.getKickSlot = function() {
+	return this._kickSlot;
 }
 
 /**
@@ -197,7 +264,7 @@ RPG.Actions.BaseAction.prototype._describeLocal = function() {
 		RPG.UI.buffer.message("Several items are lying here.");
 	} else if (items.length == 1) {
 		var item = items[0];
-		var str = item.describeA().capitalize();
+		var str = item.describeA(pc).capitalize();
 		str += " is lying here.";
 		RPG.UI.buffer.message(str);
 	}
@@ -243,7 +310,7 @@ RPG.Actions.BaseAction.prototype._describeRemote = function(coords) {
 	if (items.length > 1) {
 		arr.push("several items");
 	} else if (items.length > 0) {
-		arr.push(items[0].describeA());
+		arr.push(items[0].describeA(pc));
 	}
 	
 	if (!arr.length) {
@@ -259,16 +326,18 @@ RPG.Actions.BaseAction.prototype._describeRemote = function(coords) {
  * @augments RPG.Misc.SerializableInterface
  */
 RPG.Slots.BaseSlot = OZ.Class().implement(RPG.Misc.SerializableInterface);
-RPG.Slots.BaseSlot.prototype.init = function() {
+RPG.Slots.BaseSlot.prototype.init = function(name, allowed) {
 	this._item = null;
 	this._being = null;
-	this._name = "";
-	this._allowed = [];
+	this._name = name;
+	this._allowed = allowed;
 }
+
 RPG.Slots.BaseSlot.prototype.setup = function(being) {
 	this._being = being;
 	return this;
 }
+
 RPG.Slots.BaseSlot.prototype.filterAllowed = function(itemList) {
 	var arr = [];
 	for (var i=0;i<itemList.length;i++) {
@@ -280,12 +349,15 @@ RPG.Slots.BaseSlot.prototype.filterAllowed = function(itemList) {
 	}
 	return arr;
 }
+
 RPG.Slots.BaseSlot.prototype.setItem = function(item) {
 	this._item = item;
 }
+
 RPG.Slots.BaseSlot.prototype.getItem = function() {
 	return this._item;
 }
+
 RPG.Slots.BaseSlot.prototype.getName = function() {
 	return this._name;
 }

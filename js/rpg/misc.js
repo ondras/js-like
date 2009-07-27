@@ -53,27 +53,25 @@ RPG.Misc.Coords.prototype.minus = function(c) {
 RPG.Misc.ModifierInterface = OZ.Class();
 /**
  * @param {function} feat Feat constructor
- * @param {int} type Type constant
  * @param {int || function} value Modification value
  */
-RPG.Misc.ModifierInterface.prototype.addModifier = function(feat, type, value) {
-	var item = [feat, type, value];
+RPG.Misc.ModifierInterface.prototype.addModifier = function(feat, value) {
+	var item = [feat, value];
 	this._modifiers.push(item);
 }
 /**
- * Ask for a modifier to a given feat. Third argument is necessary for 
+ * Ask for a modifier to a given feat. Second argument is necessary for 
  * recursive scenarios, for example: to retrieve modifier for MaxHP, 
  * we have to compute the modified value of Strength.
  * 
  * @param {RPG.Feats.BaseFeat} feat The feat we wish to modify
- * @param {int} type Type constant
  * @param {RPG.Misc.ModifierInterface} modifierHolder
  */
-RPG.Misc.ModifierInterface.prototype.getModifier = function(feat, type, modifierHolder) {
+RPG.Misc.ModifierInterface.prototype.getModifier = function(feat, modifierHolder) {
 	for (var i=0;i<this._modifiers.length;i++) {
 		var item = this._modifiers[i];
-		if (item[0] == feat && item[1] == type) { 
-			var val = item[2];
+		if (item[0] == feat) { 
+			var val = item[1];
 			if (typeof(val) == "function") {
 				return val(modifierHolder);
 			} else {

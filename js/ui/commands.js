@@ -110,7 +110,7 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	/* being there? */
 	var b = map.at(coords).getBeing();
 	if (b) {
-		var hand = pc.getSlot(RPG.Slots.Hand);
+		var hand = pc.getMeleeSlot();
 		RPG.UI.action(RPG.Actions.Attack, b, hand);
 		return;
 	} 
@@ -681,7 +681,7 @@ RPG.UI.Command.WeaponStats.prototype.init = function() {
 
 RPG.UI.Command.WeaponStats.prototype.exec = function() {
 	var pc = RPG.World.getPC();
-	var hand = pc.getSlot(RPG.Slots.Hand);
+	var hand = pc.getMeleeSlot();
 	var hit = hand.getHit();
 	var dmg = hand.getDamage();
 	alert("Current weapon hit/damage: "+hit.toString()+"/"+dmg.toString());
@@ -700,7 +700,7 @@ RPG.UI.Command.KickStats.prototype.init = function() {
 
 RPG.UI.Command.KickStats.prototype.exec = function() {
 	var pc = RPG.World.getPC();
-	var feet = pc.getSlot(RPG.Slots.Feet);
+	var feet = pc.getKickSlot();
 	var hit = feet.getHit();
 	var dmg = feet.getDamage();
 	alert("Current kick hit/damage: "+hit.toString()+"/"+dmg.toString());

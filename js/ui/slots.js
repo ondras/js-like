@@ -102,6 +102,7 @@ RPG.UI.Slots.prototype._toggle = function(index) {
 	if (item) {
 		this._being.addItem(item);
 		slot.setItem(null);
+		RPG.UI.status.updateFeat();
 		this._somethingDone = true;
 		this._redrawSlot(index);
 	} else {
@@ -135,6 +136,7 @@ RPG.UI.Slots.prototype._item = function(index, items) {
 		item = item.subtract(1);
 	}
 	slot.setItem(item);
+	RPG.UI.status.updateFeat();
 	this._redrawSlot(index);
 }
 
@@ -160,7 +162,7 @@ RPG.UI.Slots.prototype._showItems = function() {
 		this._buttons[i].disable();
 	}
 	var items = this._being.getItems();
-	new RPG.UI.Itemlist(items, "Your inventory", 0, this.bind(this._show));
+	new RPG.UI.Itemlist(items, "Items in your backpack", 0, this.bind(this._show));
 }
 
 RPG.UI.Slots.prototype._enableButtons = function() {

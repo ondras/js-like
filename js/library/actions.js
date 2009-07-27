@@ -70,7 +70,7 @@ RPG.Actions.Attack.prototype._describe = function() {
 	var kickVerb = (youAttacker ? "kick" : "kicks");
 	var hitVerb = (youAttacker ? "hit" : "hits");
 	var killVerb = (youAttacker ? killVerbs.random() : killVerbs.random() + "s");
-	if (this._params instanceof RPG.Slots.Feet) { hitVerb = kickVerb; }
+	if (this._params instanceof RPG.Slots.Kick) { hitVerb = kickVerb; }
 	
 	var str = this._source.describeThe().capitalize() + " ";
 	
@@ -255,8 +255,9 @@ RPG.Actions.Pick = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Pick.prototype.execute = function() {
 	var arr = this._target;
 	
+	var pc = RPG.World.getPC();
 	var cell = this._source.getCell();
-	var you = (this._source == RPG.World.getPC());
+	var you = (this._source == pc);
 	
 	for (var i=0;i<arr.length;i++) {
 		var pair = arr[i];
@@ -287,10 +288,11 @@ RPG.Actions.Pick.prototype.execute = function() {
  */
 RPG.Actions.Drop = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Drop.prototype.execute = function() {
+	var pc = RPG.World.getPC();
 	var arr = this._target;
 	
 	var cell = this._source.getCell();
-	var you = (this._source == RPG.World.getPC());
+	var you = (this._source == pc);
 	
 	for (var i=0;i<arr.length;i++) {
 		var pair = arr[i];
@@ -321,6 +323,7 @@ RPG.Actions.Drop.prototype.execute = function() {
 RPG.Actions.Kick = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Kick.prototype.execute = function() {
 	/* only PC is allowed to kick */
+	var pc = RPG.World.getPC();
 	var map = this._source.getCell().getMap();
 	var cell = map.at(this._target);
 	var feature = cell.getFeature();
@@ -339,14 +342,14 @@ RPG.Actions.Kick.prototype.execute = function() {
 	
 	if (feature && feature instanceof RPG.Features.Door && feature.isClosed()) {
 		/* kick door */
-		var feet = this._source.getSlot(RPG.Slots.Feet);
+		var feet = this._source.getKickSlot();
 		var dmg = feet.getDamage().roll();
 		var result = feature.damage(dmg);
 		if (result) {
 			RPG.UI.buffer.message("You kick the door, but it does not budge.");
 		} else {
 			RPG.UI.buffer.message("You shatter the door with a mighty kick!");
-			RPG.World.getPC().mapMemory().updateVisible();
+			pc.mapMemory().updateVisible();
 		}
 		return;
 	}
@@ -371,7 +374,7 @@ RPG.Actions.Kick.prototype.execute = function() {
 			var str = "You kick " + item.describeThe() + ". ";
 			str += "It slides away.";
 			RPG.UI.buffer.message(str);
-			var memory = RPG.World.getPC().mapMemory();
+			var memory = pc.mapMemory();
 			memory.updateCoords(this._target);
 			memory.updateCoords(targetCoords);
 			return;
