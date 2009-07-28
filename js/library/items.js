@@ -184,4 +184,5 @@ RPG.Items.MetalCap = OZ.Class().extend(RPG.Items.HeadGear);
 RPG.Items.MetalCap.prototype.init = function() {
 	this.parent(0, 1);
 	this._description = "metal cap";
+	/** FIXME image */
 }

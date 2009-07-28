@@ -32,9 +32,6 @@ RPG.Features = {};
 RPG.Items = {};
 
 /** @namespace */
-RPG.Memory = {};
-
-/** @namespace */
 RPG.Misc = {};
 
 /** @namespace */

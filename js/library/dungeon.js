@@ -87,8 +87,8 @@ RPG.Features.Door.prototype.open = function() {
 	this.flags &= !RPG.FEATURE_OBSTACLE;
 	this.flags &= !RPG.FEATURE_SOLID;
 	
-	this._description = "opened door";
-	this._image = "door-opened";
+	this._description = "open door";
+	this._image = "door-open";
 	this._char = "/";
 }
 

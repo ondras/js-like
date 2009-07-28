@@ -150,7 +150,7 @@ RPG.UI.Slots.prototype._redrawSlot = function(index) {
 	if (item) {
 		td.innerHTML = item.describe();
 	} else {
-		td.innerHTML = "[nothing]&nbsp;";
+		td.innerHTML = "-nothing-";
 	}
 }
 

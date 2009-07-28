@@ -128,9 +128,9 @@ RPG.Items.BaseItem.prototype._describeModifiers = function() {
 	if (dv !== null || pv !== null) {
 		dv = dv || 0;
 		pv = pv || 0;
-		if (dv >= 0) { dv = "+"+dv; }
-		if (pv >= 0) { pv = "+"+pv; }
-		return "("+dv+","+pv+")";
+		if (dv > 0) { dv = "+"+dv; }
+		if (pv > 0) { pv = "+"+pv; }
+		return "["+dv+","+pv+"]&nbsp;";
 	}
 	return "";
 }
