@@ -168,10 +168,25 @@ RPG.Items.Turquoise.prototype.init = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.HeadGear = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.HeadGear.flags.abstr4ct = true;
 RPG.Items.HeadGear.prototype.init = function(dv, pv) {
 	this.parent();
 	this._char = "[";
 	this._color = "lightgray";
+	this.addModifier(RPG.Feats.DV, dv || 0);
+	this.addModifier(RPG.Feats.PV, pv || 0);
+}
+
+/**
+ * @class Boots
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.Boots = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Boots.flags.abstr4ct = true;
+RPG.Items.Boots.prototype.init = function(dv, pv) {
+	this.parent();
+	this._char = "[";
+	this._color = "brown";
 	this.addModifier(RPG.Feats.DV, dv || 0);
 	this.addModifier(RPG.Feats.PV, pv || 0);
 }
@@ -184,5 +199,17 @@ RPG.Items.MetalCap = OZ.Class().extend(RPG.Items.HeadGear);
 RPG.Items.MetalCap.prototype.init = function() {
 	this.parent(0, 1);
 	this._description = "metal cap";
-	/** FIXME image */
+	this._image = "metal-cap";
+}
+
+/**
+ * @class Leather boots
+ * @augments RPG.Items.Boots
+ */
+RPG.Items.LeatherBoots = OZ.Class().extend(RPG.Items.Boots);
+RPG.Items.LeatherBoots.prototype.init = function() {
+	this.parent(1, 0);
+	this._description = "leather boots";
+	this._descriptionPlural = "pairs of leather boots";
+	this._image = "leather-boots";
 }

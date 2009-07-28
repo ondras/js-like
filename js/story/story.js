@@ -40,6 +40,9 @@ Story.prototype._createPC = function() {
 	pc.addItem(dagger);
 	var cap = new RPG.Items.MetalCap();
 	pc.addItem(cap);
+	var boots = new RPG.Items.LeatherBoots();
+	boots.setAmount(2);
+	pc.addItem(boots);
 	return pc;
 }
 
@@ -73,6 +76,7 @@ Story.prototype._buildMap = function() {
 	var treasure = rooms.random();
 	this._mapdec.decorateRoomDoors(treasure, {locked: 1});
 	this._mapdec.decorateRoomInterior(treasure, {treasure: 1});
+	
 
 	/* traps */
 	var c = map.getFreeCoords(true);
@@ -101,6 +105,11 @@ Story.prototype._buildMap = function() {
 		map.at(start.getCenter()).setBeing(this._pc);
 	}
 	
+	var troll = new RPG.Beings.Troll().setup();
+	var ai = new RPG.Engine.AI(troll);
+	ai.addTask(new RPG.Engine.AI.Kill(this._pc));
+	map.at(treasure.getCenter()).setBeing(troll);
+
 	var end = null;
 	do {
 		end = rooms.random();

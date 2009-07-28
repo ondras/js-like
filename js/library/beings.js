@@ -33,8 +33,8 @@ RPG.Beings.Hobgoblin.prototype.init = function() {
 	this._description = "hobgoblin";
 	this._image = "hobgoblin";
 	
-	this._default.strength += 1;
-	this._default.toughness += 1;
+	this._default.strength += 2;
+	this._default.toughness += 2;
 }
 
 /**
@@ -50,8 +50,8 @@ RPG.Beings.HobgoblinLeader.prototype.init = function() {
 	this._description = "hobgoblin leader";
 	this._image = "hobgoblin-leader";
 	
-	this._default.strength += 1;
-	this._default.toughness += 1;
+	this._default.strength += 2;
+	this._default.toughness += 2;
 }
 
 /**

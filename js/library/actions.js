@@ -356,7 +356,7 @@ RPG.Actions.Kick.prototype.execute = function() {
 	
 	if (being) {
 		/* kick being */
-		var a = new RPG.Actions.Attack(this._source, being, this._source.getFoot());
+		var a = new RPG.Actions.Attack(this._source, being, this._source.getKickSlot());
 		RPG.World.action(a);
 		this._tookTime = false;
 		return;

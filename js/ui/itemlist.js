@@ -6,6 +6,7 @@ RPG.UI.Itemlist = OZ.Class();
 RPG.UI.Itemlist.prototype._groups = {
 	"Head gear": RPG.Items.HeadGear,
 	"Weapons": RPG.Items.Weapon,
+	"Boots": RPG.Items.Boots,
 	"Consumables": RPG.Items.Consumable,
 	"Gold": RPG.Items.Gold,
 	"Gems": RPG.Items.Gem
@@ -55,7 +56,7 @@ RPG.UI.Itemlist.prototype._prepare = function(items) {
 			amount: 0,
 			label: OZ.DOM.elm("label", {htmlFor:"item_"+i})
 		}
-		obj.label.innerHTML = arr[i].describe();
+		obj.label.innerHTML = arr[i].describe() + "&nbsp;";
 		this._data.push(obj);
 	}
 }

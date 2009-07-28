@@ -59,7 +59,7 @@ RPG.Items.BaseItem.prototype.clone = function() {
 	var clone = new this.constructor();
 	for (var p in this) { clone[p] = this[p]; }
 
-	this._modifiers = [];
+	clone._modifiers = [];
 	/* copy modifiers to avoid references */
 	for (var i=0;i<this._modifiers.length;i++) {
 		var modifier = this._modifiers[i];
@@ -130,7 +130,7 @@ RPG.Items.BaseItem.prototype._describeModifiers = function() {
 		pv = pv || 0;
 		if (dv > 0) { dv = "+"+dv; }
 		if (pv > 0) { pv = "+"+pv; }
-		return "["+dv+","+pv+"]&nbsp;";
+		return "["+dv+","+pv+"]";
 	}
 	return "";
 }
