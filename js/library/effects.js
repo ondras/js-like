@@ -27,7 +27,7 @@ RPG.Effects.TurnCounter.prototype.getCount = function() {
 RPG.Effects.Regeneration = OZ.Class().extend(RPG.Effects.BaseEffect);
 RPG.Effects.Regeneration.prototype.go = function() {
 	var hp = this._being.getHP();
-	var max = this._being.getMaxHP();
+	var max = this._being.getFeat(RPG.FEAT_MAXHP);
 	if (max == hp) { return; }
 	
 	if (Math.random() < 0.2) { this._being.adjustHP(1); }

@@ -700,7 +700,7 @@ RPG.UI.Command.KickStats.prototype.init = function() {
 
 RPG.UI.Command.KickStats.prototype.exec = function() {
 	var pc = RPG.World.getPC();
-	var feet = pc.getKickSlot();
+	var feet = pc.getFeetSlot();
 	var hit = feet.getHit();
 	var dmg = feet.getDamage();
 	alert("Current kick hit/damage: "+hit.toString()+"/"+dmg.toString());

@@ -11,7 +11,7 @@ RPG.Cells.BaseCell = OZ.Class()
 RPG.Cells.BaseCell.prototype.init = function() {
 	this._initVisuals();
 	this._items = [];
-	this._modifiers = [];
+	this._modifiers = {};
 	this._being = null;
 	this._feature = null;
 	this._map = null;

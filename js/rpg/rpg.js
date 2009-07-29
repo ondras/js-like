@@ -95,6 +95,29 @@ RPG.MAP_VISIBLE			= 1;
 /** @constant */
 RPG.MAP_REMEMBERED		= 2;
 
+/** @constant */
+RPG.FEAT_STRENGTH			= 0;
+/** @constant */
+RPG.FEAT_TOUGHNESS			= 1;
+/** @constant */
+RPG.FEAT_DEXTERITY			= 2;
+/** @constant */
+RPG.FEAT_INTELLIGENCE		= 3;
+/** @constant */
+RPG.FEAT_MAXHP				= 4;
+/** @constant */
+RPG.FEAT_DV					= 5;
+/** @constant */
+RPG.FEAT_PV					= 6;
+/** @constant */
+RPG.FEAT_SPEED				= 7;
+/** @constant */
+RPG.FEAT_DAMAGE				= 8;
+/** @constant */
+RPG.FEAT_HIT					= 9;
+
+RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG.FEAT_INTELLIGENCE];
+
 /**
  * Generates a normally distributed random number, mean = 0.
  * @param {float} stddev Standard deviation. ~95% of the absolute values will be lower than 2*stddev.

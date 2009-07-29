@@ -14,7 +14,7 @@ Story.prototype.go = function() {
 	this._pc = this._createPC();
 	
 	var map = this._buildMap();
-	RPG.UI.status.updateFeat();
+	RPG.UI.status.updateFeats();
 	RPG.UI.status.updateHP();
 	RPG.World.setMap(map);
 	RPG.World.run();
@@ -36,13 +36,6 @@ Story.prototype._createPC = function() {
 
 	var pc = new RPG.Beings.PC().setup(new race());
 	RPG.World.setPC(pc);
-	var dagger = new RPG.Items.Dagger();
-	pc.addItem(dagger);
-	var cap = new RPG.Items.MetalCap();
-	pc.addItem(cap);
-	var boots = new RPG.Items.LeatherBoots();
-	boots.setAmount(2);
-	pc.addItem(boots);
 	return pc;
 }
 

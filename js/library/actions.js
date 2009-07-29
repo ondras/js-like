@@ -342,7 +342,7 @@ RPG.Actions.Kick.prototype.execute = function() {
 	
 	if (feature && feature instanceof RPG.Features.Door && feature.isClosed()) {
 		/* kick door */
-		var feet = this._source.getKickSlot();
+		var feet = this._source.getFeetSlot();
 		var dmg = feet.getDamage().roll();
 		var result = feature.damage(dmg);
 		if (result) {
@@ -356,7 +356,7 @@ RPG.Actions.Kick.prototype.execute = function() {
 	
 	if (being) {
 		/* kick being */
-		var a = new RPG.Actions.Attack(this._source, being, this._source.getKickSlot());
+		var a = new RPG.Actions.Attack(this._source, being, this._source.getFeetSlot());
 		RPG.World.action(a);
 		this._tookTime = false;
 		return;

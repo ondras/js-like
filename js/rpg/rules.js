@@ -11,7 +11,7 @@ RPG.Rules.isDoorStuck = function(being, door) {
 RPG.Rules.isMeleeHit = function(attacker, defender, slot) {
 	var hit = slot.getHit().roll();
 
-	var dv = defender.getDV();
+	var dv = defender.getFeat(RPG.FEAT_DV);
 //	console.log("hit("+hit+") vs. dv("+dv+")");
 	return hit >= dv;
 }
@@ -42,7 +42,7 @@ RPG.Rules.getMeleeDamage = function(attacker, defender, slot, isCritical) {
 	var damage = slot.getDamage().roll();
 	if (isCritical) { damage *= 2; }
 
-	var pv = defender.getPV();
+	var pv = defender.getFeat(RPG.FEAT_PV);
 //	console.log("damage("+damage+") vs. pv("+pv+")");
 	return Math.max(0, damage - pv);
 }

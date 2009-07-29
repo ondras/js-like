@@ -8,7 +8,7 @@ RPG.Feats.BaseFeat.prototype.init = function(baseValue) {
 	this._name = "";
 	this._abbr = "";
 	this._value = baseValue;
-	this._modifiers = [];
+	this._modifiers = {};
 }
 RPG.Feats.BaseFeat.prototype.baseValue = function() {
 	return this._value;
@@ -24,7 +24,8 @@ RPG.Feats.BaseFeat.prototype.getAbbr = function() {
  * Returns a feat value, modified by modifierHolder.
  */
 RPG.Feats.BaseFeat.prototype.modifiedValue = function(modifierHolder) {
-	var total = this._value + modifierHolder.getModifier(this.constructor, modifierHolder);
+	var feat = this._findConstant();
+	var total = this._value + modifierHolder.getModifier(feat, modifierHolder);
 	return Math.max(0, total);
 }
 
@@ -33,6 +34,16 @@ RPG.Feats.BaseFeat.prototype.standardModifier = function(modifierHolder) {
 	var num = (value-11)*10/21;
 	return Math.round(num);
 }
+
+/**
+ * Finds the correct feat constant
+ */
+RPG.Feats.BaseFeat.prototype._findConstant = function() {
+	for (var p in RPG.Feats) {
+		if (RPG.Feats[p] == this.constructor) { return p; }
+	}
+}
+
 
 /**
  * @class Basic item
@@ -48,7 +59,7 @@ RPG.Items.BaseItem = OZ.Class()
 RPG.Items.BaseItem.prototype.init = function() {
 	this._initVisuals();
 	this._descriptionPlural = null;
-	this._modifiers = [];
+	this._modifiers = {};
 	this._amount = 1;
 }
 
@@ -59,13 +70,12 @@ RPG.Items.BaseItem.prototype.clone = function() {
 	var clone = new this.constructor();
 	for (var p in this) { clone[p] = this[p]; }
 
-	clone._modifiers = [];
 	/* copy modifiers to avoid references */
-	for (var i=0;i<this._modifiers.length;i++) {
-		var modifier = this._modifiers[i];
-		var mod2 = [modifier[0], modifier[1], modifier[2]];
-		clone._modifiers.push(mod2);
+	clone._modifiers = {};
+	for (var feat in this._modifiers) {
+		clone._modifiers[feat] = this._modifiers[feat];
 	}
+
 	return clone;
 }
 
@@ -123,8 +133,8 @@ RPG.Items.BaseItem.prototype._describePlural = function() {
 }
 
 RPG.Items.BaseItem.prototype._describeModifiers = function() {
-	var dv = this.getModifier(RPG.Feats.DV);
-	var pv = this.getModifier(RPG.Feats.PV);
+	var dv = this.getModifier(RPG.FEAT_DV);
+	var pv = this.getModifier(RPG.FEAT_PV);
 	if (dv !== null || pv !== null) {
 		dv = dv || 0;
 		pv = pv || 0;
@@ -182,11 +192,18 @@ RPG.Races.BaseRace = OZ.Class()
 							.implement(RPG.Visual.VisualInterface);
 RPG.Races.BaseRace.prototype.init = function() {
 	this._initVisuals();
-	this._modifiers = [];
+	this._modifiers = {};
 	this._slots = [];
+	this._headSlot = null;
 	this._meleeSlot = null;
 	this._rangedSlot = null;
 	this._kickSlot = null;
+	
+	this._defaults = {};
+}
+
+RPG.Races.BaseRace.prototype.getDefaults = function() {
+	return this._defaults;
 }
 
 RPG.Races.BaseRace.prototype.getSlots = function() {
@@ -201,8 +218,12 @@ RPG.Races.BaseRace.prototype.getRangedSlot = function() {
 	return this._rangedSlot;
 }
 
-RPG.Races.BaseRace.prototype.getKickSlot = function() {
-	return this._kickSlot;
+RPG.Races.BaseRace.prototype.getFeetSlot = function() {
+	return this._feetSlot;
+}
+
+RPG.Races.BaseRace.prototype.getHeadSlot = function() {
+	return this._headSlot;
 }
 
 /**

@@ -12,7 +12,7 @@ RPG.Beings.BaseBeing.prototype.init = function() {
 	this._initVisuals();
 	this._trapMemory = new RPG.Memory.TrapMemory();
 
-	this._modifiers = []; /* to comply with ModifierInterface */
+	this._modifiers = {}; /* to comply with ModifierInterface */
 
 	this._race = null;
 	this._cell = null;
@@ -24,17 +24,6 @@ RPG.Beings.BaseBeing.prototype.init = function() {
 	this._alive = true;
 	this._effects = [];
 	this._turnCounter = null;
-
-	this._default = {
-		speed: 100,
-		maxhp: 5,
-		dv: 0,
-		pv: 0,
-		strength: 9,
-		toughness: 9,
-		dexterity: 9,
-		intelligence: 9
-	}
 }
 
 RPG.Beings.BaseBeing.prototype.setup = function() {
@@ -59,35 +48,34 @@ RPG.Beings.BaseBeing.prototype._setRace = function(race) {
 	this._char = race.getChar();
 	this._image = race.getImage();
 	
+	/* inherit default values from race */
+	this._defaults = race.getDefaults();
+	
 	/* bind all slots to a particular being */
 	var slots = race.getSlots();
 	for (var i=0;i<slots.length;i++) { slots[i].setup(this); }
 }
 
 /**
- * Initialize stats (HP) and feats (MaxHP, DV, PV)
+ * Initialize stats (HP, ...) and feats (MaxHP, DV, PV, ...)
  */
 RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	this._stats = {
 		hp: 0
 	}
-	this._feats = {
-		maxhp: new RPG.Feats.MaxHP(this._default.maxhp),
-		dv: new RPG.Feats.DV(this._default.dv),
-		pv: new RPG.Feats.PV(this._default.pv),
-		speed: new RPG.Feats.Speed(this._default.speed)
-	}
 	
-	var attrs = {
-		strength: RPG.Feats.Strength,
-		toughness: RPG.Feats.Toughness,
-		intelligence: RPG.Feats.Intelligence,
-		dexterity: RPG.Feats.Dexterity
+	this._feats = {};
+	
+	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
+		var attr = RPG.ATTRIBUTES[i];
+		var rv = new RPG.Misc.RandomValue(this._defaults[attr], 2);
+		this._feats[attr] = new RPG.Feats[attr](rv.roll());
 	}
-	for (var name in attrs) {
-		var ctor = attrs[name];
-		var rv = new RPG.Misc.RandomValue(this._default[name], 2)
-		this._feats[name] = new ctor(rv.roll());
+
+	var misc = [RPG.FEAT_MAXHP, RPG.FEAT_DV, RPG.FEAT_PV, RPG.FEAT_SPEED];
+	for (var i=0;i<misc.length;i++) {
+		var name = misc[i];
+		this._feats[name] = new RPG.Feats[name](this._defaults[name]);
 	}
 	
 	var regen = new RPG.Effects.Regeneration(this);
@@ -145,10 +133,6 @@ RPG.Beings.BaseBeing.prototype.getModifier = function(feat, modifierHolder) {
 		if (mod !== null) { total += mod; }
 	}
 	
-	/* FIXME beings should not use _modifiers */
-	var val = RPG.Misc.ModifierInterface.prototype.getModifier.call(this, feat, modifierHolder);
-	if (val !== null) { total += val; }
-	
 	return total;
 }
 
@@ -163,8 +147,12 @@ RPG.Beings.BaseBeing.prototype.getMeleeSlot = function() {
 	return this._race.getMeleeSlot();
 }
 
-RPG.Beings.BaseBeing.prototype.getKickSlot = function() {
-	return this._race.getKickSlot();
+RPG.Beings.BaseBeing.prototype.getFeetSlot = function() {
+	return this._race.getFeetSlot();
+}
+
+RPG.Beings.BaseBeing.prototype.getHeadSlot = function() {
+	return this._race.getHeadSlot();
 }
 
 /**
@@ -215,31 +203,15 @@ RPG.Beings.BaseBeing.prototype.getHP = function() {
 	return this._stats.hp;
 }
 
-RPG.Beings.BaseBeing.prototype.getFeatValue = function(ctor) {
-	for (var p in this._feats) {
-		var f = this._feats[p];
-		if (f instanceof ctor) { return f.modifiedValue(this); }
-	}
+RPG.Beings.BaseBeing.prototype.getFeat = function(feat) {
+	return this._feats[feat].modifiedValue(this);
 }
 
-/* FIXME obsolete? */
+/**
+ * @see RPG.Engine.ActorInterface#getSpeed
+ */
 RPG.Beings.BaseBeing.prototype.getSpeed = function() {
-	return this._feats.speed.modifiedValue(this);
-}
-
-/* FIXME obsolete? */
-RPG.Beings.BaseBeing.prototype.getMaxHP = function() {
-	return this._feats.maxhp.modifiedValue(this);
-}
-
-/* FIXME obsolete? */
-RPG.Beings.BaseBeing.prototype.getDV = function() {
-	return this._feats.dv.modifiedValue(this);
-}
-
-/* FIXME obsolete? */
-RPG.Beings.BaseBeing.prototype.getPV = function() {
-	return this._feats.pv.modifiedValue(this);
+	return this.getFeat(RPG.FEAT_SPEED);
 }
 
 /* ============================== MISC ==================================== */
@@ -260,7 +232,7 @@ RPG.Beings.BaseBeing.prototype.isAlive = function() {
  */
 RPG.Beings.BaseBeing.prototype.adjustHP = function(amount) {
 	this._stats.hp += amount;
-	if (this._stats.hp > this.getMaxHP()) {
+	if (this._stats.hp > this.getFeat(RPG.FEAT_MAXHP)) {
 		this.fullHP();
 	}
 
@@ -278,7 +250,7 @@ RPG.Beings.BaseBeing.prototype.adjustHP = function(amount) {
  * Fully heals the being
  */
 RPG.Beings.BaseBeing.prototype.fullHP = function() {
-	this._stats.hp = this.getMaxHP();
+	this._stats.hp = this.getFeat(RPG.FEAT_MAXHP);
 }
 
 /**
@@ -354,7 +326,7 @@ RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	var def = ["slightly", "moderately", "severly", "critically"];
 	var hp = this.getHP();
-	var max = this.getMaxHP();
+	var max = this.getFeat(RPG.FEAT_MAXHP);
 	if (hp == max) { return "not"; }
 	var frac = 1 - hp/max;
 	var index = Math.floor(frac * def.length);

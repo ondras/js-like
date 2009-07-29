@@ -22,7 +22,7 @@ RPG.Items.Weapon.prototype._describeModifiers = function(who) {
  */
 RPG.Items.Dagger = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Dagger.prototype.init = function() {
-	this.parent(new RPG.Misc.RandomValue(3, 1), new RPG.Misc.RandomValue(5, 3));
+	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(5, 3));
 	this._image = "dagger";
 	this._description = "dagger";
 }
@@ -173,8 +173,8 @@ RPG.Items.HeadGear.prototype.init = function(dv, pv) {
 	this.parent();
 	this._char = "[";
 	this._color = "lightgray";
-	this.addModifier(RPG.Feats.DV, dv || 0);
-	this.addModifier(RPG.Feats.PV, pv || 0);
+	this.addModifier(RPG.FEAT_DV, dv || 0);
+	this.addModifier(RPG.FEAT_PV, pv || 0);
 }
 
 /**
@@ -187,8 +187,8 @@ RPG.Items.Boots.prototype.init = function(dv, pv) {
 	this.parent();
 	this._char = "[";
 	this._color = "brown";
-	this.addModifier(RPG.Feats.DV, dv || 0);
-	this.addModifier(RPG.Feats.PV, pv || 0);
+	this.addModifier(RPG.FEAT_DV, dv || 0);
+	this.addModifier(RPG.FEAT_PV, pv || 0);
 }
 
 /**

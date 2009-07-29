@@ -52,34 +52,32 @@ RPG.Misc.Coords.prototype.minus = function(c) {
  */
 RPG.Misc.ModifierInterface = OZ.Class();
 /**
- * @param {function} feat Feat constructor
+ * @param {int} feat Feat constant
  * @param {int || function} value Modification value
  */
 RPG.Misc.ModifierInterface.prototype.addModifier = function(feat, value) {
 	var item = [feat, value];
-	this._modifiers.push(item);
+	this._modifiers[feat] = value;
 }
 /**
  * Ask for a modifier to a given feat. Second argument is necessary for 
  * recursive scenarios, for example: to retrieve modifier for MaxHP, 
  * we have to compute the modified value of Strength.
  * 
- * @param {RPG.Feats.BaseFeat} feat The feat we wish to modify
+ * @param {int} feat The feat we wish to modify, specified by its constant
  * @param {RPG.Misc.ModifierInterface} modifierHolder
  */
 RPG.Misc.ModifierInterface.prototype.getModifier = function(feat, modifierHolder) {
-	for (var i=0;i<this._modifiers.length;i++) {
-		var item = this._modifiers[i];
-		if (item[0] == feat) { 
-			var val = item[1];
-			if (typeof(val) == "function") {
-				return val(modifierHolder);
-			} else {
-				return val; 
-			}
+	if (feat in this._modifiers) {
+		var value = this._modifiers[feat];
+		if (typeof(value) == "function") {
+			return value(modifierHolder);
+		} else {
+			return value;
 		}
+	} else { 
+		return null;
 	}
-	return null;
 }
 
 /**
@@ -87,11 +85,11 @@ RPG.Misc.ModifierInterface.prototype.getModifier = function(feat, modifierHolder
  */
 RPG.Misc.WeaponInterface = OZ.Class();
 RPG.Misc.WeaponInterface.prototype.setHit = function(rv) {
-	this._hit = new RPG.Feats.Hit(rv);
+	this._hit = new RPG.Feats[RPG.FEAT_HIT](rv);
 	
 }
 RPG.Misc.WeaponInterface.prototype.setDamage = function(rv) {
-	this._damage = new RPG.Feats.Damage(rv);
+	this._damage = new RPG.Feats[RPG.FEAT_DAMAGE](rv);
 }
 RPG.Misc.WeaponInterface.prototype.getHit = function(modifierHolder) {
 	return this._hit.modifiedValue(modifierHolder);

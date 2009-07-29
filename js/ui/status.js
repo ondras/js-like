@@ -6,14 +6,14 @@ RPG.UI.Status = OZ.Class();
 RPG.UI.Status.prototype.init = function(container) {
 	this._dom = {};
 	
-	this._ctors = {
-		"maxhp": RPG.Feats.MaxHP,
-		"dv": RPG.Feats.DV,
-		"pv": RPG.Feats.PV,
-		"strength": RPG.Feats.Strength,
-		"toughness": RPG.Feats.Toughness,
-		"intelligence": RPG.Feats.Intelligence,
-		"dexterity": RPG.Feats.Dexterity
+	this._feats = [
+		RPG.FEAT_MAXHP,
+		RPG.FEAT_DV,
+		RPG.FEAT_PV
+	];
+	
+	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
+		this._feats.push(RPG.ATTRIBUTES[i]);
 	}
 	
 	this._build(container);
@@ -27,14 +27,12 @@ RPG.UI.Status.prototype.updateRounds = function(rounds) {
 	this._dom.rounds.innerHTML = rounds;
 }
 
-RPG.UI.Status.prototype.updateFeat = function(ctor) {
-	for (var p in this._ctors) {
-		var c = this._ctors[p];
-		var ok = (!ctor || c == ctor);
-		if (ok) { 
-			var value = RPG.World.getPC().getFeatValue(c);
-			this._dom[p].innerHTML = value; 
-		}
+RPG.UI.Status.prototype.updateFeats = function() {
+	var pc = RPG.World.getPC();
+	for (var i=0;i<this._feats.length;i++) {
+		var f = this._feats[i];
+		var value = pc.getFeat(f);
+		this._dom[f].innerHTML = value; 
 	}
 }
 
@@ -56,37 +54,44 @@ RPG.UI.Status.prototype._build = function(container) {
 	td.appendChild(s);
 	td.appendChild(OZ.DOM.text("/"));
 	var s = OZ.DOM.elm("span");
-	this._dom.maxhp = s;
+	this._dom[RPG.FEAT_MAXHP] = s;
 	td.appendChild(s);
 	
 	var td = OZ.DOM.elm("td");
 	tr.appendChild(td);
 	td.innerHTML = "DV/PV: ";
 	var s = OZ.DOM.elm("span");
-	this._dom.dv = s;
+	this._dom[RPG.FEAT_DV] = s;
 	td.appendChild(s);
 	td.appendChild(OZ.DOM.text("/"));
 	var s = OZ.DOM.elm("span");
-	this._dom.pv = s;
+	this._dom[RPG.FEAT_PV] = s;
 	td.appendChild(s);
 	
-	var map = {
-		"strength": "Strength",
-		"toughness": "Toughness",
-		"intelligence": "Intelligence",
-		"dexterity": "Dexterity",
-		"rounds": "Game rounds",
-		"map": "Map"
-	}
-	
-	for (var p in map) {
+	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
+		var a = RPG.ATTRIBUTES[i];
+		var f = new RPG.Feats[a](0);
 		var td = OZ.DOM.elm("td");
 		tr.appendChild(td);
-		td.innerHTML = map[p]+": ";
+		td.innerHTML = f.getName() + ": ";
 		var s = OZ.DOM.elm("span");
-		this._dom[p] = s;
+		this._dom[a] = s;
 		td.appendChild(s);
 	}
 	
+	var td = OZ.DOM.elm("td");
+	tr.appendChild(td);
+	td.innerHTML = "Game rounds: ";
+	var s = OZ.DOM.elm("span");
+	this._dom.rounds = s;
+	td.appendChild(s);
+	
+	var td = OZ.DOM.elm("td");
+	tr.appendChild(td);
+	td.innerHTML = "Map: ";
+	var s = OZ.DOM.elm("span");
+	this._dom.map = s;
+	td.appendChild(s);
+
 	this._dom.rounds.innerHTML = "0";
 }

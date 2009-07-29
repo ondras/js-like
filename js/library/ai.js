@@ -68,7 +68,7 @@ RPG.Engine.AI.prototype._action = function(e) {
 			this.addTask(goal);
 		}
 		
-		if (!retreat && (this._being.getHP() / this._being.getMaxHP()) < 0.5) {
+		if (!retreat && (this._being.getHP() / this._being.getFeat(RPG.FEAT_MAXHP) < 0.5)) {
 			/* too much damage, run for your life! */
 			var str = this._being.describeThe().capitalize() + " runs away!";
 			RPG.UI.buffer.message(str);

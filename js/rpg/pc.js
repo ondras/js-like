@@ -10,23 +10,16 @@ RPG.Beings.PC.prototype.init = function() {
 	this._mapMemory = new RPG.Memory.MapMemory();
 	this._itemMemory = new RPG.Memory.ItemMemory();
 	this._visibleCells = [];
-
-	this._default = {
-		speed: 100,
-		maxhp: 10,
-		dv: 5,
-		pv: 0,
-		strength: 11,
-		toughness: 11,
-		dexterity: 11,
-		intelligence: 11
-	}
 	
 	this._description = "you";
 }
 
 RPG.Beings.PC.prototype.setup = function(race) {
 	this._setRace(race);
+
+	/* PC cheats by having a default >0 DV and more hitpoints */
+	this._defaults[RPG.FEAT_DV] = 5;
+	this._defaults[RPG.FEAT_MAXHP] = 10;
 
 	this._char = "@";
 	

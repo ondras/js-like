@@ -102,7 +102,7 @@ RPG.UI.Slots.prototype._toggle = function(index) {
 	if (item) {
 		this._being.addItem(item);
 		slot.setItem(null);
-		RPG.UI.status.updateFeat();
+		RPG.UI.status.updateFeats();
 		this._somethingDone = true;
 		this._redrawSlot(index);
 	} else {
@@ -136,7 +136,7 @@ RPG.UI.Slots.prototype._item = function(index, items) {
 		item = item.subtract(1);
 	}
 	slot.setItem(item);
-	RPG.UI.status.updateFeat();
+	RPG.UI.status.updateFeats();
 	this._redrawSlot(index);
 }
 
