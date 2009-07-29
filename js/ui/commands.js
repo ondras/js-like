@@ -474,7 +474,9 @@ RPG.UI.Command.Autowalk.prototype._start = function(coords) {
 	var target = cell.getCoords().clone().plus(coords);
 
 	/* cannot walk to the wall */
-	if (!map.at(target).isFree()) { return; }
+	if (coords.x || coords.y) {
+		if (!map.at(target).isFree() ) { return; }
+	}
 
 	this._saveState(coords);
 	

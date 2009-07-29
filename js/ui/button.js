@@ -108,6 +108,7 @@ RPG.UI.Button.prototype._keyPress = function(e) {
 	if (e.ctrlKey != this._ctrlKey) { return false; }
 	if (e.altKey != this._altKey) { return false; }
 	if (this._charCodes.indexOf(e.charCode) != -1 || this._keyCodes.indexOf(e.keyCode) != -1) {
+		OZ.Event.prevent(e);
 		this._callback(this);
 	}
 }

@@ -23,7 +23,7 @@ RPG.Beings.PC.prototype.setup = function(race) {
 
 	this._char = "@";
 	
-	var tc = new RPG.Effects.TurnCounter().setup();
+	var tc = new RPG.Effects.TurnCounter().setup(this);
 	this._turnCounter = tc;
 	this.addEffect(tc);
 	
@@ -94,9 +94,10 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 	var current = new RPG.Misc.Coords(0, 0);
 	var map = this._cell.getMap();
 	var cell = null;
+	var eps = 1e-4;
 
 	/* directions blocked */
-	var angles = [];
+	var arcs = [];
 	
 	/* results */
 	this._visibleCoords = [this._cell.getCoords().clone()];
@@ -115,14 +116,14 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 		[1, 0]   /* right */
 	];
 	
-	var angleCount = R*8; /* length of longest ring */
-	for (var i=0;i<angleCount;i++) { angles.push([0, 0]); }
+	var arcCount = R*8; /* length of longest ring */
+	for (var i=0;i<arcCount;i++) { arcs.push([0, 0]); }
 	
 	/* analyze surrounding cells in concentric rings, starting from the center */
 	for (var r=1; r<=R; r++) {
 		cellCount += 8;
 		edgeLength += 2;
-		anglesPerCell = angleCount / cellCount; /* number of angles per cell */
+		arcsPerCell = arcCount / cellCount; /* number of arcs per cell */
 
 		/* start in the lower right corner of current ring */
 		current.x = center.x + r;
@@ -133,16 +134,26 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 			counter++;
 			if (map.isValid(current)) { 
 				/* check individual cell */
-				var centralAngle = (counter-1) * anglesPerCell + 0.5;
+				var centralAngle = (counter-1) * arcsPerCell + 0.5;
 				cell = map.at(current);
 				
-				if (cell && this._visibleCell(cell, centralAngle, anglesPerCell, angles)) { 
+				if (cell && this._visibleCell(cell, centralAngle, arcsPerCell, arcs)) { 
 					this._visibleCoords.push(current.clone()); 
 				}
 			}
 			current.x += directions[directionIndex][0];
 			current.y += directions[directionIndex][1];
 
+			/* cutoff? */
+			var done = true;
+			for (var i=0;i<arcCount;i++) {
+				if (arcs[i][0] + arcs[i][1] + eps < 1) {
+					done = false;
+					break;
+				}
+			}
+			if (done) { return; }
+			
 			/* do a turn */
 			if (!(counter % edgeLength)) { directionIndex++; }
 
@@ -151,51 +162,51 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 }
 
 /**
- * Subroutine for updateVisibility(). For a given cell, checks if it is visible and adjusts angles it blocks.
+ * Subroutine for updateVisibility(). For a given cell, checks if it is visible and adjusts arcs it blocks.
  * @param {RPG.Cells.BaseCell} cell
  * @param {float} centralAngle Angle which best corresponds with a given cell
- * @param {float} anglesPerCell How many angles are shaded by this one
- * @param {angle[]} array of available angles
+ * @param {float} arcsPerCell How many arcs are shaded by this one
+ * @param {arc[]} array of available arcs
  */
-RPG.Beings.PC.prototype._visibleCell = function(cell, centralAngle, anglesPerCell, angles) {
+RPG.Beings.PC.prototype._visibleCell = function(cell, centralAngle, arcsPerCell, arcs) {
 	var eps = 1e-4;
 	var map = cell.getMap();
 	var blocks = !cell.visibleThrough();
-	var start = centralAngle - anglesPerCell/2;
+	var start = centralAngle - arcsPerCell/2;
 	var startIndex = Math.floor(start);
-	var angleCount = angles.length;
+	var arcCount = arcs.length;
 	
 	var ptr = startIndex;
 	var given = 0; /* amount already distributed */
 	var amount = 0;
-	var angle = null;
+	var arc = null;
 	var ok = false;
 	do {
 		var index = ptr; /* ptr recomputed to avail range */
-		if (index < 0) { index += angleCount; }
-		if (index >= angleCount) { index -= angleCount; }
-		angle = angles[index];
+		if (index < 0) { index += arcCount; }
+		if (index >= arcCount) { index -= arcCount; }
+		arc = arcs[index];
 		
-		/* is this angle is already totally obstructed? */
-		var chance = (angle[0] + angle[1] + eps < 1);
+		/* is this arc is already totally obstructed? */
+		var chance = (arc[0] + arc[1] + eps < 1);
 
 		if (ptr < start) {
 			/* blocks left part of blocker (with right cell part) */
 			amount += ptr + 1 - start;
-			if (chance && amount > angle[0]+eps) {
+			if (chance && amount > arc[0]+eps) {
 				/* blocker not blocked yet, this cell is visible */
 				ok = true;
 				/* adjust blocking amount */
-				if (blocks) { angle[0] = amount; }
+				if (blocks) { arc[0] = amount; }
 			}
-		} else if (given + 1 > anglesPerCell)  { 
+		} else if (given + 1 > arcsPerCell)  { 
 			/* blocks right part of blocker (with left cell part) */
-			amount = anglesPerCell - given;
-			if (chance && amount > angle[1]+eps) {
+			amount = arcsPerCell - given;
+			if (chance && amount > arc[1]+eps) {
 				/* blocker not blocked yet, this cell is visible */
 				ok = true;
 				/* adjust blocking amount */
-				if (blocks) { angle[1] = amount; }
+				if (blocks) { arc[1] = amount; }
 			}
 		} else {
 			/* this cell completely blocks a blocker */
@@ -203,15 +214,15 @@ RPG.Beings.PC.prototype._visibleCell = function(cell, centralAngle, anglesPerCel
 			if (chance) {
 				ok = true;
 				if (blocks) {
-					angle[0] = 1;
-					angle[1] = 1;
+					arc[0] = 1;
+					arc[1] = 1;
 				}
 			}
 		}
 		
 		given += amount;
 		ptr++;
-	} while (given < anglesPerCell);
+	} while (given < arcsPerCell);
 	
 	return ok;
 }

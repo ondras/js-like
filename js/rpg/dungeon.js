@@ -100,9 +100,21 @@ RPG.Rooms.BaseRoom = OZ.Class();
  * @param {RPG.Misc.Coords} corner2 bottom-right corner
  */
 RPG.Rooms.BaseRoom.prototype.init = function(map, corner1, corner2) {
+	this._map = null;
+	this._corner1 = null;
+	this._corner2 = null;
+}
+
+/**
+ * @param {RPG.Dungeon.Map} map
+ * @param {RPG.Misc.Coords} corner1 top-left corner
+ * @param {RPG.Misc.Coords} corner2 bottom-right corner
+ */
+RPG.Rooms.BaseRoom.prototype.setup = function(map, corner1, corner2) {
 	this._map = map;
 	this._corner1 = corner1.clone();
 	this._corner2 = corner2.clone();
+	return this;
 }
 
 RPG.Rooms.BaseRoom.prototype.getCorner1 = function() {
@@ -291,7 +303,7 @@ RPG.Dungeon.Map.prototype.getFeatures = function(ctor) {
  * @param {RPG.Misc.Coords} corner2
  */
 RPG.Dungeon.Map.prototype.addRoom = function(ctor, corner1, corner2) {
-	var room = new ctor(this, corner1, corner2);
+	var room = new ctor().setup(this, corner1, corner2);
 	this._rooms.push(room);
 	return room;
 }

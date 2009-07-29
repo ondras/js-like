@@ -1,4 +1,6 @@
+window.pica2 = 0;
 OZ.Class = function() { 
+	window.pica2++;
 	var c = function() {
 		this.constructor = arguments.callee;
 		var init = arguments.callee.prototype.init;

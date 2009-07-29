@@ -102,10 +102,15 @@ RPG.Misc.WeaponInterface.prototype.getDamage = function(modifierHolder) {
  * @class Chat - hierarchical dialog structure
  */
 RPG.Misc.Chat = OZ.Class();
-RPG.Misc.Chat.prototype.init = function(text, end) {
-	this._text = text;
+RPG.Misc.Chat.prototype.init = function() {
+	this._text = null;
 	this._options = [];
+	this._end = null;
+}
+RPG.Misc.Chat.prototype.setup = function(text, end) {
+	this._text = text;
 	this._end = end;
+	return this;
 }
 RPG.Misc.Chat.prototype.addOption = function(text, something) {
 	this._options.push([text, something]);

@@ -117,9 +117,9 @@ Story.prototype._buildMap = function() {
 }
 
 Story.prototype._buildChat = function() {
-	var c = new RPG.Misc.Chat("Hi, what am I supposed to do?")
+	var c = new RPG.Misc.Chat().setup("Hi, what am I supposed to do?")
 		.addOption("Nothing special")
-		.addOption("Some activity please", new RPG.Misc.Chat("What activity?")
+		.addOption("Some activity please", new RPG.Misc.Chat().setup("What activity?")
 			.addOption("Kill me!", function(action) {
 				action.getTarget().clearTasks();
 				action.getTarget().addTask(new RPG.Engine.AI.Kill(action.getSource()));

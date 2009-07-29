@@ -232,7 +232,11 @@ RPG.Races.BaseRace.prototype.getHeadSlot = function() {
  */
 RPG.Effects.BaseEffect = OZ.Class().implement(RPG.Misc.SerializableInterface);
 RPG.Effects.BaseEffect.prototype.init = function(being) {
+	this._being = null;
+}
+RPG.Effects.BaseEffect.prototype.setup = function(being) {
 	this._being = being;
+	return this;
 }
 RPG.Effects.BaseEffect.prototype.go = function() {
 }

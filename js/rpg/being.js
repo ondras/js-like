@@ -78,7 +78,7 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 		this._feats[name] = new RPG.Feats[name](this._defaults[name]);
 	}
 	
-	var regen = new RPG.Effects.Regeneration(this);
+	var regen = new RPG.Effects.Regeneration().setup(this);
 	this.addEffect(regen);
 }
 
@@ -266,13 +266,21 @@ RPG.Beings.BaseBeing.prototype.sightDistance = function() {
  */
 RPG.Beings.BaseBeing.prototype.dropAll = function() {
 	for (var i=0;i<this._items.length;i++) { /* drop items */
-		this._cell.addItem(this._items[i]);
+		if (Math.randomPercentage() < 81) {
+			this._cell.addItem(this._items[i]);
+		}
 	}
+	this._items = [];
+	
 	var slots = this._race.getSlots();
 	for (var i=0;i<slots.length;i++) {
 		var s = slots[i];
 		var it = s.getItem();
-		if (it) { this._cell.addItem(it); }
+		s.setItem(null);
+
+		if (it && Math.randomPercentage() < 81) { 
+			this._cell.addItem(it); 
+		}
 	}
 }
 

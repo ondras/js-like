@@ -12,12 +12,12 @@ RPG.Rules.isMeleeHit = function(attacker, defender, slot) {
 	var hit = slot.getHit().roll();
 
 	var dv = defender.getFeat(RPG.FEAT_DV);
-//	console.log("hit("+hit+") vs. dv("+dv+")");
+	/* console.log("hit("+hit+") vs. dv("+dv+")"); */
 	return hit >= dv;
 }
 
 /**
- * TEH WIN
+ * TEH WIN FIXME
  */
 RPG.Rules.isCritical = function(being) {
 	return Math.randomPercentage() <= 5;
@@ -43,7 +43,7 @@ RPG.Rules.getMeleeDamage = function(attacker, defender, slot, isCritical) {
 	if (isCritical) { damage *= 2; }
 
 	var pv = defender.getFeat(RPG.FEAT_PV);
-//	console.log("damage("+damage+") vs. pv("+pv+")");
+	/* console.log("damage("+damage+") vs. pv("+pv+")"); */
 	return Math.max(0, damage - pv);
 }
 

@@ -26,6 +26,7 @@ RPG.Dungeon.Generator.prototype._dig = function(id) {
 	for (var i=0;i<this._rooms.length;i++) {
 		map.addRoom(this._options.room, this._rooms[i][0], this._rooms[i][1]);
 	}
+	this._bitMap = null;
 	return map;
 }
 
@@ -410,6 +411,7 @@ RPG.Dungeon.Generator.Digger.prototype.generate = function(id) {
 		} while (featureCount < this._featureAttempts);
 	} while (this._digged/area < this._diggedPercentage || this._forcedWalls.length)
 	
+	this._freeWalls = [];
 	return this._dig(id);
 }
 

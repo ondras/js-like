@@ -69,6 +69,20 @@ RPG.Items.Corpse.prototype.setup = function(being) {
 	this._description = being.describe() + " corpse";
 }
 
+RPG.Items.Corpse.prototype.getBeing = function() {
+	return this._being;
+}
+
+RPG.Items.Corpse.prototype.isSameAs = function(item) {
+	var same = this.parent(item);
+	if (!same) { return false; }
+	
+	if (this._being.constructor != item.getBeing().constructor) { return false; }
+	
+	return true;
+}
+
+
 /**
  * @class Gold, money
  * @augments RPG.Items.BaseItem

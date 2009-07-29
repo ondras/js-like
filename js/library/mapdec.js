@@ -141,9 +141,8 @@ RPG.Dungeon.Decorator.prototype.decorateRoomInterior = function(room, options) {
 }
 
 
-/** FIXME: rework into a factory */
 RPG.Dungeon.Decorator.prototype._generateTreasure = function() {
-	if (Math.random() < 0.7) {
+	if (Math.randomPercentage() < 67) {
 		var gold = new RPG.Items.Gold();
 		gold.setAmount(1+Math.floor(Math.random()*100));
 		return gold;

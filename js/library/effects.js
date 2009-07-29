@@ -3,11 +3,12 @@
  * @augments RPG.Effects.BaseEffect
  */
 RPG.Effects.TurnCounter = OZ.Class().extend(RPG.Effects.BaseEffect);
-RPG.Effects.TurnCounter.prototype.init = function(being) {
-	this.parent(being);
+RPG.Effects.TurnCounter.prototype.init = function() {
+	this.parent();
 	this._turns = null;
 }
-RPG.Effects.TurnCounter.prototype.setup = function() {
+RPG.Effects.TurnCounter.prototype.setup = function(being) {
+	this.parent(being);
 	this._turns = 0;
 	return this;
 }
