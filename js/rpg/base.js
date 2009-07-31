@@ -7,11 +7,15 @@ RPG.Feats.BaseFeat = OZ.Class().implement(RPG.Misc.ModifierInterface);
 RPG.Feats.BaseFeat.prototype.init = function(baseValue) {
 	this._name = "";
 	this._abbr = "";
-	this._value = baseValue;
+	this._value = null;
 	this._modifiers = {};
+	this.setValue(baseValue);
 }
 RPG.Feats.BaseFeat.prototype.baseValue = function() {
 	return this._value;
+};
+RPG.Feats.BaseFeat.prototype.setValue = function(baseValue) {
+	this._value = baseValue;
 };
 RPG.Feats.BaseFeat.prototype.getName = function() {
 	return this._name;
@@ -55,7 +59,7 @@ RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
 						.implement(RPG.Misc.ModifierInterface)
 						.implement(RPG.Misc.SerializableInterface);
-						
+RPG.Items.BaseItem.flags.abstr4ct = true;
 RPG.Items.BaseItem.prototype.init = function() {
 	this._initVisuals();
 	this._descriptionPlural = null;
@@ -232,11 +236,7 @@ RPG.Races.BaseRace.prototype.getHeadSlot = function() {
  */
 RPG.Effects.BaseEffect = OZ.Class().implement(RPG.Misc.SerializableInterface);
 RPG.Effects.BaseEffect.prototype.init = function(being) {
-	this._being = null;
-}
-RPG.Effects.BaseEffect.prototype.setup = function(being) {
 	this._being = being;
-	return this;
 }
 RPG.Effects.BaseEffect.prototype.go = function() {
 }
@@ -358,7 +358,7 @@ RPG.Slots.BaseSlot.prototype.init = function(name, allowed) {
 	this._allowed = allowed;
 }
 
-RPG.Slots.BaseSlot.prototype.setup = function(being) {
+RPG.Slots.BaseSlot.prototype.setBeing = function(being) {
 	this._being = being;
 	return this;
 }

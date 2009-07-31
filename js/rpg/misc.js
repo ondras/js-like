@@ -98,19 +98,31 @@ RPG.Misc.WeaponInterface.prototype.getDamage = function(modifierHolder) {
 	return this._damage.modifiedValue(modifierHolder);
 }
 
+
+/**
+ * @class Interface for objects which can be cloned and (de)serialized
+ */
+RPG.Misc.SerializableInterface = OZ.Class();
+RPG.Misc.SerializableInterface.prototype.fromXML = function(node) {
+	return this;
+}
+RPG.Misc.SerializableInterface.prototype.toXML = function(node) {
+	return "";
+}
+RPG.Misc.SerializableInterface.prototype.clone = function() {
+	var clone = new this.constructor();
+	for (var p in this) { clone[p] = this[p]; }
+	return clone;
+}
+
 /**
  * @class Chat - hierarchical dialog structure
  */
 RPG.Misc.Chat = OZ.Class();
-RPG.Misc.Chat.prototype.init = function() {
-	this._text = null;
-	this._options = [];
-	this._end = null;
-}
-RPG.Misc.Chat.prototype.setup = function(text, end) {
+RPG.Misc.Chat.prototype.init = function(text, end) {
 	this._text = text;
+	this._options = [];
 	this._end = end;
-	return this;
 }
 RPG.Misc.Chat.prototype.addOption = function(text, something) {
 	this._options.push([text, something]);
@@ -124,25 +136,6 @@ RPG.Misc.Chat.prototype.getOptions = function() {
 }
 RPG.Misc.Chat.prototype.getEnd = function() {
 	return this._end;
-}
-
-/**
- * @class Interface for objects which can be cloned and (de)serialized
- */
-RPG.Misc.SerializableInterface = OZ.Class();
-RPG.Misc.SerializableInterface.prototype.setup = function() {
-	return this;
-}
-RPG.Misc.SerializableInterface.prototype.fromXML = function(node) {
-	return this;
-}
-RPG.Misc.SerializableInterface.prototype.toXML = function(node) {
-	return "";
-}
-RPG.Misc.SerializableInterface.prototype.clone = function() {
-	var clone = new this.constructor();
-	for (var p in this) { clone[p] = this[p]; }
-	return clone;
 }
 
 /**

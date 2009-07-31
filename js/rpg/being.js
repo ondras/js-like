@@ -8,29 +8,26 @@ RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Visual.VisualInterface)
 						.implement(RPG.Misc.ModifierInterface)
 						.implement(RPG.Engine.ActorInterface);
-RPG.Beings.BaseBeing.prototype.init = function() {
+RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._initVisuals();
 	this._trapMemory = new RPG.Memory.TrapMemory();
 
 	this._modifiers = {}; /* to comply with ModifierInterface */
 
+	this._name = "";
 	this._race = null;
 	this._cell = null;
 	this._chat = null;
-	this._gender = null;
+	this._gender = RPG.GENDER_NEUTER;
 	this._items = [];
 	this._stats = {};
 	this._feats = {};
 	this._alive = true;
 	this._effects = [];
 	this._turnCounter = null;
-}
-
-RPG.Beings.BaseBeing.prototype.setup = function() {
+	
+	this._setRace(race);
 	this._initStatsAndFeats();
-
-	this.fullHP();
-	return this;
 }
 
 RPG.Beings.BaseBeing.prototype.trapMemory = function() {
@@ -38,7 +35,7 @@ RPG.Beings.BaseBeing.prototype.trapMemory = function() {
 }
 
 /**
- * Setup the being-race binding
+ * Prepare the being-race binding
  */
 RPG.Beings.BaseBeing.prototype._setRace = function(race) {
 	this._race = race;
@@ -48,18 +45,17 @@ RPG.Beings.BaseBeing.prototype._setRace = function(race) {
 	this._char = race.getChar();
 	this._image = race.getImage();
 	
-	/* inherit default values from race */
-	this._defaults = race.getDefaults();
-	
 	/* bind all slots to a particular being */
 	var slots = race.getSlots();
-	for (var i=0;i<slots.length;i++) { slots[i].setup(this); }
+	for (var i=0;i<slots.length;i++) { slots[i].setBeing(this); }
 }
 
 /**
  * Initialize stats (HP, ...) and feats (MaxHP, DV, PV, ...)
  */
 RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
+	var defaults = this._race.getDefaults();
+	
 	this._stats = {
 		hp: 0
 	}
@@ -68,18 +64,20 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	
 	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
 		var attr = RPG.ATTRIBUTES[i];
-		var rv = new RPG.Misc.RandomValue(this._defaults[attr], 2);
+		var rv = new RPG.Misc.RandomValue(defaults[attr], 2);
 		this._feats[attr] = new RPG.Feats[attr](rv.roll());
 	}
 
 	var misc = [RPG.FEAT_MAXHP, RPG.FEAT_DV, RPG.FEAT_PV, RPG.FEAT_SPEED];
 	for (var i=0;i<misc.length;i++) {
 		var name = misc[i];
-		this._feats[name] = new RPG.Feats[name](this._defaults[name]);
+		this._feats[name] = new RPG.Feats[name](defaults[name]);
 	}
 	
-	var regen = new RPG.Effects.Regeneration().setup(this);
+	var regen = new RPG.Effects.Regeneration(this);
 	this.addEffect(regen);
+
+	this.fullHP();
 }
 
 /**
@@ -92,6 +90,19 @@ RPG.Beings.BaseBeing.prototype.setCell = function(cell) {
 
 RPG.Beings.BaseBeing.prototype.getCell = function() {
 	return this._cell;
+}
+
+
+/**
+ * @param {string}
+ */
+RPG.Beings.BaseBeing.prototype.setName = function(name) {
+	this._name = name;
+	return this;
+}
+
+RPG.Beings.BaseBeing.prototype.getName = function() {
+	return this._name;
 }
 
 RPG.Beings.BaseBeing.prototype.addItem = function(item) { 
@@ -197,14 +208,16 @@ RPG.Beings.BaseBeing.prototype.removeEffect = function(e) {
 	return this;
 }
 
-/* ============================= STAT & FEAT GETTERS ============================= */
-
 RPG.Beings.BaseBeing.prototype.getHP = function() {
 	return this._stats.hp;
 }
 
 RPG.Beings.BaseBeing.prototype.getFeat = function(feat) {
 	return this._feats[feat].modifiedValue(this);
+}
+
+RPG.Beings.BaseBeing.prototype.setFeat = function(feat, value) {
+	return this._feats[feat].setValue(value);
 }
 
 /**
@@ -292,8 +305,7 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 	this.dropAll();
 	
 	if (Math.randomPercentage() < 34) {
-		var corpse = new RPG.Items.Corpse();
-		corpse.setup(this);
+		var corpse = new RPG.Items.Corpse().setBeing(this);
 		this._cell.addItem(corpse);
 	}
 	RPG.World.action(new RPG.Actions.Death(this)); 

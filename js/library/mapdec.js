@@ -25,8 +25,7 @@ RPG.Dungeon.Decorator.prototype.addHiddenCorridors = function(percentage) {
 			if (this._freeNeighbors(c) != 2) { continue; }
 			if (Math.random() >= percentage) { continue; }
 			
-			var fake = new RPG.Cells.Wall.Fake();
-			fake.setup(cell);
+			var fake = new RPG.Cells.Wall.Fake(cell);
 			this._map.setCell(c, fake);
 		}
 	}
@@ -88,8 +87,7 @@ RPG.Dungeon.Decorator.prototype.decorateRoomDoors = function(room, options) {
 				if (!this._map.isValid(after) || !(this._map.at(after) instanceof RPG.Cells.Corridor)) { continue; } /* bad layout */
 				
 				/* fake corridor */
-				var fake = new RPG.Cells.Wall.Fake();
-				fake.setup(new o.corridor());
+				var fake = new RPG.Cells.Wall.Fake(new o.corridor());
 				this._map.setCell(c, fake);
 				continue;
 			}
@@ -106,8 +104,7 @@ RPG.Dungeon.Decorator.prototype.decorateRoomDoors = function(room, options) {
 
 			/* fake wall */
 			if (Math.random() < o.fakeDoors) {
-				var fake = new RPG.Cells.Wall.Fake();
-				fake.setup(cell);
+				var fake = new RPG.Cells.Wall.Fake(cell);
 				this._map.setCell(c, fake);
 			} /* if fake */
 

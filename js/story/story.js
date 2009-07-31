@@ -1,16 +1,16 @@
 /**
  * @class Story class
  */
-var Story = OZ.Class();
+RPG.Story = OZ.Class();
 
-Story.prototype.init = function() {
+RPG.Story.prototype.init = function() {
 	this._maps = [];
 	this._chat = this._buildChat();
 	this._mapgen = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(80, 20));
 	this._mapdec = new RPG.Dungeon.Decorator();
 }
 
-Story.prototype.go = function() {
+RPG.Story.prototype.go = function() {
 	this._pc = this._createPC();
 	
 	var map = this._buildMap();
@@ -20,7 +20,7 @@ Story.prototype.go = function() {
 	RPG.World.run();
 }
 
-Story.prototype._createPC = function() {
+RPG.Story.prototype._createPC = function() {
 	var def = {
 		1: RPG.Races.Human, 
 		2: RPG.Races.Orc, 
@@ -34,12 +34,12 @@ Story.prototype._createPC = function() {
 	} while (!(race in def));
 	race = def[race];
 
-	var pc = new RPG.Beings.PC().setup(new race());
+	var pc = new RPG.Beings.PC(new race());
 	RPG.World.setPC(pc);
 	return pc;
 }
 
-Story.prototype._buildMap = function() {
+RPG.Story.prototype._buildMap = function() {
 	var index = this._maps.length + 1;
 	var map = this._mapgen.generate("Dungeon #" + index);
 	this._mapdec.setMap(map).addHiddenCorridors(0.01);
@@ -50,7 +50,7 @@ Story.prototype._buildMap = function() {
 	/* enemies */
 	var max = 5 + Math.floor(Math.random()*10);
 	for (var i=0;i<max;i++) {
-		var b = RPG.Beings.NPC.getInstance().setup();
+		var b = RPG.Beings.NPC.getInstance();
 		var ai = new RPG.Engine.AI(b);
 		ai.addTask(new RPG.Engine.AI.Kill(this._pc));
 		var c = map.getFreeCoords(true);
@@ -98,7 +98,8 @@ Story.prototype._buildMap = function() {
 		map.at(start.getCenter()).setBeing(this._pc);
 	}
 	
-	var troll = new RPG.Beings.Troll().setup();
+	var troll = new RPG.Beings.Troll();
+	troll.setName("Chleba");
 	var ai = new RPG.Engine.AI(troll);
 	ai.addTask(new RPG.Engine.AI.Kill(this._pc));
 	map.at(treasure.getCenter()).setBeing(troll);
@@ -116,10 +117,10 @@ Story.prototype._buildMap = function() {
 	return map;
 }
 
-Story.prototype._buildChat = function() {
-	var c = new RPG.Misc.Chat().setup("Hi, what am I supposed to do?")
+RPG.Story.prototype._buildChat = function() {
+	var c = new RPG.Misc.Chat("Hi, what am I supposed to do?")
 		.addOption("Nothing special")
-		.addOption("Some activity please", new RPG.Misc.Chat().setup("What activity?")
+		.addOption("Some activity please", new RPG.Misc.Chat("What activity?")
 			.addOption("Kill me!", function(action) {
 				action.getTarget().clearTasks();
 				action.getTarget().addTask(new RPG.Engine.AI.Kill(action.getSource()));
@@ -136,7 +137,7 @@ Story.prototype._buildChat = function() {
 	return c;
 }
 
-Story.prototype._generateNext = function(staircase) {
+RPG.Story.prototype._generateNext = function(staircase) {
 	var map = this._buildMap();
 	staircase.setTargetMap(map);
 	

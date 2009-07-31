@@ -22,8 +22,7 @@ RPG.Memory.MapMemory.prototype.setMap = function(map) {
 	if (id in this._maps) {
 		m = this._maps[id];
 	} else {
-		m = new RPG.Memory.Map();
-		m.setup(map);
+		m = new RPG.Memory.Map(map);
 		this._maps[id] = m;
 	}
 	
@@ -57,15 +56,9 @@ RPG.Memory.MapMemory.prototype.forget = function() {
  */
 RPG.Memory.Map = OZ.Class();
 
-RPG.Memory.Map.prototype.init = function() {
-	this.map = null;
-	
-	/* cached list of visible cells */
-	this._lastVisibleCoords = [];
-}
-
-RPG.Memory.Map.prototype.setup = function(map) {
+RPG.Memory.Map.prototype.init = function(map) {
 	this.map = map;
+	
 	this._data = [];
 	var size = map.getSize();
 	var c = new RPG.Misc.Coords();
@@ -74,11 +67,13 @@ RPG.Memory.Map.prototype.setup = function(map) {
 		for (var j=0;j<size.y;j++) {
 			c.x = i;
 			c.y = j;
-			var cell = new RPG.Memory.Map.Cell();
-			cell.setup(this, c);
+			var cell = new RPG.Memory.Map.Cell(this, c);
 			this._data[i].push(cell);
 		}
 	}
+
+	/* cached list of visible cells */
+	this._lastVisibleCoords = [];
 }
 
 /**
@@ -152,14 +147,11 @@ RPG.Memory.Map.prototype.load = function() {
  * @augments RPG.Misc.SerializableInterface
  */
 RPG.Memory.Map.Cell = OZ.Class().implement(RPG.Misc.SerializableInterface);
-RPG.Memory.Map.Cell.prototype.init = function() {
+RPG.Memory.Map.Cell.prototype.init = function(owner, coords) {
 	this.state = null;
-	this._owner = null;
-	this._remembered = [];
-}
-RPG.Memory.Map.Cell.prototype.setup = function(owner, coords) {
 	this._owner = owner;
 	this._coords = coords.clone();
+	this._remembered = [];
 	this.state = RPG.MAP_UNKNOWN;
 }
 

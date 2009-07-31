@@ -4,30 +4,24 @@
  * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.PC = OZ.Class().extend(RPG.Beings.BaseBeing);
-RPG.Beings.PC.prototype.init = function() {
-	this.parent();
+RPG.Beings.PC.prototype.init = function(race) {
+	this.parent(race);
 	
 	this._mapMemory = new RPG.Memory.MapMemory();
 	this._itemMemory = new RPG.Memory.ItemMemory();
 	this._visibleCells = [];
 	
 	this._description = "you";
-}
-
-RPG.Beings.PC.prototype.setup = function(race) {
-	this._setRace(race);
-
-	/* PC cheats by having a default >0 DV and more hitpoints */
-	this._defaults[RPG.FEAT_DV] = 5;
-	this._defaults[RPG.FEAT_MAXHP] = 10;
-
 	this._char = "@";
 	
-	var tc = new RPG.Effects.TurnCounter().setup(this);
+	this.setFeat(RPG.FEAT_DV, 5);
+	this.setFeat(RPG.FEAT_MAXHP, 10);
+	
+	var tc = new RPG.Effects.TurnCounter(this);
 	this._turnCounter = tc;
 	this.addEffect(tc);
 	
-	return this.parent();
+	this.fullHP();
 }
 
 RPG.Beings.PC.prototype.getTurnCount = function() {

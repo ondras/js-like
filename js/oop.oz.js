@@ -1,11 +1,11 @@
-window.pica2 = 0;
 OZ.Class = function() { 
-	window.pica2++;
 	var c = function() {
+		c.ic++;
 		this.constructor = arguments.callee;
 		var init = arguments.callee.prototype.init;
 		if (init) { init.apply(this,arguments); }
 	};
+	c.ic = 0;
 
 	c.flags = {
 		danger: 1,

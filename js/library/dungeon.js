@@ -32,13 +32,9 @@ RPG.Cells.Wall.prototype.init = function() {
  */
 RPG.Cells.Wall.Fake = OZ.Class().extend(RPG.Cells.Wall);
 
-RPG.Cells.Wall.Fake.prototype.init = function() {
+RPG.Cells.Wall.Fake.prototype.init = function(cell) {
 	this.parent();
-	this._cell = null;
-}
-
-RPG.Cells.Wall.Fake.prototype.setup = function(realCell) {
-	this._cell = realCell;
+	this._cell = cell;
 }
 
 RPG.Cells.Wall.Fake.prototype.getRealCell = function() {
@@ -58,10 +54,6 @@ RPG.Features.Door.prototype.init = function() {
 	this._locked = null;
 	this._color = "sienna";
 	this.open();
-}
-
-RPG.Features.Door.prototype.setup = function(hp) {
-	this._hp = hp;
 }
 
 RPG.Features.Door.prototype.lock = function() {

@@ -4,6 +4,7 @@
  * @augments RPG.Misc.WeaponInterface
  */
 RPG.Items.Weapon = OZ.Class().extend(RPG.Items.BaseItem).implement(RPG.Misc.WeaponInterface);
+RPG.Items.Weapon.flags.abstr4ct = true;
 RPG.Items.Weapon.prototype.init = function(hit, damage) {
 	this.parent();
 	this.setHit(hit);
@@ -44,6 +45,7 @@ RPG.Items.KlingonSword.prototype.init = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Consumable = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Consumable.flags.abstr4ct = true;
 RPG.Items.Consumable.prototype.init = function() {
 	this.parent();
 	this._char = "%";
@@ -54,7 +56,7 @@ RPG.Items.Consumable.prototype.init = function() {
  * @augments RPG.Items.Consumable
  */
 RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Consumable);
-
+RPG.Items.Corpse.flags.abstr4ct = true;
 /**
  * @param {RPG.Beings.BaseBeing} being The one who died
  */
@@ -63,10 +65,11 @@ RPG.Items.Corpse.prototype.init = function() {
 	this._image = "corpse";
 }
 
-RPG.Items.Corpse.prototype.setup = function(being) {
+RPG.Items.Corpse.prototype.setBeing = function(being) {
 	this._being = being;
 	this._color = being.getColor();
 	this._description = being.describe() + " corpse";
+	return this;
 }
 
 RPG.Items.Corpse.prototype.getBeing = function() {
@@ -183,12 +186,10 @@ RPG.Items.Turquoise.prototype.init = function() {
  */
 RPG.Items.HeadGear = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.HeadGear.flags.abstr4ct = true;
-RPG.Items.HeadGear.prototype.init = function(dv, pv) {
+RPG.Items.HeadGear.prototype.init = function() {
 	this.parent();
 	this._char = "[";
 	this._color = "lightgray";
-	this.addModifier(RPG.FEAT_DV, dv || 0);
-	this.addModifier(RPG.FEAT_PV, pv || 0);
 }
 
 /**
@@ -197,12 +198,10 @@ RPG.Items.HeadGear.prototype.init = function(dv, pv) {
  */
 RPG.Items.Boots = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Boots.flags.abstr4ct = true;
-RPG.Items.Boots.prototype.init = function(dv, pv) {
+RPG.Items.Boots.prototype.init = function() {
 	this.parent();
 	this._char = "[";
 	this._color = "brown";
-	this.addModifier(RPG.FEAT_DV, dv || 0);
-	this.addModifier(RPG.FEAT_PV, pv || 0);
 }
 
 /**
@@ -211,10 +210,12 @@ RPG.Items.Boots.prototype.init = function(dv, pv) {
  */
 RPG.Items.MetalCap = OZ.Class().extend(RPG.Items.HeadGear);
 RPG.Items.MetalCap.prototype.init = function() {
-	this.parent(0, 1);
+	this.parent();
 	this._description = "metal cap";
 	this._image = "metal-cap";
+	this.addModifier(RPG.FEAT_PV, 1);
 }
+
 
 /**
  * @class Leather boots
@@ -222,8 +223,37 @@ RPG.Items.MetalCap.prototype.init = function() {
  */
 RPG.Items.LeatherBoots = OZ.Class().extend(RPG.Items.Boots);
 RPG.Items.LeatherBoots.prototype.init = function() {
-	this.parent(1, 0);
+	this.parent();
 	this._description = "leather boots";
 	this._descriptionPlural = "pairs of leather boots";
 	this._image = "leather-boots";
+	this.addModifier(RPG.FEAT_DV, 1);
+}
+
+/**
+ * @class Potion
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.Potion = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Potion.flags.abstr4ct = true;
+RPG.Items.Potion.prototype.init = function() {
+	this.parent();
+	this._char = "!";
+}
+RPG.Items.Potion.prototype.drink = function(being) {
+}
+
+/**
+ * @class Health-regenerating potion
+ * @augments RPG.Items.Potion
+ */
+RPG.Items.HealthPotion = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.HealthPotion.prototype.init = function() {
+	this.parent();
+	this._char = "!";
+	this._color = "lightblue";
+	this._description = "health potion";
+}
+
+RPG.Items.HealthPotion.prototype.drink = function(being) {
 }

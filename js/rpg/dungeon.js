@@ -91,30 +91,16 @@ RPG.Cells.BaseCell.prototype.visibleThrough = function() {
 
 /**
  * @class Room, a logical group of cells
+ * @param {RPG.Dungeon.Map} map
+ * @param {RPG.Misc.Coords} corner1 top-left corner
+ * @param {RPG.Misc.Coords} corner2 bottom-right corner
  */
 RPG.Rooms.BaseRoom = OZ.Class();
 
-/**
- * @param {RPG.Dungeon.Map} map
- * @param {RPG.Misc.Coords} corner1 top-left corner
- * @param {RPG.Misc.Coords} corner2 bottom-right corner
- */
 RPG.Rooms.BaseRoom.prototype.init = function(map, corner1, corner2) {
-	this._map = null;
-	this._corner1 = null;
-	this._corner2 = null;
-}
-
-/**
- * @param {RPG.Dungeon.Map} map
- * @param {RPG.Misc.Coords} corner1 top-left corner
- * @param {RPG.Misc.Coords} corner2 bottom-right corner
- */
-RPG.Rooms.BaseRoom.prototype.setup = function(map, corner1, corner2) {
 	this._map = map;
 	this._corner1 = corner1.clone();
 	this._corner2 = corner2.clone();
-	return this;
 }
 
 RPG.Rooms.BaseRoom.prototype.getCorner1 = function() {
@@ -178,9 +164,8 @@ RPG.Dungeon.Map.fromBitMap = function(id, bitMap, wall, corridor) {
 	var width = bitMap.length;
 	var height = bitMap[0].length;
 	
-	var map = new RPG.Dungeon.Map();
 	var coords = new RPG.Misc.Coords(width, height);
-	map.setup(id, coords);
+	var map = new RPG.Dungeon.Map(id, coords);
 	
 	for (var x=0;x<width;x++) { 
 		for (var y=0;y<height;y++) {
@@ -217,17 +202,12 @@ RPG.Dungeon.Map.fromBitMap = function(id, bitMap, wall, corridor) {
 	return map;
 }
 
-RPG.Dungeon.Map.prototype.init = function() {
-	this._id = null;
-	this._size = null;
-	this._data = [];
-	this._rooms = [];
-}
-
-RPG.Dungeon.Map.prototype.setup = function(id, size) {
+RPG.Dungeon.Map.prototype.init = function(id, size) {
 	this._id = id;
 	this._size = size.clone();
-	
+	this._data = [];
+	this._rooms = [];
+
 	for (var i=0;i<this._size.x;i++) {
 		var col = [];
 		for (var j=0;j<this._size.y;j++) {
@@ -235,6 +215,7 @@ RPG.Dungeon.Map.prototype.setup = function(id, size) {
 		}
 		this._data.push(col);
 	}
+
 }
 
 RPG.Dungeon.Map.prototype.getId = function() {
@@ -303,7 +284,7 @@ RPG.Dungeon.Map.prototype.getFeatures = function(ctor) {
  * @param {RPG.Misc.Coords} corner2
  */
 RPG.Dungeon.Map.prototype.addRoom = function(ctor, corner1, corner2) {
-	var room = new ctor().setup(this, corner1, corner2);
+	var room = new ctor(this, corner1, corner2);
 	this._rooms.push(room);
 	return room;
 }

@@ -6,20 +6,18 @@ RPG.Beings.Goblin = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Goblin.prototype.init = function() {
 	/* goblins are below-average humanoids */
 	this.parent(new RPG.Races.Humanoid());
-	this._defaults[RPG.FEAT_STRENGTH] = 9;
-	this._defaults[RPG.FEAT_TOUGHNESS] = 9;
-	this._defaults[RPG.FEAT_DEXTERITY] = 9;
-	this._defaults[RPG.FEAT_INTELLIGENCE] = 9;
+	this.randomGender();
 	
+	this.setFeat(RPG.FEAT_STRENGTH, 9);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 9);
+	this.setFeat(RPG.FEAT_DEXTERITY, 9);
+	this.setFeat(RPG.FEAT_INTELLIGENCE, 9);
+	
+	this._description = "goblin";
 	this._char = "g";
 	this._color = "mediumblue";
-	this._description = "goblin";
 	this._image = "goblin";
-
-}
-RPG.Beings.Goblin.prototype.setup = function() {
-	this.parent();
-
+	
 	if (Math.randomPercentage() < 21) {
 		var dagger = new RPG.Items.Dagger();
 		this.getMeleeSlot().setItem(dagger);
@@ -35,7 +33,7 @@ RPG.Beings.Goblin.prototype.setup = function() {
 		this.getFeetSlot().setItem(boots);
 	}
 
-	return this;
+	this.fullHP();
 }
 
 /**
@@ -46,12 +44,16 @@ RPG.Beings.Hobgoblin = OZ.Class().extend(RPG.Beings.Goblin);
 RPG.Beings.Hobgoblin.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	
+	var f = this._feats[RPG.FEAT_STRENGTH];
+	f.setValue(f.baseValue() + 2);
+	var f = this._feats[RPG.FEAT_TOUGHNESS];
+	f.setValue(f.baseValue() + 2);
+
 	this._color = "yellowgreen";
 	this._description = "hobgoblin";
 	this._image = "hobgoblin";
 	
-	this._defaults.strength += 2;
-	this._defaults.toughness += 2;
+	this.fullHP();	
 }
 
 /**
@@ -61,14 +63,18 @@ RPG.Beings.Hobgoblin.prototype.init = function() {
 RPG.Beings.HobgoblinLeader = OZ.Class().extend(RPG.Beings.Hobgoblin);
 RPG.Beings.HobgoblinLeader.flags.frequency = 15;
 RPG.Beings.HobgoblinLeader.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent();
+	
+	var f = this._feats[RPG.FEAT_STRENGTH];
+	f.setValue(f.baseValue() + 2);
+	var f = this._feats[RPG.FEAT_TOUGHNESS];
+	f.setValue(f.baseValue() + 2);
 	
 	this._color = "forestgreen";
 	this._description = "hobgoblin leader";
 	this._image = "hobgoblin-leader";
-	
-	this._defaults.strength += 2;
-	this._defaults.toughness += 2;
+
+	this.fullHP();
 }
 
 /**
@@ -80,18 +86,22 @@ RPG.Beings.Troll.flags.frequency = 10;
 RPG.Beings.Troll.prototype.init = function() {
 	/* trolls are above-average humanoids */
 	this.parent(new RPG.Races.Humanoid());
-	this._defaults[RPG.FEAT_STRENGTH] = 18;
-	this._defaults[RPG.FEAT_TOUGHNESS] = 20;
-	this._defaults[RPG.FEAT_DEXTERITY] = 11;
-	this._defaults[RPG.FEAT_INTELLIGENCE] = 5;
-	this._defaults[RPG.FEAT_PV] = 5;
+	this.randomGender();
 	
+	this.setFeat(RPG.FEAT_STRENGTH, 18);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
+	this.setFeat(RPG.FEAT_DEXTERITY, 11);
+	this.setFeat(RPG.FEAT_INTELLIGENCE, 5);
+	this.setFeat(RPG.FEAT_PV, 5);
+
 	this._char = "T";
 	this._color = "darkgray";
 	this._description = "troll";
 	this._image = "troll";
+	
+	this.getMeleeSlot().setHit(new RPG.Misc.RandomValue(10, 3));
 
-	this.addModifier(RPG.FEAT_HIT, 5);
+	this.fullHP();
 }
 
 /**
