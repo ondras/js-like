@@ -93,3 +93,29 @@ RPG.Races.Dwarf.prototype.init = function() {
 	this.addModifier(RPG.FEAT_INTELLIGENCE, 1);
 	this.addModifier(RPG.FEAT_DEXTERITY, 0);
 }
+
+/**
+ * @class Animal race
+ * @auguments RPG.Races.BaseRace
+ */
+
+RPG.Races.Animal = OZ.Class().extend(RPG.Races.BaseRace);
+RPG.Races.Animal.prototype.init = function() {
+	this.parent();
+	
+	this._defaults[RPG.FEAT_SPEED] = 100;
+	this._defaults[RPG.FEAT_MAXHP] = 5;
+	this._defaults[RPG.FEAT_DV] = 0;
+	this._defaults[RPG.FEAT_PV] = 0;
+	this._defaults[RPG.FEAT_STRENGTH] = 9;
+	this._defaults[RPG.FEAT_TOUGHNESS] = 9;
+	this._defaults[RPG.FEAT_DEXTERITY] = 12;
+	this._defaults[RPG.FEAT_INTELLIGENCE] = 7;
+
+	var teeth = new RPG.Slots.Melee("Teeth");
+	this._slots.push(teeth);
+	this._meleeSlot = teeth;
+	
+	teeth.setHit(new RPG.Misc.RandomValue(5, 2));
+	teeth.setDamage(new RPG.Misc.RandomValue(2, 1));
+}
