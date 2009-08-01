@@ -29,6 +29,65 @@ RPG.Items.Dagger.prototype.init = function() {
 }
 
 /**
+ * @class Dagger
+ * @augments RPG.Items.Weapon
+ */
+RPG.Items.Dagger = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.Dagger.prototype.init = function() {
+	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(5, 3));
+	this._image = "orcish-dagger"; /* FIXME */
+	this._description = "orcish dagger";
+}
+
+/**
+ * @class Club
+ * @augments RPG.Items.Weapon
+ */
+RPG.Items.Club = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.Club.prototype.init = function() {
+	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(7, 3));
+	this._color = "brown";
+	this._image = "club"; /* FIXME */
+	this._description = "club"; 
+}
+
+/**
+ * @class Short sword
+ * @augments RPG.Items.Weapon
+ */
+RPG.Items.ShortSword = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.ShortSword.prototype.init = function() {
+	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(4, 2));
+	this._color = "darkgray";
+	this._image = "short-sword"; /* FIXME */ 
+	this._description = "short sword"; 
+}
+
+/**
+ * @class Long sword
+ * @augments RPG.Items.Weapon
+ */
+RPG.Items.LongSword = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.LongSword.prototype.init = function() {
+	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(6, 2));
+	this._color = "darkgray";
+	this._image = "long-sword"; /* FIXME */ 
+	this._description = "long sword"; 
+}
+
+/**
+ * @class Axe
+ * @augments RPG.Items.Weapon
+ */
+RPG.Items.Axe = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.Axe.prototype.init = function() {
+	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(6, 2));
+	this._color = "brown";
+	this._image = "axe"; /* FIXME */ 
+	this._description = "axe"; 
+}
+
+/**
  * @class Klingon Ceremonial Sword
  * @augments RPG.Items.Weapon
  */
@@ -38,6 +97,56 @@ RPG.Items.KlingonSword.prototype.init = function() {
 	this._color = "gold";
 	this._image = "klingon-sword";
 	this._description = "Klingon ceremonial sword";
+}
+
+/**
+ * @class Generic shield
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.Shield = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Shield.flags.abstr4ct = true;
+RPG.Items.Shield.prototype.init = function() {
+	this.parent();
+	this._char = "[";
+	this._color = "darkgray";
+}
+
+/**
+ * @class Small shield
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.SmallShield = OZ.Class().extend(RPG.Items.Shield);
+RPG.Items.SmallShield.prototype.init = function() {
+	this.parent();
+	this._description = "small shield";
+	this._image = "small-shield"; /* FIXME */
+	this.addModifier(RPG.FEAT_DV, 2);
+}
+
+/**
+ * @class Medium shield
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.MediumShield = OZ.Class().extend(RPG.Items.Shield);
+RPG.Items.MediumShield.prototype.init = function() {
+	this.parent();
+	this._description = "medium shield";
+	this._image = "small-shield";  /* FIXME */
+	this.addModifier(RPG.FEAT_DV, 3);
+	this.addModifier(RPG.FEAT_PV, 1);
+}
+
+/**
+ * @class Large shield
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.LargeShield = OZ.Class().extend(RPG.Items.Shield);
+RPG.Items.LargeShield.prototype.init = function() {
+	this.parent();
+	this._description = "large shield";
+	this._image = "large-shield"; /* FIXME */
+	this.addModifier(RPG.FEAT_DV, 5);
+	this.addModifier(RPG.FEAT_PV, 1);
 }
 
 /**
