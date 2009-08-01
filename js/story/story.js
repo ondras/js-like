@@ -48,11 +48,11 @@ RPG.Story.prototype._buildMap = function() {
 	for (var i=0;i<rooms.length;i++) { this._mapdec.addRoomDoors(rooms[i]); }
 
 	/* enemies */
-	var max = 5 + Math.floor(Math.random()*10);
+	var max = 4 + Math.floor(Math.random()*6);
 	this._mapdec.addBeings(max);	
 	
 	/* items */
-	var max = 2 + Math.floor(Math.random()*5);
+	var max = 2 + Math.floor(Math.random()*4);
 	this._mapdec.addItems(max);	
 
 	/* add some chatting */
