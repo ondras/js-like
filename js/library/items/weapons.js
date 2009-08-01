@@ -32,8 +32,8 @@ RPG.Items.Dagger.prototype.init = function() {
  * @class Dagger
  * @augments RPG.Items.Weapon
  */
-RPG.Items.Dagger = OZ.Class().extend(RPG.Items.Weapon)
-RPG.Items.Dagger.prototype.init = function() {
+RPG.Items.OrcishDagger = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.OrcishDagger.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(5, 3));
 	this._image = "orcish-dagger"; /* FIXME */
 	this._description = "orcish dagger";
