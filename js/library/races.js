@@ -23,6 +23,9 @@ RPG.Races.Humanoid.prototype.init = function() {
 	this._slots.push(hand);
 	this._meleeSlot = hand;
 	
+	var shield = new RPG.Slots.BaseSlot("Shield", [RPG.Items.Shield]);
+	this._slots.push(shield);
+
 	var feet = new RPG.Slots.Kick("Feet")
 	this._slots.push(feet);
 	this._feetSlot = feet;
