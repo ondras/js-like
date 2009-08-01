@@ -8,6 +8,8 @@ RPG.Items.Consumable.prototype.init = function() {
 	this.parent();
 	this._char = "%";
 }
+RPG.Items.Consumable.prototype.eat = function() {
+}
 
 /**
  * @class Corpse, after being dies
@@ -18,16 +20,12 @@ RPG.Items.Corpse.flags.abstr4ct = true;
 /**
  * @param {RPG.Beings.BaseBeing} being The one who died
  */
-RPG.Items.Corpse.prototype.init = function() {
+RPG.Items.Corpse.prototype.init = function(being) {
 	this.parent();
 	this._image = "corpse";
-}
-
-RPG.Items.Corpse.prototype.setBeing = function(being) {
 	this._being = being;
 	this._color = being.getColor();
 	this._description = being.describe() + " corpse";
-	return this;
 }
 
 RPG.Items.Corpse.prototype.getBeing = function() {
@@ -43,6 +41,41 @@ RPG.Items.Corpse.prototype.isSameAs = function(item) {
 	return true;
 }
 
+/**
+ * @class Apple
+ * @augments RPG.Items.Consumable
+ */
+RPG.Items.Apple = OZ.Class().extend(RPG.Items.Consumable);
+RPG.Items.Apple.prototype.init = function() {
+	this.parent();
+	this._image = "apple"; /* FIXME */
+	this._description = "apple";
+	this._color = "lime";
+}
+
+/**
+ * @class Dwarven sausage
+ * @augments RPG.Items.Consumable
+ */
+RPG.Items.DwarvenSausage = OZ.Class().extend(RPG.Items.Consumable);
+RPG.Items.DwarvenSausage.prototype.init = function() {
+	this.parent();
+	this._image = "dwarven-sausage"; /* FIXME */
+	this._description = "dwarven sausage";
+	this._color = "firebrick";
+}
+
+/**
+ * @class Iron ration
+ * @augments RPG.Items.Consumable
+ */
+RPG.Items.IronRation = OZ.Class().extend(RPG.Items.Consumable);
+RPG.Items.IronRation.prototype.init = function() {
+	this.parent();
+	this._image = "iron-ration"; /* FIXME */
+	this._description = "iron ration";
+	this._color = "brown";
+}
 
 /**
  * @class Gold, money

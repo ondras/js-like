@@ -305,7 +305,7 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 	this.dropAll();
 	
 	if (Math.randomPercentage() < 34) {
-		var corpse = new RPG.Items.Corpse().setBeing(this);
+		var corpse = new RPG.Items.Corpse(this);
 		this._cell.addItem(corpse);
 	}
 	RPG.World.action(new RPG.Actions.Death(this)); 
