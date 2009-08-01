@@ -130,3 +130,431 @@ RPG.Beings.God.prototype.updateVisibility = function() {
 RPG.Beings.God.prototype.canSee = function(coords) {
 	return true;
 }
+
+/**
+ * @class Rat 
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Rat = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Rat.flags.frequency = 110;
+RPG.Beings.Rat.prototype.init = function() {
+	this.parent(new RPG.Races.Animal());
+	
+	this.setFeat(RPG.FEAT_TOUGHNESS, 7);
+	this.setFeat(RPG.FEAT_DEXTERITY, 14);
+
+	this._char = "r";
+	this._color = "silver";
+	this._description = "rat";
+	/* FIXME */
+	this._image = "rat";
+
+	this.fullHP();
+}
+
+/**
+ * @class GiantRat 
+ * @augments RPG.Beings.Rat
+ */
+RPG.Beings.GiantRat = OZ.Class().extend(RPG.Beings.Rat);
+RPG.Beings.GiantRat.flags.frequency = 85;
+RPG.Beings.GiantRat.prototype.init = function() {
+	this.parent();
+	
+	var f = this._feats[RPG.FEAT_MAXHP];
+	f.setValue(Math.round(f.baseValue() * 1.5));
+
+	this._char = "r";
+	this._color = "saddlebrown";
+	this._description = "giant rat";
+	/* FIXME */
+	this._image = "giant-rat";
+
+	this.fullHP();
+}
+
+/**
+ * @class Bat 
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Bat = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Bat.flags.frequency = 100;
+RPG.Beings.Bat.prototype.init = function() {
+	this.parent(new RPG.Races.Animal());
+	
+	this.setFeat(RPG.FEAT_TOUGHNESS, 7);
+	this.setFeat(RPG.FEAT_DEXTERITY, 14);
+	this.setFeat(RPG.FEAT_DV,2);
+
+	this._char = "b";
+	this._color = "darkgray";
+	this._description = "bat";
+	/* FIXME */
+	this._image = "bat";
+
+	this.fullHP();
+}
+
+/**
+ * @class GiantBat 
+ * @augments RPG.Beings.Bat
+ */
+RPG.Beings.GiantBat = OZ.Class().extend(RPG.Beings.Bat);
+RPG.Beings.GiantBat.flags.frequency = 85;
+RPG.Beings.GiantBat.prototype.init = function() {
+	this.parent();
+	
+	var f = this._feats[RPG.FEAT_MAXHP];
+	f.setValue(Math.round(f.baseValue() * 1.5));
+
+	this._char = "B";
+	this._color = "saddlebrown";
+	this._description = "giant bat";
+	/* FIXME */
+	this._image = "giant-bat";
+
+	this.fullHP();
+}
+
+/**
+ * @class Wolf 
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Wolf = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Wolf.flags.frequency = 10;
+RPG.Beings.Wolf.prototype.init = function() {
+	this.parent(new RPG.Races.Animal());
+	
+	this.setFeat(RPG.FEAT_STRENGTH,10);
+	this.setFeat(RPG.FEAT_TOUGHNESS,10);
+	this.setFeat(RPG.FEAT_DEXTERITY, 11);
+	this.getMeleeSlot().setHit(new RPG.Misc.RandomValue(7,2));
+
+	this._char = "d";
+	this._color = "white";
+	this._description = "wolf";
+	/* FIXME */
+	this._image = "wolf";
+
+	this.fullHP();
+}
+
+/**
+ * @class Dog 
+ * @augments RPG.Beings.Wolf
+ */
+RPG.Beings.Dog = OZ.Class().extend(RPG.Beings.Wolf);
+RPG.Beings.Dog.flags.frequency = 40;
+RPG.Beings.Dog.prototype.init = function() {
+	this.parent();
+	
+	this.setFeat(RPG.FEAT_STRENGTH,9);
+
+	this._char = "d";
+	this._color = "darkkhaki";
+	this._description = "dog";
+	/* FIXME */
+	this._image = "dog";
+
+	this.fullHP();
+}
+
+/**
+ * @class Jackal 
+ * @augments RPG.Beings.Wolf
+ */
+RPG.Beings.Jackal = OZ.Class().extend(RPG.Beings.Wolf);
+RPG.Beings.Jackal.flags.frequency = 20;
+RPG.Beings.Jackal.prototype.init = function() {
+	this.parent();
+	
+	this.setFeat(RPG.FEAT_STRENGTH,9);
+	this.setFeat(RPG.FEAT_TOUGHNESS,9);
+
+	this._char = "d";
+	this._color = "darkgray";
+	this._description = "jackal";
+	/* FIXME */
+	this._image = "jackal";
+
+	this.fullHP();
+}
+
+/**
+ * @class Bear 
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Bear = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Bear.flags.frequency = 50;
+RPG.Beings.Bear.prototype.init = function() {
+	this.parent(new RPG.Races.Animal());
+	
+	this.setFeat(RPG.FEAT_STRENGTH,14);
+	this.setFeat(RPG.FEAT_TOUGHNESS,14);
+	this.setFeat(RPG.FEAT_DEXTERITY,10);
+	this.setFeat(RPG.FEAT_MAXHP,10);
+	this.setFeat(RPG.FEAT_SPEED,90);
+	this.setFeat(RPG.FEAT_PV,4);
+
+	this._char = "N";
+	this._color = "brown";
+	this._description = "bear";
+	/* FIXME */
+	this._image = "bear";
+
+	this.fullHP();
+}
+
+/**
+ * @class Snake 
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Snake = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Snake.flags.frequency = 20;
+RPG.Beings.Snake.prototype.init = function() {
+	this.parent(new RPG.Races.Animal());
+	
+	this.setFeat(RPG.FEAT_STRENGTH,7);
+	this.setFeat(RPG.FEAT_TOUGHNESS,7);
+	this.setFeat(RPG.FEAT_DEXTERITY,14);
+	this.setFeat(RPG.FEAT_SPEED,105);
+
+	this._char = "s";
+	this._color = "red";
+	this._description = "snake";
+	/* FIXME */
+	this._image = "snake";
+
+	this.fullHP();
+}
+
+/**
+ * @class Orc 
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Orc = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Orc.flags.frequency = 100;
+RPG.Beings.Orc.prototype.init = function() {
+	this.parent(new RPG.Races.Orc());
+	this.randomGender();
+	
+	this.setFeat(RPG.FEAT_STRENGTH, 12);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 12);
+	this.setFeat(RPG.FEAT_DEXTERITY, 9);
+	this.setFeat(RPG.FEAT_INTELLIGENCE, 10);
+	
+	this._description = "orc";
+	this._char = "o";
+	this._color = "lime";
+	this._image = "orc";
+	
+	if (Math.randomPercentage() < 21) {
+		var dagger = new RPG.Items.OrcishDagger();
+		this.getMeleeSlot().setItem(dagger);
+	}
+	
+	if (Math.randomPercentage() < 21) {
+		var cap = new RPG.Items.MetalCap();
+		this.getHeadSlot().setItem(cap);
+	}
+	
+	this.fullHP();
+}
+
+/**
+ * @class LargeOrc 
+ * @augments RPG.Beings.Orc
+ */
+RPG.Beings.LargeOrc = OZ.Class().extend(RPG.Beings.Orc);
+RPG.Beings.LargeOrc.flags.frequency = 70;
+RPG.Beings.LargeOrc.prototype.init = function() {
+	this.parent();
+	
+	this.setFeat(RPG.FEAT_STRENGTH, 13);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 13);
+	
+	this._description = "large orc";
+	this._char = "o";
+	this._color = "limegreen";
+	this._image = "large-orc";
+	
+	if (Math.randomPercentage() < 41) {
+		var dagger = new RPG.Items.OrcishDagger();
+		this.getMeleeSlot().setItem(dagger);
+	}
+	
+	if (Math.randomPercentage() < 21) {
+		var cap = new RPG.Items.MetalCap();
+		this.getHeadSlot().setItem(cap);
+	}
+	
+	this.fullHP();
+}
+
+/**
+ * @class OrcChieftan 
+ * @augments RPG.Beings.Orc
+ */
+RPG.Beings.OrcChieftan = OZ.Class().extend(RPG.Beings.Orc);
+RPG.Beings.OrcChieftan.flags.frequency = 15;
+RPG.Beings.OrcChieftan.prototype.init = function() {
+	this.parent();
+	
+	this.setFeat(RPG.FEAT_STRENGTH, 13);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 13);
+	this.setFeat(RPG.FEAT_DEXTERITY, 11); 
+	this.setFeat(RPG.FEAT_INTELLIGENCE, 11); 
+	
+	this._description = "orc chieftan";
+	this._char = "o";
+	this._color = "limegreen";
+	this._image = "orc-chieftan";
+	
+	if (Math.randomPercentage() < 41) {
+		var dagger = new RPG.Items.OrcishDagger();
+		this.getMeleeSlot().setItem(dagger);
+	}
+	
+	if (Math.randomPercentage() < 41) {
+		var cap = new RPG.Items.MetalCap();
+		this.getHeadSlot().setItem(cap);
+	}
+	
+	this.fullHP();
+}
+
+/**
+ * @class Ogre 
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Ogre = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Ogre.flags.frequency = 20;
+RPG.Beings.Ogre.prototype.init = function() {
+	this.parent(new RPG.Races.Humanoid());
+	this.randomGender();
+	
+	this.setFeat(RPG.FEAT_STRENGTH, 14);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 14);
+	this.setFeat(RPG.FEAT_DEXTERITY, 9);
+	this.setFeat(RPG.FEAT_INTELLIGENCE, 7);
+	
+	this._description = "ogre";
+	this._char = "O";
+	this._color = "lime";
+	this._image = "ogre";
+	
+	this.fullHP();
+}
+
+/**
+ * @class Gnoll 
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Gnoll = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Gnoll.flags.frequency = 60;
+RPG.Beings.Gnoll.prototype.init = function() {
+	this.parent(new RPG.Races.Humanoid());
+	this.randomGender();
+	
+	this.setFeat(RPG.FEAT_STRENGTH, 13);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 13);
+	this.setFeat(RPG.FEAT_DEXTERITY, 9);
+	this.setFeat(RPG.FEAT_INTELLIGENCE, 8);
+	
+	this._description = "gnoll";
+	this._char = "g";
+	this._color = "brown";
+	this._image = "gnoll";
+	
+	if (Math.randomPercentage() < 31) {
+		var axe = new RPG.Items.Axe();
+		this.getMeleeSlot().setItem(axe);
+	}
+
+	this.fullHP();
+}
+
+/**
+ * @class Kobold 
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Kobold = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Kobold.flags.frequency = 50;
+RPG.Beings.Kobold.prototype.init = function() {
+	this.parent(new RPG.Races.Humanoid());
+	this.randomGender();
+	
+	this.setFeat(RPG.FEAT_STRENGTH, 10);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 8);
+	this.setFeat(RPG.FEAT_DEXTERITY, 12);
+	this.setFeat(RPG.FEAT_INTELLIGENCE, 9);
+	
+	this._description = "kobold";
+	this._char = "k";
+	this._color = "lime";
+	this._image = "kobold";
+	
+	if (Math.randomPercentage() < 31) {
+		var club = new RPG.Items.Club();
+		this.getMeleeSlot().setItem(club);
+	}
+
+	this.fullHP();
+}
+
+/**
+ * @class Undead 
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Undead = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Undead.flags.abstr4ct = true;
+RPG.Beings.Undead.prototype.init = function(race) {
+	this.parent(race);
+}
+
+/**
+ * @class Skeleton 
+ * @augments RPG.Beings.Undead
+ */
+RPG.Beings.Skeleton = OZ.Class().extend(RPG.Beings.Undead);
+RPG.Beings.Skeleton.flags.frequency = 25;
+RPG.Beings.Skeleton.prototype.init = function() {
+	this.parent(new RPG.Races.Humanoid());
+	
+	this._description = "skeleton";
+	this._char = "z";
+	this._color = "gainsboro";
+	this._image = "skeleton";
+	
+	if (Math.randomPercentage() < 21) {
+		var sword = new RPG.Items.ShortSword();
+		this.getMeleeSlot().setItem(sword);
+	}
+
+	this.fullHP();
+}
+
+/**
+ * @class Zombie 
+ * @augments RPG.Beings.Undead
+ */
+RPG.Beings.Zombie = OZ.Class().extend(RPG.Beings.Undead);
+RPG.Beings.Zombie.flags.frequency = 25;
+RPG.Beings.Zombie.prototype.init = function() {
+	this.parent(new RPG.Races.Humanoid());
+	this.randomGender();
+
+	var f = this._feats[RPG.FEAT_STRENGTH];
+	f.setValue(f.baseValue() + 3);
+	var f = this._feats[RPG.FEAT_DEXTERITY];
+	f.setValue(f.baseValue() - 2);
+	var f = this._feats[RPG.FEAT_INTELLIGENCE];
+	f.setValue(f.baseValue() - 5);
+	
+	this._description = "zombie";
+	this._char = "z";
+	this._color = "goldenrod";
+	this._image = "zombie";
+	
+	this.fullHP();
+}
