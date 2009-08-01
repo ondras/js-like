@@ -17,15 +17,19 @@ RPG.Items.Consumable.prototype.eat = function() {
  */
 RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Consumable);
 RPG.Items.Corpse.flags.abstr4ct = true;
+RPG.Items.Corpse.prototype.init = function() {
+	this.parent();
+	this._image = "corpse";
+}
+
 /**
  * @param {RPG.Beings.BaseBeing} being The one who died
  */
-RPG.Items.Corpse.prototype.init = function(being) {
-	this.parent();
-	this._image = "corpse";
+RPG.Items.Corpse.prototype.setBeing = function(being) {
 	this._being = being;
 	this._color = being.getColor();
 	this._description = being.describe() + " corpse";
+	return this;
 }
 
 RPG.Items.Corpse.prototype.getBeing = function() {
