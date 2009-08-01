@@ -32,7 +32,7 @@ RPG.Dungeon.Decorator.prototype.addHiddenCorridors = function(percentage) {
 	return this;
 }
 
-RPG.Dungeon.Decorator.prototype.decorateRoomDoors = function(room, options) {
+RPG.Dungeon.Decorator.prototype.addRoomDoors = function(room, options) {
 	var o = {
 		corridor: RPG.Cells.Corridor,
 		doors: true,
@@ -137,6 +137,23 @@ RPG.Dungeon.Decorator.prototype.decorateRoomInterior = function(room, options) {
 	}
 }
 
+RPG.Dungeon.Decorator.prototype.addBeings = function(count) {
+	for (var i=0;i<count;i++) {
+		var b = RPG.Beings.NPC.getInstance();
+		var ai = new RPG.Engine.AI(b);
+		ai.addTask(new RPG.Engine.AI.Kill(RPG.World.getPC())); /* FIXME */
+		var c = this._map.getFreeCoords(true);
+		this._map.at(c).setBeing(b);
+	}
+}
+
+RPG.Dungeon.Decorator.prototype.addItems = function(count) {
+	for (var i=0;i<count;i++) {
+		var item = RPG.Items.getInstance();
+		var c = this._map.getFreeCoords(true);
+		this._map.at(c).addItem(item);
+	}
+}
 
 RPG.Dungeon.Decorator.prototype._generateTreasure = function() {
 	if (Math.randomPercentage() < 67) {

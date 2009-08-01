@@ -45,19 +45,16 @@ RPG.Story.prototype._buildMap = function() {
 	this._mapdec.setMap(map).addHiddenCorridors(0.01);
 
 	var rooms = map.getRooms();
-	for (var i=0;i<rooms.length;i++) { this._mapdec.decorateRoomDoors(rooms[i]); }
+	for (var i=0;i<rooms.length;i++) { this._mapdec.addRoomDoors(rooms[i]); }
 
 	/* enemies */
 	var max = 5 + Math.floor(Math.random()*10);
-	for (var i=0;i<max;i++) {
-		var b = RPG.Beings.NPC.getInstance();
-		var ai = new RPG.Engine.AI(b);
-		ai.addTask(new RPG.Engine.AI.Kill(this._pc));
-		var c = map.getFreeCoords(true);
-		map.at(c).setBeing(b);
-	}
+	this._mapdec.addBeings(max);	
 	
-	
+	/* items */
+	var max = 2 + Math.floor(Math.random()*5);
+	this._mapdec.addItems(max);	
+
 	/* add some chatting */
 	// b.setChat(this._chat);
 
@@ -67,9 +64,8 @@ RPG.Story.prototype._buildMap = function() {
 
 	/* treasure */
 	var treasure = rooms.random();
-	this._mapdec.decorateRoomDoors(treasure, {locked: 1});
+	this._mapdec.addRoomDoors(treasure, {locked: 1});
 	this._mapdec.decorateRoomInterior(treasure, {treasure: 1});
-	
 
 	/* traps */
 	var c = map.getFreeCoords(true);
