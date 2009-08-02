@@ -112,7 +112,7 @@ RPG.Features.Door.prototype.damage = function(amount) {
  * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Trap = OZ.Class().extend(RPG.Features.BaseFeature);
-
+RPG.Features.Trap.flags.abstr4ct = true;
 RPG.Features.Trap.prototype.init = function() {
 	this.parent();
 	this._char = "^";
@@ -178,13 +178,8 @@ RPG.Features.Staircase = OZ.Class().extend(RPG.Features.BaseFeature);
 RPG.Features.Staircase.prototype.init = function() {
 	this.parent();
 	this._color = "silver";
-	this._targetGenerator = null;
 	this._targetMap = null;
 	this._targetCoords = null;
-}
-
-RPG.Features.Staircase.prototype.setTargetGenerator = function(func) {
-	this._targetGenerator = func;
 }
 
 RPG.Features.Staircase.prototype.setTargetMap = function(map) {
@@ -196,9 +191,7 @@ RPG.Features.Staircase.prototype.setTargetCoords = function(coords) {
 }
 
 RPG.Features.Staircase.prototype.generateTarget = function() {
-	if (!this._targetGenerator) { throw new Error("Cannot generate without a generator"); }
-	this._targetGenerator(this);
-	return this;
+	RPG.World.getStory().generateDungeon(this);
 }
 
 RPG.Features.Staircase.prototype.getTargetMap = function() {

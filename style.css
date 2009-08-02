@@ -35,16 +35,16 @@ body {
 	margin: auto;
 }
 
-.ascii {
+#map .ascii {
 	font-family:monospace; 
 	font-size:125%;
 }
 
-.ascii .focus {
+#map .ascii .focus {
 	text-decoration: underline;
 }
 
-.map .focus {
+#map .map .focus {
 	position: absolute;
 	width: 32px;
 	height: 1px;
@@ -76,6 +76,40 @@ body {
 	float: left;
 	margin-left: 1em;
 	font-weight: bold;
+}
+
+#mapswitch {
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	margin: 0px;
+	padding: 0px;
+}
+
+#mapswitch li {
+	list-style-type: none;
+	float: left;
+	margin-right: 1em;
+	padding: 0px;
+}
+
+#mapswitch a.active {
+	color: black;
+	text-decoration: none;
+	cursor: default;
+}
+
+#status {
+	background-color: white;
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	width: 100%;
+	opacity:0.8;
+}
+
+#status table {
+	width: 100%;
 }
 
 .dialog {
@@ -113,36 +147,18 @@ body {
 	border-collapse: collapse;
 }
 
-#mapswitch {
-	position: absolute;
-	bottom: 0px;
-	right: 0px;
-	margin: 0px;
-	padding: 0px;
+.dialog .race {
+	margin: auto;
 }
 
-#mapswitch li {
-	list-style-type: none;
-	float: left;
-	margin-right: 1em;
-	padding: 0px;
+.dialog .race td {
+	padding: 0em 1em;
+	text-align: center;
 }
 
-#mapswitch a.active {
-	color: black;
-	text-decoration: none;
-	cursor: default;
+.dialog .race td:hover {
+	background-color: #aaa;
 }
-
-#status {
-	background-color: white;
-	position: fixed;
-	bottom: 0px;
-	left: 0px;
-	width: 100%;
-	opacity:0.8;
-}
-
-#status table {
-	width: 100%;
+.dialog .race label {
+	cursor: pointer;
 }

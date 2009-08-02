@@ -733,3 +733,84 @@ RPG.UI.Command.Look.prototype.exec = function(cmd) {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Look around");
 	}
 }
+
+/**
+ * Abstract consumption command
+ */
+RPG.UI.Command.Consume = OZ.Class().extend(RPG.UI.Command);
+RPG.UI.Command.Consume.prototype.exec = function(itemCtor, listTitle, errorString, actionCtor) {
+	var pc = RPG.World.getPC();
+	var cell = pc.getCell();
+	var items = cell.getItems();
+	this._container = null;
+	this._actionCtor = actionCtor;
+	
+	/* from ground? */
+	var all = this._filter(items, itemCtor);
+	var title = listTitle;
+	
+	if (all.length) {
+		this._container = cell;
+		title += " from the ground";
+	} else {
+		all = this._filter(pc.getItems(), itemCtor);
+		if (!all.length) { 
+			RPG.UI.buffer.message(errorString);
+			return;
+		}
+		this._container = pc;
+	}
+	
+	RPG.UI.setMode(RPG.UI_WAIT_MENU);
+	new RPG.UI.Itemlist(all, title, 1, this.bind(this._done));
+}
+RPG.UI.Command.Consume.prototype._filter = function(items, itemCtor) {
+	var arr = [];
+	for (var i=0;i<items.length;i++) {
+		var item = items[i];
+		if (item instanceof itemCtor) { arr.push(item); }
+	}
+	return arr;
+}
+RPG.UI.Command.Consume.prototype._done = function(items) {
+	if (!items.length) { return; }
+	
+	var item = items[0][0];
+	RPG.UI.action(this._actionCtor, item, this._container);
+}
+
+/**
+ * @class Eating
+ * @augments RPG.UI.Command.Consume
+ */
+RPG.UI.Command.Eat = OZ.Class().extend(RPG.UI.Command.Consume);
+
+RPG.UI.Command.Eat.prototype.init = function() {
+	this.parent("Eat");
+	this._button.setChar("e");
+}
+
+RPG.UI.Command.Eat.prototype.exec = function() {
+	this.parent(RPG.Items.Consumable, 
+				"Select item to be eaten", 
+				"You don't own anything edible!",
+				RPG.Actions.Eat);
+}
+
+/**
+ * @class Drinking
+ * @augments RPG.UI.Command.Consume
+ */
+RPG.UI.Command.Drink = OZ.Class().extend(RPG.UI.Command.Consume);
+
+RPG.UI.Command.Drink.prototype.init = function() {
+	this.parent("Drink");
+	this._button.setChar("D");
+}
+
+RPG.UI.Command.Drink.prototype.exec = function() {
+	this.parent(RPG.Items.Potion, 
+				"Select a potion", 
+				"You don't own any potions!",
+				RPG.Actions.Drink);
+}

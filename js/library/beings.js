@@ -146,7 +146,6 @@ RPG.Beings.Rat.prototype.init = function() {
 	this._char = "r";
 	this._color = "silver";
 	this._description = "rat";
-	/* FIXME */
 	this._image = "rat";
 
 	this.fullHP();
@@ -164,10 +163,8 @@ RPG.Beings.GiantRat.prototype.init = function() {
 	var f = this._feats[RPG.FEAT_MAXHP];
 	f.setValue(Math.round(f.baseValue() * 1.5));
 
-	this._char = "r";
 	this._color = "saddlebrown";
 	this._description = "giant rat";
-	/* FIXME */
 	this._image = "giant-rat";
 
 	this.fullHP();
@@ -189,7 +186,6 @@ RPG.Beings.Bat.prototype.init = function() {
 	this._char = "b";
 	this._color = "darkgray";
 	this._description = "bat";
-	/* FIXME */
 	this._image = "bat";
 
 	this.fullHP();
@@ -210,7 +206,6 @@ RPG.Beings.GiantBat.prototype.init = function() {
 	this._char = "B";
 	this._color = "saddlebrown";
 	this._description = "giant bat";
-	/* FIXME */
 	this._image = "giant-bat";
 
 	this.fullHP();
@@ -233,7 +228,6 @@ RPG.Beings.Wolf.prototype.init = function() {
 	this._char = "d";
 	this._color = "white";
 	this._description = "wolf";
-	/* FIXME */
 	this._image = "wolf";
 
 	this.fullHP();
@@ -253,7 +247,6 @@ RPG.Beings.Dog.prototype.init = function() {
 	this._char = "d";
 	this._color = "darkkhaki";
 	this._description = "dog";
-	/* FIXME */
 	this._image = "dog";
 
 	this.fullHP();
@@ -274,7 +267,6 @@ RPG.Beings.Jackal.prototype.init = function() {
 	this._char = "d";
 	this._color = "darkgray";
 	this._description = "jackal";
-	/* FIXME */
 	this._image = "jackal";
 
 	this.fullHP();
@@ -299,7 +291,6 @@ RPG.Beings.Bear.prototype.init = function() {
 	this._char = "N";
 	this._color = "brown";
 	this._description = "bear";
-	/* FIXME */
 	this._image = "bear";
 
 	this.fullHP();
@@ -322,7 +313,6 @@ RPG.Beings.Snake.prototype.init = function() {
 	this._char = "s";
 	this._color = "red";
 	this._description = "snake";
-	/* FIXME */
 	this._image = "snake";
 
 	this.fullHP();
@@ -392,12 +382,12 @@ RPG.Beings.LargeOrc.prototype.init = function() {
 }
 
 /**
- * @class OrcChieftan 
+ * @class Orc Chieftain 
  * @augments RPG.Beings.Orc
  */
-RPG.Beings.OrcChieftan = OZ.Class().extend(RPG.Beings.Orc);
-RPG.Beings.OrcChieftan.flags.frequency = 15;
-RPG.Beings.OrcChieftan.prototype.init = function() {
+RPG.Beings.OrcChieftain = OZ.Class().extend(RPG.Beings.Orc);
+RPG.Beings.OrcChieftain.flags.frequency = 15;
+RPG.Beings.OrcChieftain.prototype.init = function() {
 	this.parent();
 	
 	this.setFeat(RPG.FEAT_STRENGTH, 13);
@@ -405,10 +395,10 @@ RPG.Beings.OrcChieftan.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DEXTERITY, 11); 
 	this.setFeat(RPG.FEAT_INTELLIGENCE, 11); 
 	
-	this._description = "orc chieftan";
+	this._description = "orc chieftain";
 	this._char = "o";
 	this._color = "limegreen";
-	this._image = "orc-chieftan";
+	this._image = "orc-chieftain";
 	
 	if (Math.randomPercentage() < 41) {
 		var dagger = new RPG.Items.OrcishDagger();

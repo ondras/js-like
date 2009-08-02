@@ -148,7 +148,6 @@ RPG.Misc.Factory = OZ.Class();
  */
 RPG.Misc.Factory.prototype.init = function() {
 	this._classList = [];	
-	this._total = 0;
 }
 RPG.Misc.Factory.prototype.add = function(ancestor) {
 	for (var i=0;i<OZ.Class.all.length;i++) {
@@ -156,7 +155,6 @@ RPG.Misc.Factory.prototype.add = function(ancestor) {
 		if (ctor.flags.abstr4ct) { continue; }
 		if (this._hasAncestor(ctor, ancestor)) { 
 			this._classList.push(ctor); 
-			this._total += ctor.flags.frequency;
 		}
 	}
 	return this;
@@ -164,16 +162,26 @@ RPG.Misc.Factory.prototype.add = function(ancestor) {
 /**
  * Return a random instance
  */ 
-RPG.Misc.Factory.prototype.getInstance = function() {
+RPG.Misc.Factory.prototype.getInstance = function(minDanger) {
 	var len = this._classList.length;
 	if (len == 0) { throw new Error("No available classes"); }
+
+	var avail = [];
+	var total = 0;
 	
-	var random = Math.floor(Math.random()*this._total);
+	for (var i=0;i<this._classList.length;i++) {
+		ctor = this._classList[i];
+		if (minDanger && ctor.flags.danger < minDanger) { continue; }
+		total += ctor.flags.frequency;
+		avail.push(ctor);
+	}
+	
+	var random = Math.floor(Math.random()*total);
 	
 	var sub = 0;
 	var ctor = null;
-	for (var i=0;i<this._classList.length;i++) {
-		ctor = this._classList[i];
+	for (var i=0;i<avail.length;i++) {
+		ctor = avail[i];
 		sub += ctor.flags.frequency;
 		if (random < sub) { return new ctor(); }
 	}

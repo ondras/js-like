@@ -18,7 +18,7 @@ RPG.Items.SmallShield = OZ.Class().extend(RPG.Items.Shield);
 RPG.Items.SmallShield.prototype.init = function() {
 	this.parent();
 	this._description = "small shield";
-	this._image = "small-shield"; /* FIXME */
+	this._image = "small-shield";
 	this.addModifier(RPG.FEAT_DV, 2);
 }
 
@@ -30,7 +30,7 @@ RPG.Items.MediumShield = OZ.Class().extend(RPG.Items.Shield);
 RPG.Items.MediumShield.prototype.init = function() {
 	this.parent();
 	this._description = "medium shield";
-	this._image = "small-shield";  /* FIXME */
+	this._image = "small-shield";
 	this.addModifier(RPG.FEAT_DV, 3);
 	this.addModifier(RPG.FEAT_PV, 1);
 }
@@ -43,7 +43,7 @@ RPG.Items.LargeShield = OZ.Class().extend(RPG.Items.Shield);
 RPG.Items.LargeShield.prototype.init = function() {
 	this.parent();
 	this._description = "large shield";
-	this._image = "large-shield"; /* FIXME */
+	this._image = "large-shield";
 	this.addModifier(RPG.FEAT_DV, 5);
 	this.addModifier(RPG.FEAT_PV, 1);
 }

@@ -19,7 +19,6 @@ RPG.UI.setMode = function(mode, command, data) {
 	switch (mode) {
 		case RPG.UI_NORMAL:
 			this._pending = null;
-			this._undim();
 			this._adjustButtons({commands:true, cancel:false, dir:true});
 			this.map.setFocus(RPG.World.getPC().getCell().getCoords());
 		break;
@@ -32,7 +31,6 @@ RPG.UI.setMode = function(mode, command, data) {
 			this._adjustButtons({commands:false, cancel:true, dir:true});
 		break;
 		case RPG.UI_WAIT_DIALOG:
-			this._dim();
 			this._adjustButtons({commands:false, cancel:false, dir:false});
 		break;
 		case RPG.UI_WAIT_CHAT:
@@ -111,6 +109,8 @@ RPG.UI.build = function() {
 	d.appendChild(new RPG.UI.Command.Chat().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Search().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Trap().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Eat().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Drink().getButton().getInput());
 
 	var d = OZ.DOM.elm("div", {innerHTML:"Item management: "});
 	c.appendChild(d);
@@ -127,6 +127,7 @@ RPG.UI.build = function() {
 }
 
 RPG.UI.showDialog = function(data, title) {
+	this._dim();
 	if (!this._dialog) {
 		this._dialog = OZ.DOM.elm("div", {"class":"dialog", position:"absolute"});
 	}
@@ -151,6 +152,7 @@ RPG.UI.syncDialog = function() {
 
 RPG.UI.hideDialog = function() {
 	this._dialog.parentNode.removeChild(this._dialog);
+	this._undim();
 }
 
 /**
@@ -180,6 +182,7 @@ RPG.UI._adjustButtons = function(data) {
  * Dim the UI - because something "modal" will be shown
  */ 
 RPG.UI._dim = function() {
+	if (this._dimmer) { return; }
 	var div = OZ.DOM.elm("div", {position:"absolute", backgroundColor:"black", opacity:0.5});
 	document.body.appendChild(div);
 	this._dimmer = div;

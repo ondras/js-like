@@ -117,11 +117,6 @@ RPG.Actions.Death.prototype.execute = function() {
 	
 	memory.updateCoords(coords);
 	RPG.World.removeActor(this._source);
-	
-	if (RPG.World.getPC() == this._source) {
-		RPG.World.lock();
-		alert("MWHAHAHA you are dead!");
-	}
 }
 
 /**
@@ -467,16 +462,18 @@ RPG.Actions.EnterStaircase.prototype.execute = function() {
 	}
 	var coords = stair.getTargetCoords();
 	
-	/* move what is necessary to new map */
-	var oldCell = pc.getCell();
-	oldCell.setBeing(null);
-	newMap.at(coords).setBeing(pc);
+	if (newMap) {	
+		/* move what is necessary to new map */
+		var oldCell = pc.getCell();
+		oldCell.setBeing(null);
+		newMap.at(coords).setBeing(pc);
 
-	/* switch maps */
-	RPG.World.setMap(newMap);
-	
-	/* describe what we see */
-	this._describeLocal();
+		/* switch maps */
+		RPG.World.setMap(newMap);
+		
+		/* describe what we see */
+		this._describeLocal();
+	}
 }
 
 /**
@@ -569,4 +566,83 @@ RPG.Actions.Look.prototype.execute = function() {
 RPG.Actions.Equip = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Equip.prototype.execute = function() {
 	RPG.UI.buffer.message("You adjust your equipment.");
+}
+
+/**
+ * @class Abstract consumption, target = item, params = item container
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Consume = OZ.Class().extend(RPG.Actions.BaseAction);
+
+/**
+ * @param {string} consumption verb
+ * @param {function} consumption method
+ */
+RPG.Actions.Consume.prototype.execute = function(verb, method) {
+	var str = "";
+	var you = (this._source == RPG.World.getPC());
+	
+	/* remove item from inventory / ground */
+	var amount = this._target.getAmount();
+	if (amount == 1) {
+		this._params.removeItem(this._target);
+	} else {
+		this._target = this._target.subtract(1);
+	}
+
+	str += this._source.describe().capitalize() + " ";
+	if (you) {
+		str += verb +  " " + this._target.describeThe() + ".";
+	} else {
+		str += verb + "s " + this._target.describeA() + ".";
+	}
+	RPG.UI.buffer.message(str);
+	
+	method.call(this._target, this._source);
+}
+
+/**
+ * @class Eat something, target = item, params = item container
+ * @augments RPG.Actions.Consume
+ */
+RPG.Actions.Eat = OZ.Class().extend(RPG.Actions.Consume);
+RPG.Actions.Eat.prototype.execute = function() {
+	return this.parent("eat", this._target.eat);
+}
+
+/**
+ * @class Drink something, target = item, params = item container
+ * @augments RPG.Actions.Consume
+ */
+RPG.Actions.Drink = OZ.Class().extend(RPG.Actions.Consume);
+RPG.Actions.Drink.prototype.execute = function() {
+	return this.parent("drink", this._target.drink);
+}
+
+/**
+ * @class Heal wounds, target = amount
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Heal = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.Heal.prototype.execute = function() {
+	var b = this._source;
+	var hp = b.getHP();
+	var max = b.getFeat(RPG.FEAT_MAXHP);
+	if (hp == max) {
+		RPG.UI.buffer.message("Nothing happens.");
+		return;
+	}
+	
+	b.adjustHP(this._target);
+	hp = b.getHP();
+	
+	var str = "";
+	
+	if (hp == max) {
+		str += "All";
+	} else {
+		str += "Some of";
+	}
+	str += " "+b.describeHis()+" wounds are healed."
+	RPG.UI.buffer.message(str);
 }

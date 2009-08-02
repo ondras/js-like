@@ -69,6 +69,13 @@ RPG.Beings.PC.prototype.describeHim = function() {
 }
 
 /**
+ * @see RPG.Beings.BaseBeing#describeHis
+ */
+RPG.Beings.PC.prototype.describeHis = function() {
+	return "yours";
+}
+
+/**
  * PC uses a different approach - maintains a list of visible coords
  */
 RPG.Beings.PC.prototype.canSee = function(coords) {
@@ -228,4 +235,12 @@ RPG.Beings.PC.prototype._getModifierHolders = function() {
 	var arr = this.parent();
 	arr.push(this._race);
 	return arr;
+}
+
+/**
+ * PC being dies
+ */
+RPG.Beings.PC.prototype.die = function() {
+	this._alive = false;
+	RPG.World.action(new RPG.Actions.Death(this)); 
 }

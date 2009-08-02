@@ -8,6 +8,7 @@ RPG.UI.Itemlist.prototype._groups = {
 	"Weapons": RPG.Items.Weapon,
 	"Shields": RPG.Items.Shield,
 	"Boots": RPG.Items.Boots,
+	"Potions": RPG.Items.Potion,
 	"Consumables": RPG.Items.Consumable,
 	"Gold": RPG.Items.Gold,
 	"Gems": RPG.Items.Gem

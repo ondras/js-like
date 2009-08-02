@@ -35,7 +35,7 @@ RPG.Items.Dagger.prototype.init = function() {
 RPG.Items.OrcishDagger = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.OrcishDagger.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(5, 3));
-	this._image = "orcish-dagger"; /* FIXME */
+	this._image = "orcish-dagger";
 	this._description = "orcish dagger";
 }
 
@@ -47,7 +47,7 @@ RPG.Items.Club = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Club.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(7, 3));
 	this._color = "brown";
-	this._image = "club"; /* FIXME */
+	this._image = "club";
 	this._description = "club"; 
 }
 
@@ -59,7 +59,7 @@ RPG.Items.ShortSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.ShortSword.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(4, 2));
 	this._color = "darkgray";
-	this._image = "short-sword"; /* FIXME */ 
+	this._image = "short-sword";
 	this._description = "short sword"; 
 }
 
@@ -71,7 +71,7 @@ RPG.Items.LongSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.LongSword.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(6, 2));
 	this._color = "darkgray";
-	this._image = "long-sword"; /* FIXME */ 
+	this._image = "long-sword";
 	this._description = "long sword"; 
 }
 
@@ -83,7 +83,7 @@ RPG.Items.Axe = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Axe.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(6, 2));
 	this._color = "brown";
-	this._image = "axe"; /* FIXME */ 
+	this._image = "axe";
 	this._description = "axe"; 
 }
 
@@ -92,6 +92,7 @@ RPG.Items.Axe.prototype.init = function() {
  * @augments RPG.Items.Weapon
  */
 RPG.Items.KlingonSword = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.KlingonSword.flags.danger = -1;
 RPG.Items.KlingonSword.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(10, 3), new RPG.Misc.RandomValue(10, 3));
 	this._color = "gold";

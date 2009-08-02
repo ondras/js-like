@@ -7,14 +7,14 @@ RPG.World = {
 	_lock: 0, /* lock level */
 	_map: null,
 	_scheduler: null,
-	_pc: null
+	_pc: null,
+	_story: null
 };
 
 /**
  * Event dispatcher, static version
  */
 RPG.World.dispatch = OZ.Class().prototype.dispatch;
-
 
 RPG.World.init = function() {
 	this._scheduler = new RPG.Engine.Queue();
@@ -27,6 +27,10 @@ RPG.World.init = function() {
 
 	var f = new RPG.Misc.Factory().add(RPG.Beings.NPC);
 	RPG.Beings.NPC.getInstance = f.bind(f.getInstance);
+
+	var f = new RPG.Misc.Factory().add(RPG.Features.Trap);
+	RPG.Features.Trap.getInstance = f.bind(f.getInstance);
+	
 }
 
 /**
@@ -72,6 +76,15 @@ RPG.World.getPC = function() {
 
 RPG.World.setPC = function(being) {
 	this._pc = being;
+	return this;
+}
+
+RPG.World.getStory = function() {
+	return this._story;
+}
+
+RPG.World.setStory = function(story) {
+	this._story = story;
 }
 
 /**

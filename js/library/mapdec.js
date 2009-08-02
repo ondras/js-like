@@ -113,6 +113,7 @@ RPG.Dungeon.Decorator.prototype.addRoomDoors = function(room, options) {
 	return this;
 }
 
+/* FIXME refactor */
 RPG.Dungeon.Decorator.prototype.decorateRoomInterior = function(room, options) {
 	var o = {
 		treasure: 0,
@@ -132,7 +133,6 @@ RPG.Dungeon.Decorator.prototype.decorateRoomInterior = function(room, options) {
 				continue;
 			}
 			
-			/* FIXME add monster generator */
 		}
 	}
 }
@@ -155,11 +155,17 @@ RPG.Dungeon.Decorator.prototype.addItems = function(count) {
 	}
 }
 
+RPG.Dungeon.Decorator.prototype.addTraps = function(count) {
+	for (var i=0;i<count;i++) {
+		var trap = RPG.Features.Trap.getInstance();
+		var c = this._map.getFreeCoords(true);
+		this._map.at(c).setFeature(trap);
+	}
+}
+
 RPG.Dungeon.Decorator.prototype._generateTreasure = function() {
 	if (Math.randomPercentage() < 67) {
-		var gold = new RPG.Items.Gold();
-		gold.setAmount(1+Math.floor(Math.random()*100));
-		return gold;
+		return new RPG.Items.Gold();
 	} else {
 		return RPG.Items.Gem.getInstance();
 	}
