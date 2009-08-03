@@ -4,7 +4,7 @@
 RPG.Story = OZ.Class();
 
 RPG.Story.prototype.init = function() {
-	this._maxDepth = 2;
+	this._maxDepth = 5;
 	this._maps = [];
 //	this._chat = this._buildChat();
 	this._mapgen = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(60, 20));
@@ -62,7 +62,7 @@ RPG.Story.prototype._pickRace = function() {
 		var label = OZ.DOM.elm("label");
 		
 		var img = OZ.DOM.elm("img");
-		img.src = "img/beings/" + tmp.getImage() + ".png";
+		img.src = "img/pc/" + tmp.getImage() + ".png";
 		
 		OZ.DOM.append([td, label], [label, img, OZ.DOM.elm("br"), OZ.DOM.text(name)]);
 		

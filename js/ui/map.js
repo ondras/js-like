@@ -146,7 +146,9 @@ RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 	var text = what.describe();
 
 	var type = "";
-	if (what instanceof RPG.Beings.BaseBeing) {
+	if (what instanceof RPG.Beings.PC) {
+		type = "pc";
+	} else if (what instanceof RPG.Beings.NPC) {
 		type = "beings";
 	} else if (what instanceof RPG.Items.BaseItem) {
 		type = "items";
