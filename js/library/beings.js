@@ -373,7 +373,7 @@ RPG.Beings.LargeOrc.prototype.init = function() {
 	this._description = "large orc";
 	this._char = "o";
 	this._color = "limegreen";
-	this._image = "large-orc";
+	this._image = "orc-large";
 	
 	if (Math.randomPercentage() < 41) {
 		var dagger = new RPG.Items.OrcishDagger();
