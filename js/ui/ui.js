@@ -54,8 +54,8 @@ RPG.UI.command = function(command) {
 		return; 
 	} 
 	
-	/* no commands in menumode (bar cancel) */
-	if (this._mode == RPG.UI_WAIT_MENU) { return; } 
+	/* no commands in dialog mode (bar cancel) */
+	if (this._mode == RPG.UI_WAIT_DIALOG) { return; } 
 	
 	/* non-dir when direction is needed */
 	if (!(command instanceof RPG.UI.Command.Direction) && this._mode == RPG.UI_WAIT_DIRECTION) { return; } 

@@ -392,7 +392,7 @@ RPG.UI.Command.Pick.prototype.exec = function() {
 		return;
 	}
 	
-	RPG.UI.setMode(RPG.UI_WAIT_MENU);
+	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 	new RPG.UI.Itemlist(items, "Select items to be picked up", -1, this.bind(this._done));
 }
 RPG.UI.Command.Pick.prototype._done = function(items) {
@@ -412,7 +412,7 @@ RPG.UI.Command.Drop.prototype.exec = function() {
 	var pc = RPG.World.getPC();
 	var items = pc.getItems();
 	if (items.length) {
-		RPG.UI.setMode(RPG.UI_WAIT_MENU);
+		RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 		new RPG.UI.Itemlist(items, "Select items to be dropped on the ground", -1, this.bind(this._done));
 	} else {
 		RPG.UI.buffer.message("You don't own anything!");
@@ -761,7 +761,7 @@ RPG.UI.Command.Consume.prototype.exec = function(itemCtor, listTitle, errorStrin
 		this._container = pc;
 	}
 	
-	RPG.UI.setMode(RPG.UI_WAIT_MENU);
+	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 	new RPG.UI.Itemlist(all, title, 1, this.bind(this._done));
 }
 RPG.UI.Command.Consume.prototype._filter = function(items, itemCtor) {

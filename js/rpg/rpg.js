@@ -52,7 +52,6 @@ RPG.UI = {};
 /** @namespace */
 RPG.Visual = {};
 
-
 /** @constant */
 RPG.CELL_OBSTACLE 		= 1 << 0; /* can not be moved onto, e.g. wall */
 /** @constant */
@@ -96,25 +95,32 @@ RPG.MAP_VISIBLE			= 1;
 RPG.MAP_REMEMBERED		= 2;
 
 /** @constant */
-RPG.FEAT_STRENGTH			= 0;
+RPG.ALIGNMENT_CHAOTIC	= 0;
 /** @constant */
-RPG.FEAT_TOUGHNESS			= 1;
+RPG.ALIGNMENT_NEUTRAL	= 1;
 /** @constant */
-RPG.FEAT_DEXTERITY			= 2;
+RPG.ALIGNMENT_LAWFUL	= 2;
+
 /** @constant */
-RPG.FEAT_INTELLIGENCE		= 3;
+RPG.FEAT_STRENGTH		= 0;
 /** @constant */
-RPG.FEAT_MAXHP				= 4;
+RPG.FEAT_TOUGHNESS		= 1;
 /** @constant */
-RPG.FEAT_DV					= 5;
+RPG.FEAT_DEXTERITY		= 2;
 /** @constant */
-RPG.FEAT_PV					= 6;
+RPG.FEAT_INTELLIGENCE	= 3;
 /** @constant */
-RPG.FEAT_SPEED				= 7;
+RPG.FEAT_MAXHP			= 4;
 /** @constant */
-RPG.FEAT_DAMAGE				= 8;
+RPG.FEAT_DV				= 5;
 /** @constant */
-RPG.FEAT_HIT					= 9;
+RPG.FEAT_PV				= 6;
+/** @constant */
+RPG.FEAT_SPEED			= 7;
+/** @constant */
+RPG.FEAT_DAMAGE			= 8;
+/** @constant */
+RPG.FEAT_HIT			= 9;
 
 RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG.FEAT_INTELLIGENCE];
 

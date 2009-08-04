@@ -188,15 +188,11 @@ RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
 
 /**
  * @class Basic race
- * @augments RPG.Misc.ModifierInterface
  * @augments RPG.Visual.VisualInterface
  */
-RPG.Races.BaseRace = OZ.Class()
-							.implement(RPG.Misc.ModifierInterface)
-							.implement(RPG.Visual.VisualInterface);
+RPG.Races.BaseRace = OZ.Class().implement(RPG.Visual.VisualInterface);
 RPG.Races.BaseRace.prototype.init = function() {
 	this._initVisuals();
-	this._modifiers = {};
 	this._slots = [];
 	this._headSlot = null;
 	this._meleeSlot = null;
@@ -314,7 +310,7 @@ RPG.Actions.BaseAction.prototype._describeRemote = function(coords) {
 			var str = "";
 			str += "You see " + b.describeA()+". ";
 			str += b.describeHe().capitalize() + " is " + b.woundedState() + " wounded. ";
-			if (b.isHostile()) {
+			if (b.isHostile(pc)) {
 				str += b.describeThe().capitalize() + " is hostile.";
 			} else {
 				str += b.describeThe().capitalize() + " does not seem to be hostile.";

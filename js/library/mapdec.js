@@ -140,8 +140,6 @@ RPG.Dungeon.Decorator.prototype.decorateRoomInterior = function(room, options) {
 RPG.Dungeon.Decorator.prototype.addBeings = function(count) {
 	for (var i=0;i<count;i++) {
 		var b = RPG.Beings.NPC.getInstance();
-		var ai = new RPG.Engine.AI(b);
-		ai.addTask(new RPG.Engine.AI.Kill(RPG.World.getPC())); /* FIXME */
 		var c = this._map.getFreeCoords(true);
 		this._map.at(c).setBeing(b);
 	}

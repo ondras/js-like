@@ -7,6 +7,7 @@ RPG.Beings.Goblin.prototype.init = function() {
 	/* goblins are below-average humanoids */
 	this.parent(new RPG.Races.Humanoid());
 	this.randomGender();
+	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
 	this.setFeat(RPG.FEAT_STRENGTH, 9);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 9);
@@ -32,6 +33,7 @@ RPG.Beings.Goblin.prototype.init = function() {
 		var boots = new RPG.Items.LeatherBoots();
 		this.getFeetSlot().setItem(boots);
 	}
+	
 
 	this.fullHP();
 }
@@ -87,6 +89,7 @@ RPG.Beings.Troll.prototype.init = function() {
 	/* trolls are above-average humanoids */
 	this.parent(new RPG.Races.Humanoid());
 	this.randomGender();
+	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
 	this.setFeat(RPG.FEAT_STRENGTH, 18);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
@@ -99,7 +102,8 @@ RPG.Beings.Troll.prototype.init = function() {
 	this._description = "troll";
 	this._image = "troll";
 	
-	this.getMeleeSlot().setHit(new RPG.Misc.RandomValue(10, 3));
+	this.getMeleeSlot().setHit(new RPG.Misc.RandomValue(10, 5));
+
 
 	this.fullHP();
 }
@@ -223,7 +227,7 @@ RPG.Beings.Wolf.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH,10);
 	this.setFeat(RPG.FEAT_TOUGHNESS,10);
 	this.setFeat(RPG.FEAT_DEXTERITY, 11);
-	this.getMeleeSlot().setHit(new RPG.Misc.RandomValue(7,2));
+	this.getMeleeSlot().setHit(new RPG.Misc.RandomValue(7, 4));
 
 	this._char = "d";
 	this._color = "white";
@@ -260,6 +264,7 @@ RPG.Beings.Jackal = OZ.Class().extend(RPG.Beings.Wolf);
 RPG.Beings.Jackal.flags.frequency = 20;
 RPG.Beings.Jackal.prototype.init = function() {
 	this.parent();
+	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
 	this.setFeat(RPG.FEAT_STRENGTH,9);
 	this.setFeat(RPG.FEAT_TOUGHNESS,9);
@@ -304,6 +309,7 @@ RPG.Beings.Snake = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Snake.flags.frequency = 20;
 RPG.Beings.Snake.prototype.init = function() {
 	this.parent(new RPG.Races.Animal());
+	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
 	this.setFeat(RPG.FEAT_STRENGTH,7);
 	this.setFeat(RPG.FEAT_TOUGHNESS,7);
@@ -327,6 +333,7 @@ RPG.Beings.Orc.flags.frequency = 100;
 RPG.Beings.Orc.prototype.init = function() {
 	this.parent(new RPG.Races.Orc());
 	this.randomGender();
+	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
 	this.setFeat(RPG.FEAT_STRENGTH, 12);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 12);
@@ -422,6 +429,7 @@ RPG.Beings.Ogre.flags.frequency = 20;
 RPG.Beings.Ogre.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	this.randomGender();
+	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
 	this.setFeat(RPG.FEAT_STRENGTH, 14);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 14);
@@ -445,6 +453,7 @@ RPG.Beings.Gnoll.flags.frequency = 60;
 RPG.Beings.Gnoll.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	this.randomGender();
+	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
 	this.setFeat(RPG.FEAT_STRENGTH, 13);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 13);
@@ -473,6 +482,7 @@ RPG.Beings.Kobold.flags.frequency = 50;
 RPG.Beings.Kobold.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	this.randomGender();
+	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
 	this.setFeat(RPG.FEAT_STRENGTH, 10);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 8);
@@ -500,6 +510,7 @@ RPG.Beings.Undead = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Undead.flags.abstr4ct = true;
 RPG.Beings.Undead.prototype.init = function(race) {
 	this.parent(race);
+	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 }
 
 /**

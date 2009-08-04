@@ -13,20 +13,41 @@
 RPG.Engine.AI = OZ.Class();
 
 RPG.Engine.AI.prototype.init = function(being) {
-	this._being = being;
+	this._being = null;
 	this._tasks = [];
 	this._taskPtr = null;
-	
+	this._event = null;
+
+	/* fallback task */
+	var wander = new RPG.Engine.AI.Wander();
+	this.addTask(wander);
+}
+
+RPG.Engine.AI.prototype.setBeing = function(being) {
+	this._being = being;
+
 	being.yourTurn = this.bind(this.yourTurn);
 	being.addTask = this.bind(this.addTask);
 	being.addGoal = this.bind(this.addGoal);
 	being.clearTasks = this.bind(this.clearTasks);
 	
 	this._event = OZ.Event.add(RPG.World, "action", this.bind(this._action));
+}
 
-	/* fallback task */
-	var wander = new RPG.Engine.AI.Wander();
-	this.addTask(wander);
+RPG.Engine.AI.prototype.isHostile = function(being) {
+	for (var i=0;i<this._tasks.length;i++) {
+		var goal = this._tasks[i][0];	
+		if (goal instanceof RPG.Engine.AI.Kill && goal.getTarget() == being) { return true; }
+	}
+	return false;
+}
+
+RPG.Engine.AI.prototype.syncWithAlignment = function() {
+	var pc = RPG.World.getPC();
+	var a = this._being.getAlignment();
+	if (a == RPG.ALIGNMENT_CHAOTIC && !this.isHostile(pc)) {
+		this.addTask(new RPG.Engine.AI.Kill(pc));
+	}
 }
 
 /**
@@ -57,6 +78,8 @@ RPG.Engine.AI.prototype._action = function(e) {
 		
 			/* we are already attacking him */
 			if (goal instanceof RPG.Engine.AI.Kill && goal.getTarget() == a.getSource()) { kill = true; }
+
+			/* we are already retreating */
 			if (goal instanceof RPG.Engine.AI.Retreat && goal.getTarget() == a.getSource()) { retreat = true; }
 		}
 		
@@ -68,9 +91,9 @@ RPG.Engine.AI.prototype._action = function(e) {
 			this.addTask(goal);
 		}
 		
-		if (!retreat && (this._being.getHP() / this._being.getFeat(RPG.FEAT_MAXHP) < 0.5)) {
+		if (!retreat && RPG.Rules.isWoundedToRetreat(this._being)) {
 			/* too much damage, run for your life! */
-			var str = this._being.describeThe().capitalize() + " runs away!";
+			var str = this._being.describeThe().capitalize() + " looks frightened!";
 			RPG.UI.buffer.message(str);
 			var goal = new RPG.Engine.AI.Retreat(a.getSource());
 			this.addTask(goal);
@@ -196,7 +219,6 @@ RPG.Engine.AI.Wander.prototype.go = function() {
 	
 	for (var i=-1;i<=1;i++) {
 		for (var j=-1;j<=1;j++) {
-			if (Math.abs(i) == Math.abs(j)) { continue; }
 			var coords = center.clone();
 			coords.x += i;
 			coords.y += j;
@@ -362,7 +384,7 @@ RPG.Engine.AI.Retreat.prototype.go = function() {
 }
 
 RPG.Engine.AI.Retreat.prototype.isSatisfied = function() {
-	return false;
+	return !RPG.Rules.isWoundedToRetreat(this._ai.getBeing());
 }
 
 RPG.Engine.AI.Retreat.prototype.getTarget = function() {

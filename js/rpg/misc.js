@@ -162,7 +162,7 @@ RPG.Misc.Factory.prototype.add = function(ancestor) {
 /**
  * Return a random instance
  */ 
-RPG.Misc.Factory.prototype.getInstance = function(minDanger) {
+RPG.Misc.Factory.prototype.getInstance = function(maxDanger) {
 	var len = this._classList.length;
 	if (len == 0) { throw new Error("No available classes"); }
 
@@ -171,11 +171,11 @@ RPG.Misc.Factory.prototype.getInstance = function(minDanger) {
 	
 	for (var i=0;i<this._classList.length;i++) {
 		ctor = this._classList[i];
-		if (minDanger && ctor.flags.danger < minDanger) { continue; }
+		var danger = ctor.flags.danger;
+		if (danger < 0 || (maxDanger && danger > maxDanger)) { continue; } 
 		total += ctor.flags.frequency;
 		avail.push(ctor);
 	}
-	
 	var random = Math.floor(Math.random()*total);
 	
 	var sub = 0;

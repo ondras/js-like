@@ -233,7 +233,7 @@ RPG.Beings.PC.prototype._visibleCell = function(cell, centralAngle, arcsPerCell,
  */
 RPG.Beings.PC.prototype._getModifierHolders = function() {
 	var arr = this.parent();
-	arr.push(this._race);
+//	arr.push(this._class);
 	return arr;
 }
 

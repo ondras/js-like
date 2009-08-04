@@ -242,11 +242,6 @@ RPG.Beings.BaseBeing.prototype.getSpeed = function() {
 
 /* ============================== MISC ==================================== */
 
-RPG.Beings.BaseBeing.prototype.isHostile = function() {
-	/* FIXME! */
-	return true;
-}
-
 RPG.Beings.BaseBeing.prototype.isAlive = function() {
 	return this._alive;
 }

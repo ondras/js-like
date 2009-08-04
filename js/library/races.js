@@ -30,7 +30,7 @@ RPG.Races.Humanoid.prototype.init = function() {
 	this._slots.push(feet);
 	this._feetSlot = feet;
 	
-	hand.setHit(new RPG.Misc.RandomValue(5, 2));
+	hand.setHit(new RPG.Misc.RandomValue(5, 4));
 	hand.setDamage(new RPG.Misc.RandomValue(2, 1));
 
 	feet.setHit(new RPG.Misc.RandomValue(5, 3));
@@ -46,10 +46,11 @@ RPG.Races.Orc.prototype.init = function() {
 	this.parent();
 	this._color = "lime";
 	this._image = "orc";
-	this.addModifier(RPG.FEAT_STRENGTH, 3);
-	this.addModifier(RPG.FEAT_TOUGHNESS, 4);
-	this.addModifier(RPG.FEAT_INTELLIGENCE, -1);
-	this.addModifier(RPG.FEAT_DEXTERITY, 1);
+	
+	this._defaults[RPG.FEAT_STRENGTH] += 3;
+	this._defaults[RPG.FEAT_TOUGHNESS] += 4;
+	this._defaults[RPG.FEAT_INTELLIGENCE] += -1;
+	this._defaults[RPG.FEAT_DEXTERITY] += 1;
 }
 
 /**
@@ -61,10 +62,10 @@ RPG.Races.Human.prototype.init = function() {
 	this.parent();
 	this._color = "royalblue";
 	this._image = "human";
-	this.addModifier(RPG.FEAT_STRENGTH, 0);
-	this.addModifier(RPG.FEAT_TOUGHNESS, 2);
-	this.addModifier(RPG.FEAT_INTELLIGENCE, 3);
-	this.addModifier(RPG.FEAT_DEXTERITY, 2);
+	this._defaults[RPG.FEAT_STRENGTH] += 0;
+	this._defaults[RPG.FEAT_TOUGHNESS] += 2;
+	this._defaults[RPG.FEAT_INTELLIGENCE] += 3;
+	this._defaults[RPG.FEAT_DEXTERITY] += 2;
 }
 
 /**
@@ -76,10 +77,10 @@ RPG.Races.Elf.prototype.init = function() {
 	this.parent();
 	this._color = "limegreen";
 	this._image = "elf";
-	this.addModifier(RPG.FEAT_STRENGTH, -1);
-	this.addModifier(RPG.FEAT_TOUGHNESS, -1);
-	this.addModifier(RPG.FEAT_INTELLIGENCE, 5);
-	this.addModifier(RPG.FEAT_DEXTERITY, 3);
+	this._defaults[RPG.FEAT_STRENGTH] += 1;
+	this._defaults[RPG.FEAT_TOUGHNESS] += -1;
+	this._defaults[RPG.FEAT_INTELLIGENCE] += 5;
+	this._defaults[RPG.FEAT_DEXTERITY] += 3;
 }
 
 /**
@@ -91,10 +92,8 @@ RPG.Races.Dwarf.prototype.init = function() {
 	this.parent();
 	this._color = "khaki";
 	this._image = "dwarf";
-	this.addModifier(RPG.FEAT_STRENGTH, 0);
-	this.addModifier(RPG.FEAT_TOUGHNESS, 5);
-	this.addModifier(RPG.FEAT_INTELLIGENCE, 1);
-	this.addModifier(RPG.FEAT_DEXTERITY, 0);
+	this._defaults[RPG.FEAT_TOUGHNESS] += 5;
+	this._defaults[RPG.FEAT_INTELLIGENCE] += 1;
 }
 
 /**
@@ -119,6 +118,6 @@ RPG.Races.Animal.prototype.init = function() {
 	this._slots.push(teeth);
 	this._meleeSlot = teeth;
 	
-	teeth.setHit(new RPG.Misc.RandomValue(5, 2));
+	teeth.setHit(new RPG.Misc.RandomValue(5, 4));
 	teeth.setDamage(new RPG.Misc.RandomValue(2, 1));
 }

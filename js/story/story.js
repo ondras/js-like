@@ -221,8 +221,6 @@ RPG.Story.prototype._dungeon = function() {
 
 		var troll = new RPG.Beings.Troll();
 		troll.setName("Chleba");
-		var ai = new RPG.Engine.AI(troll);
-		ai.addTask(new RPG.Engine.AI.Kill(this._pc));
 		map.at(roomTreasure.getCenter()).setBeing(troll);
 	}
 	

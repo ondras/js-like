@@ -23,8 +23,12 @@ RPG.Rules.isCritical = function(being) {
 	return Math.randomPercentage() <= 5;
 }
 
+RPG.Rules.isWoundedToRetreat = function(being) {
+	return (being.getHP()/being.getFeat(RPG.FEAT_MAXHP) < 0.4);
+}
+
 RPG.Rules.isFakeDetected = function(being, cell) {
-	return Math.randomPercentage() <= 50;
+	return Math.randomPercentage() <= 67;
 }
 
 RPG.Rules.isTrapDetected = function(being, trap) {
