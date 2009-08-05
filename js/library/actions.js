@@ -327,6 +327,7 @@ RPG.Actions.Kick.prototype.execute = function() {
 	
 	if (this._source == being) {
 		RPG.UI.buffer.message("You wouldn't do that, would you?");
+		this._tookTime = false;
 		return;
 	}
 	
@@ -645,4 +646,48 @@ RPG.Actions.Heal.prototype.execute = function() {
 	}
 	str += " "+b.describeHis()+" wounds are healed."
 	RPG.UI.buffer.message(str);
+}
+
+/**
+ * @class Switch position
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.SwitchPosition = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.SwitchPosition.prototype.execute = function() {
+	var pc = RPG.World.getPC();
+	var you = (this._source == pc);
+	var map = this._source.getCell().getMap();
+	
+	var cell = map.at(this._target);
+	var being = cell.getBeing();
+	
+	if (!being) {
+		RPG.UI.buffer.message("There is noone to switch position with.");
+		this._tookTime = false;
+		return;
+	}
+	
+	if (being.isHostile(this._source)) {
+		/* impossible */
+		if (you) {
+			RPG.UI.buffer.message(being.describeThe().capitalize() + " resists!");
+		}
+	} else {
+		var source = this._source.getCell().getCoords().clone();
+		var str = "";
+		if (you) {
+			str += "You switch positions.";
+		} else if (pc.canSee(this._target)) {
+			str += this._source.describeA().capitalize() + " sneaks past " + being.describeA() + ".";
+		}
+		RPG.UI.buffer.message(str);
+		this._source.setCell(cell);
+		being.setCell(map.at(source));
+		
+		var m1 = new RPG.Actions.Move(this._source, this._target);
+		var m2 = new RPG.Actions.Move(being, source);
+		RPG.World.action(m1);
+		RPG.World.action(m2);
+	}
+
 }

@@ -100,6 +100,7 @@ RPG.UI.build = function() {
 	d.appendChild(new RPG.UI.Command.Autowalk().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Ascend().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Descend().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.SwitchPosition().getButton().getInput());
 	
 	var d = OZ.DOM.elm("div", {innerHTML:"Interaction: "});
 	c.appendChild(d);

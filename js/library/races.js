@@ -98,9 +98,8 @@ RPG.Races.Dwarf.prototype.init = function() {
 
 /**
  * @class Animal race
- * @auguments RPG.Races.BaseRace
+ * @augments RPG.Races.BaseRace
  */
-
 RPG.Races.Animal = OZ.Class().extend(RPG.Races.BaseRace);
 RPG.Races.Animal.prototype.init = function() {
 	this.parent();

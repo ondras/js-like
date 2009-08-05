@@ -204,8 +204,8 @@ RPG.Items.Potion.prototype.drink = function(being) {
 RPG.Items.HealingPotion = OZ.Class().extend(RPG.Items.Potion);
 RPG.Items.HealingPotion.prototype.init = function() {
 	this.parent();
-	this._char = "!";
 	this._color = "blue";
+	this._image = "potion-healing";
 	this._description = "healing potion";
 }
 

@@ -736,6 +736,7 @@ RPG.UI.Command.Look.prototype.exec = function(cmd) {
 
 /**
  * Abstract consumption command
+ * @augments RPG.UI.Command
  */
 RPG.UI.Command.Consume = OZ.Class().extend(RPG.UI.Command);
 RPG.UI.Command.Consume.prototype.exec = function(itemCtor, listTitle, errorString, actionCtor) {
@@ -813,4 +814,26 @@ RPG.UI.Command.Drink.prototype.exec = function() {
 				"Select a potion", 
 				"You don't own any potions!",
 				RPG.Actions.Drink);
+}
+
+/**
+ * @class Switch position with a being
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.SwitchPosition = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.SwitchPosition.prototype.init = function() {
+	this.parent("Switch position");
+	this._button.setCtrl();
+	this._button.setChar("s");
+}
+
+RPG.UI.Command.SwitchPosition.prototype.exec = function(cmd) {
+	if (!cmd) {
+		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Switch position");
+	} else {
+		var coords = RPG.World.getPC().getCell().getCoords().clone().plus(cmd.getCoords());
+		RPG.UI.action(RPG.Actions.SwitchPosition, coords);
+		RPG.UI.setMode(RPG.UI_NORMAL);
+	}
 }
