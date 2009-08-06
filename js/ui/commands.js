@@ -396,6 +396,7 @@ RPG.UI.Command.Pick.prototype.exec = function() {
 	new RPG.UI.Itemlist(items, "Select items to be picked up", -1, this.bind(this._done));
 }
 RPG.UI.Command.Pick.prototype._done = function(items) {
+	RPG.UI.setMode(RPG.UI_NORMAL);
 	RPG.UI.action(RPG.Actions.Pick, items);
 }
 
@@ -419,6 +420,7 @@ RPG.UI.Command.Drop.prototype.exec = function() {
 	}
 }
 RPG.UI.Command.Drop.prototype._done = function(items) {
+	RPG.UI.setMode(RPG.UI_NORMAL);
 	RPG.UI.action(RPG.Actions.Drop, items);
 }
 
@@ -437,10 +439,10 @@ RPG.UI.Command.Inventory.prototype.exec = function() {
 }
 
 RPG.UI.Command.Inventory.prototype._done = function(changed) {
+	RPG.UI.setMode(RPG.UI_NORMAL);
 	if (changed) {
 		RPG.UI.action(RPG.Actions.Equip);
 	}
-	RPG.UI.setMode(RPG.UI_NORMAL);
 }
 
 /**
@@ -774,6 +776,7 @@ RPG.UI.Command.Consume.prototype._filter = function(items, itemCtor) {
 	return arr;
 }
 RPG.UI.Command.Consume.prototype._done = function(items) {
+	RPG.UI.setMode(RPG.UI_NORMAL);
 	if (!items.length) { return; }
 	
 	var item = items[0][0];

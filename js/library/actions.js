@@ -289,6 +289,8 @@ RPG.Actions.Drop.prototype.execute = function() {
 	var cell = this._source.getCell();
 	var you = (this._source == pc);
 	
+	if (!arr.length) { this._tookTime = false; }
+	
 	for (var i=0;i<arr.length;i++) {
 		var pair = arr[i];
 		var item = pair[0];
