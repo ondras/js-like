@@ -17,7 +17,8 @@ RPG.World = {
 RPG.World.dispatch = OZ.Class().prototype.dispatch;
 
 RPG.World.init = function() {
-	this._scheduler = new RPG.Engine.Queue();
+//	this._scheduler = new RPG.Engine.Queue();
+	this._scheduler = new RPG.Engine.Speed();
 
 	var f = new RPG.Misc.Factory().add(RPG.Items.BaseItem);
 	RPG.Items.getInstance = f.bind(f.getInstance);

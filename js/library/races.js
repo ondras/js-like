@@ -19,12 +19,21 @@ RPG.Races.Humanoid.prototype.init = function() {
 	this._slots.push(head);
 	this._headSlot = head;
 	
+	var armor = new RPG.Slots.BaseSlot("Armor", [RPG.Items.Armor]);
+	this._slots.push(armor);
+
+	var shield = new RPG.Slots.BaseSlot("Shield", [RPG.Items.Shield]);
+	this._slots.push(shield);
+
 	var hand = new RPG.Slots.Melee("Hand");
 	this._slots.push(hand);
 	this._meleeSlot = hand;
 	
-	var shield = new RPG.Slots.BaseSlot("Shield", [RPG.Items.Shield]);
-	this._slots.push(shield);
+	var lring = new RPG.Slots.BaseSlot("Left ring", [RPG.Items.Ring]);
+	this._slots.push(lring);
+
+	var rring = new RPG.Slots.BaseSlot("Right ring", [RPG.Items.Ring]);
+	this._slots.push(rring);
 
 	var feet = new RPG.Slots.Kick("Feet")
 	this._slots.push(feet);

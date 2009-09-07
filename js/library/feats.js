@@ -125,6 +125,13 @@ RPG.Feats[RPG.FEAT_DEXTERITY].prototype.init = function(baseValue) {
 	this.parent(baseValue);
 	this.addModifier(RPG.FEAT_HIT, this.bind(this.standardModifier));
 	this.addModifier(RPG.FEAT_DV, this.bind(this.standardModifier));
+	
+	var speedModifier = function() {
+		return 5*this.standardModifier.apply(this, arguments);
+	}
+	this.addModifier(RPG.FEAT_SPEED, this.bind(speedModifier));
+	
 	this._name = "Dexterity";
 	this._abbr = "Dex";
 }
+

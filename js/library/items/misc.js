@@ -138,7 +138,7 @@ RPG.Items.Diamond.prototype.init = function() {
  * @augments RPG.Items.Gem
  */
 RPG.Items.Sapphire = OZ.Class().extend(RPG.Items.Gem);
-RPG.Items.Diamond.flags.frequency = 25;
+RPG.Items.Sapphire.flags.frequency = 25;
 RPG.Items.Sapphire.prototype.init = function() {
 	this.parent();
 	this._color = "blue";
@@ -184,6 +184,7 @@ RPG.Items.Turquoise.prototype.init = function() {
 	this._image = "turquoise";
 	this._description = "turquoise";
 }
+
 /**
  * @class Potion
  * @augments RPG.Items.BaseItem
@@ -214,4 +215,27 @@ RPG.Items.HealingPotion.prototype.drink = function(being) {
 	var amount = Math.floor(max/2) || 1;
 	var a = new RPG.Actions.Heal(being, amount);
 	RPG.World.action(a);
+}
+
+/**
+ * @class Ring
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.Ring = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Ring.flags.abstr4ct = true;
+RPG.Items.Ring.prototype.init = function() {
+	this.parent();
+	this._char = "=";
+}
+
+/**
+ * @class Brass ring
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.BrassRing = OZ.Class().extend(RPG.Items.Ring);
+RPG.Items.BrassRing.prototype.init = function() {
+	this.parent();
+	 /* FIXME */
+	this._color = "burlywood";
+	this._description = "brass ring";
 }

@@ -20,7 +20,7 @@ RPG.Engine.Scheduler.prototype.addActor = function(actor) {
 	this._actors.push(actor);
 	return this;
 }
-RPG.Engine.Scheduler.prototype.clearActors = function(actor) {
+RPG.Engine.Scheduler.prototype.clearActors = function() {
 	this._actors = [];
 	return this;
 }

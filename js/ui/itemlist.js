@@ -6,8 +6,10 @@ RPG.UI.Itemlist = OZ.Class();
 RPG.UI.Itemlist.prototype._groups = {
 	"Head gear": RPG.Items.HeadGear,
 	"Weapons": RPG.Items.Weapon,
+	"Armor": RPG.Items.Armor,
 	"Shields": RPG.Items.Shield,
 	"Boots": RPG.Items.Boots,
+	"Rings": RPG.Items.Ring,
 	"Potions": RPG.Items.Potion,
 	"Consumables": RPG.Items.Consumable,
 	"Gold": RPG.Items.Gold,

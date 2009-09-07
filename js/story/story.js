@@ -113,6 +113,9 @@ RPG.Story.prototype._createPC = function(race) {
 	var tmp = new RPG.Items.HealingPotion();
 	pc.addItem(tmp);	
 
+	var tmp = new RPG.Items.IronRation();
+	pc.addItem(tmp);	
+
 	return pc;
 }
 

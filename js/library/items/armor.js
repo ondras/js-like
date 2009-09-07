@@ -73,6 +73,18 @@ RPG.Items.Boots.prototype.init = function() {
 }
 
 /**
+ * @class Armor
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.Armor = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Armor.flags.abstr4ct = true;
+RPG.Items.Armor.prototype.init = function() {
+	this.parent();
+	this._char = "]";
+	this._color = "brown";
+}
+
+/**
  * @class Metal cap
  * @augments RPG.Items.HeadGear
  */
@@ -83,7 +95,6 @@ RPG.Items.MetalCap.prototype.init = function() {
 	this._image = "metal-cap";
 	this.addModifier(RPG.FEAT_PV, 1);
 }
-
 
 /**
  * @class Leather boots
@@ -97,3 +108,58 @@ RPG.Items.LeatherBoots.prototype.init = function() {
 	this._image = "leather-boots";
 	this.addModifier(RPG.FEAT_DV, 1);
 }
+
+/**
+ * @class Clothes
+ * @augments RPG.Items.Armor
+ */
+RPG.Items.Clothes = OZ.Class().extend(RPG.Items.Armor);
+RPG.Items.Clothes.flags.frequency = 125;
+RPG.Items.Clothes.prototype.init = function() {
+	this.parent();
+	this._color = "lime";
+	this._description = "clothes";
+	/* FIXME */
+	this.addModifier(RPG.FEAT_PV, 1);
+}
+
+/**
+ * @class Leather armor
+ * @augments RPG.Items.Armor
+ */
+RPG.Items.LeatherArmor = OZ.Class().extend(RPG.Items.Armor);
+RPG.Items.LeatherArmor.prototype.init = function() {
+	this.parent();
+	this._description = "leather armor";
+	 /* FIXME */
+	this.addModifier(RPG.FEAT_DV, 1);
+	this.addModifier(RPG.FEAT_PV, 1);
+}
+
+/**
+ * @class Chain mail
+ * @augments RPG.Items.Armor
+ */
+RPG.Items.ChainMail = OZ.Class().extend(RPG.Items.Armor);
+RPG.Items.ChainMail.prototype.init = function() {
+	this.parent();
+	this._color = "darkgray";
+	this._description = "chain mail";
+	 /* FIXME */
+	this.addModifier(RPG.FEAT_PV, 2);
+}
+
+/**
+ * @class Scale mail
+ * @augments RPG.Items.Armor
+ */
+RPG.Items.ScaleMail = OZ.Class().extend(RPG.Items.Armor);
+RPG.Items.ScaleMail.prototype.init = function() {
+	this.parent();
+	this._color = "darkgray";
+	this._description = "scale mail";
+	 /* FIXME */
+	this.addModifier(RPG.FEAT_DV, -2);
+	this.addModifier(RPG.FEAT_PV, 4);
+}
+
