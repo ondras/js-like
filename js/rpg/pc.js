@@ -11,6 +11,7 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	
 	this._mapMemory = new RPG.Memory.MapMemory();
 	this._itemMemory = new RPG.Memory.ItemMemory();
+	this._spellMemory = new RPG.Memory.SpellMemory();
 	this._visibleCells = [];
 	
 	this._description = "you";
@@ -38,6 +39,10 @@ RPG.Beings.PC.prototype.itemMemory = function() {
 	return this._itemMemory;
 }
 
+RPG.Beings.PC.prototype.spellMemory = function() {
+	return this._spellMemory;
+}
+
 RPG.Beings.PC.prototype.getVisibleCoords = function() {
 	return this._visibleCoords;
 }
@@ -48,14 +53,14 @@ RPG.Beings.PC.prototype.setName = function(name) {
 }
 
 /**
- * @see RPG.Visual.VisualInterface#describeA
+ * @see RPG.Visual.IVisual#describeA
  */
 RPG.Beings.PC.prototype.describeA = function() {
 	return this.describe();
 }
 
 /**
- * @see RPG.Visual.VisualInterface#describeThe
+ * @see RPG.Visual.IVisual#describeThe
  */
 RPG.Beings.PC.prototype.describeThe = function() {
 	return this.describe();

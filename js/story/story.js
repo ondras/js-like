@@ -6,7 +6,7 @@ RPG.Story = OZ.Class();
 RPG.Story.prototype.init = function() {
 	this._maxDepth = 6;
 	this._maps = [];
-	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit"});
+	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
 //	this._chat = this._buildChat();
 	this._mapgen = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(60, 20));
 	this._mapdec = new RPG.Dungeon.Decorator();
@@ -92,6 +92,9 @@ RPG.Story.prototype._createPC = function(race, profession, name) {
 
 	var tmp = new RPG.Items.IronRation();
 	pc.addItem(tmp);	
+	
+	var s = new RPG.Spells.Heal();
+	pc.spellMemory().addSpell(s);
 
 	return pc;
 }

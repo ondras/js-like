@@ -47,6 +47,9 @@ RPG.Rules = {};
 RPG.Slots = {};
 
 /** @namespace */
+RPG.Spells = {};
+
+/** @namespace */
 RPG.UI = {};
 
 /** @namespace */

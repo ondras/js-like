@@ -1,11 +1,11 @@
 /**
  * @class Kick slot
  * @augments RPG.Slots.BaseSlot
- * @augments RPG.Misc.WeaponInterface
+ * @augments RPG.Misc.IWeapon
  */
 RPG.Slots.Kick = OZ.Class()
 						.extend(RPG.Slots.BaseSlot)
-						.implement(RPG.Misc.WeaponInterface);
+						.implement(RPG.Misc.IWeapon);
 RPG.Slots.Kick.prototype.init = function(name) {
 	this.parent(name, [RPG.Items.Boots]);
 	this._hit = null;
@@ -23,11 +23,11 @@ RPG.Slots.Kick.prototype.getDamage = function() {
 /**
  * @class Melee-weapon-based slot
  * @augments RPG.Slots.BaseSlot
- * @augments RPG.Misc.WeaponInterface
+ * @augments RPG.Misc.IWeapon
  */
 RPG.Slots.Melee = OZ.Class()
 						.extend(RPG.Slots.BaseSlot)
-						.implement(RPG.Misc.WeaponInterface);
+						.implement(RPG.Misc.IWeapon);
 RPG.Slots.Melee.prototype.init = function(name) {
 	this.parent(name, [RPG.Items.Weapon]);
 	this._hit = null;

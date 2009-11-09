@@ -1,12 +1,12 @@
 /**
  * @class Actor interface
  */
-RPG.Engine.ActorInterface = OZ.Class();
-RPG.Engine.ActorInterface.prototype.getSpeed = function() {};
+RPG.Engine.IActor = OZ.Class();
+RPG.Engine.IActor.prototype.getSpeed = function() {};
 /**
  * World asks actor to perform an action
  */ 
-RPG.Engine.ActorInterface.prototype.yourTurn = function() {
+RPG.Engine.IActor.prototype.yourTurn = function() {
 }
 
 /**

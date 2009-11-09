@@ -693,3 +693,30 @@ RPG.Actions.SwitchPosition.prototype.execute = function() {
 	}
 
 }
+
+/**
+ * @class Cast a spell; target = coords, params = spell
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Cast = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.Cast.prototype.execute = function() {
+	var pc = RPG.World.getPC();
+	var you = (this._source == pc);
+	var map = this._source.getCell().getMap();
+	
+	var cell = map.at(this._target);
+	var being = cell.getBeing();
+	
+	var str = this._source.describe().capitalize() + " cast";
+	if (!you) { str += "s"; }
+	str += " '" + this._params.describe() + "'.";
+	RPG.UI.buffer.message(str);
+	
+	if (!being) {
+		RPG.UI.buffer.message("Nothing happens.");
+		return;
+	}
+	
+	this._params.cast(this._source, being);
+	
+}

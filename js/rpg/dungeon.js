@@ -1,13 +1,13 @@
 /**
  * @class Dungeon cell
- * @augments RPG.Misc.ModifierInterface
- * @augments RPG.Visual.VisualInterface
- * @augments RPG.Misc.SerializableInterface
+ * @augments RPG.Misc.IModifier
+ * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.ISerializable
  */
 RPG.Cells.BaseCell = OZ.Class()
-						.implement(RPG.Visual.VisualInterface)
-						.implement(RPG.Misc.ModifierInterface)
-						.implement(RPG.Misc.SerializableInterface);
+						.implement(RPG.Visual.IVisual)
+						.implement(RPG.Misc.IModifier)
+						.implement(RPG.Misc.ISerializable);
 RPG.Cells.BaseCell.prototype.init = function() {
 	this._initVisuals();
 	this._items = [];
@@ -119,12 +119,12 @@ RPG.Rooms.BaseRoom.prototype.getCenter = function() {
 
 /**
  * @class Dungeon feature
- * @augments RPG.Visual.VisualInterface
- * @augments RPG.Misc.SerializableInterface
+ * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.ISerializable
  */
 RPG.Features.BaseFeature = OZ.Class()
-							.implement(RPG.Visual.VisualInterface)
-							.implement(RPG.Misc.SerializableInterface);
+							.implement(RPG.Visual.IVisual)
+							.implement(RPG.Misc.ISerializable);
 RPG.Features.BaseFeature.prototype.init = function() {
 	this._cell = null;
 	this._initVisuals();
@@ -152,9 +152,9 @@ RPG.Features.BaseFeature.prototype.notify = function(being) {
 
 /**
  * @class Dungeon map
- * @augments RPG.Misc.SerializableInterface
+ * @augments RPG.Misc.ISerializable
  */
-RPG.Dungeon.Map = OZ.Class().implement(RPG.Misc.SerializableInterface);
+RPG.Dungeon.Map = OZ.Class().implement(RPG.Misc.ISerializable);
 
 /**
  * Factory method. Creates map from an array of arrays of bools.

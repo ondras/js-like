@@ -1,8 +1,8 @@
 /**
  * @class Generic memory
- * @augments RPG.Misc.SerializableInterface
+ * @augments RPG.Misc.ISerializable
  */
-RPG.Memory = OZ.Class().implement(RPG.Misc.SerializableInterface);
+RPG.Memory = OZ.Class().implement(RPG.Misc.ISerializable);
 
 /**
  * @class Mapping memory
@@ -144,9 +144,9 @@ RPG.Memory.Map.prototype.load = function() {
 
 /**
  * @class Memory map cell
- * @augments RPG.Misc.SerializableInterface
+ * @augments RPG.Misc.ISerializable
  */
-RPG.Memory.Map.Cell = OZ.Class().implement(RPG.Misc.SerializableInterface);
+RPG.Memory.Map.Cell = OZ.Class().implement(RPG.Misc.ISerializable);
 RPG.Memory.Map.Cell.prototype.init = function(owner, coords) {
 	this.state = null;
 	this._owner = owner;
@@ -317,4 +317,22 @@ RPG.Memory.ItemMemory.prototype.remembers = function(item) {
 RPG.Memory.ItemMemory.prototype.forget = function(item) {
 	var index = this._data.indexOf(item);
 	if (index != -1) { this._data.splice(index, 1); }
+}
+
+/**
+ * Spell memory
+ * @augments RPG.Memory
+ */
+RPG.Memory.SpellMemory = OZ.Class().extend(RPG.Memory);
+
+RPG.Memory.SpellMemory.prototype.init = function() {
+	this._spells = [];
+}
+
+RPG.Memory.SpellMemory.prototype.addSpell = function(spell) {
+	this._spells.push(spell);
+}
+
+RPG.Memory.SpellMemory.prototype.getSpells = function() {
+	return this._spells;
 }

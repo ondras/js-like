@@ -18,6 +18,15 @@ OZ.Class = function() {
 		for (var p in parent.prototype) { this.prototype[p] = parent.prototype[p]; }
 		return this;
 	};
+	c.implements = function(iface) {
+		var cl = this;
+		while (cl) {
+			if (cl._implement.indexOf(iface) != -1) { return true; }
+			cl = this._extend;
+		}
+		return false;
+	}
+	
 	c._extend = null;
 	c.extend = function(parent) {
 		var tmp = function(){};
@@ -30,6 +39,15 @@ OZ.Class = function() {
 		}
 		return this;
 	};
+	c.extends = function(ctor) {
+		var cl = this;
+		while (cl) {
+			if (cl._extend == ctor) { return true; }
+			cl = this._extend;
+		}
+		return false;
+	}
+
 	c.prototype.bind = function(fnc) {
 		var obj = this;
 		return function() {

@@ -1,18 +1,18 @@
 /**
  * @class Basic being
- * @augments RPG.Visual.VisualInterface
- * @augments RPG.Misc.ModifierInterface
- * @augments RPG.Engine.ActorInterface
+ * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.IModifier
+ * @augments RPG.Engine.IActor
  */
 RPG.Beings.BaseBeing = OZ.Class()
-						.implement(RPG.Visual.VisualInterface)
-						.implement(RPG.Misc.ModifierInterface)
-						.implement(RPG.Engine.ActorInterface);
+						.implement(RPG.Visual.IVisual)
+						.implement(RPG.Misc.IModifier)
+						.implement(RPG.Engine.IActor);
 RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._initVisuals();
 	this._trapMemory = new RPG.Memory.TrapMemory();
 
-	this._modifiers = {}; /* to comply with ModifierInterface */
+	this._modifiers = {}; /* to comply with IModifier */
 
 	this._name = "";
 	this._race = null;
@@ -133,7 +133,7 @@ RPG.Beings.BaseBeing.prototype.getChat = function() {
 
 /**
  * Being combines modifiers from various sources: equipped items, feats, ...
- * @see RPG.Base.ModifierInterface
+ * @see RPG.Base.IModifier
  */
 RPG.Beings.BaseBeing.prototype.getModifier = function(feat, modifierHolder) {
 	var modifierHolders = this._getModifierHolders();
@@ -234,7 +234,7 @@ RPG.Beings.BaseBeing.prototype.setFeat = function(feat, value) {
 }
 
 /**
- * @see RPG.Engine.ActorInterface#getSpeed
+ * @see RPG.Engine.IActor#getSpeed
  */
 RPG.Beings.BaseBeing.prototype.getSpeed = function() {
 	return this.getFeat(RPG.FEAT_SPEED);

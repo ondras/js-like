@@ -13,9 +13,16 @@ RPG.UI.Itemlist.prototype._groups = {
 	"Potions": RPG.Items.Potion,
 	"Consumables": RPG.Items.Consumable,
 	"Gold": RPG.Items.Gold,
-	"Gems": RPG.Items.Gem
+	"Gems": RPG.Items.Gem,
+	"Spells": RPG.Spells.BaseSpell,
 }
 
+/**
+ * @param {object[]} data List of instances
+ * @param {string} label Dialog label
+ * @param {int} pick Pick mode: 1=pick one, 0=do not pick just show, -1=pick any number
+ * @param {function} callback What to call when picking is done
+ */
 RPG.UI.Itemlist.prototype.init = function(data, label, pick, callback) {
 	this._label = label;
 	this._pick = pick;

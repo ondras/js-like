@@ -840,3 +840,53 @@ RPG.UI.Command.SwitchPosition.prototype.exec = function(cmd) {
 		RPG.UI.setMode(RPG.UI_NORMAL);
 	}
 }
+
+/**
+ * @class Cast a spell
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Cast = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.Cast.prototype.init = function() {
+	this.parent("Cast a spell");
+	this._button.setChar("Z");
+	
+	this._spell = null;
+}
+
+RPG.UI.Command.Cast.prototype.exec = function(cmd) {
+	if (!cmd) {
+		/* list of spells */
+		this._spell = null;
+		
+		/* FIXME magic wand in hand? */
+		
+		var spells = RPG.World.getPC().spellMemory().getSpells();
+		if (spells.length) {
+			RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
+			new RPG.UI.Itemlist(spells, "Select a spell to cast", 1, this.bind(this._done));
+		} else {
+			RPG.UI.buffer.message("You don't know any spells.");
+		}
+		
+	} else {
+		/* spell direction */
+		var coords = RPG.World.getPC().getCell().getCoords().clone().plus(cmd.getCoords());
+		RPG.UI.action(RPG.Actions.Cast, coords, this._spell);
+		RPG.UI.setMode(RPG.UI_NORMAL);
+	}
+}
+
+/**
+ * Spell selected
+ */
+RPG.UI.Command.Cast.prototype._done = function(spells) {
+	if (!spells.length) {
+		RPG.UI.setMode(RPG.UI_NORMAL);
+		return;
+	}
+	
+	this._spell = spells[0][0];
+	RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Cast a spell");
+}
+

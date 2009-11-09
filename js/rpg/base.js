@@ -1,9 +1,9 @@
 /**
- * @class Basic feat. Implements ModifierInterface, since a feat can influent other feat (Strength influences MaxHP...).
+ * @class Basic feat. Implements IModifier, since a feat can influent other feat (Strength influences MaxHP...).
  * However, feats modify other feats byt adding/multiplying their own (modified) value.
- * @augments RPG.Misc.ModifierInterface
+ * @augments RPG.Misc.IModifier
  */
-RPG.Feats.BaseFeat = OZ.Class().implement(RPG.Misc.ModifierInterface);
+RPG.Feats.BaseFeat = OZ.Class().implement(RPG.Misc.IModifier);
 RPG.Feats.BaseFeat.prototype.init = function(baseValue) {
 	this._name = "";
 	this._abbr = "";
@@ -51,14 +51,14 @@ RPG.Feats.BaseFeat.prototype._findConstant = function() {
 
 /**
  * @class Basic item
- * @augments RPG.Visual.VisualInterface
- * @augments RPG.Misc.ModifierInterface
- * @augments RPG.Misc.SerializableInterface
+ * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.IModifier
+ * @augments RPG.Misc.ISerializable
  */
 RPG.Items.BaseItem = OZ.Class()
-						.implement(RPG.Visual.VisualInterface)
-						.implement(RPG.Misc.ModifierInterface)
-						.implement(RPG.Misc.SerializableInterface);
+						.implement(RPG.Visual.IVisual)
+						.implement(RPG.Misc.IModifier)
+						.implement(RPG.Misc.ISerializable);
 RPG.Items.BaseItem.flags.abstr4ct = true;
 RPG.Items.BaseItem.prototype.init = function() {
 	this._initVisuals();
@@ -68,7 +68,7 @@ RPG.Items.BaseItem.prototype.init = function() {
 }
 
 /**
- * @see RPG.Misc.SerializableInterface#clone
+ * @see RPG.Misc.ISerializable#clone
  */
 RPG.Items.BaseItem.prototype.clone = function() {
 	var clone = new this.constructor();
@@ -115,7 +115,7 @@ RPG.Items.BaseItem.prototype.setAmount = function(amount) {
 
 /**
  * Items are described with respect to PC's itemMemory
- * @see RPG.Visual.VisualInterface#describe
+ * @see RPG.Visual.IVisual#describe
  */
 RPG.Items.BaseItem.prototype.describe = function() {
 	var im = RPG.World.getPC().itemMemory();
@@ -189,9 +189,9 @@ RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
 
 /**
  * @class Basic race
- * @augments RPG.Visual.VisualInterface
+ * @augments RPG.Visual.IVisual
  */
-RPG.Races.BaseRace = OZ.Class().implement(RPG.Visual.VisualInterface);
+RPG.Races.BaseRace = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Races.BaseRace.prototype.init = function() {
 	this._initVisuals();
 	this._slots = [];
@@ -229,9 +229,9 @@ RPG.Races.BaseRace.prototype.getHeadSlot = function() {
 
 /**
  * @class Basic per-turn effect
- * @augments RPG.Misc.SerializableInterface
+ * @augments RPG.Misc.ISerializable
  */
-RPG.Effects.BaseEffect = OZ.Class().implement(RPG.Misc.SerializableInterface);
+RPG.Effects.BaseEffect = OZ.Class().implement(RPG.Misc.ISerializable);
 RPG.Effects.BaseEffect.prototype.init = function(being) {
 	this._being = being;
 }
@@ -345,9 +345,9 @@ RPG.Actions.BaseAction.prototype._describeRemote = function(coords) {
 
 /**
  * @class Body part - place for an item
- * @augments RPG.Misc.SerializableInterface
+ * @augments RPG.Misc.ISerializable
  */
-RPG.Slots.BaseSlot = OZ.Class().implement(RPG.Misc.SerializableInterface);
+RPG.Slots.BaseSlot = OZ.Class().implement(RPG.Misc.ISerializable);
 RPG.Slots.BaseSlot.prototype.init = function(name, allowed) {
 	this._item = null;
 	this._being = null;
@@ -383,3 +383,20 @@ RPG.Slots.BaseSlot.prototype.getItem = function() {
 RPG.Slots.BaseSlot.prototype.getName = function() {
 	return this._name;
 }
+
+/**
+ * @class Base abstract spell
+ * @augments RPG.Misc.ISerializable
+ * @augments RPG.Visual.IVisual
+ */
+RPG.Spells.BaseSpell = OZ.Class()
+						.implement(RPG.Misc.ISerializable)
+						.implement(RPG.Visual.IVisual);
+
+RPG.Spells.BaseSpell.prototype.init = function(name) {
+	this._description = name;
+}
+
+RPG.Spells.BaseSpell.prototype.cast = function(caster, target) {
+}
+

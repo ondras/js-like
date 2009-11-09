@@ -1,9 +1,9 @@
 /**
  * @class Visual interface: everyting that can be visualized have this
  */
-RPG.Visual.VisualInterface = OZ.Class();
+RPG.Visual.IVisual = OZ.Class();
 
-RPG.Visual.VisualInterface.prototype._initVisuals = function() {
+RPG.Visual.IVisual.prototype._initVisuals = function() {
 	this._char = null;
 	this._color = null;
 	this._image = null;
@@ -14,7 +14,7 @@ RPG.Visual.VisualInterface.prototype._initVisuals = function() {
  * Returns an ascii character
  * @returns {string}
  */
-RPG.Visual.VisualInterface.prototype.getChar = function() {
+RPG.Visual.IVisual.prototype.getChar = function() {
 	return this._char;
 }
 
@@ -22,7 +22,7 @@ RPG.Visual.VisualInterface.prototype.getChar = function() {
  * Returns html color string
  * @returns {string}
  */
-RPG.Visual.VisualInterface.prototype.getColor = function() {
+RPG.Visual.IVisual.prototype.getColor = function() {
 	return this._color;
 }
 
@@ -30,7 +30,7 @@ RPG.Visual.VisualInterface.prototype.getColor = function() {
  * Returns an image file name 
  * @returns {string}
  */
-RPG.Visual.VisualInterface.prototype.getImage = function() {
+RPG.Visual.IVisual.prototype.getImage = function() {
 	return this._image;
 }
 
@@ -38,14 +38,14 @@ RPG.Visual.VisualInterface.prototype.getImage = function() {
  * Describe self
  * @returns {string}
  */
-RPG.Visual.VisualInterface.prototype.describe = function() {
+RPG.Visual.IVisual.prototype.describe = function() {
 	return this._description;
 }
 
 /**
  * Describe + prefix with indefinite article
  */
-RPG.Visual.VisualInterface.prototype.describeA = function() {
+RPG.Visual.IVisual.prototype.describeA = function() {
 	var base = this.describe();
 	var result = "a";
 	if (base.charAt(0).match(/[aeiouy]/i)) { result += "n"; }
@@ -56,6 +56,6 @@ RPG.Visual.VisualInterface.prototype.describeA = function() {
 /**
  * Describe + prefix with definite article
  */
-RPG.Visual.VisualInterface.prototype.describeThe = function() {
+RPG.Visual.IVisual.prototype.describeThe = function() {
 	return "the " + this.describe();
 }

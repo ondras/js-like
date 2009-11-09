@@ -62,7 +62,7 @@ RPG.UI.BaseCell.prototype.init = function(owner, coords) {
 
 /**
  * Update cell contents
- * @param {RPG.Visual.VisualInterface[]} data Array of data to be shown
+ * @param {RPG.Visual.IVisual[]} data Array of data to be shown
  * @param {bool} remembered Is this a remembered part of a map?
  */
 RPG.UI.BaseCell.prototype.update = function(data, remembered) {

@@ -1,9 +1,9 @@
 /**
  * @class Generic weapon
  * @augments RPG.Items.BaseItem
- * @augments RPG.Misc.WeaponInterface
+ * @augments RPG.Misc.IWeapon
  */
-RPG.Items.Weapon = OZ.Class().extend(RPG.Items.BaseItem).implement(RPG.Misc.WeaponInterface);
+RPG.Items.Weapon = OZ.Class().extend(RPG.Items.BaseItem).implement(RPG.Misc.IWeapon);
 RPG.Items.Weapon.flags.abstr4ct = true;
 RPG.Items.Weapon.prototype.init = function(hit, damage) {
 	this.parent();

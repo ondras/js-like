@@ -50,12 +50,12 @@ RPG.Misc.Coords.prototype.minus = function(c) {
 /**
  * @class Modifier interface: everything that holds feat modifiers have this
  */
-RPG.Misc.ModifierInterface = OZ.Class();
+RPG.Misc.IModifier = OZ.Class();
 /**
  * @param {int} feat Feat constant
  * @param {int || function} value Modification value
  */
-RPG.Misc.ModifierInterface.prototype.addModifier = function(feat, value) {
+RPG.Misc.IModifier.prototype.addModifier = function(feat, value) {
 	var item = [feat, value];
 	this._modifiers[feat] = value;
 }
@@ -65,9 +65,9 @@ RPG.Misc.ModifierInterface.prototype.addModifier = function(feat, value) {
  * we have to compute the modified value of Strength.
  * 
  * @param {int} feat The feat we wish to modify, specified by its constant
- * @param {RPG.Misc.ModifierInterface} modifierHolder
+ * @param {RPG.Misc.IModifier} modifierHolder
  */
-RPG.Misc.ModifierInterface.prototype.getModifier = function(feat, modifierHolder) {
+RPG.Misc.IModifier.prototype.getModifier = function(feat, modifierHolder) {
 	if (feat in this._modifiers) {
 		var value = this._modifiers[feat];
 		if (typeof(value) == "function") {
@@ -83,18 +83,18 @@ RPG.Misc.ModifierInterface.prototype.getModifier = function(feat, modifierHolder
 /**
  * @class Weapon interface. Separated from items, because "hands" and "foot" are also weapons.
  */
-RPG.Misc.WeaponInterface = OZ.Class();
-RPG.Misc.WeaponInterface.prototype.setHit = function(rv) {
+RPG.Misc.IWeapon = OZ.Class();
+RPG.Misc.IWeapon.prototype.setHit = function(rv) {
 	this._hit = new RPG.Feats[RPG.FEAT_HIT](rv);
 	
 }
-RPG.Misc.WeaponInterface.prototype.setDamage = function(rv) {
+RPG.Misc.IWeapon.prototype.setDamage = function(rv) {
 	this._damage = new RPG.Feats[RPG.FEAT_DAMAGE](rv);
 }
-RPG.Misc.WeaponInterface.prototype.getHit = function(modifierHolder) {
+RPG.Misc.IWeapon.prototype.getHit = function(modifierHolder) {
 	return this._hit.modifiedValue(modifierHolder);
 }
-RPG.Misc.WeaponInterface.prototype.getDamage = function(modifierHolder) {
+RPG.Misc.IWeapon.prototype.getDamage = function(modifierHolder) {
 	return this._damage.modifiedValue(modifierHolder);
 }
 
@@ -102,14 +102,14 @@ RPG.Misc.WeaponInterface.prototype.getDamage = function(modifierHolder) {
 /**
  * @class Interface for objects which can be cloned and (de)serialized
  */
-RPG.Misc.SerializableInterface = OZ.Class();
-RPG.Misc.SerializableInterface.prototype.fromXML = function(node) {
+RPG.Misc.ISerializable = OZ.Class();
+RPG.Misc.ISerializable.prototype.fromXML = function(node) {
 	return this;
 }
-RPG.Misc.SerializableInterface.prototype.toXML = function(node) {
+RPG.Misc.ISerializable.prototype.toXML = function(node) {
 	return "";
 }
-RPG.Misc.SerializableInterface.prototype.clone = function() {
+RPG.Misc.ISerializable.prototype.clone = function() {
 	var clone = new this.constructor();
 	for (var p in this) { clone[p] = this[p]; }
 	return clone;

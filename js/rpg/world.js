@@ -36,7 +36,7 @@ RPG.World.init = function() {
 
 /**
  * Add new actor
- * @param {RPG.Engine.ActorInterface} actor
+ * @param {RPG.Engine.IActor} actor
  */
 RPG.World.addActor = function(actor) {
 	this._scheduler.addActor(actor);
@@ -44,7 +44,7 @@ RPG.World.addActor = function(actor) {
 
 /**
  * Remove given actor
- * @param {RPG.Engine.ActorInterface} actor
+ * @param {RPG.Engine.IActor} actor
  */
 RPG.World.removeActor = function(actor) {
 	this._scheduler.removeActor(actor);
