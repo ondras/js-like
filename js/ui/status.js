@@ -40,12 +40,19 @@ RPG.UI.Status.prototype.updateHP = function() {
 	this._dom.hp.innerHTML = RPG.World.getPC().getHP();
 }
 
+RPG.UI.Status.prototype.updateName = function() {
+	this._dom.name.innerHTML = RPG.World.getPC().getName();
+}
+
 RPG.UI.Status.prototype._build = function(container) {
 	var t = OZ.DOM.elm("table");
 	var tb = OZ.DOM.elm("tbody");
 	var tr = OZ.DOM.elm("tr");
 	OZ.DOM.append([container, t], [t, tb], [tb, tr]);
 	
+	var td = OZ.DOM.elm("td", {fontWeight:"bold"});
+	tr.appendChild(td);
+	this._dom.name = td;
 	var td = OZ.DOM.elm("td");
 	tr.appendChild(td);
 	td.innerHTML = "Hitpoints: ";

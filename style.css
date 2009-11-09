@@ -147,18 +147,20 @@ body {
 	border-collapse: collapse;
 }
 
-.dialog .race {
-	margin: auto;
-}
-
-.dialog .race td {
-	padding: 0em 1em;
+.dialog .name {
+	margin: 1em auto;
 	text-align: center;
 }
 
-.dialog .race td:hover {
-	background-color: #aaa;
+.dialog .chargen {
+	margin: auto;
 }
-.dialog .race label {
+
+.dialog .chargen td {
+	padding: 0.2em 1em;
+	text-align: center;
+}
+
+.dialog .chargen img {
 	cursor: pointer;
 }

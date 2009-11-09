@@ -103,7 +103,7 @@ RPG.Items.MetalCap.prototype.init = function() {
 RPG.Items.LeatherBoots = OZ.Class().extend(RPG.Items.Boots);
 RPG.Items.LeatherBoots.prototype.init = function() {
 	this.parent();
-	this._description = "leather boots";
+	this._description = "pair of leather boots";
 	this._descriptionPlural = "pairs of leather boots";
 	this._image = "leather-boots";
 	this.addModifier(RPG.FEAT_DV, 1);

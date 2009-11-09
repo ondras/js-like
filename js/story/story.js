@@ -4,14 +4,15 @@
 RPG.Story = OZ.Class();
 
 RPG.Story.prototype.init = function() {
-	this._maxDepth = 5;
+	this._maxDepth = 6;
 	this._maps = [];
+	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit"});
 //	this._chat = this._buildChat();
 	this._mapgen = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(60, 20));
 	this._mapdec = new RPG.Dungeon.Decorator();
 
 	OZ.Event.add(RPG.World, "action", this.bind(this._action));
-	this._pickRace();
+	this._openCharGen();
 }
 
 RPG.Story.prototype._action = function(e) {
@@ -37,63 +38,38 @@ RPG.Story.prototype.generateDungeon = function(staircase) {
 	staircase.setTargetCoords(up.getCell().getCoords());
 }
 
-RPG.Story.prototype._pickRace = function() {
-	var t = OZ.DOM.elm("table", {className:"race"});
-	var tb = OZ.DOM.elm("tbody");
-	var tr = OZ.DOM.elm("tr");
-	OZ.DOM.append([t, tb], [tb, tr]);
-	
-	this._labels = [];
-	this._races = [];
-	
-	var def = {
-		"Human": RPG.Races.Human, 
-		"Orc": RPG.Races.Orc, 
-		"Elf": RPG.Races.Elf, 
-		"Dwarf": RPG.Races.Dwarf
-	};
-	
-	for (var name in def) {
-		var ctor = def[name];
-		var tmp = new ctor();
-		var td = OZ.DOM.elm("td");
-		tr.appendChild(td);
-		
-		var label = OZ.DOM.elm("label");
-		
-		var img = OZ.DOM.elm("img");
-		img.src = "img/pc/" + tmp.getImage() + ".png";
-		
-		OZ.DOM.append([td, label], [label, img, OZ.DOM.elm("br"), OZ.DOM.text(name)]);
-		
-		this._labels.push(label);
-		this._races.push(ctor);
-		OZ.Event.add(label, "click", this.bind(this._raceClick));
-	}
-	
+RPG.Story.prototype._openCharGen = function() {
+	var cg = new RPG.Story.CharGen();
+
 	var w = OZ.DOM.win()[0];
 	var d = OZ.DOM.elm("div", {width:Math.round(w/2) + "px"});
 	var p1 = OZ.DOM.elm("p");
 	p1.innerHTML = "You are about to dive into the depths of a dungeon. "
 					+ "Your task is to venture into the lowest level, retrieve as much "
 					+ "valuables as possible and safely return to the surface.";
-	var p2 = OZ.DOM.elm("p");
-	p2.innerHTML = "Pick your race:";
-	OZ.DOM.append([d, p1, p2, t]);
-	
+	var p2 = OZ.DOM.elm("p", {className: "name"});
+	p2.innerHTML = "Your name: ";
+	p2.appendChild(this._name);
+
+	OZ.DOM.append([d, p1, p2, cg.build()]);
 	RPG.UI.showDialog(d, "Welcome, adventurer!");
+	
+	OZ.Event.add(cg, "chargen", this.bind(this._charGen));
 }
 
-RPG.Story.prototype._raceClick = function(e) {
-	RPG.UI.hideDialog();
-	var elm = OZ.Event.target(e);
-	while (elm.tagName.toLowerCase() != "label") { elm = elm.parentNode; }
+RPG.Story.prototype._charGen = function(e) {
+	if (!this._name.value) {
+		this._name.focus();
+		return;
+	}
 	
-	var index = this._labels.indexOf(elm);
-	var race = this._races[index];
+	RPG.UI.hideDialog();
+	
+	var race = e.data.race;
+	var profession = e.data.profession;
 	
 	RPG.UI.build();
-	this._pc = this._createPC(race);
+	this._pc = this._createPC(race, profession, this._name.value);
 
 	var map = this._dungeon();
 	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
@@ -105,10 +81,11 @@ RPG.Story.prototype._raceClick = function(e) {
 	RPG.World.run();
 }
 
-RPG.Story.prototype._createPC = function(race) {
-	var pc = new RPG.Beings.PC(new race());
+RPG.Story.prototype._createPC = function(race, profession, name) {
+	var pc = new RPG.Beings.PC(new race(), profession);
 	RPG.World.setPC(pc);
 	RPG.World.setStory(this);
+	pc.setName(name);
 
 	var tmp = new RPG.Items.HealingPotion();
 	pc.addItem(tmp);	
@@ -122,7 +99,7 @@ RPG.Story.prototype._createPC = function(race) {
 RPG.Story.prototype._score = function() {
 	var total = 0;
 	
-	total += 100 * this._maps.length;
+	total += 150 * this._maps.length;
 	
 	var items = this._pc.getItems();
 	for (var i=0;i<items.length;i++) {
@@ -143,15 +120,17 @@ RPG.Story.prototype._endGame = function() {
 	var div = OZ.DOM.elm("div");
 	var p1 = OZ.DOM.elm("p");
 	
+	var str = this._pc.getName();
 	if (this._pc.isAlive()) {
-		p1.innerHTML = "You managed to finish the game alive!";
+		str += " managed to finish the game alive!";
 	} else {
-		p1.innerHTML = "You were unable to surive in the dangerous dungeon.";
+		str += " was unable to surive in the dangerous dungeon.";
 	}
+	p1.innerHTML = str;
 	
 	var score = this._score();
 	var p2 = OZ.DOM.elm("p");
-	p2.innerHTML = "Your total score is: <strong>" + score + "</strong>";
+	p2.innerHTML = "His total score is: <strong>" + score + "</strong>";
 	
 	var p3 = OZ.DOM.elm("p");
 	p3.innerHTML = "<a href='javascript:location.reload()'>Again?</a>";
@@ -262,3 +241,93 @@ RPG.Story.prototype._buildChat = function() {
 	return c;
 }
 */
+
+/**
+ * @class Character generator
+ */
+RPG.Story.CharGen = OZ.Class();
+
+RPG.Story.CharGen.races = {
+	"Human": RPG.Races.Human, 
+	"Orc": RPG.Races.Orc, 
+	"Elf": RPG.Races.Elf, 
+	"Dwarf": RPG.Races.Dwarf
+};
+	
+RPG.Story.CharGen.professions = {
+		"Warrior": "warrior",
+		"Ranger": "ranger",
+		"Wizard": "wizard"
+};
+
+RPG.Story.CharGen.prototype.init = function() {
+	this._list = [];
+}
+
+RPG.Story.CharGen.prototype.build = function() {
+	var t = OZ.DOM.elm("table", {className:"chargen"});
+	var tb = OZ.DOM.elm("tbody");
+	t.appendChild(tb);
+	
+	var numRaces = 0;
+	var numProfessions = 0;
+	for (var p in RPG.Story.CharGen.races) { numRaces++; }
+	for (var p in RPG.Story.CharGen.professions) { numProfessions++; }
+	
+	/* right part with race/profession selection */
+	this._buildMatrix(tb);	
+	
+	OZ.Event.add(t, "click", this.bind(this._click));
+	
+	return t;
+}
+
+RPG.Story.CharGen.prototype._buildMatrix = function(tb) {
+	var tr = OZ.DOM.elm("tr");
+	tb.appendChild(tr);
+	var empty = OZ.DOM.elm("td");
+	tr.appendChild(empty);
+	
+	/* race labels */
+	for (var p in RPG.Story.CharGen.races) {
+		var td = OZ.DOM.elm("td");
+		td.innerHTML = p;
+		tr.appendChild(td);
+	}
+	
+	for (var p in RPG.Story.CharGen.professions) {
+		var prof = RPG.Story.CharGen.professions[p];
+		tr = OZ.DOM.elm("tr");
+		tb.appendChild(tr);
+		
+		/* profession label */
+		var td = OZ.DOM.elm("td");
+		td.innerHTML = p;
+		tr.appendChild(td);
+		
+		for (var q in RPG.Story.CharGen.races) {
+			/* cell */
+			var td = OZ.DOM.elm("td");
+			tr.appendChild(td);
+
+			var ctor = RPG.Story.CharGen.races[q];
+			var tmp = new ctor();
+			var img = OZ.DOM.elm("img");
+			img.src = "img/pc/" + tmp.getImage() + "-" + prof + ".png";
+			td.appendChild(img);
+			
+			this._list.push([img, ctor, prof]);
+		}
+	}
+}
+
+RPG.Story.CharGen.prototype._click = function(e) {
+	var t = OZ.Event.target(e);
+	if (t.nodeName.toLowerCase() != "img") { return; }
+	for (var i=0;i<this._list.length;i++) {
+		var item = this._list[i];
+		if (item[0] == t) {
+			this.dispatch("chargen", {race: item[1], profession: item[2]});
+		}
+	}
+}

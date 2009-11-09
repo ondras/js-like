@@ -152,6 +152,7 @@ RPG.Items.BaseItem.prototype._describeModifiers = function() {
 /**
  * Can this item be merged with other one? This is possible only when items are truly the same.
  * @param {RPG.Items.BaseItem}
+ * FIXME!
  */
 RPG.Items.BaseItem.prototype.isSameAs = function(item) {
 	if (item.constructor != this.constructor) { return false; }

@@ -4,8 +4,10 @@
  * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.PC = OZ.Class().extend(RPG.Beings.BaseBeing);
-RPG.Beings.PC.prototype.init = function(race) {
+RPG.Beings.PC.prototype.init = function(race, profession) {
 	this.parent(race);
+	this._profession = profession;
+	this._image += "-" + profession;
 	
 	this._mapMemory = new RPG.Memory.MapMemory();
 	this._itemMemory = new RPG.Memory.ItemMemory();
@@ -38,6 +40,11 @@ RPG.Beings.PC.prototype.itemMemory = function() {
 
 RPG.Beings.PC.prototype.getVisibleCoords = function() {
 	return this._visibleCoords;
+}
+
+RPG.Beings.PC.prototype.setName = function(name) {
+	this.parent(name);
+	RPG.UI.status.updateName();
 }
 
 /**
