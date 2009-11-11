@@ -75,8 +75,6 @@ RPG.Story.prototype._charGen = function(e) {
 	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
 	up.getCell().setBeing(this._pc);
 	
-	RPG.UI.status.updateFeats();
-	RPG.UI.status.updateHP();
 	RPG.World.setMap(map);
 	RPG.World.run();
 }

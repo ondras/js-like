@@ -14,7 +14,7 @@ RPG.Items.Weapon.prototype.init = function(hit, damage) {
 }
 
 RPG.Items.Weapon.prototype._describeModifiers = function(who) {
-	return "(" + this._hit.baseValue().toString() + ", " + this._damage.baseValue().toString() + ")";
+	return "(" + this._hit.toString() + ", " + this._damage.toString() + ")";
 }
 
 /**

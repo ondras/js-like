@@ -51,51 +51,41 @@ RPG.Misc.Coords.prototype.minus = function(c) {
  * @class Modifier interface: everything that holds feat modifiers have this
  */
 RPG.Misc.IModifier = OZ.Class();
+
 /**
- * @param {int} feat Feat constant
- * @param {int || function} value Modification value
- */
-RPG.Misc.IModifier.prototype.addModifier = function(feat, value) {
-	var item = [feat, value];
-	this._modifiers[feat] = value;
-}
-/**
- * Ask for a modifier to a given feat. Second argument is necessary for 
- * recursive scenarios, for example: to retrieve modifier for MaxHP, 
- * we have to compute the modified value of Strength.
- * 
+ * Return modifier for a given feat
  * @param {int} feat The feat we wish to modify, specified by its constant
- * @param {RPG.Misc.IModifier} modifierHolder
  */
-RPG.Misc.IModifier.prototype.getModifier = function(feat, modifierHolder) {
-	if (feat in this._modifiers) {
-		var value = this._modifiers[feat];
-		if (typeof(value) == "function") {
-			return value(modifierHolder);
-		} else {
-			return value;
-		}
-	} else { 
-		return null;
-	}
+RPG.Misc.IModifier.prototype.getModifier = function(feat) {
+	return this._modifiers[feat] || 0;
 }
+
+/**
+ * Return all modified feats
+ */
+RPG.Misc.IModifier.prototype.getModified = function() {
+	var arr = [];
+	for (var p in this._modifiers) { arr.push(p); }
+	return arr;
+}
+
 
 /**
  * @class Weapon interface. Separated from items, because "hands" and "foot" are also weapons.
  */
 RPG.Misc.IWeapon = OZ.Class();
 RPG.Misc.IWeapon.prototype.setHit = function(rv) {
-	this._hit = new RPG.Feats[RPG.FEAT_HIT](rv);
+	this._hit = rv;
 	
 }
 RPG.Misc.IWeapon.prototype.setDamage = function(rv) {
-	this._damage = new RPG.Feats[RPG.FEAT_DAMAGE](rv);
+	this._damage = rv;
 }
-RPG.Misc.IWeapon.prototype.getHit = function(modifierHolder) {
-	return this._hit.modifiedValue(modifierHolder);
+RPG.Misc.IWeapon.prototype.getHit = function() {
+	return this._hit;
 }
-RPG.Misc.IWeapon.prototype.getDamage = function(modifierHolder) {
-	return this._damage.modifiedValue(modifierHolder);
+RPG.Misc.IWeapon.prototype.getDamage = function() {
+	return this._damage;
 }
 
 

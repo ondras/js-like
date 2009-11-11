@@ -5,7 +5,7 @@
 RPG.Spells.Heal = OZ.Class().extend(RPG.Spells.BaseSpell);
 
 RPG.Spells.Heal.prototype.init = function() {
-	this.parent("Heal");
+	this.parent("Heal", 4);
 }
 
 RPG.Spells.Heal.prototype.cast = function(caster, target) {

@@ -54,7 +54,8 @@ RPG.Actions.Attack.prototype.execute = function() {
 		
 		if (damage) {
 			this._damage = true;
-			this._kill = !this._target.adjustHP(-damage);
+			this._target.adjustStat(RPG.STAT_HP, -damage);
+			this._kill = !this._target.isAlive();
 		}
 	}
 	
@@ -549,7 +550,7 @@ RPG.Actions.Pit.prototype.execute = function() {
 	}
 	
 	var dmg = RPG.Rules.getTrapDamage(this._source, this._target);
-	this._source.adjustHP(-dmg);
+	this._source.adjustStat(RPG.STAT_HP, -dmg);
 }
 
 /**
@@ -629,16 +630,14 @@ RPG.Actions.Drink.prototype.execute = function() {
 RPG.Actions.Heal = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Heal.prototype.execute = function() {
 	var b = this._source;
-	var hp = b.getHP();
+	var hp = b.getStat(RPG.STAT_HP);
 	var max = b.getFeat(RPG.FEAT_MAXHP);
 	if (hp == max) {
 		RPG.UI.buffer.message("Nothing happens.");
 		return;
 	}
 	
-	b.adjustHP(this._target);
-	hp = b.getHP();
-	
+	hp = b.adjustStat(RPG.STAT_HP, this._target);
 	var str = "";
 	
 	if (hp == max) {
@@ -706,10 +705,14 @@ RPG.Actions.Cast.prototype.execute = function() {
 	
 	var cell = map.at(this._target);
 	var being = cell.getBeing();
+	var spell = this._params;
+	
+	var cost = spell.getCost();
+	this._source.adjustStat(RPG.STAT_MANA, -cost);
 	
 	var str = this._source.describe().capitalize() + " cast";
 	if (!you) { str += "s"; }
-	str += " '" + this._params.describe() + "'.";
+	str += " '" + spell.describe() + "'.";
 	RPG.UI.buffer.message(str);
 	
 	if (!being) {

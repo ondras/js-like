@@ -1,18 +1,14 @@
 /**
  * @class Basic being
  * @augments RPG.Visual.IVisual
- * @augments RPG.Misc.IModifier
  * @augments RPG.Engine.IActor
  */
 RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Visual.IVisual)
-						.implement(RPG.Misc.IModifier)
 						.implement(RPG.Engine.IActor);
 RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._initVisuals();
 	this._trapMemory = new RPG.Memory.TrapMemory();
-
-	this._modifiers = {}; /* to comply with IModifier */
 
 	this._name = "";
 	this._race = null;
@@ -25,6 +21,7 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._alive = true;
 	this._effects = [];
 	this._turnCounter = null;
+	this._modifierList = [];
 	
 	this._setRace(race);
 	this._initStatsAndFeats();
@@ -56,28 +53,36 @@ RPG.Beings.BaseBeing.prototype._setRace = function(race) {
 RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	var defaults = this._race.getDefaults();
 	
-	this._stats = {
-		hp: 0
-	}
+	this._stats = {};
+	this._stats[RPG.STAT_HP] = 0;
+	this._stats[RPG.STAT_MANA] = 0;
 	
 	this._feats = {};
 	
+	/* advanced feats aka attributes */
 	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
 		var attr = RPG.ATTRIBUTES[i];
 		var rv = new RPG.Misc.RandomValue(defaults[attr], 2);
-		this._feats[attr] = new RPG.Feats[attr](rv.roll());
+		var f = new RPG.Feats[attr](this, rv.roll());
+		this._feats[attr] = f;
+		this._modifierList.push(f);
 	}
 
-	var misc = [RPG.FEAT_MAXHP, RPG.FEAT_DV, RPG.FEAT_PV, RPG.FEAT_SPEED];
+	/* base feats */
+	var misc = [RPG.FEAT_MAXHP, RPG.FEAT_MAXMANA, RPG.FEAT_DV, RPG.FEAT_PV, RPG.FEAT_SPEED, RPG.FEAT_HIT, RPG.FEAT_DAMAGE];
 	for (var i=0;i<misc.length;i++) {
 		var name = misc[i];
-		this._feats[name] = new RPG.Feats[name](defaults[name]);
+		this._feats[name] = new RPG.Feats[name](this, defaults[name] || 0);
 	}
+	
+	for (var p in this._feats) { this.updateFeat(p); }
 	
 	var regen = new RPG.Effects.Regeneration(this);
 	this.addEffect(regen);
+	var regen = new RPG.Effects.ManaRegeneration(this);
+	this.addEffect(regen);
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -118,6 +123,25 @@ RPG.Beings.BaseBeing.prototype.removeItem = function(item) {
 	return this;
 }
 
+RPG.Beings.BaseBeing.prototype.equipItem = function(item) {
+	this._modifierList.push(item);
+	this._updateFeatsByModifier(item);
+}
+
+RPG.Beings.BaseBeing.prototype.unequipItem = function(item) {
+	var index = this._modifierList.indexOf(item);
+	if (index == -1) { throw new Error("Cannot find item '"+item+"'"); }
+	this._modifierList.splice(index, 1);
+	this._updateFeatsByModifier(item);
+}
+
+RPG.Beings.BaseBeing.prototype._updateFeatsByModifier = function(item) {
+	var list = item.getModified();
+	for (var i=0;i<list.length;i++) {
+		this.updateFeat(list[i]);
+	}
+}
+
 RPG.Beings.BaseBeing.prototype.getItems = function() { 
 	return this._items;
 }
@@ -131,21 +155,6 @@ RPG.Beings.BaseBeing.prototype.getChat = function() {
 	return this._chat;
 }
 
-/**
- * Being combines modifiers from various sources: equipped items, feats, ...
- * @see RPG.Base.IModifier
- */
-RPG.Beings.BaseBeing.prototype.getModifier = function(feat, modifierHolder) {
-	var modifierHolders = this._getModifierHolders();
-
-	var total = 0;
-	for (var i=0;i<modifierHolders.length;i++) {
-		var mod = modifierHolders[i].getModifier(feat, modifierHolder);
-		if (mod !== null) { total += mod; }
-	}
-	
-	return total;
-}
 
 /**
  * Return all available slots
@@ -221,12 +230,35 @@ RPG.Beings.BaseBeing.prototype.removeEffect = function(e) {
 	return this;
 }
 
-RPG.Beings.BaseBeing.prototype.getHP = function() {
-	return this._stats.hp;
+RPG.Beings.BaseBeing.prototype.getStat = function(stat) {
+	return this._stats[stat];
+}
+
+RPG.Beings.BaseBeing.prototype.adjustStat = function(stat, diff) {
+	return this.setStat(stat, this._stats[stat] + diff);
+}
+
+RPG.Beings.BaseBeing.prototype.setStat = function(stat, value) {
+	switch (stat) {
+		case RPG.STAT_HP:
+			this._stats[stat] = Math.min(value, this._feats[RPG.FEAT_MAXHP].getValue());
+		break;
+
+		case RPG.STAT_MANA:
+			this._stats[stat] = Math.min(value, this._feats[RPG.FEAT_MAXMANA].getValue());
+		break;
+	}
+	
+	if (this._stats[RPG.STAT_HP] <= 0) { this.die(); }
+	return this._stats[stat];
+}
+
+RPG.Beings.BaseBeing.prototype.updateFeat = function(feat) {
+	return this._feats[feat].update(this._modifierList);
 }
 
 RPG.Beings.BaseBeing.prototype.getFeat = function(feat) {
-	return this._feats[feat].modifiedValue(this);
+	return this._feats[feat].getValue();
 }
 
 RPG.Beings.BaseBeing.prototype.setFeat = function(feat, value) {
@@ -247,31 +279,11 @@ RPG.Beings.BaseBeing.prototype.isAlive = function() {
 }
 
 /**
- * Adjust hitpoints by a given amount
- * @param {int} amount
- * @returns {bool} Whether the being still lives
+ * Fully recovers all stats to maximum
  */
-RPG.Beings.BaseBeing.prototype.adjustHP = function(amount) {
-	this._stats.hp += amount;
-	if (this._stats.hp > this.getFeat(RPG.FEAT_MAXHP)) {
-		this.fullHP();
-	}
-
-	RPG.UI.status.updateHP();
-
-	if (this._stats.hp <= 0) {
-		this.die();
-		return false;
-	} else {
-		return true;
-	}
-}
-
-/**
- * Fully heals the being
- */
-RPG.Beings.BaseBeing.prototype.fullHP = function() {
-	this._stats.hp = this.getFeat(RPG.FEAT_MAXHP);
+RPG.Beings.BaseBeing.prototype.fullStats = function() {
+	this.setStat(RPG.STAT_HP, this._feats[RPG.FEAT_MAXHP].getValue());
+	this.setStat(RPG.STAT_MANA, this._feats[RPG.FEAT_MAXMANA].getValue());
 }
 
 /**
@@ -353,24 +365,10 @@ RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 
 RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	var def = ["slightly", "moderately", "severly", "critically"];
-	var hp = this.getHP();
-	var max = this.getFeat(RPG.FEAT_MAXHP);
+	var hp = this._stats[RPG.STAT_HP];
+	var max = this._feats[RPG.FEAT_MAXHP].getValue();
 	if (hp == max) { return "not"; }
 	var frac = 1 - hp/max;
 	var index = Math.floor(frac * def.length);
 	return def[index];
-}
-
-RPG.Beings.BaseBeing.prototype._getModifierHolders = function() {
-	var arr = [];
-	for (var p in this._feats) {
-		arr.push(this._feats[p]);
-	}
-	var slots = this._race.getSlots();
-	for (var i=0; i<slots.length; i++) {
-		var s = slots[i];
-		var it = s.getItem();
-		if (it) { arr.push(it); }
-	}
-	return arr;
 }

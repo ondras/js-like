@@ -35,7 +35,7 @@ RPG.Beings.Goblin.prototype.init = function() {
 	}
 	
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -55,7 +55,7 @@ RPG.Beings.Hobgoblin.prototype.init = function() {
 	this._description = "hobgoblin";
 	this._image = "hobgoblin";
 	
-	this.fullHP();	
+	this.fullStats();	
 }
 
 /**
@@ -76,7 +76,7 @@ RPG.Beings.HobgoblinLeader.prototype.init = function() {
 	this._description = "hobgoblin leader";
 	this._image = "hobgoblin-leader";
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -105,7 +105,7 @@ RPG.Beings.Troll.prototype.init = function() {
 	this.getMeleeSlot().setHit(new RPG.Misc.RandomValue(10, 5));
 
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -152,7 +152,7 @@ RPG.Beings.Rat.prototype.init = function() {
 	this._description = "rat";
 	this._image = "rat";
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -171,7 +171,7 @@ RPG.Beings.GiantRat.prototype.init = function() {
 	this._description = "giant rat";
 	this._image = "giant-rat";
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -192,7 +192,7 @@ RPG.Beings.Bat.prototype.init = function() {
 	this._description = "bat";
 	this._image = "bat";
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -212,7 +212,7 @@ RPG.Beings.GiantBat.prototype.init = function() {
 	this._description = "giant bat";
 	this._image = "giant-bat";
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -234,7 +234,7 @@ RPG.Beings.Wolf.prototype.init = function() {
 	this._description = "wolf";
 	this._image = "wolf";
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -253,7 +253,7 @@ RPG.Beings.Dog.prototype.init = function() {
 	this._description = "dog";
 	this._image = "dog";
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -274,7 +274,7 @@ RPG.Beings.Jackal.prototype.init = function() {
 	this._description = "jackal";
 	this._image = "jackal";
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -298,7 +298,7 @@ RPG.Beings.Bear.prototype.init = function() {
 	this._description = "bear";
 	this._image = "bear";
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -321,7 +321,7 @@ RPG.Beings.Snake.prototype.init = function() {
 	this._description = "snake";
 	this._image = "snake";
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -355,7 +355,7 @@ RPG.Beings.Orc.prototype.init = function() {
 		this.getHeadSlot().setItem(cap);
 	}
 	
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -385,7 +385,7 @@ RPG.Beings.LargeOrc.prototype.init = function() {
 		this.getHeadSlot().setItem(cap);
 	}
 	
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -417,7 +417,7 @@ RPG.Beings.OrcChieftain.prototype.init = function() {
 		this.getHeadSlot().setItem(cap);
 	}
 	
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -441,7 +441,7 @@ RPG.Beings.Ogre.prototype.init = function() {
 	this._color = "lime";
 	this._image = "ogre";
 	
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -470,7 +470,7 @@ RPG.Beings.Gnoll.prototype.init = function() {
 		this.getMeleeSlot().setItem(axe);
 	}
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -499,7 +499,7 @@ RPG.Beings.Kobold.prototype.init = function() {
 		this.getMeleeSlot().setItem(club);
 	}
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -532,7 +532,7 @@ RPG.Beings.Skeleton.prototype.init = function() {
 		this.getMeleeSlot().setItem(sword);
 	}
 
-	this.fullHP();
+	this.fullStats();
 }
 
 /**
@@ -557,5 +557,5 @@ RPG.Beings.Zombie.prototype.init = function() {
 	this._color = "goldenrod";
 	this._image = "zombie";
 	
-	this.fullHP();
+	this.fullStats();
 }

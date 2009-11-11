@@ -1,53 +1,85 @@
 /**
- * @class Basic feat. Implements IModifier, since a feat can influent other feat (Strength influences MaxHP...).
- * However, feats modify other feats byt adding/multiplying their own (modified) value.
- * @augments RPG.Misc.IModifier
+ * @class Basic feat, can be modified.
  */
-RPG.Feats.BaseFeat = OZ.Class().implement(RPG.Misc.IModifier);
-RPG.Feats.BaseFeat.prototype.init = function(baseValue) {
-	this._name = "";
-	this._abbr = "";
+RPG.Feats.BaseFeat = OZ.Class();
+RPG.Feats.BaseFeat.prototype.init = function(owner, baseValue) {
+	this._owner = owner;
+	this._constant = null;
 	this._value = null;
-	this._modifiers = {};
+	this._baseValue = null;
+	
+	/* find the proper constant */
+	for (var p in RPG.Feats) {
+		if (RPG.Feats[p] == this.constructor) { this._constant = p; }
+	}
+	
 	this.setValue(baseValue);
 }
-RPG.Feats.BaseFeat.prototype.baseValue = function() {
+
+RPG.Feats.BaseFeat.prototype.getValue = function() {
 	return this._value;
-};
+}
+
+RPG.Feats.BaseFeat.prototype.baseValue = function() {
+	return this._baseValue;
+}
+
 RPG.Feats.BaseFeat.prototype.setValue = function(baseValue) {
-	this._value = baseValue;
-};
-RPG.Feats.BaseFeat.prototype.getName = function() {
-	return this._name;
-};
-RPG.Feats.BaseFeat.prototype.getAbbr = function() {
-	return this._abbr;
-};
-
-/**
- * Returns a feat value, modified by modifierHolder.
- */
-RPG.Feats.BaseFeat.prototype.modifiedValue = function(modifierHolder) {
-	var feat = this._findConstant();
-	var total = this._value + modifierHolder.getModifier(feat, modifierHolder);
-	return Math.max(0, total);
+	var diff = baseValue - this._baseValue;
+	this._baseValue = baseValue;
+	this._setValue(this._value + diff);
 }
 
-RPG.Feats.BaseFeat.prototype.standardModifier = function(modifierHolder) {
-	var value = this.modifiedValue(modifierHolder);
-	var num = (value-11)*10/21;
-	return Math.round(num);
-}
-
-/**
- * Finds the correct feat constant
- */
-RPG.Feats.BaseFeat.prototype._findConstant = function() {
-	for (var p in RPG.Feats) {
-		if (RPG.Feats[p] == this.constructor) { return p; }
+RPG.Feats.BaseFeat.prototype._setValue = function(value) {
+	this._value = value;
+	if (this._owner instanceof RPG.Beings.PC) {
+		RPG.UI.status.updateFeat(this._constant, this._value);
 	}
 }
 
+RPG.Feats.BaseFeat.prototype.update = function(list) {
+	var modifier = 0;
+	for (var i=0;i<list.length;i++) {
+		modifier += list[i].getModifier(this._constant);
+	}
+	this._setValue(Math.max(this._baseValue + Math.round(modifier), 0));
+}
+
+/**
+ * @class Advanced feat holds a value + modifies other feats.
+ * @augments RPG.Feats.BaseFeat
+ * @augments RPG.Misc.IModifier
+ */
+RPG.Feats.AdvancedFeat = OZ.Class()
+							.extend(RPG.Feats.BaseFeat)
+							.implement(RPG.Misc.IModifier);
+
+/**
+ * @param {number} baseValue
+ * @param {RPG.Beings.BaseBeing} owner
+ */
+RPG.Feats.AdvancedFeat.prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
+	this._modifiers = {};
+}
+
+RPG.Feats.AdvancedFeat.prototype.getModifier = function(feat) {
+	var item = this._modifiers[feat];
+	if (!item) { return 0; }
+	return Math.round(item[0] + item[1]*this._value);
+}
+
+RPG.Feats.AdvancedFeat.prototype.update = function(list) {
+	this.parent(list);
+	/* update everything modified by this feat */
+	for (var p in this._modifiers) {
+		this._owner.updateFeat(p);
+	}
+}
+
+RPG.Feats.AdvancedFeat.prototype._drd = function() {
+	return [-11*10/21, 10/21];
+}
 
 /**
  * @class Basic item
@@ -373,6 +405,11 @@ RPG.Slots.BaseSlot.prototype.filterAllowed = function(itemList) {
 }
 
 RPG.Slots.BaseSlot.prototype.setItem = function(item) {
+	if (item) {
+		this._being.equipItem(item);
+	} else if (this._item) {
+		this._being.unequipItem(this._item);
+	}
 	this._item = item;
 }
 
@@ -393,10 +430,14 @@ RPG.Spells.BaseSpell = OZ.Class()
 						.implement(RPG.Misc.ISerializable)
 						.implement(RPG.Visual.IVisual);
 
-RPG.Spells.BaseSpell.prototype.init = function(name) {
+RPG.Spells.BaseSpell.prototype.init = function(name, cost) {
 	this._description = name;
+	this._cost = cost;
 }
 
 RPG.Spells.BaseSpell.prototype.cast = function(caster, target) {
 }
 
+RPG.Spells.BaseSpell.prototype.getCost = function() { 
+	return this._cost;
+}

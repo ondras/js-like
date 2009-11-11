@@ -3,10 +3,17 @@
  * @augments RPG.Feats.BaseFeat
  */
 RPG.Feats[RPG.FEAT_MAXHP] = OZ.Class().extend(RPG.Feats.BaseFeat);
-RPG.Feats[RPG.FEAT_MAXHP].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	this._name = "Maximum Hitpoints";
-	this._abbr = "MaxHP";
+RPG.Feats[RPG.FEAT_MAXHP].prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
+}
+
+/**
+ * @class Maximum mana
+ * @augments RPG.Feats.BaseFeat
+ */
+RPG.Feats[RPG.FEAT_MAXMANA] = OZ.Class().extend(RPG.Feats.BaseFeat);
+RPG.Feats[RPG.FEAT_MAXMANA].prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
 }
 
 /**
@@ -14,10 +21,8 @@ RPG.Feats[RPG.FEAT_MAXHP].prototype.init = function(baseValue) {
  * @augments RPG.Feats.BaseFeat
  */
 RPG.Feats[RPG.FEAT_SPEED] = OZ.Class().extend(RPG.Feats.BaseFeat);
-RPG.Feats[RPG.FEAT_SPEED].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	this._name = "Speed";
-	this._abbr = "Spd";
+RPG.Feats[RPG.FEAT_SPEED].prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
 }
 
 /**
@@ -25,10 +30,8 @@ RPG.Feats[RPG.FEAT_SPEED].prototype.init = function(baseValue) {
  * @augments RPG.Feats.BaseFeat
  */
 RPG.Feats[RPG.FEAT_DV] = OZ.Class().extend(RPG.Feats.BaseFeat);
-RPG.Feats[RPG.FEAT_DV].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	this._name = "Defensive value";
-	this._abbr = "DV";
+RPG.Feats[RPG.FEAT_DV].prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
 }
 
 /**
@@ -36,102 +39,80 @@ RPG.Feats[RPG.FEAT_DV].prototype.init = function(baseValue) {
  * @augments RPG.Feats.BaseFeat
  */
 RPG.Feats[RPG.FEAT_PV] = OZ.Class().extend(RPG.Feats.BaseFeat);
-RPG.Feats[RPG.FEAT_PV].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	this._name = "Protective value";
-	this._abbr = "PV";
+RPG.Feats[RPG.FEAT_PV].prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
 }
-
-/**
- * @class Enhanced, randomvalue-based feat. Does not modify other feats.
- * @augments RPG.Feats.BaseFeat
- */
-RPG.Feats.RandomValue = OZ.Class().extend(RPG.Feats.BaseFeat);
-
-RPG.Feats.RandomValue.prototype.modifiedValue = function(modifierHolder) {
-	var feat = this._findConstant();
-	var plus = modifierHolder.getModifier(feat, modifierHolder);
-	var rv = this._value;
-
-	var mean = rv.mean + plus;
-	var variance = rv.variance;
-	return new RPG.Misc.RandomValue(mean, variance);
-};
 
 /**
  * @class Damage specification
  * @augments RPG.Feats.RandomValue
  */
-RPG.Feats[RPG.FEAT_DAMAGE] = OZ.Class().extend(RPG.Feats.RandomValue);
-RPG.Feats[RPG.FEAT_DAMAGE].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	this._name = "Damage";
-	this._abbr = "Dmg";
+RPG.Feats[RPG.FEAT_DAMAGE] = OZ.Class().extend(RPG.Feats.BaseFeat);
+RPG.Feats[RPG.FEAT_DAMAGE].prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
 }
 
 /**
  * @class To-hit specification
  * @augments RPG.Feats.RandomValue
  */
-RPG.Feats[RPG.FEAT_HIT] = OZ.Class().extend(RPG.Feats.RandomValue);
-RPG.Feats[RPG.FEAT_HIT].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	this._name = "To-hit";
-	this._abbr = "Hit";
+RPG.Feats[RPG.FEAT_HIT] = OZ.Class().extend(RPG.Feats.BaseFeat);
+RPG.Feats[RPG.FEAT_HIT].prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
 }
 
 /**
  * @class Strength attribute
- * @augments RPG.Feats.BaseFeat
+ * @augments RPG.Feats.AdvancedFeat
  */
-RPG.Feats[RPG.FEAT_STRENGTH] = OZ.Class().extend(RPG.Feats.BaseFeat);
-RPG.Feats[RPG.FEAT_STRENGTH].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	this.addModifier(RPG.FEAT_DAMAGE, this.bind(this.standardModifier));
-	this._name = "Strength";
-	this._abbr = "Str";
+RPG.Feats[RPG.FEAT_STRENGTH] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
+RPG.Feats[RPG.FEAT_STRENGTH].name = "Strength";
+RPG.Feats[RPG.FEAT_STRENGTH].prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
+	this._modifiers[RPG.FEAT_DAMAGE] = this._drd();
 }
 
 /**
  * @class Toughness attribute
- * @augments RPG.Feats.BaseFeat
+ * @augments RPG.Feats.AdvancedFeat
  */
-RPG.Feats[RPG.FEAT_TOUGHNESS] = OZ.Class().extend(RPG.Feats.BaseFeat);
-RPG.Feats[RPG.FEAT_TOUGHNESS].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	this.addModifier(RPG.FEAT_MAXHP, this.bind(this.standardModifier));
-	this.addModifier(RPG.FEAT_PV, this.bind(this.standardModifier));
-	this._name = "Toughness";
-	this._abbr = "To";
+RPG.Feats[RPG.FEAT_TOUGHNESS] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
+RPG.Feats[RPG.FEAT_TOUGHNESS].name = "Toughness";
+RPG.Feats[RPG.FEAT_TOUGHNESS].prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
+	this._modifiers[RPG.FEAT_MAXHP] = this._drd();
+	this._modifiers[RPG.FEAT_PV] = this._drd();
 }
 
 /**
  * @class Intelligence attribute
- * @augments RPG.Feats.BaseFeat
+ * @augments RPG.Feats.AdvancedFeat
  */
-RPG.Feats[RPG.FEAT_INTELLIGENCE] = OZ.Class().extend(RPG.Feats.BaseFeat);
-RPG.Feats[RPG.FEAT_INTELLIGENCE].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	this._name = "Intelligence";
-	this._abbr = "Int";
+RPG.Feats[RPG.FEAT_INTELLIGENCE] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
+RPG.Feats[RPG.FEAT_INTELLIGENCE].name = "Intelligence";
+RPG.Feats[RPG.FEAT_INTELLIGENCE].prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
+	var arr = this._drd();
+	arr[0] *= 3;
+	arr[1] *= 3;
+	
+	this._modifiers[RPG.FEAT_MAXMANA] = arr;
 }
 
 /**
  * @class Dexterity attribute
- * @augments RPG.Feats.BaseFeat
+ * @augments RPG.Feats.AdvancedFeat
  */
-RPG.Feats[RPG.FEAT_DEXTERITY] = OZ.Class().extend(RPG.Feats.BaseFeat);
-RPG.Feats[RPG.FEAT_DEXTERITY].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	this.addModifier(RPG.FEAT_HIT, this.bind(this.standardModifier));
-	this.addModifier(RPG.FEAT_DV, this.bind(this.standardModifier));
+RPG.Feats[RPG.FEAT_DEXTERITY] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
+RPG.Feats[RPG.FEAT_DEXTERITY].name = "Dexterity";
+RPG.Feats[RPG.FEAT_DEXTERITY].prototype.init = function(owner, baseValue) {
+	this.parent(owner, baseValue);
 	
-	var speedModifier = function() {
-		return 5*this.standardModifier.apply(this, arguments);
-	}
-	this.addModifier(RPG.FEAT_SPEED, this.bind(speedModifier));
+	this._modifiers[RPG.FEAT_HIT] = this._drd();
+	this._modifiers[RPG.FEAT_DV] = this._drd();
 	
-	this._name = "Dexterity";
-	this._abbr = "Dex";
+	var arr = this._drd();
+	arr[0] *= 5;
+	arr[1] *= 5;
+	this._modifiers[RPG.FEAT_SPEED] = arr;
 }
-

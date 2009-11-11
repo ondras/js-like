@@ -115,15 +115,22 @@ RPG.FEAT_INTELLIGENCE	= 3;
 /** @constant */
 RPG.FEAT_MAXHP			= 4;
 /** @constant */
-RPG.FEAT_DV				= 5;
+RPG.FEAT_MAXMANA		= 5;
 /** @constant */
-RPG.FEAT_PV				= 6;
+RPG.FEAT_DV				= 6;
 /** @constant */
-RPG.FEAT_SPEED			= 7;
+RPG.FEAT_PV				= 7;
 /** @constant */
-RPG.FEAT_DAMAGE			= 8;
+RPG.FEAT_SPEED			= 8;
 /** @constant */
-RPG.FEAT_HIT			= 9;
+RPG.FEAT_DAMAGE			= 9;
+/** @constant */
+RPG.FEAT_HIT			= 10;
+
+/** @constant */
+RPG.STAT_HP				= 0;
+/** @constant */
+RPG.STAT_MANA			= 1;
 
 RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG.FEAT_INTELLIGENCE];
 

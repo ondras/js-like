@@ -10,7 +10,6 @@ RPG.Rules.isDoorStuck = function(being, door) {
  */
 RPG.Rules.isMeleeHit = function(attacker, defender, slot) {
 	var hit = slot.getHit().roll();
-
 	var dv = defender.getFeat(RPG.FEAT_DV);
 	/* console.log("hit("+hit+") vs. dv("+dv+")"); */
 	return hit >= dv;
@@ -24,7 +23,7 @@ RPG.Rules.isCritical = function(being) {
 }
 
 RPG.Rules.isWoundedToRetreat = function(being) {
-	return (being.getHP()/being.getFeat(RPG.FEAT_MAXHP) < 0.4);
+	return (being.getStat(RPG.STAT_HP)/being.getFeat(RPG.FEAT_MAXHP) < 0.4);
 }
 
 RPG.Rules.isFakeDetected = function(being, cell) {

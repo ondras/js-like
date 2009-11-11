@@ -4,44 +4,37 @@
 RPG.UI.Status = OZ.Class();
 
 RPG.UI.Status.prototype.init = function(container) {
-	this._dom = {};
-	
-	this._feats = [
-		RPG.FEAT_MAXHP,
-		RPG.FEAT_DV,
-		RPG.FEAT_PV
-	];
-	
-	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
-		this._feats.push(RPG.ATTRIBUTES[i]);
-	}
+	this._dom = {
+		feats: {},
+		stats: {},
+		misc: {}
+	};
 	
 	this._build(container);
 }
 
 RPG.UI.Status.prototype.updateMap = function(str) {
-	this._dom.map.innerHTML = str;
+	this._dom.misc.map.innerHTML = str;
 }
 
 RPG.UI.Status.prototype.updateRounds = function(rounds) {
-	this._dom.rounds.innerHTML = rounds;
-}
-
-RPG.UI.Status.prototype.updateFeats = function() {
-	var pc = RPG.World.getPC();
-	for (var i=0;i<this._feats.length;i++) {
-		var f = this._feats[i];
-		var value = pc.getFeat(f);
-		this._dom[f].innerHTML = value; 
-	}
-}
-
-RPG.UI.Status.prototype.updateHP = function() {
-	this._dom.hp.innerHTML = RPG.World.getPC().getHP();
+	this._dom.misc.rounds.innerHTML = rounds;
 }
 
 RPG.UI.Status.prototype.updateName = function() {
-	this._dom.name.innerHTML = RPG.World.getPC().getName();
+	this._dom.misc.name.innerHTML = RPG.World.getPC().getName();
+}
+
+RPG.UI.Status.prototype.updateFeat = function(feat, value) {
+	var elm = this._dom.feats[feat];
+	if (!elm) { return; }
+	elm.innerHTML = value; 
+}
+
+RPG.UI.Status.prototype.updateStat = function(stat, value) {
+	var elm = this._dom.stats[stat];
+	if (!elm) { return; }
+	elm.innerHTML = value; 
 }
 
 RPG.UI.Status.prototype._build = function(container) {
@@ -50,55 +43,72 @@ RPG.UI.Status.prototype._build = function(container) {
 	var tr = OZ.DOM.elm("tr");
 	OZ.DOM.append([container, t], [t, tb], [tb, tr]);
 	
+	/* name */
 	var td = OZ.DOM.elm("td", {fontWeight:"bold"});
 	tr.appendChild(td);
-	this._dom.name = td;
+	this._dom.misc.name = td;
+	
+	/* hp */
 	var td = OZ.DOM.elm("td");
 	tr.appendChild(td);
-	td.innerHTML = "Hitpoints: ";
+	td.innerHTML = "HP: ";
 	var s = OZ.DOM.elm("span");
-	this._dom.hp = s;
+	this._dom.stats[RPG.STAT_HP] = s;
 	td.appendChild(s);
 	td.appendChild(OZ.DOM.text("/"));
 	var s = OZ.DOM.elm("span");
-	this._dom[RPG.FEAT_MAXHP] = s;
+	this._dom.feats[RPG.FEAT_MAXHP] = s;
 	td.appendChild(s);
 	
+	/* mana */
+	var td = OZ.DOM.elm("td");
+	tr.appendChild(td);
+	td.innerHTML = "Mana: ";
+	var s = OZ.DOM.elm("span");
+	this._dom.stats[RPG.STAT_MANA] = s;
+	td.appendChild(s);
+	td.appendChild(OZ.DOM.text("/"));
+	var s = OZ.DOM.elm("span");
+	this._dom.feats[RPG.FEAT_MAXMANA] = s;
+	td.appendChild(s);
+
+	/* dv/pv */
 	var td = OZ.DOM.elm("td");
 	tr.appendChild(td);
 	td.innerHTML = "DV/PV: ";
 	var s = OZ.DOM.elm("span");
-	this._dom[RPG.FEAT_DV] = s;
+	this._dom.feats[RPG.FEAT_DV] = s;
 	td.appendChild(s);
 	td.appendChild(OZ.DOM.text("/"));
 	var s = OZ.DOM.elm("span");
-	this._dom[RPG.FEAT_PV] = s;
+	this._dom.feats[RPG.FEAT_PV] = s;
 	td.appendChild(s);
-	
 	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
-		var a = RPG.ATTRIBUTES[i];
-		var f = new RPG.Feats[a](0);
+		var c = RPG.ATTRIBUTES[i];
+		var a = RPG.Feats[c];
 		var td = OZ.DOM.elm("td");
 		tr.appendChild(td);
-		td.innerHTML = f.getName() + ": ";
+		td.innerHTML = a.name + ": ";
 		var s = OZ.DOM.elm("span");
-		this._dom[a] = s;
+		this._dom.feats[c] = s;
 		td.appendChild(s);
 	}
 	
+	/* rounds */
 	var td = OZ.DOM.elm("td");
 	tr.appendChild(td);
 	td.innerHTML = "Game rounds: ";
 	var s = OZ.DOM.elm("span");
-	this._dom.rounds = s;
+	this._dom.misc.rounds = s;
 	td.appendChild(s);
 	
+	/* level */
 	var td = OZ.DOM.elm("td");
 	tr.appendChild(td);
 	td.innerHTML = "Map: ";
 	var s = OZ.DOM.elm("span");
-	this._dom.map = s;
+	this._dom.misc.map = s;
 	td.appendChild(s);
 
-	this._dom.rounds.innerHTML = "0";
+	this._dom.misc.rounds.innerHTML = "0";
 }

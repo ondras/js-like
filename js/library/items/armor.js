@@ -19,7 +19,7 @@ RPG.Items.SmallShield.prototype.init = function() {
 	this.parent();
 	this._description = "small shield";
 	this._image = "small-shield";
-	this.addModifier(RPG.FEAT_DV, 2);
+	this._modifiers[RPG.FEAT_DV] = 2;
 }
 
 /**
@@ -31,8 +31,8 @@ RPG.Items.MediumShield.prototype.init = function() {
 	this.parent();
 	this._description = "medium shield";
 	this._image = "small-shield";
-	this.addModifier(RPG.FEAT_DV, 3);
-	this.addModifier(RPG.FEAT_PV, 1);
+	this._modifiers[RPG.FEAT_DV] = 3;
+	this._modifiers[RPG.FEAT_PV] = 1;
 }
 
 /**
@@ -44,8 +44,8 @@ RPG.Items.LargeShield.prototype.init = function() {
 	this.parent();
 	this._description = "large shield";
 	this._image = "large-shield";
-	this.addModifier(RPG.FEAT_DV, 5);
-	this.addModifier(RPG.FEAT_PV, 1);
+	this._modifiers[RPG.FEAT_DV] = 5;
+	this._modifiers[RPG.FEAT_PV] = 1;
 }
 
 /**
@@ -93,7 +93,7 @@ RPG.Items.MetalCap.prototype.init = function() {
 	this.parent();
 	this._description = "metal cap";
 	this._image = "metal-cap";
-	this.addModifier(RPG.FEAT_PV, 1);
+	this._modifiers[RPG.FEAT_PV] = 1;
 }
 
 /**
@@ -106,7 +106,7 @@ RPG.Items.LeatherBoots.prototype.init = function() {
 	this._description = "pair of leather boots";
 	this._descriptionPlural = "pairs of leather boots";
 	this._image = "leather-boots";
-	this.addModifier(RPG.FEAT_DV, 1);
+	this._modifiers[RPG.FEAT_DV] = 1;
 }
 
 /**
@@ -119,8 +119,8 @@ RPG.Items.Clothes.prototype.init = function() {
 	this.parent();
 	this._color = "lime";
 	this._description = "clothes";
-	/* FIXME */
-	this.addModifier(RPG.FEAT_PV, 1);
+	/* FIXME image */
+	this._modifiers[RPG.FEAT_PV] = 1;
 }
 
 /**
@@ -131,9 +131,9 @@ RPG.Items.LeatherArmor = OZ.Class().extend(RPG.Items.Armor);
 RPG.Items.LeatherArmor.prototype.init = function() {
 	this.parent();
 	this._description = "leather armor";
-	 /* FIXME */
-	this.addModifier(RPG.FEAT_DV, 1);
-	this.addModifier(RPG.FEAT_PV, 1);
+	 /* FIXME image */
+	this._modifiers[RPG.FEAT_DV] = 1;
+	this._modifiers[RPG.FEAT_PV] = 1;
 }
 
 /**
@@ -145,8 +145,8 @@ RPG.Items.ChainMail.prototype.init = function() {
 	this.parent();
 	this._color = "darkgray";
 	this._description = "chain mail";
-	 /* FIXME */
-	this.addModifier(RPG.FEAT_PV, 2);
+	 /* FIXME image */
+	this._modifiers[RPG.FEAT_PV] = 2;
 }
 
 /**
@@ -158,8 +158,8 @@ RPG.Items.ScaleMail.prototype.init = function() {
 	this.parent();
 	this._color = "darkgray";
 	this._description = "scale mail";
-	 /* FIXME */
-	this.addModifier(RPG.FEAT_DV, -2);
-	this.addModifier(RPG.FEAT_PV, 4);
+	 /* FIXME image */
+	this._modifiers[RPG.FEAT_DV] = -2;
+	this._modifiers[RPG.FEAT_PV] = 4;
 }
 

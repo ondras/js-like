@@ -886,7 +886,16 @@ RPG.UI.Command.Cast.prototype._done = function(spells) {
 		return;
 	}
 	
-	this._spell = spells[0][0];
+	var spell = spells[0][0];
+	var cost = spell.getCost();
+	
+	if (RPG.World.getPC().getStat(RPG.STAT_MANA) < cost) {
+		RPG.UI.buffer.message("Not enough mana.");
+		RPG.UI.setMode(RPG.UI_NORMAL);
+		return;
+	}
+	
+	this._spell = spell;
 	RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Cast a spell");
 }
 

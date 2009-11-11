@@ -17,14 +17,15 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this._description = "you";
 	this._char = "@";
 	
-	this.setFeat(RPG.FEAT_DV, 5);
-	this.setFeat(RPG.FEAT_MAXHP, 10);
+	this._feats[RPG.FEAT_DV].setValue(5);
+	this._feats[RPG.FEAT_MAXHP].setValue(10);
+	this._feats[RPG.FEAT_MAXMANA].setValue(5);
 	
 	var tc = new RPG.Effects.TurnCounter(this);
 	this._turnCounter = tc;
 	this.addEffect(tc);
 	
-	this.fullHP();
+	this.fullStats();
 }
 
 RPG.Beings.PC.prototype.getTurnCount = function() {
@@ -51,6 +52,12 @@ RPG.Beings.PC.prototype.setName = function(name) {
 	this.parent(name);
 	RPG.UI.status.updateName();
 }
+
+RPG.Beings.PC.prototype.setStat = function(stat, value) {
+	var value = this.parent(stat, value);
+	RPG.UI.status.updateStat(stat, value);
+}
+
 
 /**
  * @see RPG.Visual.IVisual#describeA
@@ -241,18 +248,10 @@ RPG.Beings.PC.prototype._visibleCell = function(cell, centralAngle, arcsPerCell,
 }
 
 /**
- * PC incorporates his/hers race into a set of modifier holders
- */
-RPG.Beings.PC.prototype._getModifierHolders = function() {
-	var arr = this.parent();
-//	arr.push(this._class);
-	return arr;
-}
-
-/**
  * PC being dies
  */
 RPG.Beings.PC.prototype.die = function() {
+	RPG.UI.status.updateStat(RPG.STAT_HP, this._stats[RPG.STAT_HP]);
 	this._alive = false;
 	RPG.World.action(new RPG.Actions.Death(this)); 
 }
