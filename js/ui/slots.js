@@ -146,7 +146,7 @@ RPG.UI.Slots.prototype._redrawSlot = function(index) {
 	var td = this._dom.items[index];
 	var item = slot.getItem();
 	if (item) {
-		td.innerHTML = item.describe() + "&nbsp;";
+		td.innerHTML = "&nbsp;" + item.describe() + "&nbsp;";
 	} else {
 		td.innerHTML = "-nothing-";
 	}

@@ -7,7 +7,7 @@ RPG.World = {
 	_lock: 0, /* lock level */
 	_map: null,
 	_scheduler: null,
-	_pc: null,
+	pc: null,
 	_story: null
 };
 
@@ -63,21 +63,12 @@ RPG.World.setMap = function(map) {
 		this.addActor(beings[i]);
 	}
 	
-	this._pc.mapMemory().setMap(map);
+	this.pc.mapMemory().setMap(map);
 	RPG.UI.status.updateMap(map.getId());
 }
 
 RPG.World.getMap = function() {
 	return this._map;
-}
-
-RPG.World.getPC = function() {
-	return this._pc;
-}
-
-RPG.World.setPC = function(being) {
-	this._pc = being;
-	return this;
 }
 
 RPG.World.getStory = function() {
@@ -148,9 +139,9 @@ RPG.World._decide = function() {
 }
 
 RPG.World._clearActor = function() {
-	if (this._actor == this._pc) { 
+	if (this._actor == this.pc) { 
 		RPG.UI.setMode(RPG.UI_LOCKED); 
-		RPG.UI.status.updateRounds(this._pc.getTurnCount());
+		RPG.UI.status.updateRounds(this.pc.getTurnCount());
 	}
 	this._actor = null;
 }
@@ -158,7 +149,7 @@ RPG.World._clearActor = function() {
 RPG.World._setActor = function() {
 	this._actor = this._scheduler.scheduleActor();
 
-	if (this._actor == this._pc) { RPG.UI.setMode(RPG.UI_NORMAL); }
+	if (this._actor == this.pc) { RPG.UI.setMode(RPG.UI_NORMAL); }
 	
 	if (this._actor) { 
 		var effects = this._actor.getEffects();

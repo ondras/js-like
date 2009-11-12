@@ -49,7 +49,7 @@ RPG.Beings.PC.prototype.getVisibleCoords = function() {
 
 RPG.Beings.PC.prototype.setName = function(name) {
 	this.parent(name);
-	RPG.UI.status.updateName();
+	RPG.UI.status.updateName(this._name);
 }
 
 RPG.Beings.PC.prototype.setStat = function(stat, value) {

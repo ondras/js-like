@@ -29,7 +29,7 @@ RPG.UI.Command.prototype._click = function(e) {
 RPG.UI.Command.prototype._surroundingDoors = function(closed) {
 	var coords = false;
 	var dc = 0;
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var cell = pc.getCell();
 	var map = cell.getMap();
 	var center = cell.getCoords();
@@ -59,7 +59,7 @@ RPG.UI.Command.prototype._surroundingDoors = function(closed) {
  */
 RPG.UI.Command.prototype._surroundingBeings = function(closed) {
 	var list = [];
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var cell = pc.getCell();
 	var map = cell.getMap();
 	var center = cell.getCoords();
@@ -96,7 +96,7 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 		return;
 	}
 	
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var cell = pc.getCell();
 	var map = cell.getMap();
 	var coords = cell.getCoords().clone().plus(this._coords);
@@ -228,7 +228,7 @@ RPG.UI.Command.Open.prototype.init = function() {
 	this._button.setChar("o");
 }
 RPG.UI.Command.Open.prototype.exec = function(cmd) {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var map = pc.getCell().getMap();
 
 	if (cmd) {
@@ -268,7 +268,7 @@ RPG.UI.Command.Close.prototype.init = function() {
 	this._button.setChar("c");
 }
 RPG.UI.Command.Close.prototype.exec = function(cmd) {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var map = pc.getCell().getMap();
 
 	if (cmd) {
@@ -311,7 +311,7 @@ RPG.UI.Command.Kick.prototype.exec = function(cmd) {
 	if (!cmd) {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Kick");
 	} else {
-		var coords = RPG.World.getPC().getCell().getCoords().clone().plus(cmd.getCoords());
+		var coords = RPG.World.pc.getCell().getCoords().clone().plus(cmd.getCoords());
 		RPG.UI.action(RPG.Actions.Kick, coords);
 		RPG.UI.setMode(RPG.UI_NORMAL);
 	}
@@ -328,7 +328,7 @@ RPG.UI.Command.Chat.prototype.init = function() {
 }
 RPG.UI.Command.Chat.prototype.exec = function(cmd) {
 	var errMsg = "There is noone to chat with.";
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var cell = pc.getCell();
 	var map = cell.getMap();
 
@@ -364,7 +364,7 @@ RPG.UI.Command.Search.prototype.init = function() {
 	this._button.setChar("s");
 }
 RPG.UI.Command.Search.prototype.exec = function() {
-	RPG.UI.action(RPG.Actions.Search, RPG.World.getPC());
+	RPG.UI.action(RPG.Actions.Search, RPG.World.pc);
 }
 
 /**
@@ -377,7 +377,7 @@ RPG.UI.Command.Pick.prototype.init = function() {
 	this._button.setChar(",");
 }
 RPG.UI.Command.Pick.prototype.exec = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var items = pc.getCell().getItems();
 	
 	if (!items.length) {
@@ -410,7 +410,7 @@ RPG.UI.Command.Drop.prototype.init = function() {
 	this._button.setChar("d");
 }
 RPG.UI.Command.Drop.prototype.exec = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var items = pc.getItems();
 	if (items.length) {
 		RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
@@ -435,7 +435,7 @@ RPG.UI.Command.Inventory.prototype.init = function() {
 }
 RPG.UI.Command.Inventory.prototype.exec = function() {
 	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
-	new RPG.UI.Slots(RPG.World.getPC(), this.bind(this._done));
+	new RPG.UI.Slots(RPG.World.pc, this.bind(this._done));
 }
 
 RPG.UI.Command.Inventory.prototype._done = function(changed) {
@@ -470,7 +470,7 @@ RPG.UI.Command.Autowalk.prototype.exec = function(cmd) {
 }
 
 RPG.UI.Command.Autowalk.prototype._start = function(coords) {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var cell = pc.getCell();
 	var map = cell.getMap();
 	var target = cell.getCoords().clone().plus(coords);
@@ -493,7 +493,7 @@ RPG.UI.Command.Autowalk.prototype._start = function(coords) {
  */
 RPG.UI.Command.Autowalk.prototype._saveState = function(coords) {
 	this._coords = coords.clone();
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var map = RPG.World.getMap();
 	var cell = pc.getCell();
 	var leftC = new RPG.Misc.Coords(-coords.y, coords.x);
@@ -508,7 +508,7 @@ RPG.UI.Command.Autowalk.prototype._yourTurn = function() {
 		this._step();
 	} else {
 		/* walk no more */
-		RPG.World.getPC().yourTurn = this._yt;
+		RPG.World.pc.yourTurn = this._yt;
 	}
 }
 
@@ -516,7 +516,7 @@ RPG.UI.Command.Autowalk.prototype._yourTurn = function() {
  * Most complicated part. Check whether we can continue autowalking.
  */
 RPG.UI.Command.Autowalk.prototype._check = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var cell = pc.getCell();
 	var map = cell.getMap();
 	var coords = cell.getCoords();
@@ -575,7 +575,7 @@ RPG.UI.Command.Autowalk.prototype._check = function() {
 
 RPG.UI.Command.Autowalk.prototype._step = function() {
 	this._steps++;
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	
 	if (this._coords.x || this._coords.y) {
 		RPG.UI.action(RPG.Actions.Move, pc.getCell().getCoords().clone().plus(this._coords));
@@ -619,7 +619,7 @@ RPG.UI.Command.Ascend.prototype.init = function() {
 }
 
 RPG.UI.Command.Ascend.prototype.exec = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var f = pc.getCell().getFeature();
 	if (f && f instanceof RPG.Features.Staircase.Up) {
 		RPG.UI.action(RPG.Actions.Ascend, f);
@@ -641,7 +641,7 @@ RPG.UI.Command.Descend.prototype.init = function() {
 }
 
 RPG.UI.Command.Descend.prototype.exec = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var f = pc.getCell().getFeature();
 	if (f && f instanceof RPG.Features.Staircase.Down) {
 		RPG.UI.action(RPG.Actions.Descend, f);
@@ -663,7 +663,7 @@ RPG.UI.Command.Trap.prototype.init = function() {
 }
 
 RPG.UI.Command.Trap.prototype.exec = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var f = pc.getCell().getFeature();
 	if (f && f instanceof RPG.Features.Trap && f.knowsAbout(pc)) {
 		f.setOff();
@@ -684,7 +684,7 @@ RPG.UI.Command.WeaponStats.prototype.init = function() {
 }
 
 RPG.UI.Command.WeaponStats.prototype.exec = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var hand = pc.getMeleeSlot();
 	var hit = hand.getHit();
 	var dmg = hand.getDamage();
@@ -703,7 +703,7 @@ RPG.UI.Command.KickStats.prototype.init = function() {
 }
 
 RPG.UI.Command.KickStats.prototype.exec = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var feet = pc.getFeetSlot();
 	var hit = feet.getHit();
 	var dmg = feet.getDamage();
@@ -731,7 +731,7 @@ RPG.UI.Command.Look.prototype.exec = function(cmd) {
 		RPG.UI.map.setFocus(this._coords);
 		RPG.UI.action(RPG.Actions.Look, this._coords);
 	} else {
-		this._coords = RPG.World.getPC().getCell().getCoords().clone();
+		this._coords = RPG.World.pc.getCell().getCoords().clone();
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Look around");
 	}
 }
@@ -742,7 +742,7 @@ RPG.UI.Command.Look.prototype.exec = function(cmd) {
  */
 RPG.UI.Command.Consume = OZ.Class().extend(RPG.UI.Command);
 RPG.UI.Command.Consume.prototype.exec = function(itemCtor, listTitle, errorString, actionCtor) {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var cell = pc.getCell();
 	var items = cell.getItems();
 	this._container = null;
@@ -835,7 +835,7 @@ RPG.UI.Command.SwitchPosition.prototype.exec = function(cmd) {
 	if (!cmd) {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Switch position");
 	} else {
-		var coords = RPG.World.getPC().getCell().getCoords().clone().plus(cmd.getCoords());
+		var coords = RPG.World.pc.getCell().getCoords().clone().plus(cmd.getCoords());
 		RPG.UI.action(RPG.Actions.SwitchPosition, coords);
 		RPG.UI.setMode(RPG.UI_NORMAL);
 	}
@@ -861,7 +861,7 @@ RPG.UI.Command.Cast.prototype.exec = function(cmd) {
 		
 		/* FIXME magic wand in hand? */
 		
-		var spells = RPG.World.getPC().spellMemory().getSpells();
+		var spells = RPG.World.pc.spellMemory().getSpells();
 		if (spells.length) {
 			RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 			new RPG.UI.Itemlist(spells, "Select a spell to cast", 1, this.bind(this._done));
@@ -871,7 +871,7 @@ RPG.UI.Command.Cast.prototype.exec = function(cmd) {
 		
 	} else {
 		/* spell direction */
-		var coords = RPG.World.getPC().getCell().getCoords().clone().plus(cmd.getCoords());
+		var coords = RPG.World.pc.getCell().getCoords().clone().plus(cmd.getCoords());
 		RPG.UI.action(RPG.Actions.Cast, coords, this._spell);
 		RPG.UI.setMode(RPG.UI_NORMAL);
 	}
@@ -889,7 +889,7 @@ RPG.UI.Command.Cast.prototype._done = function(spells) {
 	var spell = spells[0][0];
 	var cost = spell.getCost();
 	
-	if (RPG.World.getPC().getStat(RPG.STAT_MANA) < cost) {
+	if (RPG.World.pc.getStat(RPG.STAT_MANA) < cost) {
 		RPG.UI.buffer.message("Not enough mana.");
 		RPG.UI.setMode(RPG.UI_NORMAL);
 		return;

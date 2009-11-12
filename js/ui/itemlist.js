@@ -67,7 +67,7 @@ RPG.UI.Itemlist.prototype._prepare = function(items) {
 			amount: 0,
 			label: OZ.DOM.elm("label", {htmlFor:"item_"+i})
 		}
-		obj.label.innerHTML = arr[i].describe() + "&nbsp;";
+		obj.label.innerHTML = "&nbsp;" + arr[i].describe() + "&nbsp;";
 		this._data.push(obj);
 	}
 }

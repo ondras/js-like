@@ -20,7 +20,7 @@ RPG.UI.setMode = function(mode, command, data) {
 		case RPG.UI_NORMAL:
 			this._pending = null;
 			this._adjustButtons({commands:true, cancel:false, dir:true});
-			this.map.setFocus(RPG.World.getPC().getCell().getCoords());
+			this.map.setFocus(RPG.World.pc.getCell().getCoords());
 		break;
 		case RPG.UI_LOCKED:
 			this._adjustButtons({commands:false, cancel:false, dir:false});
@@ -75,7 +75,7 @@ RPG.UI.command = function(command) {
  */
 RPG.UI.action = function(ctor, target, params) {
 	if (this._locked) { return; }
-	var a = new ctor(RPG.World.getPC(), target, params);
+	var a = new ctor(RPG.World.pc, target, params);
 	RPG.World.action(a);
 }
 

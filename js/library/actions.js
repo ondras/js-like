@@ -12,8 +12,8 @@ RPG.Actions.Move = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Move.prototype.execute = function() {
 	var sourceCoords = this._source.getCell().getCoords();
 	var targetCoords = this._target;
-	var you = (this._source == RPG.World.getPC());
-	var memory = RPG.World.getPC().mapMemory();
+	var you = (this._source == RPG.World.pc);
+	var memory = RPG.World.pc.mapMemory();
 
 	var map = this._source.getCell().getMap();
 	var targetCell = map.at(targetCoords);
@@ -65,8 +65,8 @@ RPG.Actions.Attack.prototype.execute = function() {
 
 RPG.Actions.Attack.prototype._describe = function() {
 	var killVerbs = ["kill", "slay"];
-	var youAttacker = (this._source == RPG.World.getPC());
-	var youDefender = (this._target == RPG.World.getPC());
+	var youAttacker = (this._source == RPG.World.pc);
+	var youDefender = (this._target == RPG.World.pc);
 	var missVerb = (youAttacker ? "miss" : "misses");
 	var kickVerb = (youAttacker ? "kick" : "kicks");
 	var hitVerb = (youAttacker ? "hit" : "hits");
@@ -110,7 +110,7 @@ RPG.Actions.Attack.prototype._describe = function() {
  */
 RPG.Actions.Death = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Death.prototype.execute = function() {
-	var memory = RPG.World.getPC().mapMemory();
+	var memory = RPG.World.pc.mapMemory();
 	var map = RPG.World.getMap();
 	var coords = this._source.getCell().getCoords();
 	
@@ -126,10 +126,10 @@ RPG.Actions.Death.prototype.execute = function() {
  */
 RPG.Actions.Open = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Open.prototype.execute = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var map = this._source.getCell().getMap();
 	var coords = this._target;
-	var you = (this._source == RPG.World.getPC());
+	var you = (this._source == RPG.World.pc);
 	
 	var door = map.at(coords).getFeature();
 
@@ -193,7 +193,7 @@ RPG.Actions.Close.prototype.execute = function() {
 	cell.getFeature().close();
 	
 	var str = this._source.describeA().capitalize() + " ";
-	var you = (this._source == RPG.World.getPC());
+	var you = (this._source == RPG.World.pc);
 	if (you) {
 		str += "close";
 	} else {
@@ -202,7 +202,7 @@ RPG.Actions.Close.prototype.execute = function() {
 	str += " the door.";
 	
 	RPG.UI.buffer.message(str);
-	RPG.World.getPC().mapMemory().updateVisible();
+	RPG.World.pc.mapMemory().updateVisible();
 }
 
 /**
@@ -212,7 +212,7 @@ RPG.Actions.Close.prototype.execute = function() {
 RPG.Actions.Teleport = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Teleport.prototype.execute = function() {
 	this._tookTime = false;
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var you = (this._source == pc);
 	
 	var sourceCell = this._source.getCell();
@@ -251,7 +251,7 @@ RPG.Actions.Pick = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Pick.prototype.execute = function() {
 	var arr = this._target;
 	
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var cell = this._source.getCell();
 	var you = (this._source == pc);
 	
@@ -284,7 +284,7 @@ RPG.Actions.Pick.prototype.execute = function() {
  */
 RPG.Actions.Drop = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Drop.prototype.execute = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var arr = this._target;
 	
 	var cell = this._source.getCell();
@@ -321,7 +321,7 @@ RPG.Actions.Drop.prototype.execute = function() {
 RPG.Actions.Kick = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Kick.prototype.execute = function() {
 	/* only PC is allowed to kick */
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var map = this._source.getCell().getMap();
 	var cell = map.at(this._target);
 	var feature = cell.getFeature();
@@ -421,7 +421,7 @@ RPG.Actions.Search.prototype.execute = function() {
 		}
 	}
 	
-	if (found) { RPG.World.getPC().mapMemory().updateVisible(); }
+	if (found) { RPG.World.pc.mapMemory().updateVisible(); }
 }
 
 /**
@@ -455,7 +455,7 @@ RPG.Actions.Search.prototype._search = function(cell) {
  */
 RPG.Actions.EnterStaircase = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.EnterStaircase.prototype.execute = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 
 	/* find new map & entry coordinates */
 	var stair = this._target;
@@ -506,7 +506,7 @@ RPG.Actions.Descend.prototype.execute = function() {
  */
 RPG.Actions.TrapEncounter = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.TrapEncounter.prototype.execute = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var you = (this._source == pc);
 	var coords = this._target.getCell().getCoords();
 
@@ -540,7 +540,7 @@ RPG.Actions.TrapEncounter.prototype.execute = function() {
  */
 RPG.Actions.Pit = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Pit.prototype.execute = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var you = (this._source == pc);
 
 	if (pc.canSee(this._target.getCell().getCoords())) {
@@ -584,7 +584,7 @@ RPG.Actions.Consume = OZ.Class().extend(RPG.Actions.BaseAction);
  */
 RPG.Actions.Consume.prototype.execute = function(verb, method) {
 	var str = "";
-	var you = (this._source == RPG.World.getPC());
+	var you = (this._source == RPG.World.pc);
 	
 	/* remove item from inventory / ground */
 	var amount = this._target.getAmount();
@@ -655,7 +655,7 @@ RPG.Actions.Heal.prototype.execute = function() {
  */
 RPG.Actions.SwitchPosition = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.SwitchPosition.prototype.execute = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var you = (this._source == pc);
 	var map = this._source.getCell().getMap();
 	
@@ -699,7 +699,7 @@ RPG.Actions.SwitchPosition.prototype.execute = function() {
  */
 RPG.Actions.Cast = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Cast.prototype.execute = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var you = (this._source == pc);
 	var map = this._source.getCell().getMap();
 	

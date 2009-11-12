@@ -107,7 +107,7 @@ RPG.Items.BaseItem.prototype.subtract = function(amount) {
 	clone.setAmount(amount);
 	
 	/* if owner knows original item, let him know also the cloned version */
-	var im = RPG.World.getPC().itemMemory();
+	var im = RPG.World.pc.itemMemory();
 	if (im.remembers(this)) {
 		im.remember(clone);
 	}
@@ -129,7 +129,7 @@ RPG.Items.BaseItem.prototype.setAmount = function(amount) {
  * @see RPG.Visual.IVisual#describe
  */
 RPG.Items.BaseItem.prototype.describe = function() {
-	var im = RPG.World.getPC().itemMemory();
+	var im = RPG.World.pc.itemMemory();
 	var s = this._describePlural();
 	if (im.remembers(this)) {
 		var mods = this._describeModifiers();
@@ -175,7 +175,7 @@ RPG.Items.BaseItem.prototype.isSameAs = function(item) {
  * @returns {bool} Was this item merged? false = no, it was appended
  */
 RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
-	var im = RPG.World.getPC().itemMemory();
+	var im = RPG.World.pc.itemMemory();
 	
 	for (var i=0;i<listOfItems.length;i++) {
 		var item = listOfItems[i];
@@ -283,7 +283,7 @@ RPG.Actions.BaseAction.prototype.execute = function() {
 }
 
 RPG.Actions.BaseAction.prototype._describeLocal = function() {
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	var cell = pc.getCell();
 	
 	var f = cell.getFeature();
@@ -304,7 +304,7 @@ RPG.Actions.BaseAction.prototype._describeLocal = function() {
 
 RPG.Actions.BaseAction.prototype._describeRemote = function(coords) {
 	var map = RPG.World.getMap();
-	var pc = RPG.World.getPC();
+	var pc = RPG.World.pc;
 	
 	if (!pc.canSee(coords)) {
 		RPG.UI.buffer.message("You do not see that place.");

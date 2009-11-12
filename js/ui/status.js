@@ -21,8 +21,8 @@ RPG.UI.Status.prototype.updateRounds = function(rounds) {
 	this._dom.misc.rounds.innerHTML = rounds;
 }
 
-RPG.UI.Status.prototype.updateName = function() {
-	this._dom.misc.name.innerHTML = RPG.World.getPC().getName();
+RPG.UI.Status.prototype.updateName = function(name) {
+	this._dom.misc.name.innerHTML = name;
 }
 
 RPG.UI.Status.prototype.updateFeat = function(feat, value) {

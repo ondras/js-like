@@ -81,7 +81,7 @@ RPG.Story.prototype._charGen = function(e) {
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
 	var pc = new RPG.Beings.PC(new race(), profession);
-	RPG.World.setPC(pc);
+	RPG.World.pc = pc;
 	RPG.World.setStory(this);
 	pc.setName(name);
 
@@ -91,8 +91,10 @@ RPG.Story.prototype._createPC = function(race, profession, name) {
 	var tmp = new RPG.Items.IronRation();
 	pc.addItem(tmp);	
 	
-	var s = new RPG.Spells.Heal();
-	pc.spellMemory().addSpell(s);
+	if (profession == "wizard") {
+		var s = new RPG.Spells.Heal();
+		pc.spellMemory().addSpell(s);
+	}
 
 	return pc;
 }
@@ -256,9 +258,9 @@ RPG.Story.CharGen.races = {
 };
 	
 RPG.Story.CharGen.professions = {
-		"Warrior": "warrior",
-		"Ranger": "ranger",
-		"Wizard": "wizard"
+	"Warrior": "warrior",
+	"Ranger": "ranger",
+	"Wizard": "wizard"
 };
 
 RPG.Story.CharGen.prototype.init = function() {
