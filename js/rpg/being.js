@@ -254,7 +254,21 @@ RPG.Beings.BaseBeing.prototype.setStat = function(stat, value) {
 }
 
 RPG.Beings.BaseBeing.prototype.updateFeat = function(feat) {
-	return this._feats[feat].update(this._modifierList);
+	var f = this._feats[feat];
+	var modifier = 0;
+	for (var i=0;i<this._modifierList.length;i++) {
+		modifier += this._modifierList[i].getModifier(feat);
+	}
+	f.setModified(modifier);
+	
+	if (f instanceof RPG.Feats.AdvancedFeat) {
+		var modified = f.getModified();
+		for (var i=0;i<modified.length;i++) {
+			this.updateFeat(modified[i]);
+		}
+	}
+	
+	return f.getValue();
 }
 
 RPG.Beings.BaseBeing.prototype.getFeat = function(feat) {
@@ -262,7 +276,11 @@ RPG.Beings.BaseBeing.prototype.getFeat = function(feat) {
 }
 
 RPG.Beings.BaseBeing.prototype.setFeat = function(feat, value) {
-	return this._feats[feat].setValue(value);
+	return this._feats[feat].setBase(value);
+}
+
+RPG.Beings.BaseBeing.prototype.adjustFeat = function(feat, diff) {
+	return this.setFeat(feat, this._feats[feat].getBase() + diff);
 }
 
 /**

@@ -22,9 +22,9 @@ RPG.Beings.NPC.prototype.randomGender = function() {
 		this._gender = RPG.GENDER_FEMALE;
 		this._description = "female " + this._description;
 		var f = this._feats[RPG.FEAT_STRENGTH];
-		f.setValue(f.baseValue() - 2);
+		f.setBase(f.getBase() - 2);
 		var f = this._feats[RPG.FEAT_DEXTERITY];
-		f.setValue(f.baseValue() + 2);
+		f.setBase(f.getBase() + 2);
 	} else {
 		this._gender = RPG.GENDER_MALE;
 	}

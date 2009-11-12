@@ -46,10 +46,8 @@ RPG.Beings.Hobgoblin = OZ.Class().extend(RPG.Beings.Goblin);
 RPG.Beings.Hobgoblin.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	
-	var f = this._feats[RPG.FEAT_STRENGTH];
-	f.setValue(f.baseValue() + 2);
-	var f = this._feats[RPG.FEAT_TOUGHNESS];
-	f.setValue(f.baseValue() + 2);
+	this.adjustFeat(RPG.FEAT_STRENGTH, 2);
+	this.adjustFeat(RPG.FEAT_TOUGHNESS, 2);
 
 	this._color = "yellowgreen";
 	this._description = "hobgoblin";
@@ -67,10 +65,8 @@ RPG.Beings.HobgoblinLeader.flags.frequency = 15;
 RPG.Beings.HobgoblinLeader.prototype.init = function() {
 	this.parent();
 	
-	var f = this._feats[RPG.FEAT_STRENGTH];
-	f.setValue(f.baseValue() + 2);
-	var f = this._feats[RPG.FEAT_TOUGHNESS];
-	f.setValue(f.baseValue() + 2);
+	this.adjustFeat(RPG.FEAT_STRENGTH, 2);
+	this.adjustFeat(RPG.FEAT_TOUGHNESS, 2);
 	
 	this._color = "forestgreen";
 	this._description = "hobgoblin leader";
@@ -165,7 +161,7 @@ RPG.Beings.GiantRat.prototype.init = function() {
 	this.parent();
 	
 	var f = this._feats[RPG.FEAT_MAXHP];
-	f.setValue(Math.round(f.baseValue() * 1.5));
+	this.setFeat(RPG.FEAT_MAXHP, Math.round(f.getBase() * 1.5));
 
 	this._color = "saddlebrown";
 	this._description = "giant rat";
@@ -185,7 +181,7 @@ RPG.Beings.Bat.prototype.init = function() {
 	
 	this.setFeat(RPG.FEAT_TOUGHNESS, 7);
 	this.setFeat(RPG.FEAT_DEXTERITY, 14);
-	this.setFeat(RPG.FEAT_DV,2);
+	this.setFeat(RPG.FEAT_DV, 2);
 
 	this._char = "b";
 	this._color = "darkgray";
@@ -205,7 +201,7 @@ RPG.Beings.GiantBat.prototype.init = function() {
 	this.parent();
 	
 	var f = this._feats[RPG.FEAT_MAXHP];
-	f.setValue(Math.round(f.baseValue() * 1.5));
+	this.setFeat(RPG.FEAT_MAXHP, Math.round(f.getBase() * 1.5));
 
 	this._char = "B";
 	this._color = "saddlebrown";
@@ -224,8 +220,8 @@ RPG.Beings.Wolf.flags.frequency = 10;
 RPG.Beings.Wolf.prototype.init = function() {
 	this.parent(new RPG.Races.Animal());
 	
-	this.setFeat(RPG.FEAT_STRENGTH,10);
-	this.setFeat(RPG.FEAT_TOUGHNESS,10);
+	this.setFeat(RPG.FEAT_STRENGTH, 10);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 10);
 	this.setFeat(RPG.FEAT_DEXTERITY, 11);
 	this.getMeleeSlot().setHit(new RPG.Misc.RandomValue(7, 4));
 
@@ -246,7 +242,7 @@ RPG.Beings.Dog.flags.frequency = 40;
 RPG.Beings.Dog.prototype.init = function() {
 	this.parent();
 	
-	this.setFeat(RPG.FEAT_STRENGTH,9);
+	this.setFeat(RPG.FEAT_STRENGTH, 9);
 
 	this._char = "d";
 	this._color = "darkkhaki";
@@ -266,8 +262,8 @@ RPG.Beings.Jackal.prototype.init = function() {
 	this.parent();
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
-	this.setFeat(RPG.FEAT_STRENGTH,9);
-	this.setFeat(RPG.FEAT_TOUGHNESS,9);
+	this.setFeat(RPG.FEAT_STRENGTH, 9);
+	this.setFeat(RPG.FEAT_TOUGHNESS,9 );
 
 	this._char = "d";
 	this._color = "darkgray";
@@ -286,12 +282,12 @@ RPG.Beings.Bear.flags.frequency = 50;
 RPG.Beings.Bear.prototype.init = function() {
 	this.parent(new RPG.Races.Animal());
 	
-	this.setFeat(RPG.FEAT_STRENGTH,14);
-	this.setFeat(RPG.FEAT_TOUGHNESS,14);
-	this.setFeat(RPG.FEAT_DEXTERITY,10);
-	this.setFeat(RPG.FEAT_MAXHP,10);
-	this.setFeat(RPG.FEAT_SPEED,90);
-	this.setFeat(RPG.FEAT_PV,4);
+	this.setFeat(RPG.FEAT_STRENGTH, 14);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 14);
+	this.setFeat(RPG.FEAT_DEXTERITY, 10);
+	this.setFeat(RPG.FEAT_MAXHP, 10);
+	this.setFeat(RPG.FEAT_SPEED, 90);
+	this.setFeat(RPG.FEAT_PV, 4);
 
 	this._char = "N";
 	this._color = "brown";
@@ -311,10 +307,10 @@ RPG.Beings.Snake.prototype.init = function() {
 	this.parent(new RPG.Races.Animal());
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
-	this.setFeat(RPG.FEAT_STRENGTH,7);
-	this.setFeat(RPG.FEAT_TOUGHNESS,7);
-	this.setFeat(RPG.FEAT_DEXTERITY,14);
-	this.setFeat(RPG.FEAT_SPEED,105);
+	this.setFeat(RPG.FEAT_STRENGTH, 7);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 7);
+	this.setFeat(RPG.FEAT_DEXTERITY, 14);
+	this.setFeat(RPG.FEAT_SPEED, 105);
 
 	this._char = "s";
 	this._color = "red";
@@ -545,12 +541,9 @@ RPG.Beings.Zombie.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	this.randomGender();
 
-	var f = this._feats[RPG.FEAT_STRENGTH];
-	f.setValue(f.baseValue() + 3);
-	var f = this._feats[RPG.FEAT_DEXTERITY];
-	f.setValue(f.baseValue() - 2);
-	var f = this._feats[RPG.FEAT_INTELLIGENCE];
-	f.setValue(f.baseValue() - 5);
+	this.adjustFeat(RPG.FEAT_STRENGTH, 3);
+	this.adjustFeat(RPG.FEAT_DEXTERITY, -2);
+	this.adjustFeat(RPG.FEAT_INTELLIGENCE, -5);
 	
 	this._description = "zombie";
 	this._char = "z";

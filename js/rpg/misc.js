@@ -65,7 +65,7 @@ RPG.Misc.IModifier.prototype.getModifier = function(feat) {
  */
 RPG.Misc.IModifier.prototype.getModified = function() {
 	var arr = [];
-	for (var p in this._modifiers) { arr.push(p); }
+	for (var p in this._modifiers) { arr.push(1*p); } /* 1*p converts to int to comply with RPG.FEAT_* constants */
 	return arr;
 }
 

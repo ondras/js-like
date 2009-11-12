@@ -16,10 +16,9 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	
 	this._description = "you";
 	this._char = "@";
-	
-	this._feats[RPG.FEAT_DV].setValue(5);
-	this._feats[RPG.FEAT_MAXHP].setValue(10);
-	this._feats[RPG.FEAT_MAXMANA].setValue(5);
+	this.setFeat(RPG.FEAT_DV, 5);
+	this.setFeat(RPG.FEAT_MAXHP, 10);
+	this.setFeat(RPG.FEAT_MAXMANA, 5);
 	
 	var tc = new RPG.Effects.TurnCounter(this);
 	this._turnCounter = tc;
@@ -56,8 +55,20 @@ RPG.Beings.PC.prototype.setName = function(name) {
 RPG.Beings.PC.prototype.setStat = function(stat, value) {
 	var value = this.parent(stat, value);
 	RPG.UI.status.updateStat(stat, value);
+	return value;
 }
 
+RPG.Beings.PC.prototype.updateFeat = function(feat) {
+	var value = this.parent(feat);
+	RPG.UI.status.updateFeat(feat, value);
+	return value;
+}
+
+RPG.Beings.PC.prototype.setFeat = function(feat, value) {
+	var value = this.parent(feat, value);
+	RPG.UI.status.updateFeat(feat, value);
+	return value;
+}
 
 /**
  * @see RPG.Visual.IVisual#describeA
