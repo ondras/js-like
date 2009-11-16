@@ -35,6 +35,9 @@ RPG.Items = {};
 RPG.Misc = {};
 
 /** @namespace */
+RPG.Professions = {};
+
+/** @namespace */
 RPG.Races = {};
 
 /** @namespace */

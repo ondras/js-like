@@ -175,7 +175,7 @@ RPG.Items.BaseItem.prototype.isSameAs = function(item) {
  * @returns {bool} Was this item merged? false = no, it was appended
  */
 RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
-	var im = RPG.World.pc.itemMemory();
+	var im = (RPG.World.pc ? RPG.World.pc.itemMemory() : null);
 	
 	for (var i=0;i<listOfItems.length;i++) {
 		var item = listOfItems[i];
@@ -183,7 +183,7 @@ RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
 			/* merge! */
 			item.setAmount(item.getAmount() + this.getAmount());
 			
-			if (im.remembers(this)) { 
+			if (im && im.remembers(this)) { 
 				/* this item was remembered, mark the heap as remembered as well */
 				im.remember(item); 
 				/* item disappears, remove from memory */
@@ -418,4 +418,20 @@ RPG.Spells.BaseSpell.prototype.cast = function(caster, target) {
 
 RPG.Spells.BaseSpell.prototype.getCost = function() { 
 	return this._cost;
+}
+
+/**
+ * @class Base profession
+ * @augments RPG.Visual.IVisual
+ */
+RPG.Professions.BaseProfession = OZ.Class().implement(RPG.Visual.IVisual);
+RPG.Professions.BaseProfession.init = function() {
+	this._image = "";
+	this._name = "";
+}
+
+RPG.Professions.BaseProfession.prototype.getName = function() {
+	return this._name;
+}
+RPG.Professions.BaseProfession.prototype.setup = function(being) {
 }

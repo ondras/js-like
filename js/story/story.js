@@ -91,11 +91,6 @@ RPG.Story.prototype._createPC = function(race, profession, name) {
 	var tmp = new RPG.Items.IronRation();
 	pc.addItem(tmp);	
 	
-	if (profession == "wizard") {
-		var s = new RPG.Spells.Heal();
-		pc.spellMemory().addSpell(s);
-	}
-
 	return pc;
 }
 
@@ -250,18 +245,18 @@ RPG.Story.prototype._buildChat = function() {
  */
 RPG.Story.CharGen = OZ.Class();
 
-RPG.Story.CharGen.races = {
+RPG.Story.CharGen.prototype.races = {
 	"Human": RPG.Races.Human, 
 	"Orc": RPG.Races.Orc, 
 	"Elf": RPG.Races.Elf, 
 	"Dwarf": RPG.Races.Dwarf
 };
-	
-RPG.Story.CharGen.professions = {
-	"Warrior": "warrior",
-	"Ranger": "ranger",
-	"Wizard": "wizard"
-};
+
+RPG.Story.CharGen.prototype.professions = [
+	RPG.Professions.Warrior,
+	RPG.Professions.Ranger,
+	RPG.Professions.Wizard
+];
 
 RPG.Story.CharGen.prototype.init = function() {
 	this._list = [];
@@ -275,10 +270,10 @@ RPG.Story.CharGen.prototype.build = function() {
 	var numRaces = 0;
 	var numProfessions = 0;
 	for (var p in RPG.Story.CharGen.races) { numRaces++; }
-	for (var p in RPG.Story.CharGen.professions) { numProfessions++; }
+	for (var p in RPG.Professions) { numProfessions++; }
 	
 	/* right part with race/profession selection */
-	this._buildMatrix(tb);	
+	this._buildMatrix(tb);
 	
 	OZ.Event.add(t, "click", this.bind(this._click));
 	
@@ -292,31 +287,31 @@ RPG.Story.CharGen.prototype._buildMatrix = function(tb) {
 	tr.appendChild(empty);
 	
 	/* race labels */
-	for (var p in RPG.Story.CharGen.races) {
+	for (var p in this.races) {
 		var td = OZ.DOM.elm("td");
 		td.innerHTML = p;
 		tr.appendChild(td);
 	}
 	
-	for (var p in RPG.Story.CharGen.professions) {
-		var prof = RPG.Story.CharGen.professions[p];
+	for (var i=0;i<this.professions.length;i++) {
+		var prof = new this.professions[i];
 		tr = OZ.DOM.elm("tr");
 		tb.appendChild(tr);
 		
 		/* profession label */
 		var td = OZ.DOM.elm("td");
-		td.innerHTML = p;
+		td.innerHTML = prof.getName();
 		tr.appendChild(td);
 		
-		for (var q in RPG.Story.CharGen.races) {
+		for (var q in this.races) {
 			/* cell */
 			var td = OZ.DOM.elm("td");
 			tr.appendChild(td);
 
-			var ctor = RPG.Story.CharGen.races[q];
+			var ctor = this.races[q];
 			var tmp = new ctor();
 			var img = OZ.DOM.elm("img");
-			img.src = "img/pc/" + tmp.getImage() + "-" + prof + ".png";
+			img.src = "img/pc/" + tmp.getImage() + "-" + prof.getImage() + ".png";
 			td.appendChild(img);
 			
 			this._list.push([img, ctor, prof]);
