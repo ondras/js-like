@@ -899,3 +899,22 @@ RPG.UI.Command.Cast.prototype._done = function(spells) {
 	RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Cast a spell");
 }
 
+/**
+ * @class Flirt command
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Flirt = OZ.Class().extend(RPG.UI.Command);
+RPG.UI.Command.Flirt.prototype.init = function() {
+	this.parent("Flirt");
+	this._button.setChar("j");
+	this._button.setChar("f");
+}
+RPG.UI.Command.Flirt.prototype.exec = function(cmd) {
+	if (!cmd) {
+		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Flirt with someone");
+	} else {
+		var coords = RPG.World.pc.getCell().getCoords().clone().plus(cmd.getCoords());
+		RPG.UI.action(RPG.Actions.Flirt, coords);
+		RPG.UI.setMode(RPG.UI_NORMAL);
+	}
+}

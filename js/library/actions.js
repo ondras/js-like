@@ -723,3 +723,30 @@ RPG.Actions.Cast.prototype.execute = function() {
 	this._params.cast(this._source, being);
 	
 }
+
+/**
+ * @class Flirt with someone
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Flirt = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.Flirt.prototype.execute = function() {
+	/* only PC is allowed to flirt */
+	var pc = RPG.World.pc;
+	var map = this._source.getCell().getMap();
+	var cell = map.at(this._target);
+	var being = cell.getBeing();
+
+	if (this._source == being) {
+		RPG.UI.buffer.message("You spend some nice time flirting with yourself.");
+		return;
+	}
+	
+	if (!being) {
+		RPG.UI.buffer.message("There is noone to flirt with!");
+		return;
+	}
+
+	var s = being.describeThe().capitalize();
+	s += " doesn't seem to be interested.";
+	RPG.UI.buffer.message(s);
+}
