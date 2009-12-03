@@ -7,6 +7,7 @@ RPG.UI.BaseMap.prototype.init = function(container, cellCtor) {
 	this._size = null;
 	this._cellCtor = cellCtor;
 	this._focus = null;
+	this._projectiles = [];
 	this._dom = {
 		container: container,
 		data: null
@@ -48,6 +49,26 @@ RPG.UI.BaseMap.prototype.setFocus = function(coords) {
 	this._focus = coords.clone();
 }
 
+/**
+ * Draw a projectile at a given coords
+ */
+RPG.UI.BaseMap.prototype.setProjectile = function(coords, projectile) {
+	var cell = this._dom.data[coords.x][coords.y];
+	var index = this._projectiles.indexOf(cell);
+	if (index == -1) { this._projectiles.push(cell); }
+	cell.addProjectile(projectile);
+}
+
+/**
+ * Remove all drawn projectiles
+ */
+RPG.UI.BaseMap.prototype.clearProjectiles = function() {
+	while (this._projectiles.length) {
+		var p = this._projectiles.shift();
+		p.removeProjectile();
+	}
+}
+
 RPG.UI.BaseMap.prototype._resize = function() {
 }
 
@@ -72,6 +93,18 @@ RPG.UI.BaseCell.prototype.addFocus = function() {
 }
 
 RPG.UI.BaseCell.prototype.removeFocus = function() {
+}
+
+/**
+ * Draw a projectile at this cell
+ */
+RPG.UI.BaseCell.prototype.addProjectile = function(projectile) {
+}
+
+/**
+ * Revert to non-projectile state
+ */
+RPG.UI.BaseCell.prototype.removeProjectile = function() {
 }
 
 /**
@@ -244,3 +277,14 @@ RPG.UI.ASCIICell.prototype.addFocus = function() {
 RPG.UI.ASCIICell.prototype.removeFocus = function() {
 	OZ.DOM.removeClass(this._dom.node, "focus");
 }
+
+RPG.UI.ASCIICell.prototype.addProjectile = function(projectile) {
+	this._dom.node.innerHTML = projectile.getChar();
+	this._dom.node.style.color = projectile.getColor();
+}
+
+RPG.UI.ASCIICell.prototype.removeProjectile = function() {
+	this._dom.node.innerHTML = this._currentChar;
+	this._dom.node.style.color = this._currentColor;
+}
+

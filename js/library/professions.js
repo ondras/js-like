@@ -39,6 +39,8 @@ RPG.Professions.Wizard.prototype.setup = function(being) {
 	being.adjustFeat(RPG.FEAT_MAXMANA, 5);
 	being.adjustFeat(RPG.FEAT_MAXHP, -3);
 
+	var s = new RPG.Spells.MagicBolt();
+	being.spellMemory().addSpell(s);
 	var s = new RPG.Spells.Heal();
 	being.spellMemory().addSpell(s);
 }

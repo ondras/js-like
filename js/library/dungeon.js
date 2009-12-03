@@ -22,8 +22,7 @@ RPG.Cells.Wall.prototype.init = function() {
 	this._char = "#";
 	this._image = "wall";
 	this._color = "dimgray";
-	this.flags |= RPG.CELL_SOLID;
-	this.flags |= RPG.CELL_OBSTACLE;
+	this._type = RPG.BLOCKS_LIGHT;
 }
 
 /**
@@ -65,8 +64,7 @@ RPG.Features.Door.prototype.close = function() {
 	this._closed = true;
 	this._locked = false;
 	
-	this.flags |= RPG.FEATURE_OBSTACLE;
-	this.flags |= RPG.FEATURE_SOLID;
+	this._type = RPG.BLOCKS_LIGHT;
 	
 	this._description = "closed door";
 	this._image = "door-closed";
@@ -76,8 +74,8 @@ RPG.Features.Door.prototype.close = function() {
 RPG.Features.Door.prototype.open = function() {
 	this._closed = false;
 	this._locked = false;
-	this.flags &= !RPG.FEATURE_OBSTACLE;
-	this.flags &= !RPG.FEATURE_SOLID;
+	
+	this._type = RPG.BLOCKS_NOTHING;
 	
 	this._description = "open door";
 	this._image = "door-open";

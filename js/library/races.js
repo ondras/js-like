@@ -13,7 +13,7 @@ RPG.Races.Humanoid.prototype.init = function() {
 	this._defaults[RPG.FEAT_STRENGTH] = 11;
 	this._defaults[RPG.FEAT_TOUGHNESS] = 11;
 	this._defaults[RPG.FEAT_DEXTERITY] = 11;
-	this._defaults[RPG.FEAT_INTELLIGENCE] = 11;
+	this._defaults[RPG.FEAT_MAGIC] = 11;
 
 	var head = new RPG.Slots.BaseSlot("Head", [RPG.Items.HeadGear]);
 	this._slots.push(head);
@@ -58,7 +58,7 @@ RPG.Races.Orc.prototype.init = function() {
 	
 	this._defaults[RPG.FEAT_STRENGTH] += 3;
 	this._defaults[RPG.FEAT_TOUGHNESS] += 4;
-	this._defaults[RPG.FEAT_INTELLIGENCE] += -1;
+	this._defaults[RPG.FEAT_MAGIC] += -1;
 	this._defaults[RPG.FEAT_DEXTERITY] += 1;
 }
 
@@ -73,7 +73,7 @@ RPG.Races.Human.prototype.init = function() {
 	this._image = "human";
 	this._defaults[RPG.FEAT_STRENGTH] += 0;
 	this._defaults[RPG.FEAT_TOUGHNESS] += 2;
-	this._defaults[RPG.FEAT_INTELLIGENCE] += 3;
+	this._defaults[RPG.FEAT_MAGIC] += 3;
 	this._defaults[RPG.FEAT_DEXTERITY] += 2;
 }
 
@@ -88,7 +88,7 @@ RPG.Races.Elf.prototype.init = function() {
 	this._image = "elf";
 	this._defaults[RPG.FEAT_STRENGTH] += 1;
 	this._defaults[RPG.FEAT_TOUGHNESS] += -1;
-	this._defaults[RPG.FEAT_INTELLIGENCE] += 5;
+	this._defaults[RPG.FEAT_MAGIC] += 5;
 	this._defaults[RPG.FEAT_DEXTERITY] += 3;
 }
 
@@ -102,7 +102,7 @@ RPG.Races.Dwarf.prototype.init = function() {
 	this._color = "khaki";
 	this._image = "dwarf";
 	this._defaults[RPG.FEAT_TOUGHNESS] += 5;
-	this._defaults[RPG.FEAT_INTELLIGENCE] += 1;
+	this._defaults[RPG.FEAT_MAGIC] += 1;
 }
 
 /**
@@ -120,7 +120,7 @@ RPG.Races.Animal.prototype.init = function() {
 	this._defaults[RPG.FEAT_STRENGTH] = 9;
 	this._defaults[RPG.FEAT_TOUGHNESS] = 9;
 	this._defaults[RPG.FEAT_DEXTERITY] = 12;
-	this._defaults[RPG.FEAT_INTELLIGENCE] = 7;
+	this._defaults[RPG.FEAT_MAGIC] = 7;
 
 	var teeth = new RPG.Slots.Melee("Teeth");
 	this._slots.push(teeth);

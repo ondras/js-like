@@ -128,7 +128,7 @@ RPG.Story.prototype._endGame = function() {
 	
 	var score = this._score();
 	var p2 = OZ.DOM.elm("p");
-	p2.innerHTML = "His total score is: <strong>" + score + "</strong>";
+	p2.innerHTML = "His total score was: <strong>" + score + "</strong>";
 	
 	var p3 = OZ.DOM.elm("p");
 	p3.innerHTML = "<a href='javascript:location.reload()'>Again?</a>";

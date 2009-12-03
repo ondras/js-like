@@ -106,6 +106,25 @@ RPG.Misc.ISerializable.prototype.clone = function() {
 }
 
 /**
+ * @class Interface for flying objects
+ * @augments RPG.Visual.IVisual
+ */
+RPG.Misc.IProjectile = OZ.Class().implement(RPG.Visual.IVisual);
+RPG.Misc.IProjectile.prototype.launch = function(direction, from) {
+	var a = new RPG.Actions.Projectile(this, direction, from);
+	RPG.World.action(a);
+}
+
+/**
+ * @param {RPG.Misc.Coords} coords
+ * @returns {bool} still in flight?
+ */
+RPG.Misc.IProjectile.prototype.inFlight = function(coords) {
+	RPG.UI.map.setProjectile(coords, this);
+	return true;
+}
+
+/**
  * @class Chat - hierarchical dialog structure
  */
 RPG.Misc.Chat = OZ.Class();

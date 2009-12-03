@@ -334,11 +334,6 @@ RPG.Actions.Kick.prototype.execute = function() {
 		return;
 	}
 	
-	if (cell.flags & RPG.CELL_OBSTACLE) {
-		RPG.UI.buffer.message("Ouch! That hurts!");
-		return;
-	}
-	
 	if (feature && feature instanceof RPG.Features.Door && feature.isClosed()) {
 		/* kick door */
 		var feet = this._source.getFeetSlot();
@@ -358,6 +353,11 @@ RPG.Actions.Kick.prototype.execute = function() {
 		var a = new RPG.Actions.Attack(this._source, being, this._source.getFeetSlot());
 		RPG.World.action(a);
 		this._tookTime = false;
+		return;
+	}
+
+	if (!cell.isFree()) {
+		RPG.UI.buffer.message("Ouch! That hurts!");
 		return;
 	}
 	
@@ -701,10 +701,6 @@ RPG.Actions.Cast = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Cast.prototype.execute = function() {
 	var pc = RPG.World.pc;
 	var you = (this._source == pc);
-	var map = this._source.getCell().getMap();
-	
-	var cell = map.at(this._target);
-	var being = cell.getBeing();
 	var spell = this._params;
 	
 	var cost = spell.getCost();
@@ -715,13 +711,7 @@ RPG.Actions.Cast.prototype.execute = function() {
 	str += " '" + spell.describe() + "'.";
 	RPG.UI.buffer.message(str);
 	
-	if (!being) {
-		RPG.UI.buffer.message("Nothing happens.");
-		return;
-	}
-	
-	this._params.cast(this._source, being);
-	
+	this._params.cast(this._source, this._target);	
 }
 
 /**
@@ -749,4 +739,37 @@ RPG.Actions.Flirt.prototype.execute = function() {
 	var s = being.describeThe().capitalize();
 	s += " doesn't seem to be interested.";
 	RPG.UI.buffer.message(s);
+}
+
+/**
+ * @class Projectile in flight; source = spell, target = direction, params = start
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Projectile = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.Projectile.prototype.execute = function() {
+	RPG.World.lock();
+	this._params = this._params.clone();
+	var interval = 100;
+	this._interval = setInterval(this.bind(this._step), interval);
+}
+
+RPG.Actions.Projectile.prototype._step = function() {
+	this._params.plus(this._target);
+	var map = RPG.World.getMap();
+	if (!map.isValid(this._params)) { /* should not happen */
+		clearInterval(this._interval);
+		this._done();
+		return;
+	}
+	
+	var ok = this._source.inFlight(this._params);
+	if (!ok) { 
+		clearInterval(this._interval); 
+		this._done();
+	}
+}
+
+RPG.Actions.Projectile.prototype._done = function() {
+	RPG.UI.map.clearProjectiles();
+	RPG.World.unlock();
 }

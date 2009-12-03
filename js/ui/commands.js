@@ -16,6 +16,12 @@ RPG.UI.Command.prototype.getButton = function() {
 	return this._button;
 }
 
+RPG.UI.Command.prototype.notify = function() {
+}
+
+RPG.UI.Command.prototype.cancel = function() {
+}
+
 RPG.UI.Command.prototype.exec = function() {
 }
 
@@ -532,9 +538,9 @@ RPG.UI.Command.Autowalk.prototype._check = function() {
 	var aheadC = this._coords.clone().plus(coords);
 	var leftC = n1.clone().plus(coords);
 	var rightC = n2.clone().plus(coords);
-	var ahead = !(map.at(aheadC).flags & RPG.CELL_OBSTACLE);
-	var left = !(map.at(leftC).flags & RPG.CELL_OBSTACLE);
-	var right = !(map.at(rightC).flags & RPG.CELL_OBSTACLE);
+	var ahead = map.at(aheadC).isFree();
+	var left = map.at(leftC).isFree();
+	var right = map.at(rightC).isFree();
 	
 	/* leaving opened area/crossroads */
 	if (this._left && !left) { this._left = left; }
@@ -550,7 +556,7 @@ RPG.UI.Command.Autowalk.prototype._check = function() {
 			for (var j=-1;j<=1;j++) {
 				if (!i && !j) { continue; }
 				var c = map.at(new RPG.Misc.Coords(i, j).plus(coords));
-				if (!(c.flags & RPG.CELL_OBSTACLE)) { freecount++; }
+				if (c.isFree()) { freecount++; }
 			}
 		}
 		if (freecount > 2) { return false; } /* too many options to go */
@@ -850,31 +856,51 @@ RPG.UI.Command.Cast = OZ.Class().extend(RPG.UI.Command);
 RPG.UI.Command.Cast.prototype.init = function() {
 	this.parent("Cast a spell");
 	this._button.setChar("Z");
-	
 	this._spell = null;
 }
 
-RPG.UI.Command.Cast.prototype.exec = function(cmd) {
-	if (!cmd) {
-		/* list of spells */
-		this._spell = null;
+RPG.UI.Command.Cast.prototype.notify = function(coords) {
+}
+
+RPG.UI.Command.Cast.prototype.exec = function(coords) {
+	if (!this._spell) { /* list of spells */
 		
 		/* FIXME magic wand in hand? */
 		
-		var spells = RPG.World.pc.spellMemory().getSpells();
+		var spells = RPG.World.pc.spellMemory().getSpells().clone();
 		if (spells.length) {
+			spells.sort(function(a,b) { return a.describe().localeCompare(b.describe()); });
 			RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 			new RPG.UI.Itemlist(spells, "Select a spell to cast", 1, this.bind(this._done));
 		} else {
 			RPG.UI.buffer.message("You don't know any spells.");
 		}
 		
-	} else {
-		/* spell direction */
-		var coords = RPG.World.pc.getCell().getCoords().clone().plus(cmd.getCoords());
-		RPG.UI.action(RPG.Actions.Cast, coords, this._spell);
+	} else { /* we have spell and optionally a direction/target */
 		RPG.UI.setMode(RPG.UI_NORMAL);
+
+		var type = this._spell.getType();
+		switch (type) {
+			case RPG.SPELL_SELF:
+				var target = null;
+			break;
+			case RPG.SPELL_TOUCH:
+			case RPG.SPELL_DIRECTION:
+				var target = coords.getCoords();
+			break;
+			case RPG.SPELL_REMOTE:
+			case RPG.SPELL_TARGET:
+				var target = coords;
+			break;
+		}
+
+		RPG.UI.action(RPG.Actions.Cast, target, this._spell);
+		this._spell = null;		
 	}
+}
+
+RPG.UI.Command.Cast.prototype.cancel = function() {
+	this._spell = null;
 }
 
 /**
@@ -896,7 +922,20 @@ RPG.UI.Command.Cast.prototype._done = function(spells) {
 	}
 	
 	this._spell = spell;
-	RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Cast a spell");
+	var type = spell.getType();
+	switch (type) {
+		case RPG.SPELL_SELF:
+			this.exec();
+		break;
+		case RPG.SPELL_TOUCH:
+		case RPG.SPELL_DIRECTION:
+			RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Cast a spell");
+		break;
+		case RPG.SPELL_REMOTE:
+		case RPG.SPELL_TARGET:
+			RPG.UI.setMode(RPG.UI_WAIT_TARGET, this, "Cast a spell");
+		break;
+	}
 }
 
 /**

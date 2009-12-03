@@ -409,8 +409,14 @@ RPG.Spells.BaseSpell = OZ.Class()
 						.implement(RPG.Visual.IVisual);
 
 RPG.Spells.BaseSpell.prototype.init = function(name, cost) {
+	this._initVisuals();
 	this._description = name;
 	this._cost = cost;
+	this._type = RPG.SPELL_SELF;
+}
+
+RPG.Spells.BaseSpell.prototype.describe = function() {
+	return this._description + " (" + this._cost + ")";
 }
 
 RPG.Spells.BaseSpell.prototype.cast = function(caster, target) {
@@ -418,6 +424,10 @@ RPG.Spells.BaseSpell.prototype.cast = function(caster, target) {
 
 RPG.Spells.BaseSpell.prototype.getCost = function() { 
 	return this._cost;
+}
+
+RPG.Spells.BaseSpell.prototype.getType = function() { 
+	return this._type;
 }
 
 /**

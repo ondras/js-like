@@ -15,7 +15,7 @@ RPG.Cells.BaseCell.prototype.init = function() {
 	this._being = null;
 	this._feature = null;
 	this._map = null;
-	this.flags = 0;
+	this._type = RPG.BLOCKS_NOTHING;
 }
 
 RPG.Cells.BaseCell.prototype.addItem = function(item) {
@@ -74,8 +74,8 @@ RPG.Cells.BaseCell.prototype.getFeature = function() {
  */
 RPG.Cells.BaseCell.prototype.isFree = function() {
 	if (this._being) { return false; }
-	if (this.flags & RPG.CELL_OBSTACLE) { return false; }
-	if (this._feature && this._feature.flags & RPG.FEATURE_OBSTACLE) { return false; }
+	if (this._type >= RPG.BLOCKS_MOVEMENT) { return false; }
+	if (this._feature) { return this._feature.isFree(); }
 	return true;
 }
 
@@ -83,8 +83,8 @@ RPG.Cells.BaseCell.prototype.isFree = function() {
  * Can a being see through this cell?
  */
 RPG.Cells.BaseCell.prototype.visibleThrough = function() {
-	if (this.flags & RPG.CELL_SOLID) { return false; }
-	if (this._feature && this._feature.flags & RPG.FEATURE_SOLID) { return false; }
+	if (this._type >= RPG.BLOCKS_LIGHT) { return false; }
+	if (this._feature) { return this._feature.visibleThrough(); }
 	return true;
 }
 
@@ -128,7 +128,7 @@ RPG.Features.BaseFeature = OZ.Class()
 RPG.Features.BaseFeature.prototype.init = function() {
 	this._cell = null;
 	this._initVisuals();
-	this.flags = 0;
+	this._type = RPG.BLOCKS_NOTHING;
 }
 
 RPG.Features.BaseFeature.prototype.knowsAbout = function(being) {
@@ -149,6 +149,22 @@ RPG.Features.BaseFeature.prototype.getCell = function() {
  */
 RPG.Features.BaseFeature.prototype.notify = function(being) {
 }
+
+/**
+ * Can a being move to this feature?
+ */
+RPG.Features.BaseFeature.prototype.isFree = function() {
+	return (this._type < RPG.BLOCKS_MOVEMENT);
+}
+
+/**
+ * Can a being see through this feature?
+ */
+RPG.Features.BaseFeature.prototype.visibleThrough = function() {
+	return (this._type < RPG.BLOCKS_LIGHT);
+}
+
+
 
 /**
  * @class Dungeon map

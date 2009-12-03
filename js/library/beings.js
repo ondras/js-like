@@ -12,7 +12,7 @@ RPG.Beings.Goblin.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 9);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 9);
 	this.setFeat(RPG.FEAT_DEXTERITY, 9);
-	this.setFeat(RPG.FEAT_INTELLIGENCE, 9);
+	this.setFeat(RPG.FEAT_MAGIC, 9);
 	
 	this._description = "goblin";
 	this._char = "g";
@@ -90,7 +90,7 @@ RPG.Beings.Troll.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 18);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
 	this.setFeat(RPG.FEAT_DEXTERITY, 11);
-	this.setFeat(RPG.FEAT_INTELLIGENCE, 5);
+	this.setFeat(RPG.FEAT_MAGIC, 5);
 	this.setFeat(RPG.FEAT_PV, 5);
 
 	this._char = "T";
@@ -334,7 +334,7 @@ RPG.Beings.Orc.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 12);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 12);
 	this.setFeat(RPG.FEAT_DEXTERITY, 9);
-	this.setFeat(RPG.FEAT_INTELLIGENCE, 10);
+	this.setFeat(RPG.FEAT_MAGIC, 10);
 	
 	this._description = "orc";
 	this._char = "o";
@@ -396,7 +396,7 @@ RPG.Beings.OrcChieftain.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 13);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 13);
 	this.setFeat(RPG.FEAT_DEXTERITY, 11); 
-	this.setFeat(RPG.FEAT_INTELLIGENCE, 11); 
+	this.setFeat(RPG.FEAT_MAGIC, 11); 
 	
 	this._description = "orc chieftain";
 	this._char = "o";
@@ -430,7 +430,7 @@ RPG.Beings.Ogre.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 14);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 14);
 	this.setFeat(RPG.FEAT_DEXTERITY, 9);
-	this.setFeat(RPG.FEAT_INTELLIGENCE, 7);
+	this.setFeat(RPG.FEAT_MAGIC, 7);
 	
 	this._description = "ogre";
 	this._char = "O";
@@ -454,7 +454,7 @@ RPG.Beings.Gnoll.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 13);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 13);
 	this.setFeat(RPG.FEAT_DEXTERITY, 9);
-	this.setFeat(RPG.FEAT_INTELLIGENCE, 8);
+	this.setFeat(RPG.FEAT_MAGIC, 8);
 	
 	this._description = "gnoll";
 	this._char = "g";
@@ -483,7 +483,7 @@ RPG.Beings.Kobold.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 10);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 8);
 	this.setFeat(RPG.FEAT_DEXTERITY, 12);
-	this.setFeat(RPG.FEAT_INTELLIGENCE, 9);
+	this.setFeat(RPG.FEAT_MAGIC, 9);
 	
 	this._description = "kobold";
 	this._char = "k";
@@ -543,7 +543,7 @@ RPG.Beings.Zombie.prototype.init = function() {
 
 	this.adjustFeat(RPG.FEAT_STRENGTH, 3);
 	this.adjustFeat(RPG.FEAT_DEXTERITY, -2);
-	this.adjustFeat(RPG.FEAT_INTELLIGENCE, -5);
+	this.adjustFeat(RPG.FEAT_MAGIC, -5);
 	
 	this._description = "zombie";
 	this._char = "z";

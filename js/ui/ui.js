@@ -5,13 +5,9 @@ RPG.UI.status = null; /* statusbar */
 RPG.UI._commands = []; /* avail commands */
 RPG.UI._pending = null; /* command awaiting specification */
 RPG.UI._dimmer = null; /* dimmer element */
-RPG.UI._dialog = null;
-RPG.UI._mode = -1;
-
-/**
- * Static version of bind
- */
-RPG.UI.bind = OZ.Class().prototype.bind;
+RPG.UI._dialog = null; /* current dialog */
+RPG.UI._mode = -1; /* current UI mode */	
+RPG.UI._target = null; /* targetting coords */
 
 RPG.UI.setMode = function(mode, command, data) {
 	if (this._mode == mode) { return; }
@@ -28,7 +24,13 @@ RPG.UI.setMode = function(mode, command, data) {
 		case RPG.UI_WAIT_DIRECTION:
 			this._pending = command;
 			this.buffer.message(data+": select direction...");
-			this._adjustButtons({commands:false, cancel:true, dir:true});
+			this._adjustButtons({commands:false, cancel:true, dir:true, pending:false});
+		break;
+		case RPG.UI_WAIT_TARGET:
+			this._pending = command;
+			this._target = RPG.World.pc.getCell().getCoords().clone();
+			this.buffer.message(data+": select target...");
+			this._adjustButtons({commands:false, cancel:true, dir:true, pending:true});
 		break;
 		case RPG.UI_WAIT_DIALOG:
 			this._adjustButtons({commands:false, cancel:false, dir:false});
@@ -43,13 +45,18 @@ RPG.UI.setMode = function(mode, command, data) {
  * This command wants to be executed
  */
 RPG.UI.command = function(command) {
-	this.buffer.clear();
+	if (this._mode != RPG.UI_WAIT_TARGET) { 
+		this.buffer.clear(); 
+	} else if (command instanceof RPG.UI.Command.Cancel || command == this._pending) {
+		this.buffer.clear(); 
+	}
 
 	/* no sry */
 	if (this._mode == RPG.UI_LOCKED) { return; } 
 	
 	if (command instanceof RPG.UI.Command.Cancel && this._mode != RPG.UI_NORMAL) { 
 		/* cancel */
+		if (this._pending) { this._pending.cancel(); }
 		command.exec();
 		return; 
 	} 
@@ -58,7 +65,24 @@ RPG.UI.command = function(command) {
 	if (this._mode == RPG.UI_WAIT_DIALOG) { return; } 
 	
 	/* non-dir when direction is needed */
-	if (!(command instanceof RPG.UI.Command.Direction) && this._mode == RPG.UI_WAIT_DIRECTION) { return; } 
+	if (this._mode == RPG.UI_WAIT_DIRECTION && !(command instanceof RPG.UI.Command.Direction)) { return; } 
+	
+	/* targetting mode */
+	if (this._mode == RPG.UI_WAIT_TARGET) {
+		if (command instanceof RPG.UI.Command.Direction) {
+			/* adjust target */
+			var test = this._target.clone().plus(command.getCoords());
+			var map = RPG.World.getMap();
+			if (!map.isValid(test)) { return; }
+			this._target = test;
+			RPG.UI.map.setFocus(this._target);
+			this._pending.notify(this._target);
+		}
+		if (command == this._pending) {
+			this._pending.exec(this._target);
+		}
+		return; 
+	}
 	
 	if (this._pending) {
 		this._pending.exec(command);
@@ -162,6 +186,7 @@ RPG.UI.hideDialog = function() {
  * @param {bool} [data.commands]
  * @param {bool} [data.cancel]
  * @param {bool} [data.dir]
+ * @param {bool} [data.pending]
  */ 
 RPG.UI._adjustButtons = function(data) {
 	for (var i=0;i<this._commands.length;i++) {
@@ -174,6 +199,9 @@ RPG.UI._adjustButtons = function(data) {
 		} else if (c instanceof RPG.UI.Command.Cancel) {
 			/* cancel button */
 			b.disabled = !data.cancel;
+		} else if (c == this._pending) {
+			/* pending button */
+			b.disabled = !data.pending;
 		} else {
 			/* standard buttons */
 			b.disabled = !data.commands;

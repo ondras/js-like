@@ -85,12 +85,12 @@ RPG.Feats[RPG.FEAT_TOUGHNESS].prototype.init = function(owner, baseValue) {
 }
 
 /**
- * @class Intelligence attribute
+ * @class Magic attribute
  * @augments RPG.Feats.AdvancedFeat
  */
-RPG.Feats[RPG.FEAT_INTELLIGENCE] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
-RPG.Feats[RPG.FEAT_INTELLIGENCE].name = "Intelligence";
-RPG.Feats[RPG.FEAT_INTELLIGENCE].prototype.init = function(owner, baseValue) {
+RPG.Feats[RPG.FEAT_MAGIC] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
+RPG.Feats[RPG.FEAT_MAGIC].name = "Magic";
+RPG.Feats[RPG.FEAT_MAGIC].prototype.init = function(owner, baseValue) {
 	this.parent(owner, baseValue);
 	var arr = this._drd();
 	arr[0] *= 3;

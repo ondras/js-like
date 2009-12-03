@@ -59,14 +59,11 @@ RPG.UI = {};
 RPG.Visual = {};
 
 /** @constant */
-RPG.CELL_OBSTACLE 		= 1 << 0; /* can not be moved onto, e.g. wall */
+RPG.BLOCKS_NOTHING		= 0;
 /** @constant */
-RPG.CELL_SOLID	 		= 1 << 1; /* can not be seen through */
-
+RPG.BLOCKS_MOVEMENT	 	= 1; /* can not be moved onto, e.g. wall */
 /** @constant */
-RPG.FEATURE_OBSTACLE	= 1 << 0; /* can not be moved onto, e.g. closed door, tree */
-/** @constant */
-RPG.FEATURE_SOLID		= 1 << 1; /* can not be seen through, e.g. closed door */
+RPG.BLOCKS_LIGHT 		= 2; /* can not be seen through */
 
 /** @constant */
 RPG.GENDER_MALE			= 0;
@@ -114,7 +111,7 @@ RPG.FEAT_TOUGHNESS		= 1;
 /** @constant */
 RPG.FEAT_DEXTERITY		= 2;
 /** @constant */
-RPG.FEAT_INTELLIGENCE	= 3;
+RPG.FEAT_MAGIC			= 3;
 /** @constant */
 RPG.FEAT_MAXHP			= 4;
 /** @constant */
@@ -135,7 +132,19 @@ RPG.STAT_HP				= 0;
 /** @constant */
 RPG.STAT_MANA			= 1;
 
-RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG.FEAT_INTELLIGENCE];
+/** @constant */
+RPG.SPELL_SELF			= 0;
+/** @constant */
+RPG.SPELL_TOUCH			= 1;
+/** @constant */
+RPG.SPELL_REMOTE		= 2;
+/** @constant */
+RPG.SPELL_DIRECTION		= 3;
+/** @constant */
+RPG.SPELL_TARGET		= 4;
+
+/** @constant */
+RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG.FEAT_MAGIC];
 
 /**
  * Generates a normally distributed random number, mean = 0.
@@ -165,4 +174,10 @@ String.prototype.capitalize = function() {
 
 Array.prototype.random = function() {
 	return this[Math.floor(Math.random() * this.length)];
+}
+
+Array.prototype.clone = function() {
+	var arr = [];
+	for (var i=0;i<this.length;i++) { arr.push(this[i]); }
+	return arr;
 }
