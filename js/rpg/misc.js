@@ -47,6 +47,16 @@ RPG.Misc.Coords.prototype.minus = function(c) {
 	return this;
 }
 
+RPG.DIR[RPG.N] =  new RPG.Misc.Coords( 0, -1);
+RPG.DIR[RPG.NE] = new RPG.Misc.Coords( 1, -1);
+RPG.DIR[RPG.E] =  new RPG.Misc.Coords( 1,  0);
+RPG.DIR[RPG.SE] = new RPG.Misc.Coords( 1,  1);
+RPG.DIR[RPG.S] =  new RPG.Misc.Coords( 0,  1);
+RPG.DIR[RPG.SW] = new RPG.Misc.Coords(-1,  1);
+RPG.DIR[RPG.W] =  new RPG.Misc.Coords(-1,  0);
+RPG.DIR[RPG.NW] = new RPG.Misc.Coords(-1, -1);
+RPG.DIR[RPG.CENTER] =  new RPG.Misc.Coords( 0,  0);
+
 /**
  * @class Modifier interface: everything that holds feat modifiers have this
  */
@@ -110,17 +120,19 @@ RPG.Misc.ISerializable.prototype.clone = function() {
  * @augments RPG.Visual.IVisual
  */
 RPG.Misc.IProjectile = OZ.Class().implement(RPG.Visual.IVisual);
-RPG.Misc.IProjectile.prototype.launch = function(direction, from) {
-	var a = new RPG.Actions.Projectile(this, direction, from);
+RPG.Misc.IProjectile.prototype.launch = function(from, direction) {
+	this._coords = from;
+	this._dir = direction;
+	var a = new RPG.Actions.Projectile(this);
 	RPG.World.action(a);
 }
 
 /**
- * @param {RPG.Misc.Coords} coords
+ * Iterate to new position
  * @returns {bool} still in flight?
  */
-RPG.Misc.IProjectile.prototype.inFlight = function(coords) {
-	RPG.UI.map.setProjectile(coords, this);
+RPG.Misc.IProjectile.prototype.iterate = function() {
+	RPG.UI.map.setProjectile(this._coords, this);
 	return true;
 }
 

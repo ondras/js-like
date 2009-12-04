@@ -429,7 +429,8 @@ RPG.Engine.AI.GetToDistance.prototype.go = function() {
 			for (var j=-1;j<=1;j++) {
 				c.x = coords.x+i;
 				c.y = coords.y+j;
-				if (!map.at(c).isFree()) { continue; }
+				/* PERF */
+				if (!map._data[c.x][c.y].isFree()) { continue; }
 				var result = arguments.callee.call(this, c, depth-1);
 				var resultBest = result[0];
 				var resultStep = result[1] + 1;

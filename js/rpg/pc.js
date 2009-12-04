@@ -105,6 +105,14 @@ RPG.Beings.PC.prototype.describeHis = function() {
 	return "yours";
 }
 
+
+/**
+ * @see RPG.Visual.IVisual#describeIs
+ */
+RPG.Beings.PC.prototype.describeIs = function() {
+	return "are";
+}
+
 /**
  * PC uses a different approach - maintains a list of visible coords
  */
@@ -166,7 +174,8 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 			if (map.isValid(current)) { 
 				/* check individual cell */
 				var centralAngle = (counter-1) * arcsPerCell + 0.5;
-				cell = map.at(current);
+				/* PERF */
+				cell = map._data[current.x][current.y];
 				
 				if (cell && this._visibleCell(cell, centralAngle, arcsPerCell, arcs)) { 
 					this._visibleCoords.push(current.clone()); 

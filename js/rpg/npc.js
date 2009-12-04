@@ -78,3 +78,10 @@ RPG.Beings.NPC.prototype.describeThe = function() {
 		return this.parent();
 	}
 }
+
+/**
+ * @see RPG.Visual.IVisual#describeIs
+ */
+RPG.Beings.NPC.prototype.describeIs = function() {
+	return "is";
+}

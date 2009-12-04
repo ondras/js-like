@@ -62,7 +62,6 @@ RPG.Actions.Attack.prototype.execute = function() {
 	var str = this._describe();
 	RPG.UI.buffer.message(str);
 }
-
 RPG.Actions.Attack.prototype._describe = function() {
 	var killVerbs = ["kill", "slay"];
 	var youAttacker = (this._source == RPG.World.pc);
@@ -102,6 +101,30 @@ RPG.Actions.Attack.prototype._describe = function() {
 		str += ".";
 	}
 	return str;
+}
+
+/**
+ * @class Magic "attacks" a being. Source == spell, target == being
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.MagicAttack = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.MagicAttack.prototype.execute = function() {
+	/* FIXME */
+	var you = (this._target == RPG.World.pc);
+	var str = "";
+	str += this._target.describeA().capitalize();
+	str += " " + this._target.describeIs() + " ";
+	str += "hit by " + this._source.describeThe() + ".";
+	RPG.UI.buffer.message(str);
+
+	this._target.adjustStat(RPG.STAT_HP, -this._source.getDamage());
+	if (!this._target.isAlive()) {
+		var str = "";
+		str += this._target.describeThe().capitalize();
+		str += " " + this._target.describeIs() + " killed!";
+		RPG.UI.buffer.message(str);
+	}
+
 }
 
 /**
@@ -742,27 +765,20 @@ RPG.Actions.Flirt.prototype.execute = function() {
 }
 
 /**
- * @class Projectile in flight; source = spell, target = direction, params = start
+ * @class Projectile in flight; source = spell
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.Projectile = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Projectile.prototype.execute = function() {
 	RPG.World.lock();
-	this._params = this._params.clone();
 	var interval = 100;
 	this._interval = setInterval(this.bind(this._step), interval);
 }
 
 RPG.Actions.Projectile.prototype._step = function() {
-	this._params.plus(this._target);
 	var map = RPG.World.getMap();
-	if (!map.isValid(this._params)) { /* should not happen */
-		clearInterval(this._interval);
-		this._done();
-		return;
-	}
 	
-	var ok = this._source.inFlight(this._params);
+	var ok = this._source.iterate();
 	if (!ok) { 
 		clearInterval(this._interval); 
 		this._done();

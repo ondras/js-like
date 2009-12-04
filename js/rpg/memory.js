@@ -213,7 +213,8 @@ RPG.Memory.Map.Cell.prototype.load = function() {
 RPG.Memory.Map.Cell.prototype._visibleStack = function() {
 	var pc = RPG.World.pc;
 	var arr = [];
-	var cell = this._owner.map.at(this._coords);
+	/* PERF */
+	var cell = this._owner.map._data[this._coords.x][this._coords.y];
 	
 	if (!cell) { return arr; }
 	
@@ -250,7 +251,8 @@ RPG.Memory.Map.Cell.prototype._visibleStack = function() {
 RPG.Memory.Map.Cell.prototype._rememberedStack = function() {
 	var pc = RPG.World.pc;
 	var arr = [];
-	var cell = this._owner.map.at(this._coords);
+	/* PERF */
+	var cell = this._owner.map._data[this._coords.x][this._coords.y];
 	
 	if (!cell) { return arr; }
 

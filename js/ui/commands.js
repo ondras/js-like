@@ -88,16 +88,20 @@ RPG.UI.Command.prototype._surroundingBeings = function(closed) {
  * @augments RPG.UI.Command
  */
 RPG.UI.Command.Direction = OZ.Class().extend(RPG.UI.Command);
-RPG.UI.Command.Direction.prototype.init = function(label, coords) {
+RPG.UI.Command.Direction.prototype.init = function(label, dir) {
 	this.parent(label);
-	this._coords = coords.clone();
+	this._dir = dir;
+}
+RPG.UI.Command.Direction.prototype.getDir = function() {
+	return this._dir;
 }
 RPG.UI.Command.Direction.prototype.getCoords = function() {
-	return this._coords;
+	/** FIXME OBSOLETE */
+	return RPG.DIR[this._dir];
 }
 RPG.UI.Command.Direction.prototype.exec = function() {
 	/* wait */
-	if (!this._coords.x && !this._coords.y) {
+	if (this._dir == RPG.CENTER) {
 		RPG.UI.action(RPG.Actions.Wait);
 		return;
 	}
@@ -105,7 +109,7 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	var pc = RPG.World.pc;
 	var cell = pc.getCell();
 	var map = cell.getMap();
-	var coords = cell.getCoords().clone().plus(this._coords);
+	var coords = cell.getCoords().clone().plus(RPG.DIR[this._dir]);
 	
 	/* invalid move */
 	if (!map.isValid(coords)) { 
@@ -150,19 +154,19 @@ RPG.UI.Command.Table.prototype.init = function(container) {
 	tb.appendChild(tr);
 	
 	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("◤", new RPG.Misc.Coords(-1, -1));
+	var c = new RPG.UI.Command.Direction("◤", RPG.NW);
 	OZ.DOM.append([tr, td], [td, c.getButton().getInput()]);
 	c.getButton().addCharCode(55);
 	c.getButton().addKeyCode(36);
 
 	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("▲", new RPG.Misc.Coords(0, -1));
+	var c = new RPG.UI.Command.Direction("▲", RPG.N);
 	OZ.DOM.append([tr, td], [td, c.getButton().getInput()]);
 	c.getButton().addCharCode(56);
 	c.getButton().addKeyCode(38);
 
 	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("◥", new RPG.Misc.Coords(1, -1));
+	var c = new RPG.UI.Command.Direction("◥", RPG.NE);
 	OZ.DOM.append([tr, td], [td, c.getButton().getInput()]);
 	c.getButton().addCharCode(57);
 	c.getButton().addKeyCode(33);
@@ -171,20 +175,20 @@ RPG.UI.Command.Table.prototype.init = function(container) {
 	tb.appendChild(tr);
 	
 	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("◀", new RPG.Misc.Coords(-1, 0));
+	var c = new RPG.UI.Command.Direction("◀", RPG.W);
 	OZ.DOM.append([tr, td], [td, c.getButton().getInput()]);
 	c.getButton().addCharCode(52);
 	c.getButton().addKeyCode(37);
 
 	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("⋯", new RPG.Misc.Coords(0, 0));
+	var c = new RPG.UI.Command.Direction("⋯", RPG.CENTER);
 	OZ.DOM.append([tr, td], [td, c.getButton().getInput()]);
 	c.getButton().addCharCode(46);
 	c.getButton().addCharCode(53);
 	c.getButton().addKeyCode(12);
 
 	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("▶", new RPG.Misc.Coords(1, 0));
+	var c = new RPG.UI.Command.Direction("▶", RPG.E);
 	OZ.DOM.append([tr, td], [td, c.getButton().getInput()]);
 	c.getButton().addCharCode(54);
 	c.getButton().addKeyCode(39);
@@ -193,19 +197,19 @@ RPG.UI.Command.Table.prototype.init = function(container) {
 	tb.appendChild(tr);
 
 	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("◣", new RPG.Misc.Coords(-1, 1));
+	var c = new RPG.UI.Command.Direction("◣", RPG.SW);
 	OZ.DOM.append([tr, td], [td, c.getButton().getInput()]);
 	c.getButton().addCharCode(49);
 	c.getButton().addKeyCode(35);
 
 	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("▼", new RPG.Misc.Coords(0, 1));
+	var c = new RPG.UI.Command.Direction("▼", RPG.S);
 	OZ.DOM.append([tr, td], [td, c.getButton().getInput()]);
 	c.getButton().addCharCode(50);
 	c.getButton().addKeyCode(40);
 
 	var td = OZ.DOM.elm("td");
-	var c = new RPG.UI.Command.Direction("◢", new RPG.Misc.Coords(1, 1));
+	var c = new RPG.UI.Command.Direction("◢", RPG.SE);
 	OZ.DOM.append([tr, td], [td, c.getButton().getInput()]);
 	c.getButton().addCharCode(51);
 	c.getButton().addKeyCode(34);
@@ -871,7 +875,7 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 		if (spells.length) {
 			spells.sort(function(a,b) { return a.describe().localeCompare(b.describe()); });
 			RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
-			new RPG.UI.Itemlist(spells, "Select a spell to cast", 1, this.bind(this._done));
+			new RPG.UI.Spelllist(spells, "Select a spell to cast", this.bind(this._done));
 		} else {
 			RPG.UI.buffer.message("You don't know any spells.");
 		}
@@ -886,7 +890,7 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 			break;
 			case RPG.SPELL_TOUCH:
 			case RPG.SPELL_DIRECTION:
-				var target = coords.getCoords();
+				var target = coords.getDir();
 			break;
 			case RPG.SPELL_REMOTE:
 			case RPG.SPELL_TARGET:

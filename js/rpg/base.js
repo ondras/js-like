@@ -415,10 +415,6 @@ RPG.Spells.BaseSpell.prototype.init = function(name, cost) {
 	this._type = RPG.SPELL_SELF;
 }
 
-RPG.Spells.BaseSpell.prototype.describe = function() {
-	return this._description + " (" + this._cost + ")";
-}
-
 RPG.Spells.BaseSpell.prototype.cast = function(caster, target) {
 }
 

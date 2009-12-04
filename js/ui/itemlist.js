@@ -14,7 +14,7 @@ RPG.UI.Itemlist.prototype._groups = {
 	"Consumables": RPG.Items.Consumable,
 	"Gold": RPG.Items.Gold,
 	"Gems": RPG.Items.Gem,
-	"Spells": RPG.Spells.BaseSpell,
+	"Spells": RPG.Spells.BaseSpell
 }
 
 /**
@@ -67,7 +67,7 @@ RPG.UI.Itemlist.prototype._prepare = function(items) {
 			amount: 0,
 			label: OZ.DOM.elm("label", {htmlFor:"item_"+i})
 		}
-		obj.label.innerHTML = "&nbsp;" + arr[i].describe() + "&nbsp;";
+		obj.label.innerHTML = "&nbsp;" + this._format(arr[i]) + "&nbsp;";
 		this._data.push(obj);
 	}
 }
@@ -278,4 +278,22 @@ RPG.UI.Itemlist.prototype._prev = function() {
 
 RPG.UI.Itemlist.prototype._next = function() {
 	this._update(this._page+1);
+}
+
+RPG.UI.Itemlist.prototype._format = function(item) {
+	return item.describe();
+}
+
+/**
+ * List of spells displays cost as well
+ * @see RPG.UI.Itemlist
+ * @augments RPG.UI.Itemlist
+ */
+RPG.UI.Spelllist = OZ.Class().extend(RPG.UI.Itemlist);
+RPG.UI.Spelllist.prototype.init = function(data, label, callback) {
+	this.parent(data, label, 1, callback);
+}
+
+RPG.UI.Spelllist.prototype._format = function(item) {
+	return item.describe().capitalize() + " (" + item.getCost() + ")";
 }

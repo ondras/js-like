@@ -146,6 +146,27 @@ RPG.SPELL_TARGET		= 4;
 /** @constant */
 RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG.FEAT_MAGIC];
 
+/** @constant */
+RPG.N					= 0;
+/** @constant */
+RPG.NE					= 1;
+/** @constant */
+RPG.E					= 2;
+/** @constant */
+RPG.SE					= 3;
+/** @constant */
+RPG.S					= 4;
+/** @constant */
+RPG.SW					= 5;
+/** @constant */
+RPG.W					= 6;
+/** @constant */
+RPG.NW					= 7;
+/** @constant */
+RPG.CENTER				= 8;
+/** @constant */
+RPG.DIR = {};
+
 /**
  * Generates a normally distributed random number, mean = 0.
  * @param {float} stddev Standard deviation. ~95% of the absolute values will be lower than 2*stddev.

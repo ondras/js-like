@@ -202,7 +202,7 @@ RPG.Beings.BaseBeing.prototype.describeHim = function() {
 }
 
 /**
- * Return him/her/it string for this being
+ * Return his/hers/its string for this being
  * @returns {string}
  */
 RPG.Beings.BaseBeing.prototype.describeHis = function() {
@@ -212,6 +212,14 @@ RPG.Beings.BaseBeing.prototype.describeHis = function() {
 	table[RPG.GENDER_NEUTER] = "its";
 	
 	return table[this._gender];
+}
+
+/**
+ * Return are/is string for this being
+ * @returns {string}
+ */
+RPG.Beings.BaseBeing.prototype.describeIs = function() {
+		return "";
 }
 
 RPG.Beings.BaseBeing.prototype.getEffects = function() {

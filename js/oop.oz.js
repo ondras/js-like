@@ -15,7 +15,7 @@ OZ.Class = function() {
 	c._implement = [];
 	c.implement = function(parent) {
 		this._implement.push(parent);
-		for (var p in parent.prototype) { this.prototype[p] = parent.prototype[p]; }
+		for (var p in parent.prototype) { if (!(p in this.prototype)) { this.prototype[p] = parent.prototype[p]; } }
 		return this;
 	};
 	c.implements = function(iface) {
