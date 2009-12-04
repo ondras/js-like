@@ -117,7 +117,9 @@ RPG.Actions.MagicAttack.prototype.execute = function() {
 	str += "hit by " + this._source.describeThe() + ".";
 	RPG.UI.buffer.message(str);
 
-	this._target.adjustStat(RPG.STAT_HP, -this._source.getDamage());
+	var dmg = RPG.Rules.getSpellDamage(this._target, this._source);
+	this._target.adjustStat(RPG.STAT_HP, -dmg);
+
 	if (!this._target.isAlive()) {
 		var str = "";
 		str += this._target.describeThe().capitalize();
@@ -558,15 +560,16 @@ RPG.Actions.TrapEncounter.prototype.execute = function() {
 }
 
 /**
- * @class Falling into a pit
+ * @class Falling into a pit; source == being, target == trap
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.Pit = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Pit.prototype.execute = function() {
 	var pc = RPG.World.pc;
 	var you = (this._source == pc);
+	var canSee = pc.canSee(this._target.getCell().getCoords());
 
-	if (pc.canSee(this._target.getCell().getCoords())) {
+	if (canSee) {
 		var str = this._source.describeA().capitalize();
 		str += " " + (you ? "fall" : "falls") + " into a pit!";
 		RPG.UI.buffer.message(str);
@@ -574,6 +577,12 @@ RPG.Actions.Pit.prototype.execute = function() {
 	
 	var dmg = RPG.Rules.getTrapDamage(this._source, this._target);
 	this._source.adjustStat(RPG.STAT_HP, -dmg);
+	
+	if (!this._source.isAlive() && canSee && !you) {
+		var str = this._source.describeThe().capitalize() + " suddenly collapses!";
+		RPG.UI.buffer.message(str);
+	}
+	
 }
 
 /**

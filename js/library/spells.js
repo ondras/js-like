@@ -40,7 +40,7 @@ RPG.Spells.Projectile.prototype.init = function(name, cost) {
 	this._coords = null;
 	this._dir = null;
 	this._distance = 5;
-	this._damage = 1;
+	this._damage = null;
 	
 	this._chars = {};
 	this._chars[RPG.N]  = "|";
@@ -90,11 +90,6 @@ RPG.Spells.Projectile.prototype.iterate = function() {
 	}
 }
 
-RPG.Spells.Projectile.prototype.getDamage = function() {
-	/* FIXME */
-	return this._damage;
-}
-
 /**
  * @class Magic bolt spell
  * @augments RPG.Spells.Projectile
@@ -107,5 +102,5 @@ RPG.Spells.MagicBolt.prototype.init = function() {
 
 	this._image = ""; /* FIXME */
 	this._color = "blueviolet";
-	this._damage = 5;
+	this._damage = new RPG.Misc.RandomValue(4, 1);
 }

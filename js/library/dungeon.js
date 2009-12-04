@@ -114,6 +114,7 @@ RPG.Features.Trap.flags.abstr4ct = true;
 RPG.Features.Trap.prototype.init = function() {
 	this.parent();
 	this._char = "^";
+	this._damage = null;
 }
 
 RPG.Features.Trap.prototype.knowsAbout = function(being) {
@@ -126,6 +127,10 @@ RPG.Features.Trap.prototype.notify = function(being) {
 }
 
 RPG.Features.Trap.prototype.setOff = function() {
+}
+
+RPG.Features.Trap.prototype.getDamage = function() {
+	return this._damage;
 }
 
 /**
@@ -157,6 +162,8 @@ RPG.Features.Trap.Pit = OZ.Class().extend(RPG.Features.Trap);
 RPG.Features.Trap.Pit.prototype.init = function() {
 	this.parent();
 	
+	this._damage = new RPG.Misc.RandomValue(3, 1);
+
 	this._color = "sienna";
 	this._image = "trap-pit";
 	this._description = "pit trap";

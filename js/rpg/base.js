@@ -76,6 +76,7 @@ RPG.Items.BaseItem.prototype.init = function() {
 	this._descriptionPlural = null;
 	this._modifiers = {};
 	this._amount = 1;
+	this._uncountable = false;
 }
 
 /**
@@ -130,21 +131,19 @@ RPG.Items.BaseItem.prototype.setAmount = function(amount) {
  */
 RPG.Items.BaseItem.prototype.describe = function() {
 	var im = RPG.World.pc.itemMemory();
-	var s = this._describePlural();
+	var s = "";
+	if (this._amount == 1) {
+		s += this._description;
+	} else {
+		s += "heap of " + this._amount + " ";
+		s += this._descriptionPlural || (this._description + "s");
+	}
+
 	if (im.remembers(this)) {
 		var mods = this._describeModifiers();
 		if (mods) { s += " " + mods; }
 	}
 	return s;
-}
-
-RPG.Items.BaseItem.prototype._describePlural = function() {
-	if (this._amount == 1) {
-		return this._description;
-	} else {
-		var plural = this._descriptionPlural || (this._description + "s");
-		return "heap of " + this._amount + " " + plural;
-	}
 }
 
 RPG.Items.BaseItem.prototype._describeModifiers = function() {
@@ -196,6 +195,17 @@ RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
 	listOfItems.push(this);
 	return false;
 }
+
+/**
+ * Return are/is string for this item
+ * @returns {string}
+ */
+RPG.Items.BaseItem.prototype.describeIs = function() {
+	if (this._amount == 1) {
+		return (this._uncountable ? "are" : "is");
+	} else { return "is"; }
+}
+
 
 /**
  * @class Basic race
@@ -297,7 +307,8 @@ RPG.Actions.BaseAction.prototype._describeLocal = function() {
 	} else if (items.length == 1) {
 		var item = items[0];
 		var str = item.describeA(pc).capitalize();
-		str += " is lying here.";
+		str += " " + item.describeIs() + " ";
+		str += "lying here.";
 		RPG.UI.buffer.message(str);
 	}
 }
@@ -351,7 +362,6 @@ RPG.Actions.BaseAction.prototype._describeRemote = function(coords) {
 
 	RPG.UI.buffer.message("You see " + arr.join(" and ")+".");
 }
-
 
 /**
  * @class Body part - place for an item

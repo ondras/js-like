@@ -86,7 +86,6 @@ RPG.Misc.IModifier.prototype.getModified = function() {
 RPG.Misc.IWeapon = OZ.Class();
 RPG.Misc.IWeapon.prototype.setHit = function(rv) {
 	this._hit = rv;
-	
 }
 RPG.Misc.IWeapon.prototype.setDamage = function(rv) {
 	this._damage = rv;
@@ -118,8 +117,11 @@ RPG.Misc.ISerializable.prototype.clone = function() {
 /**
  * @class Interface for flying objects
  * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.IWeapon
  */
-RPG.Misc.IProjectile = OZ.Class().implement(RPG.Visual.IVisual);
+RPG.Misc.IProjectile = OZ.Class()
+						.implement(RPG.Misc.IWeapon)
+						.implement(RPG.Visual.IVisual);
 RPG.Misc.IProjectile.prototype.launch = function(from, direction) {
 	this._coords = from;
 	this._dir = direction;

@@ -103,11 +103,14 @@ RPG.Items.MetalCap.prototype.init = function() {
 RPG.Items.LeatherBoots = OZ.Class().extend(RPG.Items.Boots);
 RPG.Items.LeatherBoots.prototype.init = function() {
 	this.parent();
-	this._description = "pair of leather boots";
+	this._uncountable = true;
+	this._description = "leather boots";
 	this._descriptionPlural = "pairs of leather boots";
 	this._image = "leather-boots";
 	this._modifiers[RPG.FEAT_DV] = 1;
 }
+
+
 
 /**
  * @class Clothes
@@ -117,6 +120,7 @@ RPG.Items.Clothes = OZ.Class().extend(RPG.Items.Armor);
 RPG.Items.Clothes.flags.frequency = 125;
 RPG.Items.Clothes.prototype.init = function() {
 	this.parent();
+	this._uncountable = true;
 	this._color = "lime";
 	this._description = "clothes";
 	/* FIXME image */

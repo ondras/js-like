@@ -22,7 +22,7 @@ OZ.Class = function() {
 		var cl = this;
 		while (cl) {
 			if (cl._implement.indexOf(iface) != -1) { return true; }
-			cl = this._extend;
+			cl = cl._extend;
 		}
 		return false;
 	}
@@ -43,7 +43,7 @@ OZ.Class = function() {
 		var cl = this;
 		while (cl) {
 			if (cl._extend == ctor) { return true; }
-			cl = this._extend;
+			cl = cl._extend;
 		}
 		return false;
 	}

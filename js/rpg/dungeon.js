@@ -164,8 +164,6 @@ RPG.Features.BaseFeature.prototype.visibleThrough = function() {
 	return (this._type < RPG.BLOCKS_LIGHT);
 }
 
-
-
 /**
  * @class Dungeon map
  * @augments RPG.Misc.ISerializable

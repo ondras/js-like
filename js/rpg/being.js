@@ -219,7 +219,7 @@ RPG.Beings.BaseBeing.prototype.describeHis = function() {
  * @returns {string}
  */
 RPG.Beings.BaseBeing.prototype.describeIs = function() {
-		return "";
+	return "";
 }
 
 RPG.Beings.BaseBeing.prototype.getEffects = function() {

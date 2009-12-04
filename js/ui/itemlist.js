@@ -295,5 +295,10 @@ RPG.UI.Spelllist.prototype.init = function(data, label, callback) {
 }
 
 RPG.UI.Spelllist.prototype._format = function(item) {
-	return item.describe().capitalize() + " (" + item.getCost() + ")";
+	var str = "(" + item.getCost() + ") ";
+	str += item.describe().capitalize();
+	if (item.constructor.implements(RPG.Misc.IProjectile)) {
+		str += " (" + item.getDamage().toString() + ")";
+	}
+	return str;
 }
