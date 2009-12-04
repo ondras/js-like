@@ -33,28 +33,23 @@ RPG.UI.Command.prototype._click = function(e) {
  * Get list of surrounding doors in a given opened/closed condition
  */
 RPG.UI.Command.prototype._surroundingDoors = function(closed) {
-	var coords = false;
+	var doors = false;
 	var dc = 0;
-	var pc = RPG.World.pc;
-	var cell = pc.getCell();
+	var cell = RPG.World.pc.getCell();
 	var map = cell.getMap();
 	var center = cell.getCoords();
 	
-	for (var i=-1;i<=1;i++) {
-		for (var j=-1;j<=1;j++) {
-			if (!i && !j) { continue; }
-			
-			var c = center.clone().plus(new RPG.Misc.Coords(i, j));
-			var f = map.at(c).getFeature();
-			if (f && f instanceof RPG.Features.Door && f.isClosed() == closed) {
-				dc++;
-				coords = c;
-			}
+	var cells = map.cellsInCircle(cell.getCoords(), 1, false);
+	for (var i=0;i<cells.length;i++) {
+		var f = cells[i].getFeature();
+		if (f && f instanceof RPG.Features.Door && f.isClosed() == closed) {
+			dc++;
+			doors = f;
 		}
 	}
 	
 	if (dc == 1) {
-		return coords;
+		return doors;
 	} else {
 		return dc;
 	}
@@ -65,19 +60,16 @@ RPG.UI.Command.prototype._surroundingDoors = function(closed) {
  */
 RPG.UI.Command.prototype._surroundingBeings = function(closed) {
 	var list = [];
-	var pc = RPG.World.pc;
-	var cell = pc.getCell();
+
+	var cell = RPG.World.pc.getCell();
 	var map = cell.getMap();
 	var center = cell.getCoords();
 	
-	for (var i=-1;i<=1;i++) {
-		for (var j=-1;j<=1;j++) {
-			if (!i && !j) { continue; }
-			
-			var c = center.clone().plus(new RPG.Misc.Coords(i, j));
-			var b = map.at(c).getBeing();
+	var cells = map.cellsInCircle(cell.getCoords(), 1, false);
+
+	for (var i=0;i<cells.length;i++) {
+		var b = cells[i].getBeing();
 			if (b) { list.push(b); }
-		}
 	}
 	
 	return list;
@@ -128,7 +120,7 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	/* closed door there? */
 	var f = map.at(coords).getFeature();
 	if (f && f instanceof RPG.Features.Door && f.isClosed()) {
-		RPG.UI.action(RPG.Actions.Open, coords);
+		RPG.UI.action(RPG.Actions.Open, f);
 		return;
 	}
 	
@@ -247,7 +239,7 @@ RPG.UI.Command.Open.prototype.exec = function(cmd) {
 		var f = map.at(coords).getFeature();
 		if (f && f instanceof RPG.Features.Door && f.isClosed()) {
 			/* correct direction */
-			RPG.UI.action(RPG.Actions.Open, coords);
+			RPG.UI.action(RPG.Actions.Open, f);
 		} else {
 			/* incorrect direction */
 			RPG.UI.buffer.message("there is no door at that location.");
@@ -256,7 +248,7 @@ RPG.UI.Command.Open.prototype.exec = function(cmd) {
 	} else {
 		/* no direction, check surroundings */
 		var doors = this._surroundingDoors(true);
-		if (doors instanceof RPG.Misc.Coords) {
+		if (doors instanceof RPG.Features.Door) {
 			/* exactly one door found */
 			RPG.UI.action(RPG.Actions.Open, doors);
 		} else if (doors == 0) {
@@ -287,7 +279,7 @@ RPG.UI.Command.Close.prototype.exec = function(cmd) {
 		var f = map.at(coords).getFeature();
 		if (f && f instanceof RPG.Features.Door && !f.isClosed()) {
 			/* correct direction */
-			RPG.UI.action(RPG.Actions.Close, coords);
+			RPG.UI.action(RPG.Actions.Close, f);
 		} else {
 			/* incorrect direction */
 			RPG.UI.buffer.message("there is no door at that location.");
@@ -296,7 +288,7 @@ RPG.UI.Command.Close.prototype.exec = function(cmd) {
 	} else {
 		/* no direction, check surroundings */
 		var doors = this._surroundingDoors(false);
-		if (doors instanceof RPG.Misc.Coords) {
+		if (doors instanceof RPG.Features.Door) {
 			/* exactly one door found */
 			RPG.UI.action(RPG.Actions.Close, doors);
 		} else if (doors == 0) {
@@ -463,7 +455,7 @@ RPG.UI.Command.Autowalk = OZ.Class().extend(RPG.UI.Command);
 RPG.UI.Command.Autowalk.prototype.init = function() {
 	this.parent("Walk continuously");
 	this._button.setChar("w");
-	this._coords = null;
+	this._dir = null;
 	this._left = false;
 	this._right = false;
 	this._steps = 0;
@@ -473,25 +465,24 @@ RPG.UI.Command.Autowalk.prototype.exec = function(cmd) {
 	if (cmd) {
 		/* direction given */
 		RPG.UI.setMode(RPG.UI_NORMAL);
-		this._start(cmd.getCoords());
+		this._start(cmd.getDir());
 	} else {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Walk continuously");
 	}
 }
 
-RPG.UI.Command.Autowalk.prototype._start = function(coords) {
+RPG.UI.Command.Autowalk.prototype._start = function(dir) {
 	var pc = RPG.World.pc;
 	var cell = pc.getCell();
 	var map = cell.getMap();
-	var target = cell.getCoords().clone().plus(coords);
-
+	
 	/* cannot walk to the wall */
-	if (coords.x || coords.y) {
+	if (dir != RPG.CENTER) {
+		var target = cell.getCoords().clone().plus(RPG.DIR[dir]);
 		if (!map.at(target).isFree() ) { return; }
 	}
 
-	this._saveState(coords);
-	
+	this._saveState(dir);
 	this._steps = 0;
 	this._yt = pc.yourTurn;
 	pc.yourTurn = this.bind(this._yourTurn);
@@ -501,15 +492,19 @@ RPG.UI.Command.Autowalk.prototype._start = function(coords) {
 /**
  * Save state of current direction + left/right neighbors 
  */
-RPG.UI.Command.Autowalk.prototype._saveState = function(coords) {
-	this._coords = coords.clone();
+RPG.UI.Command.Autowalk.prototype._saveState = function(dir) {
+	this._dir = dir;
+	if (dir == RPG.CENTER) { return; }
+	
 	var pc = RPG.World.pc;
 	var map = RPG.World.getMap();
 	var cell = pc.getCell();
-	var leftC = new RPG.Misc.Coords(-coords.y, coords.x);
-	var rightC = new RPG.Misc.Coords(coords.y, -coords.x);
-	this._left = map.at(leftC.plus(cell.getCoords())).isFree();
-	this._right = map.at(rightC.plus(cell.getCoords())).isFree();
+	var coords = cell.getCoords();
+	
+	var leftDir = (dir + 6) % 8;
+	var rightDir = (dir + 2) % 8;
+	this._left = map.at(coords.clone().plus(RPG.DIR[leftDir])).isFree();
+	this._right = map.at(coords.clone().plus(RPG.DIR[rightDir])).isFree();
 }
 
 RPG.UI.Command.Autowalk.prototype._yourTurn = function() {
@@ -533,52 +528,53 @@ RPG.UI.Command.Autowalk.prototype._check = function() {
 
 	if (this._steps == 50) { return false; } /* too much steps */
 	if (cell.getItems().length) { return false; } /* we stepped across some items */
-	
-	if (!this._coords.x && !this._coords.y) { return true; } /* standing on a spot is okay now */
+	if (this._dir == RPG.CENTER) { return true; } /* standing on a spot is okay now */
 
 	/* now check neighbor status */
-	var n1 = new RPG.Misc.Coords(-this._coords.y, this._coords.x);
-	var n2 = new RPG.Misc.Coords(this._coords.y, -this._coords.x);
-	var aheadC = this._coords.clone().plus(coords);
-	var leftC = n1.clone().plus(coords);
-	var rightC = n2.clone().plus(coords);
-	var ahead = map.at(aheadC).isFree();
-	var left = map.at(leftC).isFree();
-	var right = map.at(rightC).isFree();
+	var leftDir = (this._dir + 6) % 8;
+	var rightDir = (this._dir + 2) % 8;
+	var aheadCoords = coords.clone().plus(RPG.DIR[this._dir]);
+	var leftCoords = coords.clone().plus(RPG.DIR[leftDir]);
+	var rightCoords = coords.clone().plus(RPG.DIR[rightDir]);
+	var aheadCell = map.at(aheadCoords);
+	var leftCell = map.at(leftCoords);
+	var rightCell = map.at(rightCoords);
+	var ahead = aheadCell.isFree();
+	var left = leftCell.isFree();
+	var right = rightCell.isFree();
 	
 	/* leaving opened area/crossroads */
 	if (this._left && !left) { this._left = left; }
 	if (this._right && !right) { this._right = right; }
 	
+	/* standing against a being */
+	if (aheadCell.getBeing()) { return false; } 
+	
+	/* standing close to a feature */
+	if (aheadCell.getFeature() && aheadCell.getFeature().knowsAbout(pc)) { return false; } 
+	if (leftCell.getFeature() && leftCell.getFeature().knowsAbout(pc)) { return false; } 
+	if (rightCell.getFeature() && rightCell.getFeature().knowsAbout(pc)) { return false; } 
+
 	if (ahead) {
 		/* we can - in theory - continue; just check if we are not standing on a crossroads */
 		if ((!this._left && left) || (!this._right && right)) { return false; }
 	} else {
 		/* try to change direction, because it is not possible to continue */
 		var freecount = 0;
-		for (var i=-1;i<=1;i++) {
-			for (var j=-1;j<=1;j++) {
-				if (!i && !j) { continue; }
-				var c = map.at(new RPG.Misc.Coords(i, j).plus(coords));
-				if (c.isFree()) { freecount++; }
-			}
-		}
+		var cells = map.cellsInCircle(coords, 1, false);
+		for (var i=0;i<cells.length;i++) { if (cells[i].isFree()) { freecount++; } }
 		if (freecount > 2) { return false; } /* too many options to go */
 		
 		if (left && !right) {
 			/* turn left */
-			this._saveState(n1);
+			this._saveState(leftDir);
 		} else if (right && !left) {
 			/* turn right */
-			this._saveState(n2);
+			this._saveState(rightDir);
 		} else {
 			return false; /* the only way from here is diagonal, stop */
 		}	
 	}
-	
-	var cell = map.at(this._coords.clone().plus(coords));
-	if (cell.getBeing()) { return false; } /* standing against a being */
-	if (cell.getFeature() && cell.getFeature().knowsAbout(pc)) { return false; } /* standing against a feature */
 
 	return true;
 }
@@ -587,10 +583,10 @@ RPG.UI.Command.Autowalk.prototype._step = function() {
 	this._steps++;
 	var pc = RPG.World.pc;
 	
-	if (this._coords.x || this._coords.y) {
-		RPG.UI.action(RPG.Actions.Move, pc.getCell().getCoords().clone().plus(this._coords));
-	} else {
+	if (this._dir == RPG.CENTER) {
 		RPG.UI.action(RPG.Actions.Wait);
+	} else {
+		RPG.UI.action(RPG.Actions.Move, pc.getCell().getCoords().clone().plus(RPG.DIR[this._dir]));
 	}
 }
 

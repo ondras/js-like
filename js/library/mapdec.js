@@ -174,13 +174,9 @@ RPG.Dungeon.Decorator.prototype._generateTreasure = function() {
  */
 RPG.Dungeon.Decorator.prototype._freeNeighbors = function(center) {
 	var result = 0;
-	for (var i=-1;i<=1;i++) {
-		for (var j=-1;j<=1;j++) {
-			if (!i && !j) { continue; }
-			var coords = new RPG.Misc.Coords(i, j).plus(center);
-			if (!this._map.isValid(coords)) { continue; }
-			if (this._map.at(coords) instanceof RPG.Cells.Corridor) { result++; }
-		}
+	var cells = this._map.cellsInCircle(center, 1, false);
+	for (var i=0;i<cells.length;i++) {
+		if (cells[i] instanceof RPG.Cells.Corridor) { result++; }
 	}
 	return result;
 }

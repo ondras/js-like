@@ -368,3 +368,29 @@ RPG.Dungeon.Map.prototype.getFreeCoords = function(noItems) {
 	var index = Math.floor(Math.random()*all.length);
 	return all[index];
 }
+
+RPG.Dungeon.Map.prototype.cellsInCircle = function(center, radius, includeInvalid) {
+	var arr = [];
+	var W = this._size.x;
+	var H = this._size.y;
+	var c = center.clone();
+	c.x += radius;
+	c.y += radius;
+	
+	var dirs = [RPG.N, RPG.W, RPG.S, RPG.E];
+	
+	var count = 8*radius;
+	for (var i=0;i<count;i++) {
+		if (c.x < 0 || c.y < 0 || c.x >= W || c.y >= H) {
+			if (includeInvalid) { arr.push(false); }
+		} else {
+			arr.push(this._data[c.x][c.y]);
+		}
+		
+		var dir = dirs[Math.floor(i*dirs.length/count)];
+		c.plus(RPG.DIR[dir]);
+	}
+	
+	return arr;
+}
+

@@ -214,21 +214,15 @@ RPG.Engine.AI.Wander.prototype.go = function() {
 	var cell = being.getCell();
 	var map = cell.getMap();
 	
-	var center = cell.getCoords();
+	var neighbors = map.cellsInCircle(cell.getCoords(), 1);
 	var avail = [null];
-	
-	for (var i=-1;i<=1;i++) {
-		for (var j=-1;j<=1;j++) {
-			var coords = center.clone();
-			coords.x += i;
-			coords.y += j;
-			if (map.at(coords).isFree()) { avail.push(coords); }
-		}
+	for (var i=0;i<neighbors.length;i++) {
+		if (neighbors[i].isFree()) { avail.push(neighbors[i]); }
 	}
 	
 	var target = avail[Math.floor(Math.random() * avail.length)];
 	if (target) {
-		RPG.World.action(new RPG.Actions.Move(being, target));
+		RPG.World.action(new RPG.Actions.Move(being, target.getCoords()));
 	} else {
 		RPG.World.action(new RPG.Actions.Wait(being));
 	}
@@ -430,7 +424,8 @@ RPG.Engine.AI.GetToDistance.prototype.go = function() {
 				c.x = coords.x+i;
 				c.y = coords.y+j;
 				/* PERF */
-				if (!map._data[c.x][c.y].isFree()) { continue; }
+//				if (!map._data[c.x][c.y].isFree()) { continue; }
+				if (!map.at(c).isFree()) { continue; }
 				var result = arguments.callee.call(this, c, depth-1);
 				var resultBest = result[0];
 				var resultStep = result[1] + 1;

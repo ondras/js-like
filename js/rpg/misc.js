@@ -34,6 +34,15 @@ RPG.Misc.Coords.prototype.distance = function(coords) {
 	return Math.max(dx, dy);
 }
 RPG.Misc.Coords.prototype.clone = function() {
+ 	if (!window.__log) { window.__log = []; }
+	var caller = arguments.callee.caller;
+	var found = false;
+	for (var i=0;i<__log.length;i++) {
+		var item = window.__log[i];
+		if (item[0] == caller) { item[1]++; found = true; }
+	}
+	if (!found) { window.__log.push([caller, 1]); }
+
 	return new this.constructor(this.x, this.y);
 }
 RPG.Misc.Coords.prototype.plus = function(c) {

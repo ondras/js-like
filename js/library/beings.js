@@ -118,7 +118,7 @@ RPG.Beings.God.prototype.getVisibleCoords = function() {
 		for (var j=0;j<size.y;j++) {
 			c.x = i;
 			c.y = j;
-			arr.push(c.clone());
+			arr.push(map.at(c).getCoords());
 		}
 	}
 	return arr;

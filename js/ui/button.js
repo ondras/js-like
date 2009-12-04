@@ -26,6 +26,7 @@ RPG.UI.Button._click = function(e) {
 		var input = RPG.UI.Button._buttons[i].getInput();
 		if (input == target) {
 			RPG.UI.Button._buttons[i]._click(e);
+			return; 
 		}
 	}
 }

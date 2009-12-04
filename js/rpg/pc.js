@@ -144,76 +144,47 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 	/* number of cells in current ring */
 	var cellCount = 0;
 
-	/* one edge before turning */
-	var edgeLength = 0;
-
-	/* step directions */
-	var directions = [
-		[0, -1], /* up */
-		[-1, 0], /* left */
-		[0, 1],  /* down */
-		[1, 0]   /* right */
-	];
-	
 	var arcCount = R*8; /* length of longest ring */
 	for (var i=0;i<arcCount;i++) { arcs.push([0, 0]); }
 	
 	/* analyze surrounding cells in concentric rings, starting from the center */
 	for (var r=1; r<=R; r++) {
 		cellCount += 8;
-		edgeLength += 2;
 		arcsPerCell = arcCount / cellCount; /* number of arcs per cell */
+		
+		var cells = map.cellsInCircle(center, r, true);
+		for (var i=0;i<cells.length;i++) {
+			if (!cells[i]) { continue; }
+			cell = cells[i];
 
-		/* start in the lower right corner of current ring */
-		current.x = center.x + r;
-		current.y = center.y + r;
-		var counter = 0;
-		var directionIndex = 0;
-		do {
-			counter++;
-			if (map.isValid(current)) { 
-				/* check individual cell */
-				var centralAngle = (counter-1) * arcsPerCell + 0.5;
-				/* PERF */
-				cell = map._data[current.x][current.y];
-				
-				if (cell && this._visibleCell(cell, centralAngle, arcsPerCell, arcs)) { 
-					this._visibleCoords.push(current.clone()); 
-				}
+			var startArc = (i-0.5) * arcsPerCell + 0.5;
+			if (this._visibleCell(!cell.visibleThrough(), startArc, arcsPerCell, arcs)) { 
+				this._visibleCoords.push(cell.getCoords()); 
 			}
-			current.x += directions[directionIndex][0];
-			current.y += directions[directionIndex][1];
 
 			/* cutoff? */
 			var done = true;
-			for (var i=0;i<arcCount;i++) {
-				if (arcs[i][0] + arcs[i][1] + eps < 1) {
+			for (var j=0;j<arcCount;j++) {
+				if (arcs[j][0] + arcs[j][1] + eps < 1) {
 					done = false;
 					break;
 				}
 			}
 			if (done) { return; }
-			
-			/* do a turn */
-			if (!(counter % edgeLength)) { directionIndex++; }
-
-		} while (counter < cellCount);
-	}
+		} /* for all cells in this ring */
+	} /* for all rings */
 }
 
 /**
  * Subroutine for updateVisibility(). For a given cell, checks if it is visible and adjusts arcs it blocks.
- * @param {RPG.Cells.BaseCell} cell
- * @param {float} centralAngle Angle which best corresponds with a given cell
- * @param {float} arcsPerCell How many arcs are shaded by this one
+ * @param {bool} blocks Does this cell block?
+ * @param {float} startArc Floating arc index corresponding to first arc shaded by this cell
+ * @param {float} arcsPerCell How many arcs are shaded by this one, >= 1
  * @param {arc[]} array of available arcs
  */
-RPG.Beings.PC.prototype._visibleCell = function(cell, centralAngle, arcsPerCell, arcs) {
+RPG.Beings.PC.prototype._visibleCell = function(blocks, startArc, arcsPerCell, arcs) {
 	var eps = 1e-4;
-	var map = cell.getMap();
-	var blocks = !cell.visibleThrough();
-	var start = centralAngle - arcsPerCell/2;
-	var startIndex = Math.floor(start);
+	var startIndex = Math.floor(startArc);
 	var arcCount = arcs.length;
 	
 	var ptr = startIndex;
@@ -230,9 +201,9 @@ RPG.Beings.PC.prototype._visibleCell = function(cell, centralAngle, arcsPerCell,
 		/* is this arc is already totally obstructed? */
 		var chance = (arc[0] + arc[1] + eps < 1);
 
-		if (ptr < start) {
+		if (ptr < startArc) {
 			/* blocks left part of blocker (with right cell part) */
-			amount += ptr + 1 - start;
+			amount += ptr + 1 - startArc;
 			if (chance && amount > arc[0]+eps) {
 				/* blocker not blocked yet, this cell is visible */
 				ok = true;

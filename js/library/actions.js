@@ -153,10 +153,8 @@ RPG.Actions.Open = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Open.prototype.execute = function() {
 	var pc = RPG.World.pc;
 	var map = this._source.getCell().getMap();
-	var coords = this._target;
+	var door = this._target;
 	var you = (this._source == RPG.World.pc);
-	
-	var door = map.at(coords).getFeature();
 
 	var locked = door.isLocked();
 	if (locked) {
@@ -174,7 +172,7 @@ RPG.Actions.Open.prototype.execute = function() {
 		return;
 	}
 	
-	map.at(coords).getFeature().open();
+	door.open();
 	
 	var str = this._source.describeA().capitalize() + " ";
 	if (you) {
@@ -195,9 +193,9 @@ RPG.Actions.Open.prototype.execute = function() {
 RPG.Actions.Close = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Close.prototype.execute = function() {
 	var map = this._source.getCell().getMap();
-	var coords = this._target;
+	var door = this._target;
 	
-	var cell = map.at(coords);
+	var cell = door.getCell();
 	if (cell.getBeing()) {
 		RPG.UI.buffer.message("There is someone standing at the door.");
 		this._tookTime = false;
@@ -215,7 +213,7 @@ RPG.Actions.Close.prototype.execute = function() {
 		return;
 	}
 
-	cell.getFeature().close();
+	door.close();
 	
 	var str = this._source.describeA().capitalize() + " ";
 	var you = (this._source == RPG.World.pc);
@@ -437,13 +435,9 @@ RPG.Actions.Search.prototype.execute = function() {
 	RPG.UI.buffer.message("You search your surroundings...");
 	var found = 0;
 	
-	var center = this._source.getCell().getCoords();
-	for (var i=-1;i<=1;i++) {
-		for (var j=-1;j<=1;j++) {
-			if (!i && !j) { continue; }
-			var coords = new RPG.Misc.Coords(i, j).plus(center);
-			found += this._search(map.at(coords));
-		}
+	var cells = map.cellsInCircle(this._source.getCell().getCoords(), 1, false);
+	for (var i=0;i<cells.length;i++) {
+		found += this._search(cells[i]);
 	}
 	
 	if (found) { RPG.World.pc.mapMemory().updateVisible(); }
