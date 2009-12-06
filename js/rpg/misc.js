@@ -34,15 +34,6 @@ RPG.Misc.Coords.prototype.distance = function(coords) {
 	return Math.max(dx, dy);
 }
 RPG.Misc.Coords.prototype.clone = function() {
- 	if (!window.__log) { window.__log = []; }
-	var caller = arguments.callee.caller;
-	var found = false;
-	for (var i=0;i<__log.length;i++) {
-		var item = window.__log[i];
-		if (item[0] == caller) { item[1]++; found = true; }
-	}
-	if (!found) { window.__log.push([caller, 1]); }
-
 	return new this.constructor(this.x, this.y);
 }
 RPG.Misc.Coords.prototype.plus = function(c) {
@@ -171,20 +162,16 @@ RPG.Misc.Chat.prototype.getEnd = function() {
 }
 
 /**
- * @class Object factory
+ * @class Generic object factory
  */ 
 RPG.Misc.Factory = OZ.Class();
-/**
- * @param {object} searchBase Object with classes
- * @param {function} commonAncestor Class to search for
- */
 RPG.Misc.Factory.prototype.init = function() {
 	this._classList = [];	
 }
 RPG.Misc.Factory.prototype.add = function(ancestor) {
 	for (var i=0;i<OZ.Class.all.length;i++) {
 		var ctor = OZ.Class.all[i];
-		if (ctor.flags.abstr4ct) { continue; }
+		if (ctor.factory.ignore) { continue; }
 		if (this._hasAncestor(ctor, ancestor)) { 
 			this._classList.push(ctor); 
 		}
@@ -194,7 +181,7 @@ RPG.Misc.Factory.prototype.add = function(ancestor) {
 /**
  * Return a random instance
  */ 
-RPG.Misc.Factory.prototype.getInstance = function(maxDanger) {
+RPG.Misc.Factory.prototype.getInstance = function(danger) {
 	var len = this._classList.length;
 	if (len == 0) { throw new Error("No available classes"); }
 
@@ -203,9 +190,8 @@ RPG.Misc.Factory.prototype.getInstance = function(maxDanger) {
 	
 	for (var i=0;i<this._classList.length;i++) {
 		ctor = this._classList[i];
-		var danger = ctor.flags.danger;
-		if (danger < 0 || (maxDanger && danger > maxDanger)) { continue; } 
-		total += ctor.flags.frequency;
+		if (ctor.factory.danger > danger) { continue; } 
+		total += ctor.factory.frequency;
 		avail.push(ctor);
 	}
 	var random = Math.floor(Math.random()*total);
@@ -214,8 +200,14 @@ RPG.Misc.Factory.prototype.getInstance = function(maxDanger) {
 	var ctor = null;
 	for (var i=0;i<avail.length;i++) {
 		ctor = avail[i];
-		sub += ctor.flags.frequency;
-		if (random < sub) { return new ctor(); }
+		sub += ctor.factory.frequency;
+		if (random < sub) { 
+			if (ctor.factory.method) {
+				return ctor.factory.method.call(ctor, danger);
+			} else {
+				return new ctor(); 
+			}
+		}
 	}
 }
 RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {

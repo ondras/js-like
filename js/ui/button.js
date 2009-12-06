@@ -13,7 +13,7 @@ RPG.UI.Button._buttons = [];
  */
 RPG.UI.Button._keyPress = function(e) {
 	for (var i=0;i<RPG.UI.Button._buttons.length;i++) {
-		RPG.UI.Button._buttons[i]._keyPress(e);
+		RPG.UI.Button._buttons[i][0]._keyPress(e);
 	}
 }
 
@@ -23,16 +23,15 @@ RPG.UI.Button._keyPress = function(e) {
 RPG.UI.Button._click = function(e) {
 	var target = OZ.Event.target(e);
 	for (var i=0;i<RPG.UI.Button._buttons.length;i++) {
-		var input = RPG.UI.Button._buttons[i].getInput();
-		if (input == target) {
-			RPG.UI.Button._buttons[i]._click(e);
+		var item = RPG.UI.Button._buttons[i];
+		if (item[1] == target) {
+			item[0]._click(e);
 			return; 
 		}
 	}
 }
 
 RPG.UI.Button.prototype.init = function(label, callback) {
-	this.constructor._buttons.push(this);
 	this._charCodes = [];
 	this._keyCodes = [];
 	this._ctrlKey = false;
@@ -41,13 +40,21 @@ RPG.UI.Button.prototype.init = function(label, callback) {
 	this._callback = callback;
 	this._char = null;
 	this._input = OZ.DOM.elm("input", {type:"button"});
-
+	
+	this.constructor._buttons.push([this, this._input]);
 	this._setLabel();
 }
 
 RPG.UI.Button.prototype.destroy = function() {
 	var all = this.constructor._buttons;
-	var index = all.indexOf(this);
+	var index = -1;
+	for (var i=0;i<all.length;i++) {
+		var item = all[i];
+		if (item[0] == this) { 
+			index = i;
+			break;
+		}
+	}
 	this.constructor._buttons.splice(index, 1);
 }
 

@@ -61,7 +61,7 @@ RPG.Beings.Hobgoblin.prototype.init = function() {
  * @augments RPG.Beings.Hobgoblin
  */
 RPG.Beings.HobgoblinLeader = OZ.Class().extend(RPG.Beings.Hobgoblin);
-RPG.Beings.HobgoblinLeader.flags.frequency = 15;
+RPG.Beings.HobgoblinLeader.factory.frequency = 15;
 RPG.Beings.HobgoblinLeader.prototype.init = function() {
 	this.parent();
 	
@@ -80,7 +80,7 @@ RPG.Beings.HobgoblinLeader.prototype.init = function() {
  * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.Troll = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Troll.flags.frequency = 10;
+RPG.Beings.Troll.factory.frequency = 10;
 RPG.Beings.Troll.prototype.init = function() {
 	/* trolls are above-average humanoids */
 	this.parent(new RPG.Races.Humanoid());
@@ -136,7 +136,7 @@ RPG.Beings.God.prototype.canSee = function(coords) {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Rat = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Rat.flags.frequency = 110;
+RPG.Beings.Rat.factory.frequency = 110;
 RPG.Beings.Rat.prototype.init = function() {
 	this.parent(new RPG.Races.Animal());
 	
@@ -156,7 +156,7 @@ RPG.Beings.Rat.prototype.init = function() {
  * @augments RPG.Beings.Rat
  */
 RPG.Beings.GiantRat = OZ.Class().extend(RPG.Beings.Rat);
-RPG.Beings.GiantRat.flags.frequency = 85;
+RPG.Beings.GiantRat.factory.frequency = 85;
 RPG.Beings.GiantRat.prototype.init = function() {
 	this.parent();
 	
@@ -175,7 +175,7 @@ RPG.Beings.GiantRat.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Bat = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Bat.flags.frequency = 100;
+RPG.Beings.Bat.factory.frequency = 100;
 RPG.Beings.Bat.prototype.init = function() {
 	this.parent(new RPG.Races.Animal());
 	
@@ -196,7 +196,7 @@ RPG.Beings.Bat.prototype.init = function() {
  * @augments RPG.Beings.Bat
  */
 RPG.Beings.GiantBat = OZ.Class().extend(RPG.Beings.Bat);
-RPG.Beings.GiantBat.flags.frequency = 85;
+RPG.Beings.GiantBat.factory.frequency = 85;
 RPG.Beings.GiantBat.prototype.init = function() {
 	this.parent();
 	
@@ -216,7 +216,7 @@ RPG.Beings.GiantBat.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Wolf = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Wolf.flags.frequency = 10;
+RPG.Beings.Wolf.factory.frequency = 10;
 RPG.Beings.Wolf.prototype.init = function() {
 	this.parent(new RPG.Races.Animal());
 	
@@ -238,7 +238,7 @@ RPG.Beings.Wolf.prototype.init = function() {
  * @augments RPG.Beings.Wolf
  */
 RPG.Beings.Dog = OZ.Class().extend(RPG.Beings.Wolf);
-RPG.Beings.Dog.flags.frequency = 40;
+RPG.Beings.Dog.factory.frequency = 40;
 RPG.Beings.Dog.prototype.init = function() {
 	this.parent();
 	
@@ -257,7 +257,7 @@ RPG.Beings.Dog.prototype.init = function() {
  * @augments RPG.Beings.Wolf
  */
 RPG.Beings.Jackal = OZ.Class().extend(RPG.Beings.Wolf);
-RPG.Beings.Jackal.flags.frequency = 20;
+RPG.Beings.Jackal.factory.frequency = 20;
 RPG.Beings.Jackal.prototype.init = function() {
 	this.parent();
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
@@ -278,7 +278,7 @@ RPG.Beings.Jackal.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Bear = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Bear.flags.frequency = 50;
+RPG.Beings.Bear.factory.frequency = 50;
 RPG.Beings.Bear.prototype.init = function() {
 	this.parent(new RPG.Races.Animal());
 	
@@ -302,7 +302,7 @@ RPG.Beings.Bear.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Snake = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Snake.flags.frequency = 20;
+RPG.Beings.Snake.factory.frequency = 20;
 RPG.Beings.Snake.prototype.init = function() {
 	this.parent(new RPG.Races.Animal());
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
@@ -325,7 +325,7 @@ RPG.Beings.Snake.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Orc = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Orc.flags.frequency = 100;
+RPG.Beings.Orc.factory.frequency = 100;
 RPG.Beings.Orc.prototype.init = function() {
 	this.parent(new RPG.Races.Orc());
 	this.randomGender();
@@ -359,7 +359,7 @@ RPG.Beings.Orc.prototype.init = function() {
  * @augments RPG.Beings.Orc
  */
 RPG.Beings.LargeOrc = OZ.Class().extend(RPG.Beings.Orc);
-RPG.Beings.LargeOrc.flags.frequency = 70;
+RPG.Beings.LargeOrc.factory.frequency = 70;
 RPG.Beings.LargeOrc.prototype.init = function() {
 	this.parent();
 	
@@ -389,7 +389,7 @@ RPG.Beings.LargeOrc.prototype.init = function() {
  * @augments RPG.Beings.Orc
  */
 RPG.Beings.OrcChieftain = OZ.Class().extend(RPG.Beings.Orc);
-RPG.Beings.OrcChieftain.flags.frequency = 15;
+RPG.Beings.OrcChieftain.factory.frequency = 15;
 RPG.Beings.OrcChieftain.prototype.init = function() {
 	this.parent();
 	
@@ -421,7 +421,7 @@ RPG.Beings.OrcChieftain.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Ogre = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Ogre.flags.frequency = 20;
+RPG.Beings.Ogre.factory.frequency = 20;
 RPG.Beings.Ogre.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	this.randomGender();
@@ -445,7 +445,7 @@ RPG.Beings.Ogre.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Gnoll = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Gnoll.flags.frequency = 60;
+RPG.Beings.Gnoll.factory.frequency = 60;
 RPG.Beings.Gnoll.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	this.randomGender();
@@ -474,7 +474,7 @@ RPG.Beings.Gnoll.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Kobold = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Kobold.flags.frequency = 50;
+RPG.Beings.Kobold.factory.frequency = 50;
 RPG.Beings.Kobold.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	this.randomGender();
@@ -503,7 +503,7 @@ RPG.Beings.Kobold.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Undead = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Undead.flags.abstr4ct = true;
+RPG.Beings.Undead.factory.ignore = true;
 RPG.Beings.Undead.prototype.init = function(race) {
 	this.parent(race);
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
@@ -514,7 +514,7 @@ RPG.Beings.Undead.prototype.init = function(race) {
  * @augments RPG.Beings.Undead
  */
 RPG.Beings.Skeleton = OZ.Class().extend(RPG.Beings.Undead);
-RPG.Beings.Skeleton.flags.frequency = 25;
+RPG.Beings.Skeleton.factory.frequency = 25;
 RPG.Beings.Skeleton.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	
@@ -536,7 +536,7 @@ RPG.Beings.Skeleton.prototype.init = function() {
  * @augments RPG.Beings.Undead
  */
 RPG.Beings.Zombie = OZ.Class().extend(RPG.Beings.Undead);
-RPG.Beings.Zombie.flags.frequency = 25;
+RPG.Beings.Zombie.factory.frequency = 25;
 RPG.Beings.Zombie.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	this.randomGender();

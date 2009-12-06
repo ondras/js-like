@@ -66,7 +66,7 @@ RPG.Feats[RPG.FEAT_HIT].prototype.init = function(owner, baseValue) {
  * @augments RPG.Feats.AdvancedFeat
  */
 RPG.Feats[RPG.FEAT_STRENGTH] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
-RPG.Feats[RPG.FEAT_STRENGTH].name = "Strength";
+RPG.Feats[RPG.FEAT_STRENGTH].name = "strength";
 RPG.Feats[RPG.FEAT_STRENGTH].prototype.init = function(owner, baseValue) {
 	this.parent(owner, baseValue);
 	this._modifiers[RPG.FEAT_DAMAGE] = this._drd();
@@ -77,7 +77,7 @@ RPG.Feats[RPG.FEAT_STRENGTH].prototype.init = function(owner, baseValue) {
  * @augments RPG.Feats.AdvancedFeat
  */
 RPG.Feats[RPG.FEAT_TOUGHNESS] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
-RPG.Feats[RPG.FEAT_TOUGHNESS].name = "Toughness";
+RPG.Feats[RPG.FEAT_TOUGHNESS].name = "toughness";
 RPG.Feats[RPG.FEAT_TOUGHNESS].prototype.init = function(owner, baseValue) {
 	this.parent(owner, baseValue);
 	this._modifiers[RPG.FEAT_MAXHP] = this._drd();
@@ -89,7 +89,7 @@ RPG.Feats[RPG.FEAT_TOUGHNESS].prototype.init = function(owner, baseValue) {
  * @augments RPG.Feats.AdvancedFeat
  */
 RPG.Feats[RPG.FEAT_MAGIC] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
-RPG.Feats[RPG.FEAT_MAGIC].name = "Magic";
+RPG.Feats[RPG.FEAT_MAGIC].name = "magic";
 RPG.Feats[RPG.FEAT_MAGIC].prototype.init = function(owner, baseValue) {
 	this.parent(owner, baseValue);
 	var arr = this._drd();
@@ -104,7 +104,7 @@ RPG.Feats[RPG.FEAT_MAGIC].prototype.init = function(owner, baseValue) {
  * @augments RPG.Feats.AdvancedFeat
  */
 RPG.Feats[RPG.FEAT_DEXTERITY] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
-RPG.Feats[RPG.FEAT_DEXTERITY].name = "Dexterity";
+RPG.Feats[RPG.FEAT_DEXTERITY].name = "dexterity";
 RPG.Feats[RPG.FEAT_DEXTERITY].prototype.init = function(owner, baseValue) {
 	this.parent(owner, baseValue);
 	

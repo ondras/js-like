@@ -12,7 +12,25 @@ RPG.Story.prototype.init = function() {
 	this._mapdec = new RPG.Dungeon.Decorator();
 
 	OZ.Event.add(RPG.World, "action", this.bind(this._action));
-	this._openCharGen();
+}
+
+RPG.Story.prototype.go = function() {
+	var cg = new RPG.CharGen();
+
+	var w = OZ.DOM.win()[0];
+	var d = OZ.DOM.elm("div", {width:Math.round(w/2) + "px"});
+	var p1 = OZ.DOM.elm("p");
+	p1.innerHTML = "You are about to dive into the depths of a dungeon. "
+					+ "Your task is to venture into the lowest level, retrieve as much "
+					+ "valuables as possible and safely return to the surface.";
+	var p2 = OZ.DOM.elm("p", {className: "name"});
+	p2.innerHTML = "Your name: ";
+	p2.appendChild(this._name);
+
+	OZ.DOM.append([d, p1, p2, cg.build()]);
+	RPG.UI.showDialog(d, "Welcome, adventurer!");
+	
+	OZ.Event.add(cg, "chargen", this.bind(this._charGen));
 }
 
 RPG.Story.prototype._action = function(e) {
@@ -36,25 +54,6 @@ RPG.Story.prototype.generateDungeon = function(staircase) {
 	staircase.setTargetMap(map);
 	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
 	staircase.setTargetCoords(up.getCell().getCoords());
-}
-
-RPG.Story.prototype._openCharGen = function() {
-	var cg = new RPG.Story.CharGen();
-
-	var w = OZ.DOM.win()[0];
-	var d = OZ.DOM.elm("div", {width:Math.round(w/2) + "px"});
-	var p1 = OZ.DOM.elm("p");
-	p1.innerHTML = "You are about to dive into the depths of a dungeon. "
-					+ "Your task is to venture into the lowest level, retrieve as much "
-					+ "valuables as possible and safely return to the surface.";
-	var p2 = OZ.DOM.elm("p", {className: "name"});
-	p2.innerHTML = "Your name: ";
-	p2.appendChild(this._name);
-
-	OZ.DOM.append([d, p1, p2, cg.build()]);
-	RPG.UI.showDialog(d, "Welcome, adventurer!");
-	
-	OZ.Event.add(cg, "chargen", this.bind(this._charGen));
 }
 
 RPG.Story.prototype._charGen = function(e) {
@@ -91,6 +90,7 @@ RPG.Story.prototype._createPC = function(race, profession, name) {
 	var tmp = new RPG.Items.IronRation();
 	pc.addItem(tmp);	
 	
+
 	return pc;
 }
 
@@ -239,93 +239,3 @@ RPG.Story.prototype._buildChat = function() {
 	return c;
 }
 */
-
-/**
- * @class Character generator
- */
-RPG.Story.CharGen = OZ.Class();
-
-RPG.Story.CharGen.prototype.races = {
-	"Human": RPG.Races.Human, 
-	"Orc": RPG.Races.Orc, 
-	"Elf": RPG.Races.Elf, 
-	"Dwarf": RPG.Races.Dwarf
-};
-
-RPG.Story.CharGen.prototype.professions = [
-	RPG.Professions.Warrior,
-	RPG.Professions.Ranger,
-	RPG.Professions.Wizard
-];
-
-RPG.Story.CharGen.prototype.init = function() {
-	this._list = [];
-}
-
-RPG.Story.CharGen.prototype.build = function() {
-	var t = OZ.DOM.elm("table", {className:"chargen"});
-	var tb = OZ.DOM.elm("tbody");
-	t.appendChild(tb);
-	
-	var numRaces = 0;
-	var numProfessions = 0;
-	for (var p in RPG.Story.CharGen.races) { numRaces++; }
-	for (var p in RPG.Professions) { numProfessions++; }
-	
-	/* right part with race/profession selection */
-	this._buildMatrix(tb);
-	
-	OZ.Event.add(t, "click", this.bind(this._click));
-	
-	return t;
-}
-
-RPG.Story.CharGen.prototype._buildMatrix = function(tb) {
-	var tr = OZ.DOM.elm("tr");
-	tb.appendChild(tr);
-	var empty = OZ.DOM.elm("td");
-	tr.appendChild(empty);
-	
-	/* race labels */
-	for (var p in this.races) {
-		var td = OZ.DOM.elm("td");
-		td.innerHTML = p;
-		tr.appendChild(td);
-	}
-	
-	for (var i=0;i<this.professions.length;i++) {
-		var prof = new this.professions[i];
-		tr = OZ.DOM.elm("tr");
-		tb.appendChild(tr);
-		
-		/* profession label */
-		var td = OZ.DOM.elm("td");
-		td.innerHTML = prof.getName();
-		tr.appendChild(td);
-		
-		for (var q in this.races) {
-			/* cell */
-			var td = OZ.DOM.elm("td");
-			tr.appendChild(td);
-
-			var ctor = this.races[q];
-			var tmp = new ctor();
-			var img = OZ.DOM.elm("img");
-			img.src = "img/pc/" + tmp.getImage() + "-" + prof.getImage() + ".png";
-			td.appendChild(img);
-			
-			this._list.push([img, ctor, prof]);
-		}
-	}
-}
-
-RPG.Story.CharGen.prototype._click = function(e) {
-	var t = OZ.Event.target(e);
-	if (t.nodeName.toLowerCase() != "img") { return; }
-	for (var i=0;i<this._list.length;i++) {
-		var item = this._list[i];
-		if (item[0] == t) {
-			this.dispatch("chargen", {race: item[1], profession: item[2]});
-		}
-	}
-}

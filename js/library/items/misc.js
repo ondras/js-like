@@ -3,7 +3,7 @@
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Consumable = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Consumable.flags.abstr4ct = true;
+RPG.Items.Consumable.factory.ignore = true;
 RPG.Items.Consumable.prototype.init = function() {
 	this.parent();
 	this._char = "%";
@@ -20,7 +20,7 @@ RPG.Items.Consumable.prototype.eat = function(being) {
  * @augments RPG.Items.Consumable
  */
 RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Consumable);
-RPG.Items.Corpse.flags.abstr4ct = true;
+RPG.Items.Corpse.factory.ignore = true;
 RPG.Items.Corpse.prototype.init = function() {
 	this.parent();
 	this._image = "corpse";
@@ -114,7 +114,7 @@ RPG.Items.Gold.prototype.describe = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Gem = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Gem.flags.abstr4ct = true;
+RPG.Items.Gem.factory.ignore = true;
 RPG.Items.Gem.prototype.init = function() {
 	this.parent();
 	this._char = "*";
@@ -125,7 +125,7 @@ RPG.Items.Gem.prototype.init = function() {
  * @augments RPG.Items.Gem
  */
 RPG.Items.Diamond = OZ.Class().extend(RPG.Items.Gem);
-RPG.Items.Diamond.flags.frequency = 20;
+RPG.Items.Diamond.factory.frequency = 20;
 RPG.Items.Diamond.prototype.init = function() {
 	this.parent();
 	this._color = "white";
@@ -138,7 +138,7 @@ RPG.Items.Diamond.prototype.init = function() {
  * @augments RPG.Items.Gem
  */
 RPG.Items.Sapphire = OZ.Class().extend(RPG.Items.Gem);
-RPG.Items.Sapphire.flags.frequency = 25;
+RPG.Items.Sapphire.factory.frequency = 25;
 RPG.Items.Sapphire.prototype.init = function() {
 	this.parent();
 	this._color = "blue";
@@ -151,7 +151,7 @@ RPG.Items.Sapphire.prototype.init = function() {
  * @augments RPG.Items.Gem
  */
 RPG.Items.Ruby = OZ.Class().extend(RPG.Items.Gem);
-RPG.Items.Ruby.flags.frequency = 25;
+RPG.Items.Ruby.factory.frequency = 25;
 RPG.Items.Ruby.prototype.init = function() {
 	this.parent();
 	this._color = "red";
@@ -164,7 +164,7 @@ RPG.Items.Ruby.prototype.init = function() {
  * @augments RPG.Items.Gem
  */
 RPG.Items.Opal = OZ.Class().extend(RPG.Items.Gem);
-RPG.Items.Opal.flags.frequency = 25;
+RPG.Items.Opal.factory.frequency = 25;
 RPG.Items.Opal.prototype.init = function() {
 	this.parent();
 	this._color = "magenta";
@@ -177,7 +177,7 @@ RPG.Items.Opal.prototype.init = function() {
  * @augments RPG.Items.Gem
  */
 RPG.Items.Turquoise = OZ.Class().extend(RPG.Items.Gem);
-RPG.Items.Turquoise.flags.frequency = 25;
+RPG.Items.Turquoise.factory.frequency = 25;
 RPG.Items.Turquoise.prototype.init = function() {
 	this.parent();
 	this._color = "turquoise";
@@ -190,7 +190,7 @@ RPG.Items.Turquoise.prototype.init = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Potion = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Potion.flags.abstr4ct = true;
+RPG.Items.Potion.factory.ignore = true;
 RPG.Items.Potion.prototype.init = function() {
 	this.parent();
 	this._char = "!";
@@ -222,7 +222,7 @@ RPG.Items.HealingPotion.prototype.drink = function(being) {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Ring = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Ring.flags.abstr4ct = true;
+RPG.Items.Ring.factory.ignore = true;
 RPG.Items.Ring.prototype.init = function() {
 	this.parent();
 	this._char = "=";
@@ -230,12 +230,40 @@ RPG.Items.Ring.prototype.init = function() {
 
 /**
  * @class Brass ring
- * @augments RPG.Items.BaseItem
+ * @augments RPG.Items.Ring
  */
 RPG.Items.BrassRing = OZ.Class().extend(RPG.Items.Ring);
 RPG.Items.BrassRing.prototype.init = function() {
 	this.parent();
-	 /* FIXME */
+	this._image= "brass-ring";
 	this._color = "burlywood";
 	this._description = "brass ring";
+}
+
+/**
+ * @class Ring modifying attribute
+ * @augments RPG.Items.Ring
+ */
+RPG.Items.RingOfAttribute = OZ.Class().extend(RPG.Items.Ring);
+RPG.Items.RingOfAttribute.factory.method = function(danger) {
+	var att = RPG.ATTRIBUTES.random();
+	var amount = 1 + (danger/8);
+	return new this(att, amount);
+}
+RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
+	this.parent();
+	
+	var rv = new RPG.Misc.RandomValue(amount, 2*amount/3);
+	this._modifiers[attribute] = rv.roll();
+
+	this._attribute = attribute;
+	this._image = "silver-ring";
+	this._color = "silver";
+	this._description = "ring of " + RPG.Feats[attribute].name;
+	this._descriptionPlural = "rings of " + RPG.Feats[attribute].name;
+}
+RPG.Items.RingOfAttribute.prototype.clone = function() {
+	var clone = new this.constructor(this._attribute, 0);
+	clone._modifiers[this._attribute] = this._modifiers[this._attribute];
+	return clone;
 }

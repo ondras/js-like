@@ -70,13 +70,14 @@ RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Visual.IVisual)
 						.implement(RPG.Misc.IModifier)
 						.implement(RPG.Misc.ISerializable);
-RPG.Items.BaseItem.flags.abstr4ct = true;
+RPG.Items.BaseItem.factory.ignore = true;
 RPG.Items.BaseItem.prototype.init = function() {
 	this._initVisuals();
 	this._descriptionPlural = null;
 	this._modifiers = {};
 	this._amount = 1;
 	this._uncountable = false;
+	this._remembered = false;
 }
 
 /**
@@ -107,11 +108,8 @@ RPG.Items.BaseItem.prototype.subtract = function(amount) {
 	this.setAmount(this._amount - amount);
 	clone.setAmount(amount);
 	
-	/* if owner knows original item, let him know also the cloned version */
-	var im = RPG.World.pc.itemMemory();
-	if (im.remembers(this)) {
-		im.remember(clone);
-	}
+	/* if the original item was remembered, let him know also the cloned version */
+	if (this._remembered) { clone.remember(); }
 	
 	return clone;
 }
@@ -125,12 +123,15 @@ RPG.Items.BaseItem.prototype.setAmount = function(amount) {
 	return this;
 }
 
+RPG.Items.BaseItem.prototype.remember = function() {
+	this._remembered = true;
+}
+
 /**
- * Items are described with respect to PC's itemMemory
+ * Items are described with respect to their "remembered" state
  * @see RPG.Visual.IVisual#describe
  */
 RPG.Items.BaseItem.prototype.describe = function() {
-	var im = RPG.World.pc.itemMemory();
 	var s = "";
 	if (this._amount == 1) {
 		s += this._description;
@@ -139,32 +140,59 @@ RPG.Items.BaseItem.prototype.describe = function() {
 		s += this._descriptionPlural || (this._description + "s");
 	}
 
-	if (im.remembers(this)) {
+	if (this._remembered) {
 		var mods = this._describeModifiers();
 		if (mods) { s += " " + mods; }
 	}
+
 	return s;
 }
 
 RPG.Items.BaseItem.prototype._describeModifiers = function() {
 	var mods = this.getModified();
-	if (mods.indexOf(RPG.FEAT_DV) != -1 || mods.indexOf(RPG.FEAT_PV) != -1) {
-		var dv = this.getModifier(RPG.FEAT_DV);
-		var pv = this.getModifier(RPG.FEAT_PV);
-		if (dv > 0) { dv = "+"+dv; }
-		if (pv > 0) { pv = "+"+pv; }
-		return "["+dv+","+pv+"]";
+	var dv = null;
+	var pv = null;
+	var arr = [];
+
+	for (var i=0;i<mods.length;i++) {
+		var c = mods[i];
+		if (c == RPG.FEAT_DV) { dv = c; }
+		if (c == RPG.FEAT_PV) { pv = c; }
+		if (RPG.ATTRIBUTES.indexOf(c) != -1) {
+			var a = RPG.Feats[c];
+			var str = a.name.capitalize().substring(0, 3);
+			var num = this.getModifier(c);
+			if (num >= 0) { num = "+"+num; }
+			arr.push("{"+str+num+"}");
+		}
 	}
-	return "";
+	
+	if (dv || pv) {
+		dv = this.getModifier(RPG.FEAT_DV);
+		pv = this.getModifier(RPG.FEAT_PV);
+		if (dv >= 0) { dv = "+"+dv; }
+		if (pv >= 0) { pv = "+"+pv; }
+		arr.push("["+dv+","+pv+"]");
+	}
+	
+	return arr.join(" ");
 }
 
 /**
  * Can this item be merged with other one? This is possible only when items are truly the same.
  * @param {RPG.Items.BaseItem}
- * FIXME!
  */
 RPG.Items.BaseItem.prototype.isSameAs = function(item) {
 	if (item.constructor != this.constructor) { return false; }
+	
+	for (var p in this._modifiers) {
+		if (item._modifiers[p] != this._modifiers[p]) { return false; }
+	}
+	
+	for (var p in item._modifiers) {
+		if (item._modifiers[p] != this._modifiers[p]) { return false; }
+	}
+
 	return true;
 }
 
@@ -174,20 +202,13 @@ RPG.Items.BaseItem.prototype.isSameAs = function(item) {
  * @returns {bool} Was this item merged? false = no, it was appended
  */
 RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
-	var im = (RPG.World.pc ? RPG.World.pc.itemMemory() : null);
-	
 	for (var i=0;i<listOfItems.length;i++) {
 		var item = listOfItems[i];
 		if (item.isSameAs(this)) {
 			/* merge! */
 			item.setAmount(item.getAmount() + this.getAmount());
-			
-			if (im && im.remembers(this)) { 
-				/* this item was remembered, mark the heap as remembered as well */
-				im.remember(item); 
-				/* item disappears, remove from memory */
-				im.forget(this);
-			}
+			/* this item was remembered, mark the heap as remembered as well */
+			if (this._remembered) { item.remember(); }
 			return true;
 		}
 	}
@@ -275,6 +296,15 @@ RPG.Actions.BaseAction.prototype.init = function(source, target, params) {
 	this._tookTime = true;
 }
 RPG.Actions.BaseAction.prototype.getSource = function() {
+ 	if (!window.__log) { window.__log = []; }
+	var caller = arguments.callee.caller;
+	var found = false;
+	for (var i=0;i<__log.length;i++) {
+		var item = window.__log[i];
+		if (item[0] == caller) { item[1]++; found = true; }
+	}
+	if (!found) { window.__log.push([caller, 1]); }
+
 	return this._source;
 }
 RPG.Actions.BaseAction.prototype.getTarget = function() {

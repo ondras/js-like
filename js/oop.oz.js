@@ -5,10 +5,11 @@ OZ.Class = function() {
 		if (init) { init.apply(this,arguments); }
 	};
 
-	c.flags = {
+	c.factory = {
 		danger: 1,
 		frequency: 100,
-		abstr4ct: false
+		ignore: false,
+		method: null
 	}
 	arguments.callee.all.push(c);
 	

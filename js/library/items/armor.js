@@ -3,7 +3,7 @@
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Shield = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Shield.flags.abstr4ct = true;
+RPG.Items.Shield.factory.ignore = true;
 RPG.Items.Shield.prototype.init = function() {
 	this.parent();
 	this._char = "[";
@@ -53,7 +53,7 @@ RPG.Items.LargeShield.prototype.init = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.HeadGear = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.HeadGear.flags.abstr4ct = true;
+RPG.Items.HeadGear.factory.ignore = true;
 RPG.Items.HeadGear.prototype.init = function() {
 	this.parent();
 	this._char = "[";
@@ -65,7 +65,7 @@ RPG.Items.HeadGear.prototype.init = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Boots = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Boots.flags.abstr4ct = true;
+RPG.Items.Boots.factory.ignore = true;
 RPG.Items.Boots.prototype.init = function() {
 	this.parent();
 	this._char = "[";
@@ -77,7 +77,7 @@ RPG.Items.Boots.prototype.init = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Armor = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Armor.flags.abstr4ct = true;
+RPG.Items.Armor.factory.ignore = true;
 RPG.Items.Armor.prototype.init = function() {
 	this.parent();
 	this._char = "]";
@@ -117,13 +117,13 @@ RPG.Items.LeatherBoots.prototype.init = function() {
  * @augments RPG.Items.Armor
  */
 RPG.Items.Clothes = OZ.Class().extend(RPG.Items.Armor);
-RPG.Items.Clothes.flags.frequency = 125;
+RPG.Items.Clothes.factory.frequency = 125;
 RPG.Items.Clothes.prototype.init = function() {
 	this.parent();
 	this._uncountable = true;
 	this._color = "lime";
 	this._description = "clothes";
-	/* FIXME image */
+	this._image = "clothes"
 	this._modifiers[RPG.FEAT_PV] = 1;
 }
 
@@ -135,7 +135,7 @@ RPG.Items.LeatherArmor = OZ.Class().extend(RPG.Items.Armor);
 RPG.Items.LeatherArmor.prototype.init = function() {
 	this.parent();
 	this._description = "leather armor";
-	 /* FIXME image */
+	this._image = "leather-armor";
 	this._modifiers[RPG.FEAT_DV] = 1;
 	this._modifiers[RPG.FEAT_PV] = 1;
 }
@@ -149,7 +149,7 @@ RPG.Items.ChainMail.prototype.init = function() {
 	this.parent();
 	this._color = "darkgray";
 	this._description = "chain mail";
-	 /* FIXME image */
+	this._image = "chain-mail";
 	this._modifiers[RPG.FEAT_PV] = 2;
 }
 
@@ -162,7 +162,7 @@ RPG.Items.ScaleMail.prototype.init = function() {
 	this.parent();
 	this._color = "darkgray";
 	this._description = "scale mail";
-	 /* FIXME image */
+	this._image = "scale-mail";
 	this._modifiers[RPG.FEAT_DV] = -2;
 	this._modifiers[RPG.FEAT_PV] = 4;
 }

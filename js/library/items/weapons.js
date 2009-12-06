@@ -4,7 +4,7 @@
  * @augments RPG.Misc.IWeapon
  */
 RPG.Items.Weapon = OZ.Class().extend(RPG.Items.BaseItem).implement(RPG.Misc.IWeapon);
-RPG.Items.Weapon.flags.abstr4ct = true;
+RPG.Items.Weapon.factory.ignore = true;
 RPG.Items.Weapon.prototype.init = function(hit, damage) {
 	this.parent();
 	this.setHit(hit);
@@ -13,8 +13,9 @@ RPG.Items.Weapon.prototype.init = function(hit, damage) {
 	this._color = "lightgray";
 }
 
-RPG.Items.Weapon.prototype._describeModifiers = function(who) {
-	return "(" + this._hit.toString() + ", " + this._damage.toString() + ")";
+RPG.Items.Weapon.prototype._describeModifiers = function() {
+	var mods = this.parent();
+	return "(" + this._hit.toString() + ", " + this._damage.toString() + ")" + (mods ? " "+mods : "");
 }
 
 /**
@@ -58,6 +59,7 @@ RPG.Items.Club.prototype.init = function() {
 RPG.Items.ShortSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.ShortSword.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(4, 2));
+	
 	this._color = "darkgray";
 	this._image = "short-sword";
 	this._description = "short sword"; 
@@ -92,9 +94,12 @@ RPG.Items.Axe.prototype.init = function() {
  * @augments RPG.Items.Weapon
  */
 RPG.Items.KlingonSword = OZ.Class().extend(RPG.Items.Weapon)
-RPG.Items.KlingonSword.flags.danger = -1;
+RPG.Items.KlingonSword.factory.ignore = true;
 RPG.Items.KlingonSword.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(10, 3), new RPG.Misc.RandomValue(10, 3));
+	this._modifiers[RPG.FEAT_DV] = 1;
+	this._modifiers[RPG.FEAT_PV] = 1;
+	this._modifiers[RPG.FEAT_STRENGTH] = 2;
 	this._color = "gold";
 	this._image = "klingon-sword";
 	this._description = "Klingon ceremonial sword";

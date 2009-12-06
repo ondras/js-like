@@ -97,7 +97,6 @@ RPG.Beings.BaseBeing.prototype.getCell = function() {
 	return this._cell;
 }
 
-
 /**
  * @param {string}
  */
@@ -111,9 +110,7 @@ RPG.Beings.BaseBeing.prototype.getName = function() {
 }
 
 RPG.Beings.BaseBeing.prototype.addItem = function(item) { 
-	var result = item.mergeInto(this._items);
-	if (!result) { this._itemMemory.remember(item); }
-	return this;
+	item.mergeInto(this._items);
 }
 
 RPG.Beings.BaseBeing.prototype.removeItem = function(item) { 

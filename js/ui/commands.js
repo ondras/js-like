@@ -867,7 +867,7 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 		
 		/* FIXME magic wand in hand? */
 		
-		var spells = RPG.World.pc.spellMemory().getSpells().clone();
+		var spells = RPG.World.pc.getSpells().clone();
 		if (spells.length) {
 			spells.sort(function(a,b) { return a.describe().localeCompare(b.describe()); });
 			RPG.UI.setMode(RPG.UI_WAIT_DIALOG);

@@ -55,15 +55,17 @@ RPG.Engine.AI.prototype.syncWithAlignment = function() {
  */
 RPG.Engine.AI.prototype._action = function(e) {
 	var a = e.data;
+	var source = a.getSource();
+	var target = a.getTarget();
 
 	/* we just died */
-	if (a.getSource() == this._being && a instanceof RPG.Actions.Death) {
+	if (source == this._being && a instanceof RPG.Actions.Death) {
 		OZ.Event.remove(this._event);
 		return;
 	}
 
 	/* only actions which target us */
-	if (a.getTarget() != this._being) { return; }
+	if (target != this._being) { return; }
 
 	/* not interested if not alive */
 	if (!this._being.isAlive()) { return; }
@@ -77,17 +79,17 @@ RPG.Engine.AI.prototype._action = function(e) {
 			var goal = this._tasks[i][0];	
 		
 			/* we are already attacking him */
-			if (goal instanceof RPG.Engine.AI.Kill && goal.getTarget() == a.getSource()) { kill = true; }
+			if (goal instanceof RPG.Engine.AI.Kill && goal.getTarget() == source) { kill = true; }
 
 			/* we are already retreating */
-			if (goal instanceof RPG.Engine.AI.Retreat && goal.getTarget() == a.getSource()) { retreat = true; }
+			if (goal instanceof RPG.Engine.AI.Retreat && goal.getTarget() == source) { retreat = true; }
 		}
 		
 		if (!kill) {
 			/* let's kill the bastard! */
 			var str = this._being.describeThe().capitalize() + " gets very angry!";
 			RPG.UI.buffer.message(str);
-			var goal = new RPG.Engine.AI.Kill(a.getSource());
+			var goal = new RPG.Engine.AI.Kill(source);
 			this.addTask(goal);
 		}
 		
@@ -95,7 +97,7 @@ RPG.Engine.AI.prototype._action = function(e) {
 			/* too much damage, run for your life! */
 			var str = this._being.describeThe().capitalize() + " looks frightened!";
 			RPG.UI.buffer.message(str);
-			var goal = new RPG.Engine.AI.Retreat(a.getSource());
+			var goal = new RPG.Engine.AI.Retreat(source);
 			this.addTask(goal);
 			
 		}

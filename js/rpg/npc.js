@@ -3,7 +3,7 @@
  * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.NPC = OZ.Class().extend(RPG.Beings.BaseBeing);
-RPG.Beings.NPC.flags.abstr4ct = true;
+RPG.Beings.NPC.factory.ignore = true;
 
 RPG.Beings.NPC.prototype.init = function(race) {
 	this.parent(race);

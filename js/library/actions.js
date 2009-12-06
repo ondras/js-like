@@ -277,7 +277,6 @@ RPG.Actions.Pick.prototype.execute = function() {
 	var pc = RPG.World.pc;
 	var cell = this._source.getCell();
 	var you = (this._source == pc);
-	
 	for (var i=0;i<arr.length;i++) {
 		var pair = arr[i];
 		var item = pair[0];

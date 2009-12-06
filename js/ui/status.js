@@ -88,7 +88,7 @@ RPG.UI.Status.prototype._build = function(container) {
 		var a = RPG.Feats[c];
 		var td = OZ.DOM.elm("td");
 		tr.appendChild(td);
-		td.innerHTML = a.name + ": ";
+		td.innerHTML = a.name.capitalize() + ": ";
 		var s = OZ.DOM.elm("span");
 		this._dom.feats[c] = s;
 		td.appendChild(s);

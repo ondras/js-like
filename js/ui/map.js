@@ -137,6 +137,7 @@ RPG.UI.ImageCell.prototype.init = function(owner, coords) {
 	this.parent(owner);
 
 	this._dom.focus = owner._dom.focus;
+	this._topLayer = null;
 	
 	var ts = owner.options.tileSize;
 	var container = owner._dom.container;
@@ -161,11 +162,20 @@ RPG.UI.ImageCell.prototype.update = function(data, remembered) {
 	for (var i=0;i<this._dom.nodes.length;i++) {
 		var what = (data.length > i ? data[i] : null);
 		this._updateImage(this._dom.nodes[i], what);
+		if (i == 1) { this._topLayer = what; }
 	}
 }
 
 RPG.UI.ImageCell.prototype.addFocus = function() {
 	this._dom.container.appendChild(this._dom.focus);
+}
+
+RPG.UI.ImageCell.prototype.addProjectile = function(projectile) {
+	this._updateImage(this._dom.nodes[1], projectile);
+}
+
+RPG.UI.ImageCell.prototype.removeProjectile = function() {
+	this._updateImage(this._dom.nodes[1], this._topLayer);
 }
 
 RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
@@ -187,6 +197,8 @@ RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 		type = "items";
 	} else if (what instanceof RPG.Cells.BaseCell) {
 		type = "cells";
+	} else if (what instanceof RPG.Spells.BaseSpell) {
+		type = "spells";
 	} else if (what instanceof RPG.Features.BaseFeature) {
 		type = "features";
 	}
@@ -194,7 +206,6 @@ RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 	var url = "img/"+type+"/"+src+".png";
 	if (node.src.indexOf(url) == -1) { 
 		node.src = url; 
-	} else {
 	}
 	node.alt = text;
 	node.title = text;

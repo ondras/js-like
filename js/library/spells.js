@@ -32,7 +32,7 @@ RPG.Spells.Heal.prototype.cast = function(caster, dir) {
 RPG.Spells.Projectile = OZ.Class()
 						.extend(RPG.Spells.BaseSpell)
 						.implement(RPG.Misc.IProjectile);
-RPG.Spells.Projectile.flags.abstr4ct = true;
+RPG.Spells.Projectile.factory.ignore = true;
 
 RPG.Spells.Projectile.prototype.init = function(name, cost) {
 	this.parent(name, cost);
@@ -100,7 +100,7 @@ RPG.Spells.MagicBolt.prototype.init = function() {
 	this.parent("magic bolt", 6);
 	this._type = RPG.SPELL_DIRECTION;
 
-	this._image = ""; /* FIXME */
+	this._image = "magic-bolt"; /* FIXME */
 	this._color = "blueviolet";
 	this._damage = new RPG.Misc.RandomValue(4, 1);
 }

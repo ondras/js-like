@@ -139,7 +139,7 @@ RPG.Dungeon.Decorator.prototype.decorateRoomInterior = function(room, options) {
 
 RPG.Dungeon.Decorator.prototype.addBeings = function(count) {
 	for (var i=0;i<count;i++) {
-		var b = RPG.Beings.NPC.getInstance();
+		var b = RPG.Beings.NPC.getInstance(1);
 		var c = this._map.getFreeCoords(true);
 		this._map.at(c).setBeing(b);
 	}
@@ -147,7 +147,7 @@ RPG.Dungeon.Decorator.prototype.addBeings = function(count) {
 
 RPG.Dungeon.Decorator.prototype.addItems = function(count) {
 	for (var i=0;i<count;i++) {
-		var item = RPG.Items.getInstance();
+		var item = RPG.Items.getInstance(1);
 		var c = this._map.getFreeCoords(true);
 		this._map.at(c).addItem(item);
 	}
@@ -155,7 +155,7 @@ RPG.Dungeon.Decorator.prototype.addItems = function(count) {
 
 RPG.Dungeon.Decorator.prototype.addTraps = function(count) {
 	for (var i=0;i<count;i++) {
-		var trap = RPG.Features.Trap.getInstance();
+		var trap = RPG.Features.Trap.getInstance(1);
 		var c = this._map.getFreeCoords(true);
 		this._map.at(c).setFeature(trap);
 	}
@@ -165,7 +165,7 @@ RPG.Dungeon.Decorator.prototype._generateTreasure = function() {
 	if (Math.randomPercentage() < 67) {
 		return new RPG.Items.Gold();
 	} else {
-		return RPG.Items.Gem.getInstance();
+		return RPG.Items.Gem.getInstance(1);
 	}
 }
 

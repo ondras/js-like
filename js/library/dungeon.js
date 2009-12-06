@@ -110,7 +110,7 @@ RPG.Features.Door.prototype.damage = function(amount) {
  * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Trap = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Trap.flags.abstr4ct = true;
+RPG.Features.Trap.factory.ignore = true;
 RPG.Features.Trap.prototype.init = function() {
 	this.parent();
 	this._char = "^";

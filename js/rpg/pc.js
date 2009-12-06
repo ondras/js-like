@@ -9,10 +9,9 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this._image += "-" + profession.getImage();
 	
 	this._mapMemory = new RPG.Memory.MapMemory();
-	this._itemMemory = new RPG.Memory.ItemMemory();
-	this._spellMemory = new RPG.Memory.SpellMemory();
 	this._visibleCells = [];
 	
+	this._spells = [];
 	this._description = "you";
 	this._char = "@";
 	this.setFeat(RPG.FEAT_DV, 5);
@@ -35,21 +34,28 @@ RPG.Beings.PC.prototype.mapMemory = function() {
 	return this._mapMemory;
 }
 
-RPG.Beings.PC.prototype.itemMemory = function() {
-	return this._itemMemory;
-}
-
-RPG.Beings.PC.prototype.spellMemory = function() {
-	return this._spellMemory;
-}
-
 RPG.Beings.PC.prototype.getVisibleCoords = function() {
 	return this._visibleCoords;
+}
+
+RPG.Beings.PC.prototype.addItem = function(item) { 
+	item.remember();
+	return this.parent(item);
 }
 
 RPG.Beings.PC.prototype.setName = function(name) {
 	this.parent(name);
 	RPG.UI.status.updateName(this._name);
+	return this;
+}
+
+RPG.Beings.PC.prototype.addSpell = function(spell) {
+	this._spells.push(spell);
+	return this;
+}
+
+RPG.Beings.PC.prototype.getSpells = function() {
+	return this._spells;
 }
 
 RPG.Beings.PC.prototype.setStat = function(stat, value) {

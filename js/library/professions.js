@@ -24,7 +24,7 @@ RPG.Professions.Ranger.prototype.setup = function(being) {
 	this.parent(being);
 
 	var s = new RPG.Spells.Heal();
-	being.spellMemory().addSpell(s);
+	being.addSpell(s);
 }
 
 RPG.Professions.Wizard = OZ.Class().extend(RPG.Professions.BaseProfession);
@@ -40,7 +40,7 @@ RPG.Professions.Wizard.prototype.setup = function(being) {
 	being.adjustFeat(RPG.FEAT_MAXHP, -3);
 
 	var s = new RPG.Spells.MagicBolt();
-	being.spellMemory().addSpell(s);
+	being.addSpell(s);
 	var s = new RPG.Spells.Heal();
-	being.spellMemory().addSpell(s);
+	being.addSpell(s);
 }
