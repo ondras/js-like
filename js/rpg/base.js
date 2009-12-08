@@ -442,28 +442,51 @@ RPG.Slots.BaseSlot.prototype.getName = function() {
 /**
  * @class Base abstract spell
  * @augments RPG.Misc.ISerializable
+ * @augments RPG.Misc.IWeapon
  * @augments RPG.Visual.IVisual
  */
 RPG.Spells.BaseSpell = OZ.Class()
 						.implement(RPG.Misc.ISerializable)
+						.implement(RPG.Misc.IWeapon)
 						.implement(RPG.Visual.IVisual);
+RPG.Spells.BaseSpell.factory.ignore = true;
+RPG.Spells.BaseSpell.cost = null;
+RPG.Spells.BaseSpell.name = "";
+RPG.Spells.BaseSpell.damage = null;
 
-RPG.Spells.BaseSpell.prototype.init = function(name, cost) {
+RPG.Spells.BaseSpell.prototype.init = function(caster) {
 	this._initVisuals();
-	this._description = name;
-	this._cost = cost;
+	
 	this._type = RPG.SPELL_SELF;
+	this._caster = caster;
+	this._hit = null;
+	this._damage = null;
 }
 
-RPG.Spells.BaseSpell.prototype.cast = function(caster, target) {
+RPG.Spells.BaseSpell.prototype.describe = function() {
+	return this.constructor.name;
+}
+
+RPG.Spells.BaseSpell.prototype.cast = function(target) {
 }
 
 RPG.Spells.BaseSpell.prototype.getCost = function() { 
-	return this._cost;
+	return this.constructor.cost;
 }
 
 RPG.Spells.BaseSpell.prototype.getType = function() { 
 	return this._type;
+}
+
+RPG.Spells.BaseSpell.prototype.getDamage = function() {
+	var base = this.constructor.damage;
+	var m = base.mean + this._caster.getFeat(RPG.FEAT_MAGICDAMAGE);
+	var v = base.variance;
+	return new RPG.Misc.RandomValue(m, v);
+}
+
+RPG.Spells.BaseSpell.prototype.getCaster = function() {
+	return this._caster;
 }
 
 /**
@@ -474,10 +497,6 @@ RPG.Professions.BaseProfession = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Professions.BaseProfession.init = function() {
 	this._image = "";
 	this._name = "";
-}
-
-RPG.Professions.BaseProfession.prototype.getName = function() {
-	return this._name;
 }
 RPG.Professions.BaseProfession.prototype.setup = function(being) {
 }

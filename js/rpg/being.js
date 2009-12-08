@@ -22,7 +22,7 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._effects = [];
 	this._turnCounter = null;
 	this._modifierList = [];
-	
+
 	this._setRace(race);
 	this._initStatsAndFeats();
 }
@@ -69,10 +69,12 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	}
 
 	/* base feats */
-	var misc = [RPG.FEAT_MAXHP, RPG.FEAT_MAXMANA, RPG.FEAT_DV, RPG.FEAT_PV, RPG.FEAT_SPEED, RPG.FEAT_HIT, RPG.FEAT_DAMAGE];
+	var misc = [RPG.FEAT_MAXHP, RPG.FEAT_MAXMANA, RPG.FEAT_DV, 
+				RPG.FEAT_PV, RPG.FEAT_SPEED, RPG.FEAT_HIT, 
+				RPG.FEAT_DAMAGE, RPG.FEAT_MAGICDAMAGE];
 	for (var i=0;i<misc.length;i++) {
 		var name = misc[i];
-		this._feats[name] = new RPG.Feats[name](this, defaults[name] || 0);
+		this._feats[name] = new RPG.Feats.BaseFeat(this, defaults[name] || 0);
 	}
 	
 	for (var p in this._feats) { this.updateFeat(p); }

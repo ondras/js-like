@@ -49,13 +49,7 @@ RPG.UI.Itemlist.prototype.init = function(data, label, pick, callback) {
 
 RPG.UI.Itemlist.prototype._prepare = function(items) {
 	/* sort items by groups */
-	var arr = [];
-	for (var p in this._groups) {
-		for (var i=0;i<items.length;i++) {
-			var item = items[i];
-			if (item instanceof this._groups[p]) { arr.push(item); }
-		}
-	}
+	var arr = this._sortData(items);
 
 	/* prepare data structure */
 	this._data = [];
@@ -70,6 +64,17 @@ RPG.UI.Itemlist.prototype._prepare = function(items) {
 		obj.label.innerHTML = "&nbsp;" + this._format(arr[i]) + "&nbsp;";
 		this._data.push(obj);
 	}
+}
+
+RPG.UI.Itemlist.prototype._sortData = function(items) {
+	var arr = [];
+	for (var p in this._groups) {
+		for (var i=0;i<items.length;i++) {
+			var item = items[i];
+			if (item instanceof this._groups[p]) { arr.push(item); }
+		}
+	}
+	return arr;
 }
 
 RPG.UI.Itemlist.prototype._addEvents = function() {
@@ -152,12 +157,7 @@ RPG.UI.Itemlist.prototype._buildBottom = function() {
 }
 
 RPG.UI.Itemlist.prototype._buildGroup = function(name, data) {
-	var arr = [];
-	var ctor = this._groups[name];
-	for (var i=0;i<data.length;i++) {
-		var item = data[i].item;
-		if (item instanceof ctor) { arr.push(data[i]); }
-	}
+	var arr = this._filterByGroup(name, data);
 	if (!arr.length) { return; }
 	
 	var th = OZ.DOM.elm("thead");
@@ -178,6 +178,16 @@ RPG.UI.Itemlist.prototype._buildGroup = function(name, data) {
 		var item = this._buildItem(arr[i]);
 		tb.appendChild(item);
 	}
+}
+
+RPG.UI.Itemlist.prototype._filterByGroup = function(name, data) {
+	var arr = [];
+	var ctor = this._groups[name];
+	for (var i=0;i<data.length;i++) {
+		var item = data[i].item;
+		if (item instanceof ctor) { arr.push(data[i]); }
+	}
+	return arr;
 }
 
 RPG.UI.Itemlist.prototype._buildItem = function(item) {
@@ -295,10 +305,26 @@ RPG.UI.Spelllist.prototype.init = function(data, label, callback) {
 }
 
 RPG.UI.Spelllist.prototype._format = function(item) {
-	var str = "(" + item.getCost() + ") ";
-	str += item.describe().capitalize();
-	if (item.constructor.implements(RPG.Misc.IProjectile)) {
-		str += " (" + item.getDamage().toString() + ")";
+	var str = "(" + item.cost + ") ";
+	str += item.name.capitalize();
+	if (item.implements(RPG.Misc.IProjectile)) {
+		str += " (" + item.damage.toString() + ")";
 	}
 	return str;
+}
+
+RPG.UI.Spelllist.prototype._sortData = function(items) {
+	var arr = items.clone();
+	arr.sort(function(a,b) { return a.name.localeCompare(b.name); });
+	return arr;
+}
+
+RPG.UI.Spelllist.prototype._filterByGroup = function(name, data) {
+	var arr = [];
+	var ctor = this._groups[name];
+	for (var i=0;i<data.length;i++) {
+		var item = data[i].item;
+		if (item == ctor || item.extends(ctor)) { arr.push(data[i]); }
+	}
+	return arr;
 }

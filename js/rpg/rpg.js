@@ -123,9 +123,11 @@ RPG.FEAT_PV				= 7;
 /** @constant */
 RPG.FEAT_SPEED			= 8;
 /** @constant */
-RPG.FEAT_DAMAGE			= 9;
+RPG.FEAT_HIT			= 9;
 /** @constant */
-RPG.FEAT_HIT			= 10;
+RPG.FEAT_DAMAGE			= 10;
+/** @constant */
+RPG.FEAT_MAGICDAMAGE	= 11;
 
 /** @constant */
 RPG.STAT_HP				= 0;

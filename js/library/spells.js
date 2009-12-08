@@ -3,15 +3,18 @@
  * @augments RPG.Spells.BaseSpell
  */
 RPG.Spells.Heal = OZ.Class().extend(RPG.Spells.BaseSpell);
-
-RPG.Spells.Heal.prototype.init = function() {
-	this.parent("Heal", 4);
+RPG.Spells.Heal.name = "Heal";
+RPG.Spells.Heal.cost = 4;
+RPG.Spells.Heal.prototype.init = function(caster) {
+	this.parent(caster);
 	this._type = RPG.SPELL_TOUCH;
 }
 
-RPG.Spells.Heal.prototype.cast = function(caster, dir) {
-	var map = caster.getCell().getMap();
-	var target = caster.getCell().getCoords().clone().plus(RPG.DIR[dir]);
+RPG.Spells.Heal.prototype.cast = function(dir) {
+	this.parent(dir);
+	
+	var map = this._caster.getCell().getMap();
+	var target = this._caster.getCell().getCoords().clone().plus(RPG.DIR[dir]);
 	var cell = map.at(target);
 	var being = cell.getBeing();
 
@@ -34,13 +37,13 @@ RPG.Spells.Projectile = OZ.Class()
 						.implement(RPG.Misc.IProjectile);
 RPG.Spells.Projectile.factory.ignore = true;
 
-RPG.Spells.Projectile.prototype.init = function(name, cost) {
-	this.parent(name, cost);
+RPG.Spells.Projectile.prototype.init = function(caster) {
+	this.parent(caster);
 
 	this._coords = null;
 	this._dir = null;
 	this._distance = 5;
-	this._damage = null;
+	this._traveledDistance = 0;
 	
 	this._chars = {};
 	this._chars[RPG.N]  = "|";
@@ -51,22 +54,30 @@ RPG.Spells.Projectile.prototype.init = function(name, cost) {
 	this._chars[RPG.SW] = "/";
 	this._chars[RPG.W]  = "–";
 	this._chars[RPG.NW] = "\\";
+	
+	/* FIXME images */
 }
 
-RPG.Spells.Projectile.prototype.cast = function(caster, dir) {
+RPG.Spells.Projectile.prototype.cast = function(dir) {
+	this.parent(dir);
+	
 	this._char = this._chars[dir];
-	this._caster = caster;
-	var coords = caster.getCell().getCoords();
+
+	var coords = this._caster.getCell().getCoords();
 	this._startCoords = coords;
+	this._traveledDistance = 0;
+	
 	this.launch(coords.clone(), dir);
 }
 
 RPG.Spells.Projectile.prototype.iterate = function() {
+	this._traveledDistance++;
+	
 	this._coords.plus(RPG.DIR[this._dir]);
 	var cell = this._caster.getCell().getMap().at(this._coords);
 
 	var end = false;
-	if (this._startCoords.distance(this._coords) > this._distance) {
+	if (this._traveledDistance > this._distance) {
 		end = true;
 	} else if (!cell.isFree()) {
 		var b = cell.getBeing();
@@ -95,12 +106,13 @@ RPG.Spells.Projectile.prototype.iterate = function() {
  * @augments RPG.Spells.Projectile
  */
 RPG.Spells.MagicBolt = OZ.Class().extend(RPG.Spells.Projectile);
-
-RPG.Spells.MagicBolt.prototype.init = function() {
-	this.parent("magic bolt", 6);
+RPG.Spells.MagicBolt.name = "magic bolt";
+RPG.Spells.MagicBolt.cost = 6;
+RPG.Spells.MagicBolt.damage = new RPG.Misc.RandomValue(4, 1);
+RPG.Spells.MagicBolt.prototype.init = function(caster) {
+	this.parent(caster);
 	this._type = RPG.SPELL_DIRECTION;
 
 	this._image = "magic-bolt"; /* FIXME */
 	this._color = "blueviolet";
-	this._damage = new RPG.Misc.RandomValue(4, 1);
 }

@@ -1,6 +1,6 @@
 /**
  * @class Goblin
- * @augments RPG.Beings.BaseBeing
+ * @augments RPG.Beings.NPC
  */
 RPG.Beings.Goblin = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Goblin.prototype.init = function() {
@@ -77,7 +77,7 @@ RPG.Beings.HobgoblinLeader.prototype.init = function() {
 
 /**
  * @class Troll
- * @augments RPG.Beings.BaseBeing
+ * @augments RPG.Beings.NPC
  */
 RPG.Beings.Troll = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Troll.factory.frequency = 10;
@@ -106,7 +106,7 @@ RPG.Beings.Troll.prototype.init = function() {
 
 /**
  * @class God, useful for debugging.
- * @augments RPG.Beings.BaseBeing
+ * @augments RPG.Beings.PC
  */
 RPG.Beings.God = OZ.Class().extend(RPG.Beings.PC);
 RPG.Beings.God.prototype.getVisibleCoords = function() {

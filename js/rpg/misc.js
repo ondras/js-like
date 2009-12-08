@@ -81,7 +81,7 @@ RPG.Misc.IModifier.prototype.getModified = function() {
 
 
 /**
- * @class Weapon interface. Separated from items, because "hands" and "foot" are also weapons.
+ * @class Weapon interface. Weapon items implement this, as well as some slots and spells.
  */
 RPG.Misc.IWeapon = OZ.Class();
 RPG.Misc.IWeapon.prototype.setHit = function(rv) {

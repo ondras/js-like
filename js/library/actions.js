@@ -719,24 +719,25 @@ RPG.Actions.SwitchPosition.prototype.execute = function() {
 }
 
 /**
- * @class Cast a spell; target = coords, params = spell
+ * @class Cast a spell; target = spell specific, params = spell
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.Cast = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Cast.prototype.execute = function() {
 	var pc = RPG.World.pc;
-	var you = (this._source == pc);
+	var caster = this._params.getCaster();
+	var you = (caster == pc);
 	var spell = this._params;
 	
 	var cost = spell.getCost();
-	this._source.adjustStat(RPG.STAT_MANA, -cost);
+	caster.adjustStat(RPG.STAT_MANA, -cost);
 	
-	var str = this._source.describe().capitalize() + " cast";
+	var str = caster.describe().capitalize() + " cast";
 	if (!you) { str += "s"; }
 	str += " '" + spell.describe() + "'.";
 	RPG.UI.buffer.message(str);
 	
-	this._params.cast(this._source, this._target);	
+	spell.cast(this._target);	
 }
 
 /**

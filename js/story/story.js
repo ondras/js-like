@@ -79,7 +79,7 @@ RPG.Story.prototype._charGen = function(e) {
 }
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
-	var pc = new RPG.Beings.PC(new race(), profession);
+	var pc = new RPG.Beings.PC(new race(), new profession());
 	RPG.World.pc = pc;
 	RPG.World.setStory(this);
 	pc.setName(name);

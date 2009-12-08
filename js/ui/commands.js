@@ -867,9 +867,8 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 		
 		/* FIXME magic wand in hand? */
 		
-		var spells = RPG.World.pc.getSpells().clone();
+		var spells = RPG.World.pc.getSpells();
 		if (spells.length) {
-			spells.sort(function(a,b) { return a.describe().localeCompare(b.describe()); });
 			RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 			new RPG.UI.Spelllist(spells, "Select a spell to cast", this.bind(this._done));
 		} else {
@@ -880,6 +879,7 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 		RPG.UI.setMode(RPG.UI_NORMAL);
 
 		var type = this._spell.getType();
+		
 		switch (type) {
 			case RPG.SPELL_SELF:
 				var target = null;
@@ -913,6 +913,7 @@ RPG.UI.Command.Cast.prototype._done = function(spells) {
 	}
 	
 	var spell = spells[0][0];
+	spell = new spell(RPG.World.pc);
 	var cost = spell.getCost();
 	
 	if (RPG.World.pc.getStat(RPG.STAT_MANA) < cost) {

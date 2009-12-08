@@ -1,7 +1,11 @@
+/**
+ * @class Warrior profession
+ * @augments RPG.Professions.BaseProfession
+ */
 RPG.Professions.Warrior = OZ.Class().extend(RPG.Professions.BaseProfession);
+RPG.Professions.Warrior.name = "warrior";
 RPG.Professions.Warrior.prototype.init = function() {
 	this._image = "warrior";
-	this._name = "Warrior";
 }
 
 RPG.Professions.Warrior.prototype.setup = function(being) {
@@ -14,10 +18,14 @@ RPG.Professions.Warrior.prototype.setup = function(being) {
 	being.addItem(sword);	
 }
 
+/**
+ * @class Ranger profession
+ * @augments RPG.Professions.BaseProfession
+ */
 RPG.Professions.Ranger = OZ.Class().extend(RPG.Professions.BaseProfession);
+RPG.Professions.Ranger.name = "ranger";
 RPG.Professions.Ranger.prototype.init = function() {
 	this._image = "ranger";
-	this._name = "Ranger";
 }
 
 RPG.Professions.Ranger.prototype.setup = function(being) {
@@ -27,10 +35,14 @@ RPG.Professions.Ranger.prototype.setup = function(being) {
 	being.addSpell(s);
 }
 
+/**
+ * @class Wizard profession
+ * @augments RPG.Professions.BaseProfession
+ */
 RPG.Professions.Wizard = OZ.Class().extend(RPG.Professions.BaseProfession);
+RPG.Professions.Wizard.name = "wizard";
 RPG.Professions.Wizard.prototype.init = function() {
 	this._image = "wizard";
-	this._name = "Wizard";
 }
 
 RPG.Professions.Wizard.prototype.setup = function(being) {
@@ -39,8 +51,6 @@ RPG.Professions.Wizard.prototype.setup = function(being) {
 	being.adjustFeat(RPG.FEAT_MAXMANA, 5);
 	being.adjustFeat(RPG.FEAT_MAXHP, -3);
 
-	var s = new RPG.Spells.MagicBolt();
-	being.addSpell(s);
-	var s = new RPG.Spells.Heal();
-	being.addSpell(s);
+	being.addSpell(RPG.Spells.MagicBolt);
+	being.addSpell(RPG.Spells.Heal);
 }

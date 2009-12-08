@@ -3,12 +3,12 @@
  */
 RPG.CharGen = OZ.Class();
 
-RPG.CharGen.prototype.races = {
-	"Human": RPG.Races.Human, 
-	"Orc": RPG.Races.Orc, 
-	"Elf": RPG.Races.Elf, 
-	"Dwarf": RPG.Races.Dwarf
-};
+RPG.CharGen.prototype.races = [
+	RPG.Races.Human, 
+	RPG.Races.Orc, 
+	RPG.Races.Elf, 
+	RPG.Races.Dwarf
+];
 
 RPG.CharGen.prototype.professions = [
 	RPG.Professions.Warrior,
@@ -45,34 +45,37 @@ RPG.CharGen.prototype._buildMatrix = function(tb) {
 	tr.appendChild(empty);
 	
 	/* race labels */
-	for (var p in this.races) {
+	for (var i=0;i<this.races.length;i++) {
 		var td = OZ.DOM.elm("td");
-		td.innerHTML = p;
+		td.innerHTML = this.races[i].name.capitalize();
 		tr.appendChild(td);
 	}
 	
 	for (var i=0;i<this.professions.length;i++) {
-		var prof = new this.professions[i]();
+		var profCtor = this.professions[i];
+		var prof = new profCtor();
+		
 		tr = OZ.DOM.elm("tr");
 		tb.appendChild(tr);
 		
 		/* profession label */
 		var td = OZ.DOM.elm("td");
-		td.innerHTML = prof.getName();
+		td.innerHTML = profCtor.name.capitalize();
 		tr.appendChild(td);
 		
-		for (var q in this.races) {
+		for (var j=0;j<this.races.length;j++) {
+			var raceCtor = this.races[j];
+			var race = new raceCtor();
+			
 			/* cell */
 			var td = OZ.DOM.elm("td");
 			tr.appendChild(td);
 
-			var ctor = this.races[q];
-			var tmp = new ctor();
 			var img = OZ.DOM.elm("img");
-			img.src = "img/pc/" + tmp.getImage() + "-" + prof.getImage() + ".png";
+			img.src = "img/pc/" + race.getImage() + "-" + prof.getImage() + ".png";
 			td.appendChild(img);
 			
-			this._list.push([img, ctor, prof]);
+			this._list.push([img, raceCtor, profCtor]);
 		}
 	}
 }
