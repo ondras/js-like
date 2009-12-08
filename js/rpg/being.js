@@ -122,14 +122,27 @@ RPG.Beings.BaseBeing.prototype.removeItem = function(item) {
 	return this;
 }
 
-RPG.Beings.BaseBeing.prototype.equipItem = function(item) {
+RPG.Beings.BaseBeing.prototype.equipItem = function(item, slot) {
+	if (slot.getItem()) { this.unequipItem(slot.getItem(), slot); }
+	
+	if (item.getAmount() == 1) {
+		this.removeItem(item);
+	} else {
+		item = item.subtract(1);
+	}
+	slot.setItem(item);
+
 	this._modifierList.push(item);
 	this._updateFeatsByModifier(item);
 }
 
-RPG.Beings.BaseBeing.prototype.unequipItem = function(item) {
+RPG.Beings.BaseBeing.prototype.unequipItem = function(item, slot) {
 	var index = this._modifierList.indexOf(item);
 	if (index == -1) { throw new Error("Cannot find item '"+item+"'"); }
+
+	slot.setItem(null);
+	this.addItem(item);
+	
 	this._modifierList.splice(index, 1);
 	this._updateFeatsByModifier(item);
 }

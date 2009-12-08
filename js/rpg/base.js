@@ -233,9 +233,12 @@ RPG.Items.BaseItem.prototype.describeIs = function() {
  * @augments RPG.Visual.IVisual
  */
 RPG.Races.BaseRace = OZ.Class().implement(RPG.Visual.IVisual);
+RPG.Races.BaseRace.name = "";
+RPG.Races.BaseRace.image = "";
 RPG.Races.BaseRace.prototype.init = function() {
 	this._initVisuals();
 	this._slots = [];
+
 	this._headSlot = null;
 	this._meleeSlot = null;
 	this._rangedSlot = null;
@@ -246,6 +249,10 @@ RPG.Races.BaseRace.prototype.init = function() {
 
 RPG.Races.BaseRace.prototype.getDefaults = function() {
 	return this._defaults;
+}
+
+RPG.Races.BaseRace.prototype.getImage = function() {
+	return this.constructor.image;
 }
 
 RPG.Races.BaseRace.prototype.getSlots = function() {
@@ -423,11 +430,6 @@ RPG.Slots.BaseSlot.prototype.filterAllowed = function(itemList) {
 }
 
 RPG.Slots.BaseSlot.prototype.setItem = function(item) {
-	if (item) {
-		this._being.equipItem(item);
-	} else if (this._item) {
-		this._being.unequipItem(this._item);
-	}
 	this._item = item;
 }
 
@@ -494,9 +496,12 @@ RPG.Spells.BaseSpell.prototype.getCaster = function() {
  * @augments RPG.Visual.IVisual
  */
 RPG.Professions.BaseProfession = OZ.Class().implement(RPG.Visual.IVisual);
+RPG.Professions.BaseProfession.name = "";
+RPG.Professions.BaseProfession.image = "";
 RPG.Professions.BaseProfession.init = function() {
-	this._image = "";
-	this._name = "";
 }
 RPG.Professions.BaseProfession.prototype.setup = function(being) {
+}
+RPG.Professions.BaseProfession.prototype.getImage = function() {
+	return this.constructor.image;
 }

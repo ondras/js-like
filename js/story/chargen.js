@@ -53,7 +53,6 @@ RPG.CharGen.prototype._buildMatrix = function(tb) {
 	
 	for (var i=0;i<this.professions.length;i++) {
 		var profCtor = this.professions[i];
-		var prof = new profCtor();
 		
 		tr = OZ.DOM.elm("tr");
 		tb.appendChild(tr);
@@ -65,14 +64,13 @@ RPG.CharGen.prototype._buildMatrix = function(tb) {
 		
 		for (var j=0;j<this.races.length;j++) {
 			var raceCtor = this.races[j];
-			var race = new raceCtor();
 			
 			/* cell */
 			var td = OZ.DOM.elm("td");
 			tr.appendChild(td);
 
 			var img = OZ.DOM.elm("img");
-			img.src = "img/pc/" + race.getImage() + "-" + prof.getImage() + ".png";
+			img.src = "img/pc/" + raceCtor.image + "-" + profCtor.image + ".png";
 			td.appendChild(img);
 			
 			this._list.push([img, raceCtor, profCtor]);
