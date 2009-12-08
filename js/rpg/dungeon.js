@@ -174,12 +174,15 @@ RPG.Dungeon.Map = OZ.Class().implement(RPG.Misc.ISerializable);
  * Factory method. Creates map from an array of arrays of bools.
  * false = corridor, true = wall
  */
-RPG.Dungeon.Map.fromBitMap = function(id, bitMap, wall, corridor) {
+RPG.Dungeon.Map.fromBitMap = function(id, bitMap, danger, cells) {
+	var wall = cells.wall;
+	var corridor = cells.corridor;
+	
 	var width = bitMap.length;
 	var height = bitMap[0].length;
 	
 	var coords = new RPG.Misc.Coords(width, height);
-	var map = new RPG.Dungeon.Map(id, coords);
+	var map = new RPG.Dungeon.Map(id, coords, danger);
 	
 	for (var x=0;x<width;x++) { 
 		for (var y=0;y<height;y++) {
@@ -216,11 +219,12 @@ RPG.Dungeon.Map.fromBitMap = function(id, bitMap, wall, corridor) {
 	return map;
 }
 
-RPG.Dungeon.Map.prototype.init = function(id, size) {
+RPG.Dungeon.Map.prototype.init = function(id, size, danger) {
 	this._id = id;
 	this._size = size.clone();
 	this._data = [];
 	this._rooms = [];
+	this._danger = danger;
 
 	for (var i=0;i<this._size.x;i++) {
 		var col = [];
@@ -229,11 +233,14 @@ RPG.Dungeon.Map.prototype.init = function(id, size) {
 		}
 		this._data.push(col);
 	}
-
 }
 
 RPG.Dungeon.Map.prototype.getId = function() {
 	return this._id;
+}
+
+RPG.Dungeon.Map.prototype.getDanger = function() {
+	return this._danger;
 }
 
 /**
@@ -390,7 +397,6 @@ RPG.Dungeon.Map.prototype.cellsInCircle = function(center, radius, includeInvali
 		var dir = dirs[Math.floor(i*dirs.length/count)];
 		c.plus(RPG.DIR[dir]);
 	}
-	
 	return arr;
 }
 

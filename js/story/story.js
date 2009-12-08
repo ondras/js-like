@@ -144,7 +144,7 @@ RPG.Story.prototype._dungeon = function() {
 	var rooms = [];
 	var map = null;
 	do {
-		map = this._mapgen.generate("Dungeon #" + index);
+		map = this._mapgen.generate("Dungeon #" + index, index);
 		rooms = map.getRooms();
 	} while (rooms.length < 3);
 	

@@ -16,13 +16,13 @@ RPG.Dungeon.Generator.prototype.init = function(size, options) {
 	this._rooms = [];
 }
 
-RPG.Dungeon.Generator.prototype.generate = function(id) {
+RPG.Dungeon.Generator.prototype.generate = function(id, danger) {
 	this._blankMap();
-	return this._dig(id);
+	return this._dig(id, danger);
 }
 
-RPG.Dungeon.Generator.prototype._dig = function(id) {
-	var map = RPG.Dungeon.Map.fromBitMap(id, this._bitMap, this._options.wall, this._options.corridor);
+RPG.Dungeon.Generator.prototype._dig = function(id, danger) {
+	var map = RPG.Dungeon.Map.fromBitMap(id, this._bitMap, danger, this._options);
 	for (var i=0;i<this._rooms.length;i++) {
 		map.addRoom(this._options.room, this._rooms[i][0], this._rooms[i][1]);
 	}
@@ -151,13 +151,13 @@ RPG.Dungeon.Generator.Uniform.prototype.init = function(size) {
 	this.WEST = 3;
 }
 
-RPG.Dungeon.Generator.Uniform.prototype.generate = function(id) {
+RPG.Dungeon.Generator.Uniform.prototype.generate = function(id, danger) {
 	while (1) {
 		this._blankMap(id);
 		this._generateRooms();
 		var result = this._generateCorridors();
 		if (result == 1) { 
-			return this._dig(id); 
+			return this._dig(id, danger); 
 		}
 	}
 }
@@ -384,7 +384,7 @@ RPG.Dungeon.Generator.Digger.prototype.init = function(size) {
 	this._forcedWalls = []; /* these are forced for digging */
 }
 
-RPG.Dungeon.Generator.Digger.prototype.generate = function(id) {
+RPG.Dungeon.Generator.Digger.prototype.generate = function(id, danger) {
 	this._freeWalls = []; /* these are available for digging */
 	this._forcedWalls = []; /* these are forced for digging */
 
@@ -412,7 +412,7 @@ RPG.Dungeon.Generator.Digger.prototype.generate = function(id) {
 	} while (this._digged/area < this._diggedPercentage || this._forcedWalls.length)
 	
 	this._freeWalls = [];
-	return this._dig(id);
+	return this._dig(id, danger);
 }
 
 RPG.Dungeon.Generator.Digger.prototype._firstRoom = function() {
