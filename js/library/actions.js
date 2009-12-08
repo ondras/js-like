@@ -59,6 +59,7 @@ RPG.Actions.Attack.prototype.execute = function() {
 		}
 	}
 	
+	if (this._kill && this._source == RPG.World.pc) { RPG.World.pc.addKill(this._target); }
 	var str = this._describe();
 	RPG.UI.buffer.message(str);
 }
@@ -104,23 +105,25 @@ RPG.Actions.Attack.prototype._describe = function() {
 }
 
 /**
- * @class Magic "attacks" a being. Source == spell, target == being
+ * @class Magic "attacks" a being. Source == being, target == being, params == spell
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.MagicAttack = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.MagicAttack.prototype.execute = function() {
 	/* FIXME */
-	var you = (this._target == RPG.World.pc);
+	var you = (this._source == RPG.World.pc);
+	var spell = this._params;
 	var str = "";
 	str += this._target.describeA().capitalize();
 	str += " " + this._target.describeIs() + " ";
-	str += "hit by " + this._source.describeThe() + ".";
+	str += "hit by " + spell.describeThe() + ".";
 	RPG.UI.buffer.message(str);
 
-	var dmg = RPG.Rules.getSpellDamage(this._target, this._source);
+	var dmg = RPG.Rules.getSpellDamage(this._target, spell);
 	this._target.adjustStat(RPG.STAT_HP, -dmg);
 
 	if (!this._target.isAlive()) {
+		if (this._source == RPG.World.pc) { RPG.World.pc.addKill(this._target); }
 		var str = "";
 		str += this._target.describeThe().capitalize();
 		str += " " + this._target.describeIs() + " killed!";
@@ -159,7 +162,7 @@ RPG.Actions.Open.prototype.execute = function() {
 	var locked = door.isLocked();
 	if (locked) {
 		if (you) {
-			RPG.UI.buffer.message("The door is locked. You do not have appropriate key.");
+			RPG.UI.buffer.message("The door is locked. You do not have the appropriate key.");
 		}
 		return;
 	}
@@ -656,7 +659,7 @@ RPG.Actions.Heal = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Heal.prototype.execute = function() {
 	var b = this._source;
 	var hp = b.getStat(RPG.STAT_HP);
-	var max = b.getFeat(RPG.FEAT_MAXHP);
+	var max = b.getFeat(RPG.FEAT_MAX_HP);
 	if (hp == max) {
 		RPG.UI.buffer.message("Nothing happens.");
 		return;

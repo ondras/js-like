@@ -98,6 +98,7 @@ RPG.Story.prototype._score = function() {
 	var total = 0;
 	
 	total += 150 * this._maps.length;
+	total += 20 * this._pc.getKills();
 	
 	var items = this._pc.getItems();
 	for (var i=0;i<items.length;i++) {
@@ -128,7 +129,7 @@ RPG.Story.prototype._endGame = function() {
 	
 	var score = this._score();
 	var p2 = OZ.DOM.elm("p");
-	p2.innerHTML = "His total score was: <strong>" + score + "</strong>";
+	p2.innerHTML = "He managed to kill <strong>" + this._pc.getKills() + "</strong> monsters and his total score was: <strong>" + score + "</strong>";
 	
 	var p3 = OZ.DOM.elm("p");
 	p3.innerHTML = "<a href='javascript:location.reload()'>Again?</a>";

@@ -22,19 +22,19 @@ RPG.Beings.Goblin.prototype.init = function() {
 	if (Math.randomPercentage() < 21) {
 		var dagger = new RPG.Items.Dagger();
 		this.addItem(dagger);
-		this.equipItem(dagger, this.getMeleeSlot());
+		this.equip(dagger, this.getMeleeSlot());
 	}
 	
 	if (Math.randomPercentage() < 21) {
 		var cap = new RPG.Items.MetalCap();
 		this.addItem(cap);
-		this.equipItem(cap, this.getHeadSlot());
+		this.equip(cap, this.getHeadSlot());
 	}
 	
 	if (Math.randomPercentage() < 21) {
 		var boots = new RPG.Items.LeatherBoots();
 		this.addItem(boots);
-		this.equipItem(boots, this.getFeetSlot());
+		this.equip(boots, this.getFeetSlot());
 	}
 	
 
@@ -163,8 +163,8 @@ RPG.Beings.GiantRat.factory.frequency = 85;
 RPG.Beings.GiantRat.prototype.init = function() {
 	this.parent();
 	
-	var f = this._feats[RPG.FEAT_MAXHP];
-	this.setFeat(RPG.FEAT_MAXHP, Math.round(f.getBase() * 1.5));
+	var f = this._feats[RPG.FEAT_MAX_HP];
+	this.setFeat(RPG.FEAT_MAX_HP, Math.round(f.getBase() * 1.5));
 
 	this._color = "saddlebrown";
 	this._description = "giant rat";
@@ -203,8 +203,8 @@ RPG.Beings.GiantBat.factory.frequency = 85;
 RPG.Beings.GiantBat.prototype.init = function() {
 	this.parent();
 	
-	var f = this._feats[RPG.FEAT_MAXHP];
-	this.setFeat(RPG.FEAT_MAXHP, Math.round(f.getBase() * 1.5));
+	var f = this._feats[RPG.FEAT_MAX_HP];
+	this.setFeat(RPG.FEAT_MAX_HP, Math.round(f.getBase() * 1.5));
 
 	this._char = "B";
 	this._color = "saddlebrown";
@@ -288,7 +288,7 @@ RPG.Beings.Bear.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 14);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 14);
 	this.setFeat(RPG.FEAT_DEXTERITY, 10);
-	this.setFeat(RPG.FEAT_MAXHP, 10);
+	this.setFeat(RPG.FEAT_MAX_HP, 10);
 	this.setFeat(RPG.FEAT_SPEED, 90);
 	this.setFeat(RPG.FEAT_PV, 4);
 
@@ -347,13 +347,13 @@ RPG.Beings.Orc.prototype.init = function() {
 	if (Math.randomPercentage() < 21) {
 		var dagger = new RPG.Items.OrcishDagger();
 		this.addItem(dagger);
-		this.equipItem(dagger, this.getMeleeSlot());
+		this.equip(dagger, this.getMeleeSlot());
 	}
 	
 	if (Math.randomPercentage() < 21) {
 		var cap = new RPG.Items.MetalCap();
 		this.addItem(cap);
-		this.equipItem(cap, this.getHeadSlot());
+		this.equip(cap, this.getHeadSlot());
 	}
 	
 	this.fullStats();
@@ -379,13 +379,13 @@ RPG.Beings.LargeOrc.prototype.init = function() {
 	if (Math.randomPercentage() < 41) {
 		var dagger = new RPG.Items.OrcishDagger();
 		this.addItem(dagger);
-		this.equipItem(dagger, this.getMeleeSlot());
+		this.equip(dagger, this.getMeleeSlot());
 	}
 	
 	if (Math.randomPercentage() < 21) {
 		var cap = new RPG.Items.MetalCap();
 		this.addItem(cap);
-		this.equipItem(cap, this.getHeadSlot());
+		this.equip(cap, this.getHeadSlot());
 	}
 	
 	this.fullStats();
@@ -413,13 +413,13 @@ RPG.Beings.OrcChieftain.prototype.init = function() {
 	if (Math.randomPercentage() < 41) {
 		var dagger = new RPG.Items.OrcishDagger();
 		this.addItem(dagger);
-		this.equipItem(dagger, this.getMeleeSlot());
+		this.equip(dagger, this.getMeleeSlot());
 	}
 	
 	if (Math.randomPercentage() < 41) {
 		var cap = new RPG.Items.MetalCap();
 		this.addItem(cap);
-		this.equipItem(cap, this.getHeadSlot());
+		this.equip(cap, this.getHeadSlot());
 	}
 	
 	this.fullStats();
@@ -473,7 +473,7 @@ RPG.Beings.Gnoll.prototype.init = function() {
 	if (Math.randomPercentage() < 31) {
 		var axe = new RPG.Items.Axe();
 		this.addItem(axe);
-		this.equipItem(axe, this.getMeleeSlot());
+		this.equip(axe, this.getMeleeSlot());
 	}
 
 	this.fullStats();
@@ -503,7 +503,7 @@ RPG.Beings.Kobold.prototype.init = function() {
 	if (Math.randomPercentage() < 31) {
 		var club = new RPG.Items.Club();
 		this.addItem(club);
-		this.equipItem(club, this.getMeleeSlot());
+		this.equip(club, this.getMeleeSlot());
 	}
 
 	this.fullStats();
@@ -537,7 +537,7 @@ RPG.Beings.Skeleton.prototype.init = function() {
 	if (Math.randomPercentage() < 21) {
 		var sword = new RPG.Items.ShortSword();
 		this.addItem(sword);
-		this.equipItem(sword, this.getMeleeSlot());
+		this.equip(sword, this.getMeleeSlot());
 	}
 
 	this.fullStats();

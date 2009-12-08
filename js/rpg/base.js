@@ -172,7 +172,7 @@ RPG.Items.BaseItem.prototype._describeModifiers = function() {
 		pv = this.getModifier(RPG.FEAT_PV);
 		if (dv >= 0) { dv = "+"+dv; }
 		if (pv >= 0) { pv = "+"+pv; }
-		arr.push("["+dv+","+pv+"]");
+		arr.unshift("["+dv+","+pv+"]");
 	}
 	
 	return arr.join(" ");
@@ -482,7 +482,7 @@ RPG.Spells.BaseSpell.prototype.getType = function() {
 
 RPG.Spells.BaseSpell.prototype.getDamage = function() {
 	var base = this.constructor.damage;
-	var m = base.mean + this._caster.getFeat(RPG.FEAT_MAGICDAMAGE);
+	var m = base.mean + this._caster.getFeat(RPG.FEAT_DAMAGE_MAGIC);
 	var v = base.variance;
 	return new RPG.Misc.RandomValue(m, v);
 }

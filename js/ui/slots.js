@@ -100,8 +100,7 @@ RPG.UI.Slots.prototype._toggle = function(index) {
 	var slot = this._slots[index];
 	var item = slot.getItem();
 	if (item) {
-		this._being.unequipItem(item, slot);
-		
+		this._being.unequip(slot);
 		this._somethingDone = true;
 		this._redrawSlot(index);
 	} else {
@@ -128,7 +127,7 @@ RPG.UI.Slots.prototype._item = function(index, items) {
 	this._somethingDone = true;
 	var slot = this._slots[index];
 	var item = items[0][0]; 
-	this._being.equipItem(item, slot);
+	this._being.equip(item, slot);
 
 	slot.setItem(item);
 	this._redrawSlot(index);

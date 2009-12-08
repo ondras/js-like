@@ -14,9 +14,11 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this._spells = [];
 	this._description = "you";
 	this._char = "@";
+	this._kills = 0;
+	
 	this.setFeat(RPG.FEAT_DV, 5);
-	this.setFeat(RPG.FEAT_MAXHP, 10);
-	this.setFeat(RPG.FEAT_MAXMANA, 5);
+	this.setFeat(RPG.FEAT_MAX_HP, 10);
+	this.setFeat(RPG.FEAT_MAX_MANA, 5);
 	profession.setup(this);
 	
 	var tc = new RPG.Effects.TurnCounter(this);
@@ -24,6 +26,14 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this.addEffect(tc);
 	
 	this.fullStats();
+}
+
+RPG.Beings.PC.prototype.getKills = function() {
+	return this._kills;
+}
+
+RPG.Beings.PC.prototype.addKill = function(being) {
+	this._kills++;
 }
 
 RPG.Beings.PC.prototype.getTurnCount = function() {

@@ -25,6 +25,12 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 
 	this._setRace(race);
 	this._initStatsAndFeats();
+
+	var regen = new RPG.Effects.Regeneration(this);
+	this.addEffect(regen);
+	var regen = new RPG.Effects.ManaRegeneration(this);
+	this.addEffect(regen);
+	this.fullStats();
 }
 
 RPG.Beings.BaseBeing.prototype.trapMemory = function() {
@@ -48,7 +54,7 @@ RPG.Beings.BaseBeing.prototype._setRace = function(race) {
 }
 
 /**
- * Initialize stats (HP, ...) and feats (MaxHP, DV, PV, ...)
+ * Initialize stats (HP, ...) and feats (Max HP, DV, PV, ...)
  */
 RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	var defaults = this._race.getDefaults();
@@ -69,22 +75,16 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	}
 
 	/* base feats */
-	var misc = [RPG.FEAT_MAXHP, RPG.FEAT_MAXMANA, RPG.FEAT_DV, 
-				RPG.FEAT_PV, RPG.FEAT_SPEED, RPG.FEAT_HIT, 
-				RPG.FEAT_DAMAGE, RPG.FEAT_MAGICDAMAGE];
+	var misc = [RPG.FEAT_MAX_HP, RPG.FEAT_MAX_MANA, RPG.FEAT_DV, RPG.FEAT_PV, 
+				RPG.FEAT_SPEED, RPG.FEAT_HIT, RPG.FEAT_DAMAGE, 
+				RPG.FEAT_DAMAGE_MAGIC, RPG.FEAT_REGEN_HP, RPG.FEAT_REGEN_MANA
+				];
 	for (var i=0;i<misc.length;i++) {
 		var name = misc[i];
 		this._feats[name] = new RPG.Feats.BaseFeat(this, defaults[name] || 0);
 	}
 	
 	for (var p in this._feats) { this.updateFeat(p); }
-	
-	var regen = new RPG.Effects.Regeneration(this);
-	this.addEffect(regen);
-	var regen = new RPG.Effects.ManaRegeneration(this);
-	this.addEffect(regen);
-
-	this.fullStats();
 }
 
 /**
@@ -122,8 +122,8 @@ RPG.Beings.BaseBeing.prototype.removeItem = function(item) {
 	return this;
 }
 
-RPG.Beings.BaseBeing.prototype.equipItem = function(item, slot) {
-	if (slot.getItem()) { this.unequipItem(slot.getItem(), slot); }
+RPG.Beings.BaseBeing.prototype.equip = function(item, slot) {
+	if (slot.getItem()) { this.unequip(slot); }
 	
 	if (item.getAmount() == 1) {
 		this.removeItem(item);
@@ -136,7 +136,10 @@ RPG.Beings.BaseBeing.prototype.equipItem = function(item, slot) {
 	this._updateFeatsByModifier(item);
 }
 
-RPG.Beings.BaseBeing.prototype.unequipItem = function(item, slot) {
+RPG.Beings.BaseBeing.prototype.unequip = function(slot) {
+	var item = slot.getItem();
+	if (!item) { return; }
+	
 	var index = this._modifierList.indexOf(item);
 	if (index == -1) { throw new Error("Cannot find item '"+item+"'"); }
 
@@ -261,11 +264,11 @@ RPG.Beings.BaseBeing.prototype.adjustStat = function(stat, diff) {
 RPG.Beings.BaseBeing.prototype.setStat = function(stat, value) {
 	switch (stat) {
 		case RPG.STAT_HP:
-			this._stats[stat] = Math.min(value, this._feats[RPG.FEAT_MAXHP].getValue());
+			this._stats[stat] = Math.min(value, this._feats[RPG.FEAT_MAX_HP].getValue());
 		break;
 
 		case RPG.STAT_MANA:
-			this._stats[stat] = Math.min(value, this._feats[RPG.FEAT_MAXMANA].getValue());
+			this._stats[stat] = Math.min(value, this._feats[RPG.FEAT_MAX_MANA].getValue());
 		break;
 	}
 	
@@ -320,8 +323,8 @@ RPG.Beings.BaseBeing.prototype.isAlive = function() {
  * Fully recovers all stats to maximum
  */
 RPG.Beings.BaseBeing.prototype.fullStats = function() {
-	this.setStat(RPG.STAT_HP, this._feats[RPG.FEAT_MAXHP].getValue());
-	this.setStat(RPG.STAT_MANA, this._feats[RPG.FEAT_MAXMANA].getValue());
+	this.setStat(RPG.STAT_HP, this._feats[RPG.FEAT_MAX_HP].getValue());
+	this.setStat(RPG.STAT_MANA, this._feats[RPG.FEAT_MAX_MANA].getValue());
 }
 
 /**
@@ -336,27 +339,23 @@ RPG.Beings.BaseBeing.prototype.sightDistance = function() {
  * This being drops everything it holds.
  */
 RPG.Beings.BaseBeing.prototype.dropAll = function() {
+	var slots = this._race.getSlots();
+	for (var i=0;i<slots.length;i++) {
+		var s = slots[i];
+		this.unequip(s);
+	}
+
 	for (var i=0;i<this._items.length;i++) { /* drop items */
 		if (Math.randomPercentage() < 81) {
 			this._cell.addItem(this._items[i]);
 		}
 	}
-	this._items = [];
-	
-	var slots = this._race.getSlots();
-	for (var i=0;i<slots.length;i++) {
-		var s = slots[i];
-		var it = s.getItem();
-		s.setItem(null);
-
-		if (it && Math.randomPercentage() < 81) { 
-			this._cell.addItem(it); 
-		}
-	}
+	this._items = [];	
 }
 
 /**
  * This being dies
+ * @param {RPG.Beings.BaseBeing || null} being The one who caused death
  */
 RPG.Beings.BaseBeing.prototype.die = function() {
 	this._alive = false;
@@ -404,7 +403,7 @@ RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	var def = ["slightly", "moderately", "severly", "critically"];
 	var hp = this._stats[RPG.STAT_HP];
-	var max = this._feats[RPG.FEAT_MAXHP].getValue();
+	var max = this._feats[RPG.FEAT_MAX_HP].getValue();
 	if (hp == max) { return "not"; }
 	var frac = 1 - hp/max;
 	var index = Math.floor(frac * def.length);

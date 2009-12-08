@@ -28,11 +28,16 @@ RPG.Effects.TurnCounter.prototype.getCount = function() {
 RPG.Effects.Regeneration = OZ.Class().extend(RPG.Effects.BaseEffect);
 RPG.Effects.Regeneration.prototype.go = function() {
 	var hp = this._being.getStat(RPG.STAT_HP);
-	var max = this._being.getFeat(RPG.FEAT_MAXHP);
+	var max = this._being.getFeat(RPG.FEAT_MAX_HP);
 	if (max == hp) { return; }
-	/* FIXME */
-	if (Math.random() < 0.2) { 
-		this._being.adjustStat(RPG.STAT_HP, 1); 
+	
+	var regen = this._being.getFeat(RPG.FEAT_REGEN_HP);
+	var amount = 0;
+	amount += Math.floor(regen / 100);
+	amount += Math.randomPercentage() <= (regen % 100);
+	
+	if (amount) {
+		this._being.adjustStat(RPG.STAT_HP, amount); 
 	}
 }
 
@@ -43,11 +48,15 @@ RPG.Effects.Regeneration.prototype.go = function() {
 RPG.Effects.ManaRegeneration = OZ.Class().extend(RPG.Effects.BaseEffect);
 RPG.Effects.ManaRegeneration.prototype.go = function() {
 	var mana = this._being.getStat(RPG.STAT_MANA);
-	var max = this._being.getFeat(RPG.FEAT_MAXMANA);
+	var max = this._being.getFeat(RPG.FEAT_MAX_MANA);
 	if (max == mana) { return; }
 
-	/* FIXME */
-	if (Math.random() < 0.2) { 
-		this._being.adjustStat(RPG.STAT_MANA, 1); 
+	var regen = this._being.getFeat(RPG.FEAT_REGEN_MANA);
+	var amount = 0;
+	amount += Math.floor(regen / 100);
+	amount += Math.randomPercentage() <= (regen % 100);
+	
+	if (amount) {
+		this._being.adjustStat(RPG.STAT_MANA, amount); 
 	}
 }

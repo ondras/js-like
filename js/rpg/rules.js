@@ -27,7 +27,7 @@ RPG.Rules.isCritical = function(being) {
 }
 
 RPG.Rules.isWoundedToRetreat = function(being) {
-	return (being.getStat(RPG.STAT_HP)/being.getFeat(RPG.FEAT_MAXHP) < 0.4);
+	return (being.getStat(RPG.STAT_HP)/being.getFeat(RPG.FEAT_MAX_HP) < 0.4);
 }
 
 RPG.Rules.isFakeDetected = function(being, cell) {

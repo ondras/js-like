@@ -8,8 +8,8 @@ RPG.Professions.Warrior.image = "warrior";
 RPG.Professions.Warrior.prototype.setup = function(being) {
 	this.parent(being);
 
-	being.adjustFeat(RPG.FEAT_MAXHP, 5);
-	being.adjustFeat(RPG.FEAT_MAXMANA, -3);
+	being.adjustFeat(RPG.FEAT_MAX_HP, 5);
+	being.adjustFeat(RPG.FEAT_MAX_MANA, -3);
 
 	var sword = new RPG.Items.ShortSword();
 	being.addItem(sword);	
@@ -39,9 +39,10 @@ RPG.Professions.Wizard.image = "wizard";
 RPG.Professions.Wizard.prototype.setup = function(being) {
 	this.parent(being);
 
-	being.adjustFeat(RPG.FEAT_MAXMANA, 5);
-	being.adjustFeat(RPG.FEAT_MAXHP, -3);
+	being.adjustFeat(RPG.FEAT_MAX_MANA, 5);
+	being.adjustFeat(RPG.FEAT_MAX_HP, -3);
 
-	being.addSpell(RPG.Spells.MagicBolt);
 	being.addSpell(RPG.Spells.Heal);
+	being.addSpell(RPG.Spells.Knock);
+	being.addSpell(RPG.Spells.MagicBolt);
 }

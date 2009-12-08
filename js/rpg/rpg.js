@@ -113,9 +113,9 @@ RPG.FEAT_DEXTERITY		= 2;
 /** @constant */
 RPG.FEAT_MAGIC			= 3;
 /** @constant */
-RPG.FEAT_MAXHP			= 4;
+RPG.FEAT_MAX_HP			= 4;
 /** @constant */
-RPG.FEAT_MAXMANA		= 5;
+RPG.FEAT_MAX_MANA		= 5;
 /** @constant */
 RPG.FEAT_DV				= 6;
 /** @constant */
@@ -127,7 +127,11 @@ RPG.FEAT_HIT			= 9;
 /** @constant */
 RPG.FEAT_DAMAGE			= 10;
 /** @constant */
-RPG.FEAT_MAGICDAMAGE	= 11;
+RPG.FEAT_DAMAGE_MAGIC	= 11;
+/** @constant */
+RPG.FEAT_REGEN_HP		= 12;
+/** @constant */
+RPG.FEAT_REGEN_MANA		= 13;
 
 /** @constant */
 RPG.STAT_HP				= 0;

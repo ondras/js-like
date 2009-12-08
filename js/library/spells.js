@@ -3,7 +3,7 @@
  * @augments RPG.Spells.BaseSpell
  */
 RPG.Spells.Heal = OZ.Class().extend(RPG.Spells.BaseSpell);
-RPG.Spells.Heal.name = "Heal";
+RPG.Spells.Heal.name = "heal";
 RPG.Spells.Heal.cost = 4;
 RPG.Spells.Heal.prototype.init = function(caster) {
 	this.parent(caster);
@@ -25,6 +25,35 @@ RPG.Spells.Heal.prototype.cast = function(dir) {
 
 	var a = new RPG.Actions.Heal(being, 5); /* FIXME amount */
 	RPG.World.action(a);
+}
+
+/**
+ * @class Knocking (unlocking) spell
+ * @augments RPG.Spells.BaseSpell
+ */
+RPG.Spells.Knock = OZ.Class().extend(RPG.Spells.BaseSpell);
+RPG.Spells.Knock.name = "knock";
+RPG.Spells.Knock.cost = 3;
+RPG.Spells.Knock.prototype.init = function(caster) {
+	this.parent(caster);
+	this._type = RPG.SPELL_TOUCH;
+}
+
+RPG.Spells.Knock.prototype.cast = function(dir) {
+	this.parent(dir);
+	
+	var map = this._caster.getCell().getMap();
+	var target = this._caster.getCell().getCoords().clone().plus(RPG.DIR[dir]);
+	var cell = map.at(target);
+	var feature = cell.getFeature();
+
+	if (feature && feature instanceof RPG.Features.Door && feature.isLocked()) {
+		feature.unlock();
+		RPG.UI.buffer.message("The door magically unlocks!");
+	} else {
+		RPG.UI.buffer.message("Nothing happens.");
+		return;
+	}
 }
 
 /**
@@ -82,7 +111,7 @@ RPG.Spells.Projectile.prototype.iterate = function() {
 	} else if (!cell.isFree()) {
 		var b = cell.getBeing();
 		if (b) {
-			var a = new RPG.Actions.MagicAttack(this, b);
+			var a = new RPG.Actions.MagicAttack(this._caster, b, this);
 			RPG.World.action(a);
 		} else {
 			end = true;
@@ -107,7 +136,7 @@ RPG.Spells.Projectile.prototype.iterate = function() {
  */
 RPG.Spells.MagicBolt = OZ.Class().extend(RPG.Spells.Projectile);
 RPG.Spells.MagicBolt.name = "magic bolt";
-RPG.Spells.MagicBolt.cost = 6;
+RPG.Spells.MagicBolt.cost = 8;
 RPG.Spells.MagicBolt.damage = new RPG.Misc.RandomValue(4, 1);
 RPG.Spells.MagicBolt.prototype.init = function(caster) {
 	this.parent(caster);

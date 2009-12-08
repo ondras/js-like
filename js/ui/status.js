@@ -57,7 +57,7 @@ RPG.UI.Status.prototype._build = function(container) {
 	td.appendChild(s);
 	td.appendChild(OZ.DOM.text("/"));
 	var s = OZ.DOM.elm("span");
-	this._dom.feats[RPG.FEAT_MAXHP] = s;
+	this._dom.feats[RPG.FEAT_MAX_HP] = s;
 	td.appendChild(s);
 	
 	/* mana */
@@ -69,7 +69,7 @@ RPG.UI.Status.prototype._build = function(container) {
 	td.appendChild(s);
 	td.appendChild(OZ.DOM.text("/"));
 	var s = OZ.DOM.elm("span");
-	this._dom.feats[RPG.FEAT_MAXMANA] = s;
+	this._dom.feats[RPG.FEAT_MAX_MANA] = s;
 	td.appendChild(s);
 
 	/* dv/pv */
