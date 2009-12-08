@@ -87,10 +87,6 @@ RPG.UI.Command.Direction.prototype.init = function(label, dir) {
 RPG.UI.Command.Direction.prototype.getDir = function() {
 	return this._dir;
 }
-RPG.UI.Command.Direction.prototype.getCoords = function() {
-	/** FIXME OBSOLETE */
-	return RPG.DIR[this._dir];
-}
 RPG.UI.Command.Direction.prototype.exec = function() {
 	/* wait */
 	if (this._dir == RPG.CENTER) {
@@ -235,7 +231,7 @@ RPG.UI.Command.Open.prototype.exec = function(cmd) {
 
 	if (cmd) {
 		/* direction given */
-		var coords = pc.getCell().getCoords().clone().plus(cmd.getCoords());
+		var coords = pc.getCell().getCoords().clone().plus(RPG.DIR[cmd.getDir()]);
 		var f = map.at(coords).getFeature();
 		if (f && f instanceof RPG.Features.Door && f.isClosed()) {
 			/* correct direction */
@@ -275,7 +271,7 @@ RPG.UI.Command.Close.prototype.exec = function(cmd) {
 
 	if (cmd) {
 		/* direction given */
-		var coords = pc.getCell().getCoords().clone().plus(cmd.getCoords());
+		var coords = pc.getCell().getCoords().clone().plus(RPG.DIR[cmd.getDir()]);
 		var f = map.at(coords).getFeature();
 		if (f && f instanceof RPG.Features.Door && !f.isClosed()) {
 			/* correct direction */
@@ -311,11 +307,11 @@ RPG.UI.Command.Kick.prototype.init = function() {
 }
 RPG.UI.Command.Kick.prototype.exec = function(cmd) {
 	if (!cmd) {
-		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Kick");
-	} else {
-		var coords = RPG.World.pc.getCell().getCoords().clone().plus(cmd.getCoords());
+		var coords = RPG.World.pc.getCell().getCoords().clone().plus(RPG.DIR[cmd.getDir()]);
 		RPG.UI.action(RPG.Actions.Kick, coords);
 		RPG.UI.setMode(RPG.UI_NORMAL);
+	} else {
+		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Kick");
 	}
 }
 
@@ -336,7 +332,7 @@ RPG.UI.Command.Chat.prototype.exec = function(cmd) {
 
 	if (cmd) {
 		/* direction given */
-		var coords = cell.getCoords().clone().plus(cmd.getCoords());
+		var coords = cell.getCoords().clone().plus(RPG.DIR[cmd.getDir()]);
 		var being = map.at(coords).getBeing();
 		if (!being) {
 			RPG.UI.buffer.message(errMsg);
@@ -730,7 +726,7 @@ RPG.UI.Command.Look.prototype.init = function() {
 
 RPG.UI.Command.Look.prototype.exec = function(cmd) {
 	if (cmd) {
-		var test = this._coords.clone().plus(cmd.getCoords());
+		var test = this._coords.clone().plus(RPG.DIR[cmd.getDir()]);
 		var map = RPG.World.getMap();
 		if (!map.isValid(test)) { return; }
 		this._coords = test;
@@ -841,7 +837,7 @@ RPG.UI.Command.SwitchPosition.prototype.exec = function(cmd) {
 	if (!cmd) {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Switch position");
 	} else {
-		var coords = RPG.World.pc.getCell().getCoords().clone().plus(cmd.getCoords());
+		var coords = RPG.World.pc.getCell().getCoords().clone().plus(RPG.DIR[cmd.getDir()]);
 		RPG.UI.action(RPG.Actions.SwitchPosition, coords);
 		RPG.UI.setMode(RPG.UI_NORMAL);
 	}
@@ -864,9 +860,6 @@ RPG.UI.Command.Cast.prototype.notify = function(coords) {
 
 RPG.UI.Command.Cast.prototype.exec = function(coords) {
 	if (!this._spell) { /* list of spells */
-		
-		/* FIXME magic wand in hand? */
-		
 		var spells = RPG.World.pc.getSpells();
 		if (spells.length) {
 			RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
@@ -953,7 +946,7 @@ RPG.UI.Command.Flirt.prototype.exec = function(cmd) {
 	if (!cmd) {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Flirt with someone");
 	} else {
-		var coords = RPG.World.pc.getCell().getCoords().clone().plus(cmd.getCoords());
+		var coords = RPG.World.pc.getCell().getCoords().clone().plus(RPG.DIR[cmd.getDir()]);
 		RPG.UI.action(RPG.Actions.Flirt, coords);
 		RPG.UI.setMode(RPG.UI_NORMAL);
 	}
