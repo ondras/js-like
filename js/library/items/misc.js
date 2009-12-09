@@ -98,7 +98,7 @@ RPG.Items.Gold.prototype.init = function() {
 	this._char = "$";
 	this._description = "piece of gold";
 	this._descriptionPlural = "pieces";
-	this._amount = Math.randomPercentage(); /* FIXME */
+	this._amount = 1;
 }
 
 RPG.Items.Gold.prototype.describe = function() {

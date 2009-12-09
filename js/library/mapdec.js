@@ -190,7 +190,7 @@ RPG.Dungeon.Decorator.Treasure.prototype.decorate = function(map, room, options)
 RPG.Dungeon.Decorator.Treasure.prototype._generateTreasure = function(danger) {
 	if (Math.randomPercentage() < 67) {
 		var gold = new RPG.Items.Gold();
-		gold.setAmount(Math.round(Math.random() * danger * 100));
+		gold.setAmount(1 + Math.round(Math.random() * danger * 30));
 		return gold;
 	} else {
 		return RPG.Items.Gem.getInstance(danger);
