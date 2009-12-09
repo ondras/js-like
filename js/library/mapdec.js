@@ -1,38 +1,83 @@
 /**
- * @class Map decorator
+ * @class Hidden walls decorator
+ * @augments RPG.Dungeon.Decorator
  */
-RPG.Dungeon.Decorator = OZ.Class();
-
-RPG.Dungeon.Decorator.prototype.init = function() {
-	this._map = null;
-	this._size = null;
-}
-
-RPG.Dungeon.Decorator.prototype.setMap = function(map) {
-	this._map = map;
-	this._size = map.getSize();
-	return this;
-}
-
-RPG.Dungeon.Decorator.prototype.addHiddenCorridors = function(percentage) {
+RPG.Dungeon.Decorator.Hidden = OZ.Class().extend(RPG.Dungeon.Decorator);
+RPG.Dungeon.Decorator.Hidden.getInstance = RPG.Dungeon.Decorator.getInstance;
+RPG.Dungeon.Decorator.Hidden.prototype.decorate = function(map, percentage) {
 	var c = new RPG.Misc.Coords(0, 0);
-	for (var i=0;i<this._size.x;i++) {
-		for (var j=0;j<this._size.y;j++) {
+	var size = map.getSize();
+	for (var i=0;i<size.x;i++) {
+		for (var j=0;j<size.y;j++) {
 			c.x = i;
 			c.y = j;
-			var cell = this._map.at(c);
+			var cell = map.at(c);
 			if (!(cell instanceof RPG.Cells.Corridor)) { continue; }
-			if (this._freeNeighbors(c) != 2) { continue; }
+			if (this._freeNeighbors(map, c) != 2) { continue; }
 			if (Math.random() >= percentage) { continue; }
 			
 			var fake = new RPG.Cells.Wall.Fake(cell);
-			this._map.setCell(c, fake);
+			map.setCell(c, fake);
 		}
 	}
 	return this;
 }
 
-RPG.Dungeon.Decorator.prototype.addRoomDoors = function(room, options) {
+/**
+ * @class Beings decorator
+ * @augments RPG.Dungeon.Decorator
+ */
+RPG.Dungeon.Decorator.Beings = OZ.Class().extend(RPG.Dungeon.Decorator);
+RPG.Dungeon.Decorator.Beings.getInstance = RPG.Dungeon.Decorator.getInstance;
+RPG.Dungeon.Decorator.Beings.prototype.decorate = function(map, count) {
+	var danger = map.getDanger();
+	for (var i=0;i<count;i++) {
+		var b = RPG.Beings.NPC.getInstance(danger);
+		var c = map.getFreeCell(true);
+		c.setBeing(b);
+	}
+	return this;
+}
+
+/**
+ * @class Items decorator
+ * @augments RPG.Dungeon.Decorator
+ */
+RPG.Dungeon.Decorator.Items = OZ.Class().extend(RPG.Dungeon.Decorator);
+RPG.Dungeon.Decorator.Items.getInstance = RPG.Dungeon.Decorator.getInstance;
+RPG.Dungeon.Decorator.Items.prototype.decorate = function(map, count) {
+	var danger = map.getDanger();
+	for (var i=0;i<count;i++) {
+		var item = RPG.Items.getInstance(danger);
+		var c = map.getFreeCell(true);
+		c.addItem(item);
+	}
+	return this;
+}
+
+/**
+ * @class Traps decorator
+ * @augments RPG.Dungeon.Decorator
+ */
+RPG.Dungeon.Decorator.Traps = OZ.Class().extend(RPG.Dungeon.Decorator);
+RPG.Dungeon.Decorator.Traps.getInstance = RPG.Dungeon.Decorator.getInstance;
+RPG.Dungeon.Decorator.Traps.prototype.addTraps = function(map, count) {
+	var danger = map.getDanger();
+	for (var i=0;i<count;i++) {
+		var trap = RPG.Features.Trap.getInstance(danger);
+		var c = map.getFreeCell(true);
+		c.setFeature(trap);
+	}
+	return this;
+}
+
+/**
+ * @class Map decorator
+ * @augments RPG.Dungeon.Decorator
+ */
+RPG.Dungeon.Decorator.Doors = OZ.Class().extend(RPG.Dungeon.Decorator);
+RPG.Dungeon.Decorator.Doors.getInstance = RPG.Dungeon.Decorator.getInstance;
+RPG.Dungeon.Decorator.Doors.prototype.decorate = function(map, room, options) {
 	var o = {
 		corridor: RPG.Cells.Corridor,
 		doors: true,
@@ -73,22 +118,22 @@ RPG.Dungeon.Decorator.prototype.addRoomDoors = function(room, options) {
 			
 			c.x = i;
 			c.y = j;
-			var cell = this._map.at(c);
+			var cell = map.at(c);
 			if (!cell) { continue; }
 			
 			var feature = cell.getFeature()
 			if (cell instanceof RPG.Cells.Wall) {
 				/* try fake corridor, if applicable */
 				if (Math.random() >= o.fakeCorridors) { continue; } /* bad luck */
-				var nc = this._freeNeighbors(c);
+				var nc = this._freeNeighbors(map, c);
 				if (nc != 4) { continue; } /* bad neighbor count */
 				
 				var after = c.clone().plus(dir);
-				if (!this._map.isValid(after) || !(this._map.at(after) instanceof RPG.Cells.Corridor)) { continue; } /* bad layout */
+				if (!map.isValid(after) || !(map.at(after) instanceof RPG.Cells.Corridor)) { continue; } /* bad layout */
 				
 				/* fake corridor */
 				var fake = new RPG.Cells.Wall.Fake(new o.corridor());
-				this._map.setCell(c, fake);
+				map.setCell(c, fake);
 				continue;
 			}
 			
@@ -105,7 +150,7 @@ RPG.Dungeon.Decorator.prototype.addRoomDoors = function(room, options) {
 			/* fake wall */
 			if (Math.random() < o.fakeDoors) {
 				var fake = new RPG.Cells.Wall.Fake(cell);
-				this._map.setCell(c, fake);
+				map.setCell(c, fake);
 			} /* if fake */
 
 		} /* for y */
@@ -113,70 +158,42 @@ RPG.Dungeon.Decorator.prototype.addRoomDoors = function(room, options) {
 	return this;
 }
 
-/* FIXME refactor */
-RPG.Dungeon.Decorator.prototype.decorateRoomInterior = function(room, options) {
+/**
+ * @class Treasure decorator
+ * @augments RPG.Dungeon.Decorator
+ */
+RPG.Dungeon.Decorator.Treasure = OZ.Class().extend(RPG.Dungeon.Decorator);
+RPG.Dungeon.Decorator.Treasure.getInstance = RPG.Dungeon.Decorator.getInstance;
+RPG.Dungeon.Decorator.Treasure.prototype.decorate = function(map, room, options) {
 	var o = {
 		treasure: 0,
-		monster: 0
 	}
+	var danger = map.getDanger();
 	for (var p in options) { o[p] = options[p]; }
 	
 	var c1 = room.getCorner1();
 	var c2 = room.getCorner2();
 	for (var i=c1.x;i<=c2.x;i++) {
 		for (var j=c1.y;j<=c2.y;j++) {
-			var cell = this._map.at(new RPG.Misc.Coords(i, j));
+			var cell = map.at(new RPG.Misc.Coords(i, j));
 			
 			if (Math.random() < o.treasure) {
-				var treasure = this._generateTreasure();
+				var treasure = this._generateTreasure(danger);
 				cell.addItem(treasure);
 				continue;
 			}
 			
 		}
 	}
+	return this;
 }
-
-RPG.Dungeon.Decorator.prototype.addBeings = function(count) {
-	for (var i=0;i<count;i++) {
-		var b = RPG.Beings.NPC.getInstance(this._map.getDanger());
-		var c = this._map.getFreeCoords(true);
-		this._map.at(c).setBeing(b);
-	}
-}
-
-RPG.Dungeon.Decorator.prototype.addItems = function(count) {
-	for (var i=0;i<count;i++) {
-		var item = RPG.Items.getInstance(this._map.getDanger());
-		var c = this._map.getFreeCoords(true);
-		this._map.at(c).addItem(item);
-	}
-}
-
-RPG.Dungeon.Decorator.prototype.addTraps = function(count) {
-	for (var i=0;i<count;i++) {
-		var trap = RPG.Features.Trap.getInstance(this._map.getDanger());
-		var c = this._map.getFreeCoords(true);
-		this._map.at(c).setFeature(trap);
-	}
-}
-
-RPG.Dungeon.Decorator.prototype._generateTreasure = function() {
+RPG.Dungeon.Decorator.Treasure.prototype._generateTreasure = function(danger) {
 	if (Math.randomPercentage() < 67) {
-		return new RPG.Items.Gold();
+		var gold = new RPG.Items.Gold();
+		gold.setAmount(Math.round(Math.random() * danger * 100));
+		return gold;
 	} else {
-		return RPG.Items.Gem.getInstance(this._map.getDanger());
+		return RPG.Items.Gem.getInstance(danger);
 	}
 }
 
-/**
- * Return number of free neighbors
- */
-RPG.Dungeon.Decorator.prototype._freeNeighbors = function(center) {
-	var result = 0;
-	var cells = this._map.cellsInCircle(center, 1, false);
-	for (var i=0;i<cells.length;i++) {
-		if (cells[i] instanceof RPG.Cells.Corridor) { result++; }
-	}
-	return result;
-}

@@ -306,7 +306,7 @@ RPG.UI.Command.Kick.prototype.init = function() {
 	this._button.setChar("k");
 }
 RPG.UI.Command.Kick.prototype.exec = function(cmd) {
-	if (!cmd) {
+	if (cmd) {
 		var coords = RPG.World.pc.getCell().getCoords().clone().plus(RPG.DIR[cmd.getDir()]);
 		RPG.UI.action(RPG.Actions.Kick, coords);
 		RPG.UI.setMode(RPG.UI_NORMAL);

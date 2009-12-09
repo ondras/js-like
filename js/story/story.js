@@ -9,7 +9,6 @@ RPG.Story.prototype.init = function() {
 	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
 //	this._chat = this._buildChat();
 	this._mapgen = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(60, 20));
-	this._mapdec = new RPG.Dungeon.Decorator();
 
 	OZ.Event.add(RPG.World, "action", this.bind(this._action));
 }
@@ -147,26 +146,26 @@ RPG.Story.prototype._dungeon = function() {
 		map = this._mapgen.generate("Dungeon #" + index, index);
 		rooms = map.getRooms();
 	} while (rooms.length < 3);
-	
-	this._mapdec.setMap(map).addHiddenCorridors(0.01);
+
+	RPG.Dungeon.Decorator.Hidden.getInstance().decorate(map, 0.01)	
 	var arr = [];
 
 	for (var i=0;i<rooms.length;i++) { 
-		this._mapdec.addRoomDoors(rooms[i]); 
+		RPG.Dungeon.Decorator.Doors.getInstance().decorate(map, rooms[i]);
 		arr.push(rooms[i]);
 	}
 	
 	/* enemies */
 	var max = 4 + Math.floor(Math.random()*6);
-	this._mapdec.addBeings(max);	
+	RPG.Dungeon.Decorator.Beings.getInstance().decorate(map, max);
 	
 	/* items */
 	var max = 2 + Math.floor(Math.random()*4);
-	this._mapdec.addItems(max);	
+	RPG.Dungeon.Decorator.Items.getInstance().decorate(map, max);
 
 	/* traps */
 	var max = 1 + Math.floor(Math.random()*2);
-	this._mapdec.addTraps(max);	
+	RPG.Dungeon.Decorator.Traps.getInstance().decorate(map, max);
 
 	/* stairs up */
 	var roomUp = arr.random();
@@ -197,8 +196,8 @@ RPG.Story.prototype._dungeon = function() {
 		var roomTreasure = arr.random();
 		var index = arr.indexOf(roomTreasure);
 		arr.splice(index, 1);
-		this._mapdec.addRoomDoors(roomTreasure, {locked: 1});
-		this._mapdec.decorateRoomInterior(roomTreasure, {treasure: 1});
+		RPG.Dungeon.Decorator.Doors.getInstance().decorate(map, roomTreasure, {locked: 1});
+		RPG.Dungeon.Decorator.Treasure.getInstance().decorate(map, roomTreasure, {treasure: 1});
 
 		var troll = new RPG.Beings.Troll();
 		troll.setName("Chleba");
@@ -207,10 +206,9 @@ RPG.Story.prototype._dungeon = function() {
 	
 	/* artifact */
 	if (this._maps.length + 2 == this._maxDepth) {
-		var coords = map.getFreeCoords(true);
+		var cell = map.getFreeCell(true);
 		var tmp = new RPG.Items.KlingonSword();
 		var trap = new RPG.Features.Trap.Teleport();
-		var cell = map.at(coords);
 		cell.setFeature(trap);
 		cell.addItem(tmp);
 	}

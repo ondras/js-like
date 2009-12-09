@@ -88,33 +88,42 @@ RPG.Cells.BaseCell.prototype.visibleThrough = function() {
 	return true;
 }
 
-
 /**
  * @class Room, a logical group of cells
  * @param {RPG.Dungeon.Map} map
  * @param {RPG.Misc.Coords} corner1 top-left corner
  * @param {RPG.Misc.Coords} corner2 bottom-right corner
  */
-RPG.Rooms.BaseRoom = OZ.Class();
+RPG.Dungeon.Room = OZ.Class();
 
-RPG.Rooms.BaseRoom.prototype.init = function(map, corner1, corner2) {
+RPG.Dungeon.Room.prototype.init = function(map, corner1, corner2) {
 	this._map = map;
 	this._corner1 = corner1.clone();
 	this._corner2 = corner2.clone();
+	this._type = null;
 }
 
-RPG.Rooms.BaseRoom.prototype.getCorner1 = function() {
+RPG.Dungeon.Room.prototype.getCorner1 = function() {
 	return this._corner1;
 }
 
-RPG.Rooms.BaseRoom.prototype.getCorner2 = function() {
+RPG.Dungeon.Room.prototype.getCorner2 = function() {
 	return this._corner2;
 }
 
-RPG.Rooms.BaseRoom.prototype.getCenter = function() {
+RPG.Dungeon.Room.prototype.getCenter = function() {
 	var x = Math.round((this._corner1.x + this._corner2.x)/2);
 	var y = Math.round((this._corner1.y + this._corner2.y)/2);
 	return new RPG.Misc.Coords(x, y);
+}
+
+RPG.Dungeon.Room.prototype.setType = function(type) {
+	this._type = type;
+	return this;
+}
+
+RPG.Dungeon.Room.prototype.getType = function(type) {
+	return this._type;
 }
 
 /**
@@ -258,12 +267,14 @@ RPG.Dungeon.Map.prototype.getBeings = function() {
 	}
 	return all;
 }
+
 /**
  * Map size
  */
 RPG.Dungeon.Map.prototype.getSize = function() {
 	return this._size;
 }
+
 RPG.Dungeon.Map.prototype.setCell = function(coords, cell) {
 	this._data[coords.x][coords.y] = cell;
 	cell.setCoords(coords);
@@ -300,12 +311,11 @@ RPG.Dungeon.Map.prototype.getFeatures = function(ctor) {
 
 /**
  * Add a new room
- * @param {function} ctor
  * @param {RPG.Misc.Coords} corner1
  * @param {RPG.Misc.Coords} corner2
  */
-RPG.Dungeon.Map.prototype.addRoom = function(ctor, corner1, corner2) {
-	var room = new ctor(this, corner1, corner2);
+RPG.Dungeon.Map.prototype.addRoom = function(corner1, corner2) {
+	var room = new RPG.Dungeon.Room(this, corner1, corner2);
 	this._rooms.push(room);
 	return room;
 }
@@ -356,7 +366,7 @@ RPG.Dungeon.Map.prototype.lineOfSight = function(c1, c2) {
 	return true;
 }
 
-RPG.Dungeon.Map.prototype.getFreeCoords = function(noItems) {
+RPG.Dungeon.Map.prototype.getFreeCell = function(noItems) {
 	var all = [];
 	var c = new RPG.Misc.Coords();
 	for (var i=0;i<this._size.x;i++) {
@@ -368,7 +378,7 @@ RPG.Dungeon.Map.prototype.getFreeCoords = function(noItems) {
 			if (!cell.isFree()) { continue; }
 			if (cell.getFeature()) { continue; }
 			if (noItems && cell.getItems().length) { continue; }
-			all.push(c.clone());
+			all.push(cell);
 		}
 	}
 	
@@ -400,3 +410,138 @@ RPG.Dungeon.Map.prototype.cellsInCircle = function(center, radius, includeInvali
 	return arr;
 }
 
+/**
+ * @class Map decorator
+ */
+RPG.Dungeon.Decorator = OZ.Class();
+
+RPG.Dungeon.Decorator.getInstance = function() {
+	if (!this._instance) { this._instance = new this(); }
+	return this._instance;
+}
+RPG.Dungeon.Decorator.prototype.decorate = function(map) {
+	return this;
+}
+
+/**
+ * Return number of free neighbors
+ */
+RPG.Dungeon.Decorator.prototype._freeNeighbors = function(map, center) {
+	var result = 0;
+	var cells = map.cellsInCircle(center, 1, false);
+	for (var i=0;i<cells.length;i++) {
+		if (cells[i] instanceof RPG.Cells.Corridor) { result++; }
+	}
+	return result;
+}
+
+
+/**
+ * @class Map generator
+ */
+RPG.Dungeon.Generator = OZ.Class();
+
+RPG.Dungeon.Generator.prototype.init = function(size, options) {
+	this._options = {
+		wall: RPG.Cells.Wall,
+		corridor: RPG.Cells.Corridor
+	}
+	for (var p in options) { this._options[p] = options[p]; }
+	
+	this._size = size;
+	this._bitMap = null;
+	this._rooms = [];
+}
+
+RPG.Dungeon.Generator.prototype.generate = function(id, danger) {
+	this._blankMap();
+	return this._dig(id, danger);
+}
+
+RPG.Dungeon.Generator.prototype._dig = function(id, danger) {
+	var map = RPG.Dungeon.Map.fromBitMap(id, this._bitMap, danger, this._options);
+	for (var i=0;i<this._rooms.length;i++) {
+		map.addRoom(this._rooms[i][0], this._rooms[i][1]);
+	}
+	this._bitMap = null;
+	return map;
+}
+
+RPG.Dungeon.Generator.prototype._isValid = function(coords) {
+	if (coords.x < 0 || coords.y < 0) { return false; }
+	if (coords.x >= this._size.x || coords.y >= this._size.y) { return false; }
+	return true;
+}
+
+/**
+ * Return number of free neighbors
+ */
+RPG.Dungeon.Generator.prototype._freeNeighbors = function(center) {
+	var result = 0;
+	for (var i=-1;i<=1;i++) {
+		for (var j=-1;j<=1;j++) {
+			if (!i && !j) { continue; }
+			var coords = new RPG.Misc.Coords(i, j).plus(center);
+			if (!this._isValid(coords)) { continue; }
+			if (!this._bitMap[coords.x][coords.y]) { result++; }
+		}
+	}
+	return result;
+}
+
+RPG.Dungeon.Generator.prototype._blankMap = function() {
+	this._rooms = [];
+	this._bitMap = [];
+	for (var i=0;i<this._size.x;i++) {
+		this._bitMap.push([]);
+		for (var j=0;j<this._size.y;j++) {
+			this._bitMap[i].push(1);
+		}
+	}
+}
+
+RPG.Dungeon.Generator.prototype._digRoom = function(corner1, corner2) {
+	this._rooms.push([corner1, corner2]);
+	
+	for (var i=corner1.x;i<=corner2.x;i++) {
+		for (var j=corner1.y;j<=corner2.y;j++) {
+			this._bitMap[i][j] = 0;
+		}
+	}
+	
+}
+
+RPG.Dungeon.Generator.prototype._generateCoords = function(minSize) {
+	var padding = 2 + minSize - 1;
+	var x = Math.floor(Math.random()*(this._size.x-padding)) + 1;
+	var y = Math.floor(Math.random()*(this._size.y-padding)) + 1;
+	return new RPG.Misc.Coords(x, y);
+}
+
+RPG.Dungeon.Generator.prototype._generateSize = function(corner, minSize, maxWidth, maxHeight) {
+	var availX = this._size.x - corner.x - minSize;
+	var availY = this._size.y - corner.y - minSize;
+	
+	availX = Math.min(availX, maxWidth - this._minSize + 1);
+	availY = Math.min(availY, maxHeight - this._minSize + 1);
+	
+	var x = Math.floor(Math.random()*availX) + minSize;
+	var y = Math.floor(Math.random()*availY) + minSize;
+	return new RPG.Misc.Coords(x, y);
+}
+
+/**
+ * Can a given rectangle fit in a map?
+ */
+RPG.Dungeon.Generator.prototype._freeSpace = function(corner1, corner2) {
+	var c = new RPG.Misc.Coords(0, 0);
+	for (var i=corner1.x; i<=corner2.x; i++) {
+		for (var j=corner1.y; j<=corner2.y; j++) {
+			c.x = i;
+			c.y = j;
+			if (!this._isValid(c)) { return false; }
+			if (!this._bitMap[i][j]) { return false; }
+		}
+	}
+	return true;
+}
