@@ -14,6 +14,9 @@ RPG.Beings = {};
 RPG.Cells = {};
 
 /** @namespace */
+RPG.Decorators = {};
+
+/** @namespace */
 RPG.Dungeon = {};
 
 /** @namespace */
@@ -27,6 +30,9 @@ RPG.Feats = {};
 
 /** @namespace */
 RPG.Features = {};
+
+/** @namespace */
+RPG.Generators = {};
 
 /** @namespace */
 RPG.Items = {};
