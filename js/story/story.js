@@ -8,7 +8,7 @@ RPG.Story.prototype.init = function() {
 	this._maps = [];
 	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
 //	this._chat = this._buildChat();
-	this._mapgen = new RPG.Dungeon.Generator.Digger(new RPG.Misc.Coords(60, 20));
+	this._mapgen = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
 
 	OZ.Event.add(RPG.World, "action", this.bind(this._action));
 }
@@ -147,25 +147,25 @@ RPG.Story.prototype._dungeon = function() {
 		rooms = map.getRooms();
 	} while (rooms.length < 3);
 
-	RPG.Dungeon.Decorator.Hidden.getInstance().decorate(map, 0.01)	
+	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01)	
 	var arr = [];
 
 	for (var i=0;i<rooms.length;i++) { 
-		RPG.Dungeon.Decorator.Doors.getInstance().decorate(map, rooms[i]);
+		RPG.Decorators.Doors.getInstance().decorate(map, rooms[i]);
 		arr.push(rooms[i]);
 	}
 	
 	/* enemies */
 	var max = 4 + Math.floor(Math.random()*6);
-	RPG.Dungeon.Decorator.Beings.getInstance().decorate(map, max);
+	RPG.Decorators.Beings.getInstance().decorate(map, max);
 	
 	/* items */
 	var max = 2 + Math.floor(Math.random()*4);
-	RPG.Dungeon.Decorator.Items.getInstance().decorate(map, max);
+	RPG.Decorators.Items.getInstance().decorate(map, max);
 
 	/* traps */
 	var max = 1 + Math.floor(Math.random()*2);
-	RPG.Dungeon.Decorator.Traps.getInstance().decorate(map, max);
+	RPG.Decorators.Traps.getInstance().decorate(map, max);
 
 	/* stairs up */
 	var roomUp = arr.random();
@@ -196,8 +196,8 @@ RPG.Story.prototype._dungeon = function() {
 		var roomTreasure = arr.random();
 		var index = arr.indexOf(roomTreasure);
 		arr.splice(index, 1);
-		RPG.Dungeon.Decorator.Doors.getInstance().decorate(map, roomTreasure, {locked: 1});
-		RPG.Dungeon.Decorator.Treasure.getInstance().decorate(map, roomTreasure, {treasure: 1});
+		RPG.Decorators.Doors.getInstance().decorate(map, roomTreasure, {locked: 1});
+		RPG.Decorators.Treasure.getInstance().decorate(map, roomTreasure, {treasure: 1});
 
 		var troll = new RPG.Beings.Troll();
 		troll.setName("Chleba");
