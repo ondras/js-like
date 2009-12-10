@@ -90,15 +90,19 @@ RPG.Items.IronRation.prototype.init = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Gold = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Gold.factory.method = function(danger) {
+	var amount = 1 + Math.round(Math.random() * danger * 30);
+	return new this(amount);
+}
 
-RPG.Items.Gold.prototype.init = function() {
+RPG.Items.Gold.prototype.init = function(amount) {
 	this.parent();
 	this._image = "gold";
 	this._color = "gold";
 	this._char = "$";
 	this._description = "piece of gold";
 	this._descriptionPlural = "pieces";
-	this._amount = 1;
+	this._amount = amount;
 }
 
 RPG.Items.Gold.prototype.describe = function() {

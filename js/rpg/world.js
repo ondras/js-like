@@ -17,7 +17,6 @@ RPG.World = {
 RPG.World.dispatch = OZ.Class().prototype.dispatch;
 
 RPG.World.init = function() {
-//	this._scheduler = new RPG.Engine.Queue();
 	this._scheduler = new RPG.Engine.Speed();
 
 	var f = new RPG.Misc.Factory().add(RPG.Items.BaseItem);
@@ -31,7 +30,6 @@ RPG.World.init = function() {
 
 	var f = new RPG.Misc.Factory().add(RPG.Features.Trap);
 	RPG.Features.Trap.getInstance = f.bind(f.getInstance);
-	
 }
 
 /**

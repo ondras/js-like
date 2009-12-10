@@ -5,20 +5,19 @@
 RPG.Actions.Wait = OZ.Class().extend(RPG.Actions.BaseAction);
 
 /**
- * @class Moving to a given cell. Target == coords.
+ * @class Moving being to a given cell. Target == cell.
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.Move = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Move.prototype.execute = function() {
 	var sourceCoords = this._source.getCell().getCoords();
-	var targetCoords = this._target;
+	var targetCoords = this._target.getCoords();
+	
 	var you = (this._source == RPG.World.pc);
 	var memory = RPG.World.pc.mapMemory();
 
-	var map = this._source.getCell().getMap();
-	var targetCell = map.at(targetCoords);
 	this._source.getCell().setBeing(null);
-	targetCell.setBeing(this._source);
+	this._target.setBeing(this._source);
 
 	if (you) {
 		this._describeLocal();
@@ -140,11 +139,11 @@ RPG.Actions.Death = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Death.prototype.execute = function() {
 	var memory = RPG.World.pc.mapMemory();
 	var map = RPG.World.getMap();
-	var coords = this._source.getCell().getCoords();
 	
-	this._source.getCell().setBeing(null); /* remove being */
+	var cell = this._source.getCell();
+	cell.setBeing(null); /* remove being */
 	
-	memory.updateCoords(coords);
+	memory.updateCoords(cell.getCoords());
 	RPG.World.removeActor(this._source);
 }
 
@@ -232,7 +231,7 @@ RPG.Actions.Close.prototype.execute = function() {
 }
 
 /**
- * @class Teleporting to a given cell. Target == coords.
+ * @class Teleporting to a given cell. Target == cell.
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.Teleport = OZ.Class().extend(RPG.Actions.BaseAction);
@@ -243,7 +242,7 @@ RPG.Actions.Teleport.prototype.execute = function() {
 	
 	var sourceCell = this._source.getCell();
 	var sourceCoords = sourceCell.getCoords();
-	var targetCoords = this._target;
+	var targetCoords = this._target.getCoords();
 
 	if (you) {
 		RPG.UI.buffer.message("You suddenly teleport away!");
@@ -582,7 +581,7 @@ RPG.Actions.Pit.prototype.execute = function() {
 }
 
 /**
- * @class Looking around, target = coords
+ * @class Looking around, target = cell
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.Look = OZ.Class().extend(RPG.Actions.BaseAction);
@@ -678,17 +677,15 @@ RPG.Actions.Heal.prototype.execute = function() {
 }
 
 /**
- * @class Switch position
+ * @class Switch position, target == cell
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.SwitchPosition = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.SwitchPosition.prototype.execute = function() {
 	var pc = RPG.World.pc;
 	var you = (this._source == pc);
-	var map = this._source.getCell().getMap();
 	
-	var cell = map.at(this._target);
-	var being = cell.getBeing();
+	var being = this._target.getBeing();
 	
 	if (!being) {
 		RPG.UI.buffer.message("There is noone to switch position with.");
@@ -702,16 +699,18 @@ RPG.Actions.SwitchPosition.prototype.execute = function() {
 			RPG.UI.buffer.message(being.describeThe().capitalize() + " resists!");
 		}
 	} else {
-		var source = this._source.getCell().getCoords().clone();
 		var str = "";
 		if (you) {
 			str += "You switch positions.";
-		} else if (pc.canSee(this._target)) {
+		} else if (pc.canSee(this._target.getCoords())) {
 			str += this._source.describeA().capitalize() + " sneaks past " + being.describeA() + ".";
 		}
 		RPG.UI.buffer.message(str);
-		this._source.setCell(cell);
-		being.setCell(map.at(source));
+		
+		/* fake pre-position */
+		var source = this._source.getCell();
+		this._source.setCell(this._target);
+		being.setCell(source);
 		
 		var m1 = new RPG.Actions.Move(this._source, this._target);
 		var m2 = new RPG.Actions.Move(being, source);

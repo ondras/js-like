@@ -71,10 +71,11 @@ RPG.Story.prototype._charGen = function(e) {
 
 	var map = this._dungeon();
 	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
-	up.getCell().setBeing(this._pc);
+	var cell = up.getCell();
+	cell.setBeing(this._pc);
 	
 	RPG.World.setMap(map);
-	RPG.World.run();
+	RPG.World.action(new RPG.Actions.Move(this._pc, cell));
 }
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
@@ -89,7 +90,6 @@ RPG.Story.prototype._createPC = function(race, profession, name) {
 	var tmp = new RPG.Items.IronRation();
 	pc.addItem(tmp);	
 	
-
 	return pc;
 }
 

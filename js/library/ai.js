@@ -224,7 +224,7 @@ RPG.Engine.AI.Wander.prototype.go = function() {
 	
 	var target = avail[Math.floor(Math.random() * avail.length)];
 	if (target) {
-		RPG.World.action(new RPG.Actions.Move(being, target.getCoords()));
+		RPG.World.action(new RPG.Actions.Move(being, target));
 	} else {
 		RPG.World.action(new RPG.Actions.Wait(being));
 	}
@@ -486,7 +486,7 @@ RPG.Engine.AI.GetToDistance.prototype.go = function() {
 	if (bestMoves.length) {
 		/* pick one of the "bestMoves" array */
 		var c = bestMoves[Math.floor(Math.random()*bestMoves.length)];
-		RPG.World.action(new RPG.Actions.Move(being, c));
+		RPG.World.action(new RPG.Actions.Move(being, map.at(c)));
 	} else {
 		RPG.World.action(new RPG.Actions.Wait(being));
 	}

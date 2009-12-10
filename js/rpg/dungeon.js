@@ -14,9 +14,15 @@ RPG.Cells.BaseCell.prototype.init = function() {
 	this._modifiers = {};
 	this._being = null;
 	this._feature = null;
+	this._coords = null;
 	this._map = null;
 	this._room = null;
 	this._type = RPG.BLOCKS_NOTHING;
+}
+
+RPG.Cells.BaseCell.prototype.neighbor = function(dir) {
+	var c = this._coords.clone().plus(RPG.DIR[dir]);
+	return this._map.at(c);
 }
 
 RPG.Cells.BaseCell.prototype.addItem = function(item) {

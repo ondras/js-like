@@ -350,16 +350,14 @@ RPG.Actions.BaseAction.prototype._describeLocal = function() {
 	}
 }
 
-RPG.Actions.BaseAction.prototype._describeRemote = function(coords) {
-	var map = RPG.World.getMap();
+RPG.Actions.BaseAction.prototype._describeRemote = function(cell) {
 	var pc = RPG.World.pc;
+	var coords = cell.getCoords();
 	
 	if (!pc.canSee(coords)) {
 		RPG.UI.buffer.message("You do not see that place.");
 		return;
 	}
-	
-	var cell = map.at(coords);
 	
 	var b = cell.getBeing();
 	if (b) {
