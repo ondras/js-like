@@ -728,31 +728,27 @@ RPG.Actions.Cast = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Cast.prototype.execute = function() {
 	var pc = RPG.World.pc;
 	var caster = this._params.getCaster();
-	var you = (caster == pc);
 	var spell = this._params;
 	
 	var cost = spell.getCost();
 	caster.adjustStat(RPG.STAT_MANA, -cost);
 	
-	var str = caster.describe().capitalize() + " cast";
-	if (!you) { str += "s"; }
-	str += " '" + spell.describe() + "'.";
+	var verb = RPG.Misc.verb("cast", caster);
+	var str = RPG.Misc.format("%D %s %d.", caster, verb, spell);
 	RPG.UI.buffer.message(str);
 	
 	spell.cast(this._target);	
 }
 
 /**
- * @class Flirt with someone
+ * @class Flirt with someone, target = cell
  * @augments RPG.Actions.BaseAction
  */
 RPG.Actions.Flirt = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Flirt.prototype.execute = function() {
 	/* only PC is allowed to flirt */
 	var pc = RPG.World.pc;
-	var map = this._source.getCell().getMap();
-	var cell = map.at(this._target);
-	var being = cell.getBeing();
+	var being = this._target.getBeing();
 
 	if (this._source == being) {
 		RPG.UI.buffer.message("You spend some nice time flirting with yourself.");
@@ -764,8 +760,7 @@ RPG.Actions.Flirt.prototype.execute = function() {
 		return;
 	}
 
-	var s = being.describeThe().capitalize();
-	s += " doesn't seem to be interested.";
+	var s = RPG.Misc.format("%The doesn't seem to be interested.", being);
 	RPG.UI.buffer.message(s);
 }
 

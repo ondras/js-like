@@ -79,7 +79,6 @@ RPG.Misc.IModifier.prototype.getModified = function() {
 	return arr;
 }
 
-
 /**
  * @class Weapon interface. Weapon items implement this, as well as some slots and spells.
  */
@@ -96,7 +95,6 @@ RPG.Misc.IWeapon.prototype.getHit = function() {
 RPG.Misc.IWeapon.prototype.getDamage = function() {
 	return this._damage;
 }
-
 
 /**
  * @class Interface for objects which can be cloned and (de)serialized
@@ -136,6 +134,17 @@ RPG.Misc.IProjectile.prototype.launch = function(from, direction) {
 RPG.Misc.IProjectile.prototype.iterate = function() {
 	RPG.UI.map.setProjectile(this._coords, this);
 	return true;
+}
+
+/**
+ * @class Actor interface
+ */
+RPG.Misc.IActor = OZ.Class();
+RPG.Misc.IActor.prototype.getSpeed = function() {};
+/**
+ * World asks actor to perform an action
+ */ 
+RPG.Misc.IActor.prototype.yourTurn = function() {
 }
 
 /**
@@ -218,3 +227,117 @@ RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {
 	}
 	return false;
 }
+
+/**
+ * @class Speed-based scheduler
+ */
+RPG.Misc.Scheduler = OZ.Class();
+RPG.Misc.Scheduler.prototype.init = function() {
+	this._actors = [];
+	this._current = [];
+	this._maxSpeed = 0;
+}
+
+RPG.Misc.Scheduler.prototype.addActor = function(actor) {
+	var o = {
+		actor: actor,
+		bucket: 0,
+		speed: 0
+	}
+	this._actors.push(o);
+	return this;
+}
+
+RPG.Misc.Scheduler.prototype.clearActors = function() {
+	this._actors = [];
+	return this;
+}
+
+RPG.Misc.Scheduler.prototype.removeActor = function(actor) {
+	for (var i=0;i<this._actors.length;i++) {
+		if (this._actors[i].actor == actor) { 
+			this._actors.splice(i, 1); 
+			break;
+		}
+	}
+	
+	for (var i=0;i<this._current.length;i++) {
+		if (this._current[i].actor == actor) { 
+			this._current.splice(i, 1); 
+			break;
+		}
+	}
+
+	return this;
+}
+
+RPG.Misc.Scheduler.prototype.scheduleActor = function() {
+	if (!this._actors.length) { return null; }
+
+	/* if there is a set of pre-scheduled actors */
+	if (this._current.length) {
+		var o = this._current.shift();
+		o.bucket -= this._maxSpeed;
+		return o.actor;
+	}
+	
+	/* update speeds */
+	this._maxSpeed = 0;
+	for (var i=0;i<this._actors.length;i++) {
+		var obj = this._actors[i];
+		obj.speed = obj.actor.getSpeed();
+		if (obj.speed > this._maxSpeed) { this._maxSpeed = obj.speed; }
+	}
+	
+	/* increase buckets and determine those eligible for a turn */
+	do {
+		
+		for (var i=0;i<this._actors.length;i++) {
+			var obj = this._actors[i];
+			obj.bucket += obj.speed;
+			if (obj.bucket >= this._maxSpeed) { this._current.push(obj); }
+		}
+	
+	}  while (!this._current.length);
+	
+	/* sort eligible actors by their buckets */
+	this._current.sort(function(a,b) {
+		return b.bucket - a.bucket;
+	});
+	
+	/* recurse */
+	return arguments.callee.apply(this, arguments);
+	
+}
+
+/**
+ * Format a string in a printf-like fashion
+ * @param {string} formatStr Formatting string to be substituted
+ */
+RPG.Misc.format = function(formatStr) {
+	var args = arguments;
+	var index = 0;
+	return formatStr.replace(/%([a-zA-Z]+)/g, function(match, what) {
+		if (index+1 < args.length) { index++; }
+		var obj = args[index];
+		var str = what;
+		switch (what.toLowerCase()) {
+			case "a": str = obj.describeA(); break;
+			case "the": str = obj.describeThe(); break;
+			case "d": str = obj.describe(); break;
+			case "he": str = obj.describeHe(); break;
+			case "him": str = obj.describeHim(); break;
+			case "his": str = obj.describeHis(); break;
+			case "is": str = obj.describeIs(); break;
+			case "s": str = obj; break;
+		}
+		
+		if (what.charAt(0) != what.charAt(0).toLowerCase()) { str = str.capitalize(); }
+		return str;
+	});
+}
+
+RPG.Misc.verb = function(verb, who) {
+	return (who == RPG.World.pc ? verb : verb+"s");
+}
+

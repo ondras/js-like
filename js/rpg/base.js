@@ -343,7 +343,7 @@ RPG.Actions.BaseAction.prototype._describeLocal = function() {
 		RPG.UI.buffer.message("Several items are lying here.");
 	} else if (items.length == 1) {
 		var item = items[0];
-		var str = item.describeA(pc).capitalize();
+		var str = item.describeA().capitalize();
 		str += " " + item.describeIs() + " ";
 		str += "lying here.";
 		RPG.UI.buffer.message(str);

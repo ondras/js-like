@@ -17,7 +17,7 @@ RPG.World = {
 RPG.World.dispatch = OZ.Class().prototype.dispatch;
 
 RPG.World.init = function() {
-	this._scheduler = new RPG.Engine.Speed();
+	this._scheduler = new RPG.Misc.Scheduler();
 
 	var f = new RPG.Misc.Factory().add(RPG.Items.BaseItem);
 	RPG.Items.getInstance = f.bind(f.getInstance);
@@ -34,7 +34,7 @@ RPG.World.init = function() {
 
 /**
  * Add new actor
- * @param {RPG.Engine.IActor} actor
+ * @param {RPG.Misc.IActor} actor
  */
 RPG.World.addActor = function(actor) {
 	this._scheduler.addActor(actor);
@@ -42,7 +42,7 @@ RPG.World.addActor = function(actor) {
 
 /**
  * Remove given actor
- * @param {RPG.Engine.IActor} actor
+ * @param {RPG.Misc.IActor} actor
  */
 RPG.World.removeActor = function(actor) {
 	this._scheduler.removeActor(actor);

@@ -225,12 +225,11 @@ RPG.UI.Command.Open.prototype.init = function() {
 }
 RPG.UI.Command.Open.prototype.exec = function(cmd) {
 	var pc = RPG.World.pc;
-	var map = pc.getCell().getMap();
 
 	if (cmd) {
 		/* direction given */
-		var coords = pc.getCell().getCoords().clone().plus(RPG.DIR[cmd.getDir()]);
-		var f = map.at(coords).getFeature();
+		var cell = pc.getCell().neighbor(cmd.getDir());
+		var f = cell.getFeature();
 		if (f && f instanceof RPG.Features.Door && f.isClosed()) {
 			/* correct direction */
 			RPG.UI.action(RPG.Actions.Open, f);
@@ -265,12 +264,11 @@ RPG.UI.Command.Close.prototype.init = function() {
 }
 RPG.UI.Command.Close.prototype.exec = function(cmd) {
 	var pc = RPG.World.pc;
-	var map = pc.getCell().getMap();
 
 	if (cmd) {
 		/* direction given */
-		var coords = pc.getCell().getCoords().clone().plus(RPG.DIR[cmd.getDir()]);
-		var f = map.at(coords).getFeature();
+		var cell = pc.getCell().neighbor(cmd.getDir());
+		var f = cell.getFeature();
 		if (f && f instanceof RPG.Features.Door && !f.isClosed()) {
 			/* correct direction */
 			RPG.UI.action(RPG.Actions.Close, f);
@@ -326,12 +324,11 @@ RPG.UI.Command.Chat.prototype.exec = function(cmd) {
 	var errMsg = "There is noone to chat with.";
 	var pc = RPG.World.pc;
 	var cell = pc.getCell();
-	var map = cell.getMap();
 
 	if (cmd) {
 		/* direction given */
-		var coords = cell.getCoords().clone().plus(RPG.DIR[cmd.getDir()]);
-		var being = map.at(coords).getBeing();
+		var cell = pc.getCell().neighbor(cmd.getDir());
+		var being = cell.getBeing();
 		if (!being) {
 			RPG.UI.buffer.message(errMsg);
 		} else {
@@ -467,13 +464,11 @@ RPG.UI.Command.Autowalk.prototype.exec = function(cmd) {
 
 RPG.UI.Command.Autowalk.prototype._start = function(dir) {
 	var pc = RPG.World.pc;
-	var cell = pc.getCell();
-	var map = cell.getMap();
 	
 	/* cannot walk to the wall */
 	if (dir != RPG.CENTER) {
-		var target = cell.getCoords().clone().plus(RPG.DIR[dir]);
-		if (!map.at(target).isFree() ) { return; }
+		var cell = pc.getCell().neighbor(dir);
+		if (!cell.isFree() ) { return; }
 	}
 
 	this._saveState(dir);
@@ -491,14 +486,12 @@ RPG.UI.Command.Autowalk.prototype._saveState = function(dir) {
 	if (dir == RPG.CENTER) { return; }
 	
 	var pc = RPG.World.pc;
-	var map = RPG.World.getMap();
 	var cell = pc.getCell();
-	var coords = cell.getCoords();
 	
 	var leftDir = (dir + 6) % 8;
 	var rightDir = (dir + 2) % 8;
-	this._left = map.at(coords.clone().plus(RPG.DIR[leftDir])).isFree();
-	this._right = map.at(coords.clone().plus(RPG.DIR[rightDir])).isFree();
+	this._left = cell.neighbor(leftDir).isFree();
+	this._right = cell.neighbor(leftDir).isFree();
 }
 
 RPG.UI.Command.Autowalk.prototype._yourTurn = function() {
@@ -527,12 +520,11 @@ RPG.UI.Command.Autowalk.prototype._check = function() {
 	/* now check neighbor status */
 	var leftDir = (this._dir + 6) % 8;
 	var rightDir = (this._dir + 2) % 8;
-	var aheadCoords = coords.clone().plus(RPG.DIR[this._dir]);
-	var leftCoords = coords.clone().plus(RPG.DIR[leftDir]);
-	var rightCoords = coords.clone().plus(RPG.DIR[rightDir]);
-	var aheadCell = map.at(aheadCoords);
-	var leftCell = map.at(leftCoords);
-	var rightCell = map.at(rightCoords);
+
+	var aheadCell = cell.neighbor(this._dir);
+	var leftCell = cell.neighbor(leftDir);
+	var rightCell = cell.neighbor(rightDir);
+	
 	var ahead = aheadCell.isFree();
 	var left = leftCell.isFree();
 	var right = rightCell.isFree();
@@ -943,8 +935,8 @@ RPG.UI.Command.Flirt.prototype.exec = function(cmd) {
 	if (!cmd) {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Flirt with someone");
 	} else {
-		var coords = RPG.World.pc.getCell().getCoords().clone().plus(RPG.DIR[cmd.getDir()]);
-		RPG.UI.action(RPG.Actions.Flirt, coords);
+		var cell = RPG.World.pc.getCell().neighbor(cmd.getDir());
+		RPG.UI.action(RPG.Actions.Flirt, cell);
 		RPG.UI.setMode(RPG.UI_NORMAL);
 	}
 }

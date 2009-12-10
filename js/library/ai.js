@@ -87,7 +87,7 @@ RPG.Engine.AI.prototype._action = function(e) {
 		
 		if (!kill) {
 			/* let's kill the bastard! */
-			var str = this._being.describeThe().capitalize() + " gets very angry!";
+			var str = RPG.Misc.format("%The gets very angry!", this._being);
 			RPG.UI.buffer.message(str);
 			var goal = new RPG.Engine.AI.Kill(source);
 			this.addTask(goal);
@@ -95,7 +95,8 @@ RPG.Engine.AI.prototype._action = function(e) {
 		
 		if (!retreat && RPG.Rules.isWoundedToRetreat(this._being)) {
 			/* too much damage, run for your life! */
-			var str = this._being.describeThe().capitalize() + " looks frightened!";
+			debugger;
+			var str = RPG.Misc.format("%The looks frightened!", this._being);
 			RPG.UI.buffer.message(str);
 			var goal = new RPG.Engine.AI.Retreat(source);
 			this.addTask(goal);

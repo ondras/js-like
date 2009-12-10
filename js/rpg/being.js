@@ -1,11 +1,11 @@
 /**
  * @class Basic being
  * @augments RPG.Visual.IVisual
- * @augments RPG.Engine.IActor
+ * @augments RPG.Misc.IActor
  */
 RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Visual.IVisual)
-						.implement(RPG.Engine.IActor);
+						.implement(RPG.Misc.IActor);
 RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._initVisuals();
 	this._trapMemory = new RPG.Memory.TrapMemory();

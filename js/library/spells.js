@@ -115,10 +115,7 @@ RPG.Spells.Projectile.prototype.iterate = function() {
 			RPG.World.action(a);
 		} else {
 			end = true;
-			var str = "";
-			str += this.describeThe().capitalize() + " hits ";
-			str += (cell.getFeature() || cell).describeA();
-			str += " and disappears.";
+			var str = RPG.Misc.format("%T hits %a and disappears.", this, cell.getFeature() || cell);
 			RPG.UI.buffer.message(str);
 		}
 	}
