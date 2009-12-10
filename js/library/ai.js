@@ -95,7 +95,6 @@ RPG.Engine.AI.prototype._action = function(e) {
 		
 		if (!retreat && RPG.Rules.isWoundedToRetreat(this._being)) {
 			/* too much damage, run for your life! */
-			debugger;
 			var str = RPG.Misc.format("%The looks frightened!", this._being);
 			RPG.UI.buffer.message(str);
 			var goal = new RPG.Engine.AI.Retreat(source);

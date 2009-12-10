@@ -545,6 +545,9 @@ RPG.UI.Command.Autowalk.prototype._check = function() {
 		/* we can - in theory - continue; just check if we are not standing on a crossroads */
 		if ((!this._left && left) || (!this._right && right)) { return false; }
 	} else {
+		/* feature blocks way - stop */
+		if (aheadCell.getFeature() && aheadCell.getFeature().knowsAbout(pc)) { return false; }
+		
 		/* try to change direction, because it is not possible to continue */
 		var freecount = 0;
 		var cells = map.cellsInCircle(coords, 1, false);

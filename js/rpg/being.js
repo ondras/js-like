@@ -91,6 +91,21 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
  * @param {SMap.Misc.Coords}
  */
 RPG.Beings.BaseBeing.prototype.setCell = function(cell) {
+	var oldRoom = null;
+	var newRoom = null;
+	if (this._cell) { 
+		this._removeModifiers(this._cell); 
+		oldRoom = this._cell.getRoom();
+	}
+	if (cell) {
+		this._addModifiers(cell);
+		newRoom = cell.getRoom();
+	}
+	if (oldRoom != newRoom) {
+		if (oldRoom) { this._removeModifiers(oldRoom); }
+		if (newRoom) { this._addModifiers(newRoom); }
+	}
+
 	this._cell = cell;
 	return this;
 }
@@ -132,29 +147,17 @@ RPG.Beings.BaseBeing.prototype.equip = function(item, slot) {
 	}
 	slot.setItem(item);
 
-	this._modifierList.push(item);
-	this._updateFeatsByModifier(item);
+	this._addModifiers(item);
 }
 
 RPG.Beings.BaseBeing.prototype.unequip = function(slot) {
 	var item = slot.getItem();
 	if (!item) { return; }
 	
-	var index = this._modifierList.indexOf(item);
-	if (index == -1) { throw new Error("Cannot find item '"+item+"'"); }
-
 	slot.setItem(null);
-	this.addItem(item);
-	
-	this._modifierList.splice(index, 1);
-	this._updateFeatsByModifier(item);
-}
+	this.addItem(item);	
 
-RPG.Beings.BaseBeing.prototype._updateFeatsByModifier = function(item) {
-	var list = item.getModified();
-	for (var i=0;i<list.length;i++) {
-		this.updateFeat(list[i]);
-	}
+	this._removeModifiers(item);
 }
 
 RPG.Beings.BaseBeing.prototype.getItems = function() { 
@@ -408,4 +411,23 @@ RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	var frac = 1 - hp/max;
 	var index = Math.floor(frac * def.length);
 	return def[index];
+}
+
+RPG.Beings.BaseBeing.prototype._addModifiers = function(imodifier) {
+	this._modifierList.push(imodifier);
+	this._updateFeatsByModifier(imodifier);
+}
+
+RPG.Beings.BaseBeing.prototype._removeModifiers = function(imodifier) {
+	var index = this._modifierList.indexOf(imodifier);
+	if (index == -1) { throw new Error("Cannot find imodifier '"+imodifier+"'"); }
+	this._modifierList.splice(index, 1);
+	this._updateFeatsByModifier(imodifier);
+}
+
+RPG.Beings.BaseBeing.prototype._updateFeatsByModifier = function(imodifier) {
+	var list = imodifier.getModified();
+	for (var i=0;i<list.length;i++) {
+		this.updateFeat(list[i]);
+	}
 }
