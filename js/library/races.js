@@ -14,8 +14,6 @@ RPG.Races.Humanoid.prototype.init = function() {
 	this._defaults[RPG.FEAT_TOUGHNESS] = 11;
 	this._defaults[RPG.FEAT_DEXTERITY] = 11;
 	this._defaults[RPG.FEAT_MAGIC] = 11;
-	this._defaults[RPG.FEAT_REGEN_HP] = 10; /* per 100 turns */
-	this._defaults[RPG.FEAT_REGEN_MANA] = 10; /* per 100 turns */
 
 	var head = new RPG.Slots.BaseSlot("Head", [RPG.Items.HeadGear]);
 	this._slots.push(head);

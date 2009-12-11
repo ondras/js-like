@@ -4,6 +4,8 @@
 RPG.Story = OZ.Class();
 
 RPG.Story.prototype.init = function() {
+	RPG.UI.sound = new RPG.UI.Sound();
+	RPG.UI.sound.preloadBackground("de1m1");
 	this._maxDepth = 6;
 	this._maps = [];
 	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
@@ -76,6 +78,7 @@ RPG.Story.prototype._charGen = function(e) {
 	
 	RPG.World.setMap(map);
 	RPG.World.action(new RPG.Actions.Move(this._pc, cell));
+	RPG.UI.sound.playBackground();
 }
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
@@ -85,10 +88,10 @@ RPG.Story.prototype._createPC = function(race, profession, name) {
 	pc.setName(name);
 
 	var tmp = new RPG.Items.HealingPotion();
-	pc.addItem(tmp);	
+	pc.addItem(tmp);
 
 	var tmp = new RPG.Items.IronRation();
-	pc.addItem(tmp);	
+	pc.addItem(tmp);
 	
 	return pc;
 }
@@ -189,6 +192,9 @@ RPG.Story.prototype._dungeon = function() {
 		arr.splice(index, 1);
 		var down = new RPG.Features.Staircase.Down();
 		map.at(roomDown.getCenter()).setFeature(down);
+		
+		var g = new RPG.Beings.Goblin();
+		map.at(roomDown.getCenter()).setBeing(g);
 	} else {
 		/* last level */
 

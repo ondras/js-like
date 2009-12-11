@@ -250,6 +250,7 @@ RPG.Misc.Scheduler.prototype.addActor = function(actor) {
 
 RPG.Misc.Scheduler.prototype.clearActors = function() {
 	this._actors = [];
+	this._current = [];
 	return this;
 }
 

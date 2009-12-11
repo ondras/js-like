@@ -245,6 +245,8 @@ RPG.Races.BaseRace.prototype.init = function() {
 	this._kickSlot = null;
 	
 	this._defaults = {};
+	this._defaults[RPG.FEAT_REGEN_HP] = 10; /* per 100 turns */
+	this._defaults[RPG.FEAT_REGEN_MANA] = 10; /* per 100 turns */
 }
 
 RPG.Races.BaseRace.prototype.getDefaults = function() {

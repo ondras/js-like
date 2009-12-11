@@ -10,7 +10,8 @@ var OZ = {
 		_id:0,
 		_cache:{},
 		_standard:["click","dblclick","mousedown","mouseup","mouseover","mouseout","mousemove","keypress","keydown","keyup",
-					"load","unload","abort","error","resize","scroll","select","change","submit","reset","focus","blur"],
+					"load","unload","abort","error","resize","scroll","select","change","submit","reset","focus","blur",
+					"ended","canplaythrough"],
 		add:function(elm,event,cb) {
 			var id = OZ.Event._id++;
 			var element = OZ.$(elm);

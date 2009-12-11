@@ -166,7 +166,7 @@ RPG.Decorators.Treasure = OZ.Class().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Treasure.getInstance = RPG.Decorators.BaseDecorator.getInstance;
 RPG.Decorators.Treasure.prototype.decorate = function(map, room, options) {
 	var o = {
-		treasure: 0,
+		treasure: 0
 	}
 	var danger = map.getDanger();
 	for (var p in options) { o[p] = options[p]; }

@@ -149,7 +149,7 @@ RPG.Features.Trap.Teleport.prototype.init = function() {
 
 RPG.Features.Trap.Teleport.prototype.setOff = function(e) {
 	var c = this._cell.getMap().getFreeCell();
-	var a = new RPG.Actions.Teleport(this._cell.getBeing(), c.getCoords());
+	var a = new RPG.Actions.Teleport(this._cell.getBeing(), c);
 	RPG.World.action(a);
 }
 
