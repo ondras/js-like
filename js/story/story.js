@@ -43,18 +43,10 @@ RPG.Story.prototype._action = function(e) {
 /**
  * Staircase needs its target dungeon generated
  */
-RPG.Story.prototype.generateDungeon = function(staircase) {
-	var map = staircase.getCell().getMap();
-	if (map == this._maps[0] && staircase instanceof RPG.Features.Staircase.Up) {
-		this._endGame();
-		return;
-	}
-
-	map = this._dungeon();
-	
-	staircase.setTargetMap(map);
+RPG.Story.prototype._down = function(staircase) {
+	var map = this._dungeon();
 	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
-	staircase.setTargetCoords(up.getCell().getCoords());
+	return up.getCell();
 }
 
 RPG.Story.prototype._charGen = function(e) {
@@ -74,11 +66,12 @@ RPG.Story.prototype._charGen = function(e) {
 	var map = this._dungeon();
 	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
 	var cell = up.getCell();
-	cell.setBeing(this._pc);
 	
 	RPG.World.setMap(map);
-	RPG.World.action(new RPG.Actions.Move(this._pc, cell));
+	RPG.World.addActor(this._pc);
+	
 	RPG.UI.sound.playBackground();
+	RPG.World.action(new RPG.Actions.Move(this._pc, cell));
 }
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
@@ -181,10 +174,11 @@ RPG.Story.prototype._dungeon = function() {
 	if (this._maps.length) {
 		var prev = this._maps[this._maps.length-1];
 		var down = prev.getFeatures(RPG.Features.Staircase.Down)[0];
-		up.setTargetMap(prev);
-		up.setTargetCoords(down.getCell().getCoords());
+		up.setTarget(down.getCell());
+	} else {
+		up.setTarget(this.bind(this._endGame));
 	}
-
+	
 	/* stairs down */
 	if (this._maps.length + 1 < this._maxDepth) {
 		var roomDown = arr.random();
@@ -192,9 +186,7 @@ RPG.Story.prototype._dungeon = function() {
 		arr.splice(index, 1);
 		var down = new RPG.Features.Staircase.Down();
 		map.at(roomDown.getCenter()).setFeature(down);
-		
-		var g = new RPG.Beings.Goblin();
-		map.at(roomDown.getCenter()).setBeing(g);
+		down.setTarget(this.bind(this._down));
 	} else {
 		/* last level */
 

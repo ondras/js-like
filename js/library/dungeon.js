@@ -183,28 +183,19 @@ RPG.Features.Staircase = OZ.Class().extend(RPG.Features.BaseFeature);
 RPG.Features.Staircase.prototype.init = function() {
 	this.parent();
 	this._color = "silver";
-	this._targetMap = null;
-	this._targetCoords = null;
+	this._target = null;
 }
 
-RPG.Features.Staircase.prototype.setTargetMap = function(map) {
-	this._targetMap = map;
+RPG.Features.Staircase.prototype.setTarget = function(cell) {
+	this._target = cell;
 }
 
-RPG.Features.Staircase.prototype.setTargetCoords = function(coords) {
-	this._targetCoords = coords.clone();
-}
-
-RPG.Features.Staircase.prototype.generateTarget = function() {
-	RPG.World.getStory().generateDungeon(this);
-}
-
-RPG.Features.Staircase.prototype.getTargetMap = function() {
-	return this._targetMap;
-}
-
-RPG.Features.Staircase.prototype.getTargetCoords = function() {
-	return this._targetCoords;
+RPG.Features.Staircase.prototype.getTarget = function() {
+	if (!this._target) { return null; }
+	if (typeof(this._target) == "function") {
+		this._target = this._target(this);
+	}
+	return this._target;
 }
 
 /**

@@ -31,8 +31,6 @@ RPG.UI.BaseMap.prototype.resize = function(size) {
 			this._dom.data[i][j] = cell;
 		}
 	}
-	
-	this.setFocus(RPG.World.pc.getCell().getCoords());
 }
 
 RPG.UI.BaseMap.prototype.redrawCoords = function(coords, data, remembered) {

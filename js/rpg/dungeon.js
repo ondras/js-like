@@ -145,6 +145,14 @@ RPG.Rooms.BaseRoom.prototype.getType = function(type) {
 }
 
 /**
+ * A being entered this room
+ * @param {RPG.Beings.BaseBeing} being
+ */
+RPG.Rooms.BaseRoom.prototype.entered = function(being) {
+	if (being == RPG.World.pc) { /* alert("ohi"); */ }
+}
+
+/**
  * @class Dungeon feature
  * @augments RPG.Visual.IVisual
  * @augments RPG.Misc.ISerializable

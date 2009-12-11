@@ -27,7 +27,7 @@ RPG.Memory.MapMemory.prototype.setMap = function(map) {
 	}
 	
 	this._current = m;
-	this.updateComplete();
+	this._current.load();
 }
 
 RPG.Memory.MapMemory.prototype.updateComplete = function() {

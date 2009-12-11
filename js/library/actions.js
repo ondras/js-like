@@ -10,22 +10,32 @@ RPG.Actions.Wait = OZ.Class().extend(RPG.Actions.BaseAction);
  */
 RPG.Actions.Move = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Move.prototype.execute = function() {
-	var sourceCoords = this._source.getCell().getCoords();
-	var targetCoords = this._target.getCoords();
-	
 	var you = (this._source == RPG.World.pc);
 	var memory = RPG.World.pc.mapMemory();
+	var sourceCell = this._source.getCell();
+	var targetCell = this._target;
 
-	this._source.getCell().setBeing(null);
-	this._target.setBeing(this._source);
-
-	if (you) {
-		this._describeLocal();
-		memory.updateVisible();
-	} else {
-		memory.updateCoords(sourceCoords);
-		memory.updateCoords(targetCoords);
+	if (targetCell && targetCell.getRoom()) {
+		if (!sourceCell || sourceCell.getRoom() != targetCell.getRoom()) {
+			targetCell.getRoom().entered(this._source);
+		}
 	}
+
+	if (sourceCell) {
+		sourceCell.setBeing(null);
+		if (!you) { memory.updateCoords(sourceCell.getCoords()); }
+	}
+	
+	if (targetCell) {
+		targetCell.setBeing(this._source);
+		if (you) { 
+			this._describeLocal();
+			memory.updateVisible();
+		} else {
+			memory.updateCoords(targetCell.getCoords()); 
+		}
+	}
+
 }
 
 /**
@@ -479,24 +489,15 @@ RPG.Actions.EnterStaircase.prototype.execute = function() {
 
 	/* find new map & entry coordinates */
 	var stair = this._target;
-	var newMap = stair.getTargetMap();
-	if (!newMap) { 
-		stair.generateTarget(); 
-		newMap = stair.getTargetMap();
-	}
-	var coords = stair.getTargetCoords();
-	
-	if (newMap) {	
-		/* move what is necessary to new map */
-		var oldCell = pc.getCell();
-		oldCell.setBeing(null);
-		newMap.at(coords).setBeing(pc);
+	var cell = stair.getTarget();
 
+	if (cell) {	
 		/* switch maps */
-		RPG.World.setMap(newMap);
+		RPG.World.setMap(cell.getMap());
 		
-		/* describe what we see */
-		this._describeLocal();
+		RPG.World.addActor(pc);
+		var a = new RPG.Actions.Move(pc, cell);
+		RPG.World.action(a);
 	}
 }
 

@@ -943,3 +943,22 @@ RPG.UI.Command.Flirt.prototype.exec = function(cmd) {
 		RPG.UI.setMode(RPG.UI_NORMAL);
 	}
 }
+
+/**
+ * @class Mute/unmute command
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Mute = OZ.Class().extend(RPG.UI.Command);
+RPG.UI.Command.Mute.prototype.init = function() {
+	this.parent("Mute");
+	this._button.setChar("m");
+}
+RPG.UI.Command.Mute.prototype.exec = function() {
+	var state = !RPG.UI.sound.getMuted();
+	RPG.UI.sound.setMuted(state);
+	if (state) {
+		this._button.setLabel("Unmute");
+	} else {
+		this._button.setLabel("Mute");
+	}
+}

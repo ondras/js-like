@@ -41,6 +41,16 @@ RPG.UI.Sound.prototype.playBackground = function() {
 	this._background.play();
 }
 
+RPG.UI.Sound.prototype.getMuted = function() {
+	return this._background.muted;
+}
+
+RPG.UI.Sound.prototype.setMuted = function(state) {
+	this._background.muted = state;
+	for (var name in this._cache) { this._cache[name].muted = state; }
+}
+
+
 RPG.UI.Sound.prototype._unload = function() {
 	this._background.pause();
 }

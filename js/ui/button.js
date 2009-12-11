@@ -36,13 +36,13 @@ RPG.UI.Button.prototype.init = function(label, callback) {
 	this._keyCodes = [];
 	this._ctrlKey = false;
 	this._altKey = false;
-	this._label = label || "";
+	this._label = null;
 	this._callback = callback;
 	this._char = null;
 	this._input = OZ.DOM.elm("input", {type:"button"});
 	
 	this.constructor._buttons.push([this, this._input]);
-	this._setLabel();
+	this.setLabel(label);
 }
 
 RPG.UI.Button.prototype.destroy = function() {
@@ -60,6 +60,11 @@ RPG.UI.Button.prototype.destroy = function() {
 
 RPG.UI.Button.prototype.getInput = function() {
 	return this._input;
+}
+
+RPG.UI.Button.prototype.setLabel = function(label) {
+	this._label = label || "";
+	this._setLabel();
 }
 
 RPG.UI.Button.prototype._setLabel = function() {
