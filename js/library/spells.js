@@ -73,6 +73,7 @@ RPG.Spells.Projectile.prototype.init = function(caster) {
 	this._dir = null;
 	this._distance = 5;
 	this._traveledDistance = 0;
+	this._baseImage = "";
 	
 	this._chars = {};
 	this._chars[RPG.N]  = "|";
@@ -84,13 +85,22 @@ RPG.Spells.Projectile.prototype.init = function(caster) {
 	this._chars[RPG.W]  = "–";
 	this._chars[RPG.NW] = "\\";
 	
-	/* FIXME images */
+	this._suffixes = {};
+	this._suffixes[RPG.N]  = "n";
+	this._suffixes[RPG.NE] = "ne";
+	this._suffixes[RPG.E]  = "e";
+	this._suffixes[RPG.SE] = "se";
+	this._suffixes[RPG.S]  = "s";
+	this._suffixes[RPG.SW] = "sw";
+	this._suffixes[RPG.W]  = "w";
+	this._suffixes[RPG.NW] = "nw";
 }
 
 RPG.Spells.Projectile.prototype.cast = function(dir) {
 	this.parent(dir);
 	
 	this._char = this._chars[dir];
+	this._image = this._baseImage + "-" + this._suffixes[dir];
 
 	var coords = this._caster.getCell().getCoords();
 	this._startCoords = coords;
@@ -115,7 +125,7 @@ RPG.Spells.Projectile.prototype.iterate = function() {
 			RPG.World.action(a);
 		} else {
 			end = true;
-			var str = RPG.Misc.format("%T hits %a and disappears.", this, cell.getFeature() || cell);
+			var str = RPG.Misc.format("%The hits %a and disappears.", this, cell.getFeature() || cell);
 			RPG.UI.buffer.message(str);
 		}
 	}
@@ -139,6 +149,6 @@ RPG.Spells.MagicBolt.prototype.init = function(caster) {
 	this.parent(caster);
 	this._type = RPG.SPELL_DIRECTION;
 
-	this._image = "magic-bolt"; /* FIXME */
+	this._baseImage = "magic-bolt";
 	this._color = "blueviolet";
 }
