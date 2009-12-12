@@ -66,6 +66,14 @@ RPG.Generators.Village.prototype.generate = function(id) {
 
     c = map.at(new RPG.Misc.Coords(12,2));
     c.setFeature(stairs_up);
+
+    var residents = 5;
+
+    for (var i = 0; i < residents; i++) {
+        var villager = new RPG.Beings.Villager();
+        c = map.getFreeCell();
+        c.setBeing(villager);
+    }
     
     return map;
 }
