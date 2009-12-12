@@ -498,7 +498,7 @@ RPG.Decorators.BaseDecorator.prototype._freeNeighbors = function(map, center) {
 RPG.Generators.BaseGenerator = OZ.Class();
 
 RPG.Generators.BaseGenerator.prototype.init = function(size, maptypes) {
-	this._maptypes = maptypes || [ RPG.Cells.Wall, RPG.Cells.Corridor ];
+	this._maptypes = maptypes || [RPG.Cells.Corridor, RPG.Cells.Wall];
 	this._size = size;
 	this._bitMap = null;
 	this._rooms = [];
