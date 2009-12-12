@@ -21,7 +21,7 @@ RPG.Generators.Arena.prototype.generate = function(id) {
 RPG.Generators.Village = OZ.Class().extend(RPG.Generators.BaseGenerator);
 
 RPG.Generators.Village.prototype.generate = function(id) {
-    var map = [
+    var cellmap = [
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -35,7 +35,7 @@ RPG.Generators.Village.prototype.generate = function(id) {
         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ];
 
-    var maptypes = [
+    var celltypes = [
         RPG.Cells.Grass,
         RPG.Cells.Wall,
         RPG.Cells.Corridor
@@ -43,7 +43,31 @@ RPG.Generators.Village.prototype.generate = function(id) {
 
     var danger = 1;
 
-    return RPG.Dungeon.Map.fromIntMap(id,map.transpose(),danger,maptypes);
+    var map = RPG.Dungeon.Map.fromIntMap(id,cellmap.transpose(),danger,celltypes);
+    
+    var doors_left = new RPG.Features.Door();
+    var doors_right = new RPG.Features.Door();
+    var stairs_down = new RPG.Features.Staircase.Down();
+    var stairs_up = new RPG.Features.Staircase.Up();
+
+    doors_left.close();
+    doors_right.close();
+
+    var c = null;
+
+    c = map.at(new RPG.Misc.Coords(5,3));
+    c.setFeature(doors_left);
+
+    c = map.at(new RPG.Misc.Coords(14,6));
+    c.setFeature(doors_right);
+
+    c = map.at(new RPG.Misc.Coords(18,9));
+    c.setFeature(stairs_down);
+
+    c = map.at(new RPG.Misc.Coords(12,2));
+    c.setFeature(stairs_up);
+    
+    return map;
 }
 
 
