@@ -461,7 +461,7 @@ RPG.Spells.BaseSpell.prototype.init = function(caster) {
 	
 	this._type = RPG.SPELL_SELF;
 	this._caster = caster;
-	this._hit = new RPG.Misc.RandomValue(10, 3);
+	this._hit = new RPG.Misc.RandomValue(5, 3);
 	this._damage = null;
 }
 

@@ -44,6 +44,7 @@ RPG.Generators.Village.prototype.generate = function(id) {
     var danger = 1;
 
     var map = RPG.Dungeon.Map.fromIntMap(id,cellmap.transpose(),danger,celltypes);
+	map.setWelcome("You come to a small peaceful village.");
     
     var doors_left = new RPG.Features.Door();
     var doors_right = new RPG.Features.Door();

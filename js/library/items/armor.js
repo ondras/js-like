@@ -110,8 +110,6 @@ RPG.Items.LeatherBoots.prototype.init = function() {
 	this._modifiers[RPG.FEAT_DV] = 1;
 }
 
-
-
 /**
  * @class Clothes
  * @augments RPG.Items.Armor
@@ -125,6 +123,21 @@ RPG.Items.Clothes.prototype.init = function() {
 	this._description = "clothes";
 	this._image = "clothes"
 	this._modifiers[RPG.FEAT_PV] = 1;
+}
+
+/**
+ * @class Mage robes
+ * @augments RPG.Items.Armor
+ */
+RPG.Items.MageRobes = OZ.Class().extend(RPG.Items.Armor);
+RPG.Items.MageRobes.prototype.init = function() {
+	this.parent();
+	this._uncountable = true;
+	this._color = "red";
+	this._description = "mage robes";
+	this._image = "mage-robes"
+	this._modifiers[RPG.FEAT_PV] = 1;
+	this._modifiers[RPG.FEAT_MAGIC] = 1;
 }
 
 /**

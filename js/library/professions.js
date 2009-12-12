@@ -41,6 +41,7 @@ RPG.Professions.Wizard.prototype.setup = function(being) {
 
 	being.adjustFeat(RPG.FEAT_MAX_MANA, 5);
 	being.adjustFeat(RPG.FEAT_MAX_HP, -3);
+	being.adjustFeat(RPG.FEAT_HIT_MAGIC, 3);
 
 	being.addSpell(RPG.Spells.Heal);
 	being.addSpell(RPG.Spells.Knock);
