@@ -25,6 +25,20 @@ RPG.Cells.Grass.prototype.init = function() {
 }
 
 /**
+ * @class Water
+ * @augments RPG.Cells.BaseCell
+ */
+RPG.Cells.Water = OZ.Class().extend(RPG.Cells.BaseCell);
+RPG.Cells.Water.prototype.init = function() {
+	this.parent();
+	this._description = "water";
+	this._char = "=";
+	this._image = "";       // FIXME
+	this._color = "darkblue";
+	this._type = RPG.BLOCKS_MOVEMENT;
+}
+
+/**
  * @class Wall
  * @augments RPG.Cells.BaseCell
  */
