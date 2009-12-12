@@ -15,6 +15,39 @@ RPG.Generators.Arena.prototype.generate = function(id) {
 }
 
 /**
+ * @class Village generator
+ * @augments RPG.Generators.BaseGenerator
+ */
+RPG.Generators.Village = OZ.Class().extend(RPG.Generators.BaseGenerator);
+
+RPG.Generators.Village.prototype.generate = function(id) {
+    var map = [
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,1,2,2,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0],
+        [0,0,1,1,1,1,0,0,0,0,0,1,2,2,2,1,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,1,1,1,2,1,0,0,0,0],
+        [0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    ];
+
+    var maptypes = [
+        RPG.Cells.Grass,
+        RPG.Cells.Wall,
+        RPG.Cells.Corridor
+    ];
+
+    var danger = 1;
+
+    return RPG.Dungeon.Map.fromIntMap(id,map.transpose(),danger,maptypes);
+}
+
+
+/**
  * @class Random map generator, tries to fill the space evenly
  * @augments RPG.Generators.BaseGenerator
  */ 
