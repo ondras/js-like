@@ -90,6 +90,20 @@ RPG.Items.Axe.prototype.init = function() {
 }
 
 /**
+ * @class Torch
+ * @augments RPG.Items.Weapon
+ */
+RPG.Items.Torch = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.Torch.prototype.init = function() {
+	this.parent(new RPG.Misc.RandomValue(4, 2), new RPG.Misc.RandomValue(4, 3));
+	this._color = "gray";
+	this._image = "torch"; /* FIXME */
+	this._description = "torch"; 
+	
+	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 1;
+}
+
+/**
  * @class Klingon Ceremonial Sword
  * @augments RPG.Items.Weapon
  */

@@ -86,6 +86,9 @@ RPG.Story.prototype._createPC = function(race, profession, name) {
 	var tmp = new RPG.Items.IronRation();
 	pc.addItem(tmp);
 	
+	var tmp = new RPG.Items.Torch();
+	pc.addItem(tmp);
+
 	return pc;
 }
 
