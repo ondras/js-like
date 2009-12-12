@@ -40,15 +40,6 @@ RPG.Story.prototype._action = function(e) {
 	if (a.getSource() == this._pc) { this._endGame(); }
 }
 
-/**
- * Staircase needs its target dungeon generated
- */
-RPG.Story.prototype._down = function(staircase) {
-	var map = this._dungeon();
-	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
-	return up.getCell();
-}
-
 RPG.Story.prototype._charGen = function(e) {
 	if (!this._name.value) {
 		this._name.focus();
@@ -62,17 +53,11 @@ RPG.Story.prototype._charGen = function(e) {
 	
 	RPG.UI.build();
 	this._pc = this._createPC(race, profession, this._name.value);
-
-	//var map = this._dungeon();
-    var mapgen = new RPG.Generators.Village();
-
-    var map = mapgen.generate();
-
-	//var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
-	var cell = map.at(new RPG.Misc.Coords(7,6));
 	
+	var map = this._firstMap();
 	RPG.World.setMap(map);
 	RPG.World.addActor(this._pc);
+	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
 	
 	RPG.UI.sound.playBackground();
 	RPG.World.action(new RPG.Actions.Move(this._pc, cell));
@@ -140,7 +125,7 @@ RPG.Story.prototype._endGame = function() {
 	RPG.UI.showDialog(div, "Game over");
 }
 
-RPG.Story.prototype._dungeon = function() {
+RPG.Story.prototype._randomDungeon = function() {
 	var index = this._maps.length + 1;
 	
 	var rooms = [];
@@ -180,10 +165,7 @@ RPG.Story.prototype._dungeon = function() {
 	/* bind to previous dungeon */
 	if (this._maps.length) {
 		var prev = this._maps[this._maps.length-1];
-		var down = prev.getFeatures(RPG.Features.Staircase.Down)[0];
-		up.setTarget(down.getCell());
-	} else {
-		up.setTarget(this.bind(this._endGame));
+		this._attachPrevious(map, prev);
 	}
 	
 	/* stairs down */
@@ -193,7 +175,7 @@ RPG.Story.prototype._dungeon = function() {
 		arr.splice(index, 1);
 		var down = new RPG.Features.Staircase.Down();
 		map.at(roomDown.getCenter()).setFeature(down);
-		down.setTarget(this.bind(this._down));
+		this._attachNext(map);
 	} else {
 		/* last level */
 
@@ -222,6 +204,42 @@ RPG.Story.prototype._dungeon = function() {
 	return map;
 }
 	
+/**
+ * Staircase needs its target dungeon generated
+ */
+RPG.Story.prototype._down = function(staircase) {
+	var map = this._randomDungeon();
+	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
+	return up.getCell();
+}
+
+RPG.Story.prototype._firstMap = function() {
+//	var map = this._randomDungeon();
+
+    var mapgen = new RPG.Generators.Village();
+    var map = mapgen.generate();
+	
+	this._attachGameover(map);
+	this._maps.push(map);
+	return map;
+}
+
+RPG.Story.prototype._attachGameover = function(map) {
+	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
+	up.setTarget(this.bind(this._endGame));
+}
+
+RPG.Story.prototype._attachNext = function(map) {
+	var down = map.getFeatures(RPG.Features.Staircase.Down)[0];
+	down.setTarget(this.bind(this._down));
+}
+	
+RPG.Story.prototype._attachPrevious = function(map, previousMap) {
+	var down = previousMap.getFeatures(RPG.Features.Staircase.Down)[0];
+	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
+
+	up.setTarget(down.getCell());
+}
 /*
 RPG.Story.prototype._buildChat = function() {
 	var c = new RPG.Misc.Chat("Hi, what am I supposed to do?")

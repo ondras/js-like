@@ -190,15 +190,9 @@ RPG.Actions.Open.prototype.execute = function() {
 	
 	door.open();
 	
-	var str = this._source.describeA().capitalize() + " ";
-	if (you) {
-		str += "open";
-	} else {
-		str += "opens";
-	}
-	str += " the door.";
-	
-	RPG.UI.buffer.message(str);
+	var verb = RPG.Misc.verb("open", this._source);
+	var s = RPG.Misc.format("%A %s the door.", this._source, verb);
+	RPG.UI.buffer.message(s);
 	pc.mapMemory().updateVisible();
 }
 
@@ -217,7 +211,7 @@ RPG.Actions.Close.prototype.execute = function() {
 		this._tookTime = false;
 		return;
 	}
-	
+
 	var items = cell.getItems();
 	if (items.length) {
 		if (items.length == 1) {
@@ -231,16 +225,9 @@ RPG.Actions.Close.prototype.execute = function() {
 
 	door.close();
 	
-	var str = this._source.describeA().capitalize() + " ";
-	var you = (this._source == RPG.World.pc);
-	if (you) {
-		str += "close";
-	} else {
-		str += "closes";
-	}
-	str += " the door.";
-	
-	RPG.UI.buffer.message(str);
+	var verb = RPG.Misc.verb("close", this._source);
+	var s = RPG.Misc.format("%A %s the door.", this._source, verb);
+	RPG.UI.buffer.message(s);
 	RPG.World.pc.mapMemory().updateVisible();
 }
 
