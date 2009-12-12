@@ -313,6 +313,7 @@ RPG.Dungeon.Map.prototype.setCell = function(coords, cell) {
 }
 
 RPG.Dungeon.Map.prototype.at = function(coords) {
+	if (coords.x < 0 || coords.y < 0 || coords.x >= this._size.x || coords.y >= this._size.y) { return null; }
 	return this._data[coords.x][coords.y];
 }
 

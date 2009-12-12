@@ -714,18 +714,19 @@ RPG.UI.Command.Look = OZ.Class().extend(RPG.UI.Command);
 RPG.UI.Command.Look.prototype.init = function() {
 	this.parent("Look");
 	this._button.setChar("l");
-	this._cell = null;
+	this._coords = null;
 }
 
 RPG.UI.Command.Look.prototype.exec = function(cmd) {
 	if (cmd) {
-		var cell = this._cell.neighbor(cmd.getDir());
+		this._coords.plus(RPG.DIR[cmd.getDir()]);
+		var cell = RPG.World.pc.getCell().getMap().at(this._coords);
 		if (!cell) { return; }
-		this._cell = cell;
-		RPG.UI.map.setFocus(cell.getCoords());
+		
+		RPG.UI.map.setFocus(this._coords);
 		RPG.UI.action(RPG.Actions.Look, cell);
 	} else {
-		this._cell = RPG.World.pc.getCell();
+		this._coords = RPG.World.pc.getCell().getCoords().clone();
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Look around");
 	}
 }
