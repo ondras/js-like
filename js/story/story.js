@@ -218,6 +218,7 @@ RPG.Story.prototype._firstMap = function() {
 
     var mapgen = new RPG.Generators.Village();
     var map = mapgen.generate();
+	this._attachNext(map);
 	
 	this._attachGameover(map);
 	this._maps.push(map);
