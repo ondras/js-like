@@ -64,11 +64,6 @@ RPG.World.setMap = function(map) {
 	for (var i=0;i<beings.length;i++) { /* get all beings in map and assign them to scheduler */
 		this.addActor(beings[i]);
 	}
-	
-	this.pc.mapMemory().setMap(map);
-	RPG.UI.status.updateMap(map.getId());
-	var welcome = map.getWelcome();
-	if (welcome) { RPG.UI.buffer.message(welcome); }
 }
 
 RPG.World.getMap = function() {

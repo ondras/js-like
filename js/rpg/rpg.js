@@ -17,9 +17,6 @@ RPG.Cells = {};
 RPG.Decorators = {};
 
 /** @namespace */
-RPG.Dungeon = {};
-
-/** @namespace */
 RPG.Engine = {};
 
 /** @namespace */

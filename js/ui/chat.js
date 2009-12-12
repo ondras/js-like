@@ -29,7 +29,8 @@ RPG.UI.Chat.prototype._showPart = function(chat) {
 			num = parseInt(result, 10);
 		} while (isNaN(num) || num <= 0 || num > options.length);
 	} else {
-		alert(text);
+		var s = RPG.Misc.format('"%s"', text);
+		RPG.UI.buffer.message(s);
 	}
 	
 	if (result) {
@@ -46,5 +47,5 @@ RPG.UI.Chat.prototype._showPart = function(chat) {
 		if (end) { end(this._action); }
 	}
 	
-	RPG.UI.setMode(RPG.UI.DONE_CHAT);
+	RPG.UI.setMode(RPG.UI_NORMAL);
 }

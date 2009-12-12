@@ -52,7 +52,7 @@ RPG.Beings.Villager.prototype.init = function() {
 	
 	this._description = "villager";
 	this._char = "@";
-	this._color = "FireBrick";
+	this._color = "peru";
 	this._image = "villager";
 	
 	this.fullStats();

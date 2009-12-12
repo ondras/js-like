@@ -43,7 +43,7 @@ RPG.Generators.Village.prototype.generate = function(id) {
 
     var danger = 1;
 
-    var map = RPG.Dungeon.Map.fromIntMap(id,cellmap.transpose(),danger,celltypes);
+    var map = RPG.Map.fromIntMap(id,cellmap.transpose(),danger,celltypes);
 	map.setWelcome("You come to a small peaceful village.");
     
     var doors_left = new RPG.Features.Door();
@@ -68,10 +68,12 @@ RPG.Generators.Village.prototype.generate = function(id) {
     c = map.at(new RPG.Misc.Coords(12,2));
     c.setFeature(stairs_up);
 
+	var chat = new RPG.Misc.Chat("You should investigate the dungeon near by!");
     var residents = 5;
 
     for (var i = 0; i < residents; i++) {
         var villager = new RPG.Beings.Villager();
+		villager.setChat(chat);
         c = map.getFreeCell();
         c.setBeing(villager);
     }

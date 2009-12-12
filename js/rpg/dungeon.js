@@ -107,7 +107,7 @@ RPG.Cells.BaseCell.prototype.visibleThrough = function() {
 /**
  * @class Room, a logical group of cells
  * @augments RPG.Misc.IModifier
- * @param {RPG.Dungeon.Map} map
+ * @param {RPG.Map} map
  * @param {RPG.Misc.Coords} corner1 top-left corner
  * @param {RPG.Misc.Coords} corner2 bottom-right corner
  */
@@ -212,25 +212,25 @@ RPG.Features.BaseFeature.prototype.visibleThrough = function() {
  * @class Dungeon map
  * @augments RPG.Misc.ISerializable
  */
-RPG.Dungeon.Map = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.Map = OZ.Class().implement(RPG.Misc.ISerializable);
 
 /**
  * Factory method. Creates map from an array of arrays of integers.
  * Cells is array of cell constructors
  */
-RPG.Dungeon.Map.fromIntMap = function(id, intMap, danger, cells) {
+RPG.Map.fromIntMap = function(id, intMap, danger, cells) {
 	var width = intMap.length;
 	var height = intMap[0].length;
 	
 	var coords = new RPG.Misc.Coords(width, height);
-	var map = new RPG.Dungeon.Map(id, coords, danger);
+	var map = new RPG.Map(id, coords, danger);
 	
 	for (var x=0;x<width;x++) { 
 		for (var y=0;y<height;y++) {
 			coords.x = x;
 			coords.y = y;
 
-            var cell = RPG.Dungeon.Map._cellFromNumber(intMap[x][y],cells);
+            var cell = this._cellFromNumber(intMap[x][y],cells);
 
 			/* create walkable section */
 			if (cell.isFree()) {
@@ -250,7 +250,7 @@ RPG.Dungeon.Map.fromIntMap = function(id, intMap, danger, cells) {
 					neighbor.y = coords.y + j;
 
                     if (map.isValid(neighbor)) {
-                        var neighborCell = RPG.Dungeon.Map._cellFromNumber(intMap[neighbor.x][neighbor.y],cells);
+                        var neighborCell = this._cellFromNumber(intMap[neighbor.x][neighbor.y],cells);
                         if (neighborCell.isFree()) { ok = true; }
                     }
 				}
@@ -266,11 +266,11 @@ RPG.Dungeon.Map.fromIntMap = function(id, intMap, danger, cells) {
 	return map;
 }
 
-RPG.Dungeon.Map._cellFromNumber = function(celltype, cells) {
+RPG.Map._cellFromNumber = function(celltype, cells) {
     return new cells[celltype]();
 }
 
-RPG.Dungeon.Map.prototype.init = function(id, size, danger) {
+RPG.Map.prototype.init = function(id, size, danger) {
 	this._id = id;
 	this._welcome = "";
 	this._size = size.clone();
@@ -287,27 +287,34 @@ RPG.Dungeon.Map.prototype.init = function(id, size, danger) {
 	}
 }
 
-RPG.Dungeon.Map.prototype.setWelcome = function(text) {
+RPG.Map.prototype.use = function() {
+	RPG.World.pc.mapMemory().setMap(this);
+	RPG.UI.status.updateMap(this._id);
+	if (this._welcome) { RPG.UI.buffer.message(this._welcome); }
+	RPG.World.setMap(this);
+}
+
+RPG.Map.prototype.setWelcome = function(text) {
 	this._welcome = text;
 	return this;
 }
 
-RPG.Dungeon.Map.prototype.getWelcome = function() {
+RPG.Map.prototype.getWelcome = function() {
 	return this._welcome;
 }
 
-RPG.Dungeon.Map.prototype.getId = function() {
+RPG.Map.prototype.getId = function() {
 	return this._id;
 }
 
-RPG.Dungeon.Map.prototype.getDanger = function() {
+RPG.Map.prototype.getDanger = function() {
 	return this._danger;
 }
 
 /**
  * Get all beings in this Map
  */ 
-RPG.Dungeon.Map.prototype.getBeings = function() {
+RPG.Map.prototype.getBeings = function() {
 	var all = [];
 	for (var i=0;i<this._size.x;i++) {
 		for (var j=0;j<this._size.y;j++) {
@@ -323,22 +330,22 @@ RPG.Dungeon.Map.prototype.getBeings = function() {
 /**
  * Map size
  */
-RPG.Dungeon.Map.prototype.getSize = function() {
+RPG.Map.prototype.getSize = function() {
 	return this._size;
 }
 
-RPG.Dungeon.Map.prototype.setCell = function(coords, cell) {
+RPG.Map.prototype.setCell = function(coords, cell) {
 	this._data[coords.x][coords.y] = cell;
 	cell.setCoords(coords);
 	cell.setMap(this);
 }
 
-RPG.Dungeon.Map.prototype.at = function(coords) {
+RPG.Map.prototype.at = function(coords) {
 	if (coords.x < 0 || coords.y < 0 || coords.x >= this._size.x || coords.y >= this._size.y) { return null; }
 	return this._data[coords.x][coords.y];
 }
 
-RPG.Dungeon.Map.prototype.isValid = function(coords) {
+RPG.Map.prototype.isValid = function(coords) {
 	var size = this._size;
 	if (Math.min(coords.x, coords.y) < 0) { return false; }
 	if (coords.x >= size.x) { return false; }
@@ -349,7 +356,7 @@ RPG.Dungeon.Map.prototype.isValid = function(coords) {
 /**
  * Return all features of a given type
  */
-RPG.Dungeon.Map.prototype.getFeatures = function(ctor) {
+RPG.Map.prototype.getFeatures = function(ctor) {
 	var arr = [];
 	for (var i=0;i<this._size.x;i++) {
 		for (var j=0;j<this._size.y;j++) {
@@ -367,7 +374,7 @@ RPG.Dungeon.Map.prototype.getFeatures = function(ctor) {
  * @param {RPG.Misc.Coords} corner1
  * @param {RPG.Misc.Coords} corner2
  */
-RPG.Dungeon.Map.prototype.addRoom = function(room) {
+RPG.Map.prototype.addRoom = function(room) {
 	this._rooms.push(room);
 	this._assignRoom(room.getCorner1(), room.getCorner2(), room);
 	return room;
@@ -376,7 +383,7 @@ RPG.Dungeon.Map.prototype.addRoom = function(room) {
 /**
  * Replace old room with a new one. They must have the same position.
  */
-RPG.Dungeon.Map.prototype.replaceRoom = function(oldRoom, newRoom) {
+RPG.Map.prototype.replaceRoom = function(oldRoom, newRoom) {
 	var index = this._rooms.indexOf(oldRoom);
 	if (index == -1) { throw new Error("Cannot find room"); }
 	this._rooms[index] = newRoom;
@@ -384,7 +391,7 @@ RPG.Dungeon.Map.prototype.replaceRoom = function(oldRoom, newRoom) {
 	
 }
 
-RPG.Dungeon.Map.prototype.removeRoom = function(room) {
+RPG.Map.prototype.removeRoom = function(room) {
 	var index = this._rooms.indexOf(room);
 	if (index == -1) { throw new Error("Cannot find room"); }
 	this._rooms.splice(index, 1);
@@ -395,7 +402,7 @@ RPG.Dungeon.Map.prototype.removeRoom = function(room) {
  * Returns list of rooms in this map
  * @returns {RPG.Rooms.BaseRoom[]}
  */
-RPG.Dungeon.Map.prototype.getRooms = function() {
+RPG.Map.prototype.getRooms = function() {
 	return this._rooms;
 }
 
@@ -405,7 +412,7 @@ RPG.Dungeon.Map.prototype.getRooms = function() {
  * @param {RPG.Misc.Coords} c2
  * @returns {bool}
  */
-RPG.Dungeon.Map.prototype.lineOfSight = function(c1, c2) {
+RPG.Map.prototype.lineOfSight = function(c1, c2) {
 	var dx = c2.x-c1.x;
 	var dy = c2.y-c1.y;
 	if (Math.abs(dx) > Math.abs(dy)) {
@@ -437,7 +444,7 @@ RPG.Dungeon.Map.prototype.lineOfSight = function(c1, c2) {
 	return true;
 }
 
-RPG.Dungeon.Map.prototype.getFreeCell = function(noItems) {
+RPG.Map.prototype.getFreeCell = function(noItems) {
 	var all = [];
 	var c = new RPG.Misc.Coords();
 	for (var i=0;i<this._size.x;i++) {
@@ -457,7 +464,7 @@ RPG.Dungeon.Map.prototype.getFreeCell = function(noItems) {
 	return all[index];
 }
 
-RPG.Dungeon.Map.prototype.cellsInCircle = function(center, radius, includeInvalid) {
+RPG.Map.prototype.cellsInCircle = function(center, radius, includeInvalid) {
 	var arr = [];
 	var W = this._size.x;
 	var H = this._size.y;
@@ -481,7 +488,7 @@ RPG.Dungeon.Map.prototype.cellsInCircle = function(center, radius, includeInvali
 	return arr;
 }
 
-RPG.Dungeon.Map.prototype._assignRoom = function(corner1, corner2, room) {
+RPG.Map.prototype._assignRoom = function(corner1, corner2, room) {
 	for (var i=corner1.x;i<=corner2.x;i++) {
 		for (var j=corner1.y;j<=corner2.y;j++) {
 			this._data[i][j].setRoom(room);
@@ -532,7 +539,7 @@ RPG.Generators.BaseGenerator.prototype.generate = function(id, danger) {
 }
 
 RPG.Generators.BaseGenerator.prototype._dig = function(id, danger) {
-	var map = RPG.Dungeon.Map.fromIntMap(id, this._bitMap, danger, this._maptypes);
+	var map = RPG.Map.fromIntMap(id, this._bitMap, danger, this._maptypes);
 	for (var i=0;i<this._rooms.length;i++) {
 		map.addRoom(this._rooms[i]);
 	}

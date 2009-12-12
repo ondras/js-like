@@ -415,13 +415,15 @@ RPG.Actions.Kick.prototype.execute = function() {
 RPG.Actions.Chat = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Chat.prototype.execute = function() {
 	/* only PC is allowed to chat */
-	RPG.UI.buffer.message("You talk to "+this._target.describe()+".");
+	var s = RPG.Misc.format("You talk to %a.", this._target);
+	RPG.UI.buffer.message(s);
 	
 	var chat = this._target.getChat();
 	if (chat) {
 		RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, chat);
 	} else {
-		RPG.UI.buffer.message(this._target.describeHe().capitalize() + " does not reply.");
+		var s = RPG.Misc.format("%He does not reply.", this._target);
+		RPG.UI.buffer.message(s);
 	}
 }
 
@@ -484,7 +486,8 @@ RPG.Actions.EnterStaircase.prototype.execute = function() {
 
 	if (cell) {	
 		/* switch maps */
-		RPG.World.setMap(cell.getMap());
+		var map = cell.getMap();
+		map.use();
 		
 		RPG.World.addActor(pc);
 		var a = new RPG.Actions.Move(pc, cell);

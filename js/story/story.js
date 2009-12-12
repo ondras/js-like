@@ -55,7 +55,7 @@ RPG.Story.prototype._charGen = function(e) {
 	this._pc = this._createPC(race, profession, this._name.value);
 	
 	var map = this._firstMap();
-	RPG.World.setMap(map);
+	map.use();
 	RPG.World.addActor(this._pc);
 	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
 	
