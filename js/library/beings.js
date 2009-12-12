@@ -37,7 +37,6 @@ RPG.Beings.Goblin.prototype.init = function() {
 		this.equip(boots, this.getFeetSlot());
 	}
 	
-
 	this.fullStats();
 }
 

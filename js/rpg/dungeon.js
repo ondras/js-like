@@ -115,9 +115,19 @@ RPG.Rooms.BaseRoom = OZ.Class().implement(RPG.Misc.IModifier);
 
 RPG.Rooms.BaseRoom.prototype.init = function(corner1, corner2) {
 	this._modifiers = {};
+	this._welcome = null;
 	this._corner1 = corner1.clone();
 	this._corner2 = corner2.clone();
 	this._type = null;
+}
+
+RPG.Rooms.BaseRoom.prototype.setWelcome = function(text) {
+	this._welcome = text;
+	return this;
+}
+
+RPG.Rooms.BaseRoom.prototype.getWelcome = function() {
+	return this._welcome;
 }
 
 RPG.Rooms.BaseRoom.prototype.getCorner1 = function() {
@@ -148,6 +158,7 @@ RPG.Rooms.BaseRoom.prototype.getType = function(type) {
  * @param {RPG.Beings.BaseBeing} being
  */
 RPG.Rooms.BaseRoom.prototype.entered = function(being) {
+	if (this._welcome && being == RPG.World.pc) { RPG.UI.buffer.message(this._welcome); }
 }
 
 /**
@@ -203,10 +214,6 @@ RPG.Features.BaseFeature.prototype.visibleThrough = function() {
  */
 RPG.Dungeon.Map = OZ.Class().implement(RPG.Misc.ISerializable);
 
-RPG.Dungeon.Map._cellFromNumber = function(celltype, cells) {
-    return new cells[celltype]();
-}
-
 /**
  * Factory method. Creates map from an array of arrays of integers.
  * Cells is array of cell constructors
@@ -259,8 +266,13 @@ RPG.Dungeon.Map.fromIntMap = function(id, intMap, danger, cells) {
 	return map;
 }
 
+RPG.Dungeon.Map._cellFromNumber = function(celltype, cells) {
+    return new cells[celltype]();
+}
+
 RPG.Dungeon.Map.prototype.init = function(id, size, danger) {
 	this._id = id;
+	this._welcome = "";
 	this._size = size.clone();
 	this._data = [];
 	this._rooms = [];
@@ -273,6 +285,15 @@ RPG.Dungeon.Map.prototype.init = function(id, size, danger) {
 		}
 		this._data.push(col);
 	}
+}
+
+RPG.Dungeon.Map.prototype.setWelcome = function(text) {
+	this._welcome = text;
+	return this;
+}
+
+RPG.Dungeon.Map.prototype.getWelcome = function() {
+	return this._welcome;
 }
 
 RPG.Dungeon.Map.prototype.getId = function() {
