@@ -218,3 +218,15 @@ Array.prototype.clone = function() {
 	for (var i=0;i<this.length;i++) { arr.push(this[i]); }
 	return arr;
 }
+
+Array.prototype.transpose = function() {
+	var arr = [];
+	for (var i=0;i<this.length;i++) {
+		var row = this[i];
+		for (var j=0;j<row.length;j++) {
+			if (i==0) { arr.push([]); }
+			arr[j].push(this[i][j]);
+		}
+	}
+	return arr;
+}
