@@ -126,12 +126,12 @@ RPG.Story.prototype._endGame = function() {
 }
 
 RPG.Story.prototype._randomDungeon = function() {
-	var index = this._maps.length + 1;
+	var index = this._maps.length;
 	
 	var rooms = [];
 	var map = null;
 	do {
-		map = this._mapgen.generate("Dungeon #" + index, index);
+		map = this._mapgen.generate("Dungeon #" + index, index + 1);
 		rooms = map.getRooms();
 	} while (rooms.length < 3);
 
@@ -217,7 +217,7 @@ RPG.Story.prototype._firstMap = function() {
 //	var map = this._randomDungeon();
 
     var mapgen = new RPG.Generators.Village();
-    var map = mapgen.generate();
+    var map = mapgen.generate("A small village");
 	this._attachNext(map);
 	
 	this._attachGameover(map);
