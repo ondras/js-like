@@ -144,7 +144,7 @@ RPG.Beings.PC.prototype.canSee = function(coords) {
  * Update the array with all visible coordinates
  */
 RPG.Beings.PC.prototype.updateVisibility = function() {
-	var R = this.sightDistance();
+	var R = this.getFeat(RPG.FEAT_SIGHT_RANGE);
 	var center = this._cell.getCoords();
 	var current = new RPG.Misc.Coords(0, 0);
 	var map = this._cell.getMap();

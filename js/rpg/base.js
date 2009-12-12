@@ -247,6 +247,7 @@ RPG.Races.BaseRace.prototype.init = function() {
 	this._defaults = {};
 	this._defaults[RPG.FEAT_REGEN_HP] = 10; /* per 100 turns */
 	this._defaults[RPG.FEAT_REGEN_MANA] = 10; /* per 100 turns */
+	this._defaults[RPG.FEAT_SIGHT_RANGE] = 4;
 }
 
 RPG.Races.BaseRace.prototype.getDefaults = function() {

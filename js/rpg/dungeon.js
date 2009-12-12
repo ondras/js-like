@@ -113,8 +113,7 @@ RPG.Cells.BaseCell.prototype.visibleThrough = function() {
  */
 RPG.Rooms.BaseRoom = OZ.Class().implement(RPG.Misc.IModifier);
 
-RPG.Rooms.BaseRoom.prototype.init = function(map, corner1, corner2) {
-	this._map = map;
+RPG.Rooms.BaseRoom.prototype.init = function(corner1, corner2) {
 	this._modifiers = {};
 	this._corner1 = corner1.clone();
 	this._corner2 = corner2.clone();
@@ -149,7 +148,6 @@ RPG.Rooms.BaseRoom.prototype.getType = function(type) {
  * @param {RPG.Beings.BaseBeing} being
  */
 RPG.Rooms.BaseRoom.prototype.entered = function(being) {
-	if (being == RPG.World.pc) { /* alert("ohi"); */ }
 }
 
 /**
@@ -340,10 +338,9 @@ RPG.Dungeon.Map.prototype.getFeatures = function(ctor) {
  * @param {RPG.Misc.Coords} corner1
  * @param {RPG.Misc.Coords} corner2
  */
-RPG.Dungeon.Map.prototype.addRoom = function(corner1, corner2) {
-	var room = new RPG.Rooms.BaseRoom(this, corner1, corner2);
+RPG.Dungeon.Map.prototype.addRoom = function(room) {
 	this._rooms.push(room);
-	this._assignRoom(corner1, corner2, room);
+	this._assignRoom(room.getCorner1(), room.getCorner2(), room);
 	return room;
 }
 
@@ -364,7 +361,6 @@ RPG.Dungeon.Map.prototype.removeRoom = function(room) {
 	this._rooms.splice(index, 1);
 	this._assignRoom(room.getCorner1(), room.getCorner2(), null);
 }
-
 
 /**
  * Returns list of rooms in this map
@@ -514,7 +510,7 @@ RPG.Generators.BaseGenerator.prototype.generate = function(id, danger) {
 RPG.Generators.BaseGenerator.prototype._dig = function(id, danger) {
 	var map = RPG.Dungeon.Map.fromBitMap(id, this._bitMap, danger, this._options);
 	for (var i=0;i<this._rooms.length;i++) {
-		map.addRoom(this._rooms[i][0], this._rooms[i][1]);
+		map.addRoom(this._rooms[i]);
 	}
 	this._bitMap = null;
 	return map;
@@ -554,7 +550,8 @@ RPG.Generators.BaseGenerator.prototype._blankMap = function() {
 }
 
 RPG.Generators.BaseGenerator.prototype._digRoom = function(corner1, corner2) {
-	this._rooms.push([corner1, corner2]);
+	var room = new RPG.Rooms.BaseRoom(corner1, corner2);
+	this._rooms.push(room);
 	
 	for (var i=corner1.x;i<=corner2.x;i++) {
 		for (var j=corner1.y;j<=corner2.y;j++) {

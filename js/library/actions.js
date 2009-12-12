@@ -790,3 +790,18 @@ RPG.Actions.Projectile.prototype._done = function() {
 	RPG.UI.map.clearProjectiles();
 	RPG.World.unlock();
 }
+
+/**
+ * @class Reading, target = item
+ * @augments RPG.Actions.BaseAction
+ */
+RPG.Actions.Read = OZ.Class().extend(RPG.Actions.BaseAction);
+RPG.Actions.Read.prototype.execute = function() {
+	var you = (this._source == RPG.World.pc);
+	
+	var verb = RPG.Misc.verb("start", this._source);
+	var s = RPG.Misc.format("%A %s reading %the.", this._source, verb, this._target);
+	RPG.UI.buffer.message(s);
+	
+	this._target.read(this._source);
+}

@@ -962,3 +962,38 @@ RPG.UI.Command.Mute.prototype.exec = function() {
 		this._button.setLabel("Mute");
 	}
 }
+
+/**
+ * @class Read command
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Read = OZ.Class().extend(RPG.UI.Command);
+RPG.UI.Command.Read.prototype.init = function() {
+	this.parent("Read");
+	this._button.setChar("r");
+}
+RPG.UI.Command.Read.prototype.exec = function() {
+	var pc = RPG.World.pc;
+	var all = [];
+	var items = pc.getItems();
+	for (var i=0;i<items.length;i++) {
+		var item = items[i];
+		if (item instanceof RPG.Items.Readable) { all.push(item); }
+	}
+	
+	if (!all.length) { 
+		RPG.UI.buffer.message("You don't own anything readable!"); 
+		return;
+	}
+
+	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
+	new RPG.UI.Itemlist(all, "Select item to read", 1, this.bind(this._done));
+}
+
+RPG.UI.Command.Read.prototype._done = function(items) {
+	RPG.UI.setMode(RPG.UI_NORMAL);
+	if (!items.length) { return; }
+	
+	var item = items[0][0];
+	RPG.UI.action(RPG.Actions.Read, item);
+}

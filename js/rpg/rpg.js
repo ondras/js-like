@@ -138,6 +138,8 @@ RPG.FEAT_DAMAGE_MAGIC	= 11;
 RPG.FEAT_REGEN_HP		= 12;
 /** @constant */
 RPG.FEAT_REGEN_MANA		= 13;
+/** @constant */
+RPG.FEAT_SIGHT_RANGE	= 14;
 
 /** @constant */
 RPG.STAT_HP				= 0;

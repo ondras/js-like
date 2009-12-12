@@ -77,7 +77,8 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	/* base feats */
 	var misc = [RPG.FEAT_MAX_HP, RPG.FEAT_MAX_MANA, RPG.FEAT_DV, RPG.FEAT_PV, 
 				RPG.FEAT_SPEED, RPG.FEAT_HIT, RPG.FEAT_DAMAGE, 
-				RPG.FEAT_DAMAGE_MAGIC, RPG.FEAT_REGEN_HP, RPG.FEAT_REGEN_MANA
+				RPG.FEAT_DAMAGE_MAGIC, RPG.FEAT_REGEN_HP, RPG.FEAT_REGEN_MANA,
+				RPG.FEAT_SIGHT_RANGE
 				];
 	for (var i=0;i<misc.length;i++) {
 		var name = misc[i];
@@ -331,14 +332,6 @@ RPG.Beings.BaseBeing.prototype.fullStats = function() {
 }
 
 /**
- * How far can this being see
- * @returns {int}
- */
-RPG.Beings.BaseBeing.prototype.sightDistance = function() {
-	return 5; /* FIXME this should depend on perception or so */
-}
-
-/**
  * This being drops everything it holds.
  */
 RPG.Beings.BaseBeing.prototype.dropAll = function() {
@@ -380,7 +373,7 @@ RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 	var source = this._cell.getCoords();
 	var map = this._cell.getMap();
 	if (source.distance(target) <= 1) { return true; } /* optimalization: can see self & surroundings */
-	if (source.distance(target) > this.sightDistance()) { return false; } 
+	if (source.distance(target) > this.getFeat(RPG.FEAT_SIGHT_RANGE)) { return false; } 
 
 	/* direct visibility */
 	if (map.lineOfSight(source,target)) { return true; }

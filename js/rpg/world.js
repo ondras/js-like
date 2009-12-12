@@ -30,6 +30,9 @@ RPG.World.init = function() {
 
 	var f = new RPG.Misc.Factory().add(RPG.Features.Trap);
 	RPG.Features.Trap.getInstance = f.bind(f.getInstance);
+
+	var f = new RPG.Misc.Factory().add(RPG.Spells.BaseSpell);
+	RPG.Spells.getInstance = f.bind(f.getInstance);
 }
 
 /**

@@ -34,6 +34,7 @@ RPG.Decorators.Beings.prototype.decorate = function(map, count) {
 	for (var i=0;i<count;i++) {
 		var b = RPG.Beings.NPC.getInstance(danger);
 		var c = map.getFreeCell(true);
+		if (!c) { return this; }
 		c.setBeing(b);
 	}
 	return this;

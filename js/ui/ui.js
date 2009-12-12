@@ -139,6 +139,7 @@ RPG.UI.build = function() {
 	d.appendChild(new RPG.UI.Command.Drink().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Cast().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Flirt().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Read().getButton().getInput());
 
 	var d = OZ.DOM.elm("div", {innerHTML:"Item management: "});
 	c.appendChild(d);

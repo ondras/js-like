@@ -9,9 +9,8 @@ RPG.Generators.Arena.prototype.generate = function(id) {
 	
 	var c1 = new RPG.Misc.Coords(1, 1);
 	var c2 = new RPG.Misc.Coords(this._size.x-1, this._size.y-1);
-	var room = this._map.addRoom(c1, c2);
-
 	this._digRoom(c1, c2);
+
 	return this._dig(id);
 }
 
@@ -489,8 +488,8 @@ RPG.Generators.Digger.prototype._featureCorridor = function(wall) {
 	/* if the last cell of wall is a corner of a corridor, cancel */
 	for (var i=0;i<this._rooms.length;i++) {
 		var room = this._rooms[i];
-		var c1 = room[0];
-		var c2 = room[1];
+		var c1 = room.getCorner1();
+		var c2 = room.getCorner2();
 		if ((end.x == c1.x-1 || end.x == c2.x+1) && (end.y == c1.y-1 || end.y == c2.y+1)) { return false; }
 	}
 	

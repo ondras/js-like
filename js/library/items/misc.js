@@ -271,3 +271,48 @@ RPG.Items.RingOfAttribute.prototype.clone = function() {
 	clone._modifiers[this._attribute] = this._modifiers[this._attribute];
 	return clone;
 }
+
+/**
+ * @class Anything that can be read
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.Readable = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Readable.factory.ignore = true;
+RPG.Items.Readable.prototype.read = function(being) {
+}
+
+/**
+ * @class Scroll with a spells
+ * @augments RPG.Items.Readable
+ */
+RPG.Items.Scroll = OZ.Class().extend(RPG.Items.Readable);
+RPG.Items.Scroll.factory.method = function(danger) {
+	var spell = RPG.Spells.getInstance(danger);
+	return new this(spell);
+}
+
+RPG.Items.Scroll.prototype.init = function(spell) {
+	this.parent();
+	this._spell = spell;
+
+	this._char = "?";
+	this._color = "#fff";
+	this._image = "scroll";
+	this._description = "scroll of " + spell.name;
+}
+
+RPG.Items.Scroll.prototype.read = function(being) {
+	var spells = being.getSpells();
+	if (spells.indexOf(this._spell) != -1) {
+		/* already knows this spell */
+		if (being == RPG.World.pc) { RPG.UI.buffer.message("You already know this spell."); }
+		return;
+	}
+	
+	being.addSpell(this._spell);
+	being.removeItem(this);
+	if (being == RPG.World.pc) { 
+		var s = RPG.Misc.format("You learn the '%s' spell.", this._spell.name);
+		RPG.UI.buffer.message(s); 
+	}
+}
