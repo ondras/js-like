@@ -203,16 +203,17 @@ RPG.Features.BaseFeature.prototype.visibleThrough = function() {
  */
 RPG.Dungeon.Map = OZ.Class().implement(RPG.Misc.ISerializable);
 
+RPG.Dungeon.Map._cellFromNumber = function(celltype, cells) {
+    return new cells[celltype]();
+}
+
 /**
- * Factory method. Creates map from an array of arrays of bools.
- * false = corridor, true = wall
+ * Factory method. Creates map from an array of arrays of integers.
+ * Cells is array of cell constructors
  */
-RPG.Dungeon.Map.fromBitMap = function(id, bitMap, danger, cells) {
-	var wall = cells.wall;
-	var corridor = cells.corridor;
-	
-	var width = bitMap.length;
-	var height = bitMap[0].length;
+RPG.Dungeon.Map.fromIntMap = function(id, intMap, danger, cells) {
+	var width = intMap.length;
+	var height = intMap[0].length;
 	
 	var coords = new RPG.Misc.Coords(width, height);
 	var map = new RPG.Dungeon.Map(id, coords, danger);
@@ -221,31 +222,37 @@ RPG.Dungeon.Map.fromBitMap = function(id, bitMap, danger, cells) {
 		for (var y=0;y<height;y++) {
 			coords.x = x;
 			coords.y = y;
-			if (!bitMap[x][y]) {
-				/* create corridor */
-				var cell = new corridor();
+
+            var cell = RPG.Dungeon.Map._cellFromNumber(intMap[x][y],cells);
+
+			/* create walkable section */
+			if (cell.isFree()) {
 				map.setCell(coords, cell);
 				continue;
 			}
 			
-			/* check neighbors; create wall only if there is at least one corridor neighbor */
+			/* 
+             * check neighbors; create nonpassable only if there is at least one passable neighbor 
+             *
+             */
 			var ok = false;
 			var neighbor = coords.clone();
 			for (var i=-1;i<=1;i++) {
 				for (var j=-1;j<=1;j++) {
 					neighbor.x = coords.x + i;
 					neighbor.y = coords.y + j;
-					if (map.isValid(neighbor) && !bitMap[neighbor.x][neighbor.y]) { ok = true; }
+
+                    if (map.isValid(neighbor)) {
+                        var neighborCell = RPG.Dungeon.Map._cellFromNumber(intMap[neighbor.x][neighbor.y],cells);
+                        if (neighborCell.isFree()) { ok = true; }
+                    }
 				}
 			}
 			
 			if (ok) {
-				/* okay, create wall */
-				var cell = new wall();
 				map.setCell(coords, cell);
 				continue;
 			}
-			
 		}
 	}
 
@@ -490,13 +497,8 @@ RPG.Decorators.BaseDecorator.prototype._freeNeighbors = function(map, center) {
  */
 RPG.Generators.BaseGenerator = OZ.Class();
 
-RPG.Generators.BaseGenerator.prototype.init = function(size, options) {
-	this._options = {
-		wall: RPG.Cells.Wall,
-		corridor: RPG.Cells.Corridor
-	}
-	for (var p in options) { this._options[p] = options[p]; }
-	
+RPG.Generators.BaseGenerator.prototype.init = function(size, maptypes) {
+	this._maptypes = maptypes || [ RPG.Cells.Wall, RPG.Cells.Corridor ];
 	this._size = size;
 	this._bitMap = null;
 	this._rooms = [];
@@ -508,7 +510,7 @@ RPG.Generators.BaseGenerator.prototype.generate = function(id, danger) {
 }
 
 RPG.Generators.BaseGenerator.prototype._dig = function(id, danger) {
-	var map = RPG.Dungeon.Map.fromBitMap(id, this._bitMap, danger, this._options);
+	var map = RPG.Dungeon.Map.fromIntMap(id, this._bitMap, danger, this._maptypes);
 	for (var i=0;i<this._rooms.length;i++) {
 		map.addRoom(this._rooms[i]);
 	}
