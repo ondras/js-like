@@ -15,6 +15,7 @@ RPG.UI.BaseMap.prototype.init = function(container, cellCtor) {
 }
 
 RPG.UI.BaseMap.prototype.resize = function(size) {
+	this._focus = null;
 	this._size = size.clone();
 	OZ.DOM.clear(this._dom.container);
 	this._resize();
