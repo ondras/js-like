@@ -52,8 +52,8 @@ RPG.Beings.Villager.prototype.init = function() {
 	
 	this._description = "villager";
 	this._char = "@";
-	this._color = "gainsboro";
-	this._image = "";   // FIXME
+	this._color = "FireBrick";
+	this._image = "villager";
 	
 	this.fullStats();
 }

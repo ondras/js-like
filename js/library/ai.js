@@ -427,7 +427,9 @@ RPG.Engine.AI.GetToDistance.prototype.go = function() {
 				c.y = coords.y+j;
 				/* PERF */
 //				if (!map._data[c.x][c.y].isFree()) { continue; }
-				if (!map.at(c).isFree()) { continue; }
+				var cell = map.at(c);
+				if (!cell) { continue; }
+				if (!cell.isFree()) { continue; }
 				var result = arguments.callee.call(this, c, depth-1);
 				var resultBest = result[0];
 				var resultStep = result[1] + 1;
@@ -460,8 +462,11 @@ RPG.Engine.AI.GetToDistance.prototype.go = function() {
 			/* do not try waiting at this moment */
 			if (i==0 && j==0) { continue; }
 			
+			var cell = map.at(t);
+			if (!cell) { continue; }
+			
 			/* discard non-free places */
-			if (!map.at(t).isFree()) { continue; }
+			if (!cell.isFree()) { continue; }
 			
 			var result = getBestDistance.call(this, t, depth);
 //			console.log("Best distance for "+t+" (depth "+depth+") is "+result);
