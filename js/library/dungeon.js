@@ -12,6 +12,19 @@ RPG.Cells.Corridor.prototype.init = function() {
 }
 
 /**
+ * @class Grass
+ * @augments RPG.Cells.BaseCell
+ */
+RPG.Cells.Grass = OZ.Class().extend(RPG.Cells.BaseCell);
+RPG.Cells.Grass.prototype.init = function() {
+	this.parent();
+	this._description = "grass";
+	this._char = ".";
+	this._image = "";       // FIXME
+	this._color = "yellowgreen";
+}
+
+/**
  * @class Wall
  * @augments RPG.Cells.BaseCell
  */
