@@ -338,7 +338,8 @@ RPG.Actions.BaseAction.prototype._describeLocal = function() {
 	
 	var f = cell.getFeature();
 	if (f && f.knowsAbout(pc)) {
-		RPG.UI.buffer.message("You see " + f.describeA() + ".");
+		var s = RPG.Misc.format("You see %a.", f);
+		RPG.UI.buffer.message(s);
 	}
 	
 	var items = cell.getItems();
@@ -346,10 +347,8 @@ RPG.Actions.BaseAction.prototype._describeLocal = function() {
 		RPG.UI.buffer.message("Several items are lying here.");
 	} else if (items.length == 1) {
 		var item = items[0];
-		var str = item.describeA().capitalize();
-		str += " " + item.describeIs() + " ";
-		str += "lying here.";
-		RPG.UI.buffer.message(str);
+		var s = RPG.Misc.format("%A %is lying here.", item, item);
+		RPG.UI.buffer.message(s);
 	}
 }
 
@@ -365,17 +364,17 @@ RPG.Actions.BaseAction.prototype._describeRemote = function(cell) {
 	var b = cell.getBeing();
 	if (b) {
 		if (b == pc) {
-			RPG.UI.buffer.message("You see yourself. You are " + b.woundedState() + " wounded.");
+			var s = RPG.Misc.format("You see yourself. You are %s wounded.", b.woundedState());
+			RPG.UI.buffer.message(s);
 		} else {
-			var str = "";
-			str += "You see " + b.describeA()+". ";
-			str += b.describeHe().capitalize() + " is " + b.woundedState() + " wounded. ";
+			var s = RPG.Misc.format("You see %a. %He %is %s wounded.", b, b, b, b.woundedState());
+			RPG.UI.buffer.message(s);
 			if (b.isHostile(pc)) {
-				str += b.describeThe().capitalize() + " is hostile.";
+				s = RPG.Misc.format("%The is hostile.", b);
 			} else {
-				str += b.describeThe().capitalize() + " does not seem to be hostile.";
+				s = RPG.Misc.format("%The does not seem to be hostile.", b);
 			}
-			RPG.UI.buffer.message(str);
+			RPG.UI.buffer.message(s);
 		}
 		return;
 	}
@@ -462,7 +461,7 @@ RPG.Spells.BaseSpell.prototype.init = function(caster) {
 	
 	this._type = RPG.SPELL_SELF;
 	this._caster = caster;
-	this._hit = null;
+	this._hit = new RPG.Misc.RandomValue(10, 3);
 	this._damage = null;
 }
 
@@ -484,6 +483,13 @@ RPG.Spells.BaseSpell.prototype.getType = function() {
 RPG.Spells.BaseSpell.prototype.getDamage = function() {
 	var base = this.constructor.damage;
 	var m = base.mean + this._caster.getFeat(RPG.FEAT_DAMAGE_MAGIC);
+	var v = base.variance;
+	return new RPG.Misc.RandomValue(m, v);
+}
+
+RPG.Spells.BaseSpell.prototype.getHit = function() {
+	var base = this._hit;
+	var m = base.mean + this._caster.getFeat(RPG.FEAT_HIT_MAGIC);
 	var v = base.variance;
 	return new RPG.Misc.RandomValue(m, v);
 }

@@ -76,9 +76,9 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 
 	/* base feats */
 	var misc = [RPG.FEAT_MAX_HP, RPG.FEAT_MAX_MANA, RPG.FEAT_DV, RPG.FEAT_PV, 
-				RPG.FEAT_SPEED, RPG.FEAT_HIT, RPG.FEAT_DAMAGE, 
-				RPG.FEAT_DAMAGE_MAGIC, RPG.FEAT_REGEN_HP, RPG.FEAT_REGEN_MANA,
-				RPG.FEAT_SIGHT_RANGE
+				RPG.FEAT_SPEED, RPG.FEAT_HIT, RPG.FEAT_HIT_MAGIC,
+				RPG.FEAT_DAMAGE, RPG.FEAT_DAMAGE_MAGIC, 
+				RPG.FEAT_REGEN_HP, RPG.FEAT_REGEN_MANA,	RPG.FEAT_SIGHT_RANGE
 				];
 	for (var i=0;i<misc.length;i++) {
 		var name = misc[i];

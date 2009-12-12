@@ -187,10 +187,11 @@ RPG.Misc.Factory.prototype.add = function(ancestor) {
 	}
 	return this;
 }
+
 /**
- * Return a random instance
+ * Return a random class
  */ 
-RPG.Misc.Factory.prototype.getInstance = function(danger) {
+RPG.Misc.Factory.prototype.getClass = function(danger) {
 	var len = this._classList.length;
 	if (len == 0) { throw new Error("No available classes"); }
 
@@ -210,15 +211,22 @@ RPG.Misc.Factory.prototype.getInstance = function(danger) {
 	for (var i=0;i<avail.length;i++) {
 		ctor = avail[i];
 		sub += ctor.factory.frequency;
-		if (random < sub) { 
-			if (ctor.factory.method) {
-				return ctor.factory.method.call(ctor, danger);
-			} else {
-				return new ctor(); 
-			}
-		}
+		if (random < sub) { return ctor; }
 	}
 }
+
+/**
+ * Return a random instance
+ */ 
+RPG.Misc.Factory.prototype.getInstance = function(danger) {
+	var ctor = this.getClass(danger);
+	if (ctor.factory.method) {
+		return ctor.factory.method.call(ctor, danger);
+	} else {
+		return new ctor(); 
+	}
+}
+
 RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {
 	var current = ctor;
 	while (current) {

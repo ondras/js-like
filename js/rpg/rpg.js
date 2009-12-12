@@ -131,15 +131,17 @@ RPG.FEAT_SPEED			= 8;
 /** @constant */
 RPG.FEAT_HIT			= 9;
 /** @constant */
-RPG.FEAT_DAMAGE			= 10;
+RPG.FEAT_HIT_MAGIC		= 10;
 /** @constant */
-RPG.FEAT_DAMAGE_MAGIC	= 11;
+RPG.FEAT_DAMAGE			= 11;
 /** @constant */
-RPG.FEAT_REGEN_HP		= 12;
+RPG.FEAT_DAMAGE_MAGIC	= 12;
 /** @constant */
-RPG.FEAT_REGEN_MANA		= 13;
+RPG.FEAT_REGEN_HP		= 13;
 /** @constant */
-RPG.FEAT_SIGHT_RANGE	= 14;
+RPG.FEAT_REGEN_MANA		= 14;
+/** @constant */
+RPG.FEAT_SIGHT_RANGE	= 15;
 
 /** @constant */
 RPG.STAT_HP				= 0;

@@ -119,23 +119,27 @@ RPG.Actions.Attack.prototype._describe = function() {
  */
 RPG.Actions.MagicAttack = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.MagicAttack.prototype.execute = function() {
-	/* FIXME */
-	var you = (this._source == RPG.World.pc);
 	var spell = this._params;
-	var str = "";
-	str += this._target.describeA().capitalize();
-	str += " " + this._target.describeIs() + " ";
-	str += "hit by " + spell.describeThe() + ".";
-	RPG.UI.buffer.message(str);
+	var attacker = this._source;
+	var defender = this._target;
+	
+	var hit = RPG.Rules.isSpellHit(attacker, defender, spell);
+	if (!hit) {
+		var verb = RPG.Misc.verb("evade", defender);
+		var s = RPG.Misc.format("%A barely %s %the!", defender, verb, spell);
+		RPG.UI.buffer.message(str);
+		return;
+	}
+
+	var s = RPG.Misc.format("%A %is hit by %the.", defender, defender, spell);
+	RPG.UI.buffer.message(s);
 
 	var dmg = RPG.Rules.getSpellDamage(this._target, spell);
 	this._target.adjustStat(RPG.STAT_HP, -dmg);
 
 	if (!this._target.isAlive()) {
 		if (this._source == RPG.World.pc) { RPG.World.pc.addKill(this._target); }
-		var str = "";
-		str += this._target.describeThe().capitalize();
-		str += " " + this._target.describeIs() + " killed!";
+		var str = RPG.Misc.format("%The %is killed!", defender, defender);
 		RPG.UI.buffer.message(str);
 	}
 
@@ -598,6 +602,8 @@ RPG.Actions.Look.prototype.execute = function() {
 RPG.Actions.Equip = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Equip.prototype.execute = function() {
 	RPG.UI.buffer.message("You adjust your equipment.");
+	var memory = RPG.World.pc.mapMemory();
+	memory.updateVisible();
 }
 
 /**

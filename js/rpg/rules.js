@@ -10,16 +10,6 @@ RPG.Rules.isDoorStuck = function(being, door) {
 }
 
 /**
- * Does this attacker hit its target?
- */
-RPG.Rules.isMeleeHit = function(attacker, defender, weapon) {
-	var hit = weapon.getHit().roll();
-	var dv = defender.getFeat(RPG.FEAT_DV);
-	/* console.log("hit("+hit+") vs. dv("+dv+")"); */
-	return hit >= dv;
-}
-
-/**
  * TEH WIN FIXME
  */
 RPG.Rules.isCritical = function(being) {
@@ -43,6 +33,33 @@ RPG.Rules.isTrapActivated = function(being, trap) {
 }
 
 /**
+ * How much damage does this trap to a being
+ */
+RPG.Rules.getTrapDamage = function(being, trap) {
+	return trap.getDamage().roll();
+}
+
+/**
+ * Does this attacker hit its target?
+ */
+RPG.Rules.isMeleeHit = function(attacker, defender, weapon) {
+	var hit = weapon.getHit().roll();
+	var dv = defender.getFeat(RPG.FEAT_DV);
+	/* console.log("hit("+hit+") vs. dv("+dv+")"); */
+	return hit >= dv;
+}
+
+/**
+ * Does this attacker hit its target with a spell?
+ */
+RPG.Rules.isSpellHit = function(attacker, defender, spell) {
+	var hit = spell.getHit().roll();
+	var dv = defender.getFeat(RPG.FEAT_DV);
+	/* console.log("hit("+hit+") vs. dv("+dv+")"); */
+	return hit >= dv;
+}
+
+/**
  * How much damage does this attacker with a given weapon to a defender
  */
 RPG.Rules.getMeleeDamage = function(attacker, defender, weapon, isCritical) {
@@ -55,14 +72,7 @@ RPG.Rules.getMeleeDamage = function(attacker, defender, weapon, isCritical) {
 }
 
 /**
- * How much damage does this trap to a being
- */
-RPG.Rules.getTrapDamage = function(being, trap) {
-	return trap.getDamage().roll();
-}
-
-/**
- * How much damage does this trap to a being
+ * How much damage does this spell to a being
  */
 RPG.Rules.getSpellDamage = function(being, spell) {
 	return spell.getDamage().roll();

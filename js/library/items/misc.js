@@ -287,7 +287,7 @@ RPG.Items.Readable.prototype.read = function(being) {
  */
 RPG.Items.Scroll = OZ.Class().extend(RPG.Items.Readable);
 RPG.Items.Scroll.factory.method = function(danger) {
-	var spell = RPG.Spells.getInstance(danger);
+	var spell = RPG.Spells.getClass(danger);
 	return new this(spell);
 }
 
