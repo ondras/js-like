@@ -63,9 +63,13 @@ RPG.Story.prototype._charGen = function(e) {
 	RPG.UI.build();
 	this._pc = this._createPC(race, profession, this._name.value);
 
-	var map = this._dungeon();
-	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
-	var cell = up.getCell();
+	//var map = this._dungeon();
+    var mapgen = new RPG.Generators.Village();
+
+    var map = mapgen.generate();
+
+	//var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
+	var cell = map.at(new RPG.Misc.Coords(7,6));
 	
 	RPG.World.setMap(map);
 	RPG.World.addActor(this._pc);
