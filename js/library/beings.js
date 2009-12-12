@@ -41,6 +41,24 @@ RPG.Beings.Goblin.prototype.init = function() {
 }
 
 /**
+ * @class Villager
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Villager = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Villager.prototype.init = function() {
+	this.parent(new RPG.Races.Humanoid());
+	this.randomGender();
+	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	
+	this._description = "villager";
+	this._char = "@";
+	this._color = "gainsboro";
+	this._image = "";   // FIXME
+	
+	this.fullStats();
+}
+
+/**
  * @class Hoboblin
  * @augments RPG.Beings.Goblin
  */
