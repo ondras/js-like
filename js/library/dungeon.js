@@ -20,7 +20,7 @@ RPG.Cells.Grass.prototype.init = function() {
 	this.parent();
 	this._description = "grass";
 	this._char = ".";
-	this._image = "";       // FIXME
+	this._image = "grass";
 	this._color = "OliveDrab";
 }
 
