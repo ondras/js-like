@@ -490,8 +490,10 @@ RPG.UI.Command.Autowalk.prototype._saveState = function(dir) {
 	
 	var leftDir = (dir + 6) % 8;
 	var rightDir = (dir + 2) % 8;
-	this._left = cell.neighbor(leftDir).isFree();
-	this._right = cell.neighbor(leftDir).isFree();
+	var leftCell = cell.neighbor(leftDir);
+	var rightCell = cell.neighbor(rightDir);
+	this._left = leftCell ? leftCell.isFree() : false;
+	this._right = rightCell ? rightCell.isFree() : false;
 }
 
 RPG.UI.Command.Autowalk.prototype._yourTurn = function() {
@@ -525,9 +527,10 @@ RPG.UI.Command.Autowalk.prototype._check = function() {
 	var leftCell = cell.neighbor(leftDir);
 	var rightCell = cell.neighbor(rightDir);
 	
+	if (!aheadCell) { return false; } /* end of map reached */
 	var ahead = aheadCell.isFree();
-	var left = leftCell.isFree();
-	var right = rightCell.isFree();
+	var left = leftCell ? leftCell.isFree() : false;
+	var right = rightCell ? rightCell.isFree() : false;
 	
 	/* leaving opened area/crossroads */
 	if (this._left && !left) { this._left = left; }
@@ -538,8 +541,8 @@ RPG.UI.Command.Autowalk.prototype._check = function() {
 	
 	/* standing close to a feature */
 	if (cell.getFeature() && cell.getFeature().knowsAbout(pc)) { return false; } 
-	if (leftCell.getFeature() && leftCell.getFeature().knowsAbout(pc)) { return false; } 
-	if (rightCell.getFeature() && rightCell.getFeature().knowsAbout(pc)) { return false; } 
+	if (leftCell && leftCell.getFeature() && leftCell.getFeature().knowsAbout(pc)) { return false; } 
+	if (rightCell && rightCell.getFeature() && rightCell.getFeature().knowsAbout(pc)) { return false; } 
 
 	if (ahead) {
 		/* we can - in theory - continue; just check if we are not standing on a crossroads */

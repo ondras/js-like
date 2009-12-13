@@ -25,8 +25,7 @@ RPG.Professions.Ranger.image = "ranger";
 RPG.Professions.Ranger.prototype.setup = function(being) {
 	this.parent(being);
 
-	var s = new RPG.Spells.Heal();
-	being.addSpell(s);
+	being.addSpell(RPG.Spells.Heal);
 }
 
 /**
@@ -44,6 +43,8 @@ RPG.Professions.Wizard.prototype.setup = function(being) {
 	being.adjustFeat(RPG.FEAT_HIT_MAGIC, 3);
 
 	being.addSpell(RPG.Spells.Heal);
-	being.addSpell(RPG.Spells.Knock);
 	being.addSpell(RPG.Spells.MagicBolt);
+	
+	var scroll = new RPG.Items.Scroll(RPG.Spells.MagicBolt);
+	being.addItem(scroll);
 }

@@ -11,8 +11,6 @@ RPG.Spells.Heal.prototype.init = function(caster) {
 }
 
 RPG.Spells.Heal.prototype.cast = function(dir) {
-	this.parent(dir);
-	
 	var map = this._caster.getCell().getMap();
 	var target = this._caster.getCell().getCoords().clone().plus(RPG.DIR[dir]);
 	var cell = map.at(target);
@@ -24,6 +22,31 @@ RPG.Spells.Heal.prototype.cast = function(dir) {
 	}
 
 	var a = new RPG.Actions.Heal(being, 5); /* FIXME amount */
+	RPG.World.action(a);
+}
+
+/**
+ * @class Teleporting spell
+ * @augments RPG.Spells.BaseSpell
+ */
+RPG.Spells.Teleport = OZ.Class().extend(RPG.Spells.BaseSpell);
+RPG.Spells.Teleport.name = "teleport";
+RPG.Spells.Teleport.cost = 7;
+RPG.Spells.Teleport.prototype.init = function(caster) {
+	this.parent(caster);
+	this._type = RPG.SPELL_TARGET;
+}
+
+RPG.Spells.Teleport.prototype.cast = function(coords) {
+	var map = this._caster.getCell().getMap();
+	var target = map.at(coords);
+	
+	if (!target || !target.isFree()) {
+		RPG.UI.buffer.message("You cannot teleport to that place.");
+		return;
+	}
+
+	var a = new RPG.Actions.Teleport(this._caster, target);
 	RPG.World.action(a);
 }
 
@@ -40,8 +63,6 @@ RPG.Spells.Knock.prototype.init = function(caster) {
 }
 
 RPG.Spells.Knock.prototype.cast = function(dir) {
-	this.parent(dir);
-	
 	var map = this._caster.getCell().getMap();
 	var target = this._caster.getCell().getCoords().clone().plus(RPG.DIR[dir]);
 	var cell = map.at(target);
@@ -97,8 +118,6 @@ RPG.Spells.Projectile.prototype.init = function(caster) {
 }
 
 RPG.Spells.Projectile.prototype.cast = function(dir) {
-	this.parent(dir);
-	
 	this._char = this._chars[dir];
 	this._image = this._baseImage + "-" + this._suffixes[dir];
 
@@ -116,7 +135,7 @@ RPG.Spells.Projectile.prototype.iterate = function() {
 	var cell = this._caster.getCell().getMap().at(this._coords);
 
 	var end = false;
-	if (this._traveledDistance > this._distance) {
+	if (this._traveledDistance > this._distance || !cell) {
 		end = true;
 	} else if (!cell.isFree()) {
 		var b = cell.getBeing();

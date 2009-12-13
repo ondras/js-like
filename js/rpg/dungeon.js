@@ -210,11 +210,14 @@ RPG.Features.BaseFeature.prototype.visibleThrough = function() {
 
 /**
  * @class Dungeon map
- * @augments RPG.Misc.ISerializable
+ * @augments RPG.Misc.IModifier
  */
-RPG.Map = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.Map = OZ.Class()
+			.implement(RPG.Misc.ISerializable)
+			.implement(RPG.Misc.IModifier);
 
 RPG.Map.prototype.init = function(id, size, danger) {
+	this._modifiers = {};
 	this._id = id;
 	this._welcome = "";
 	this._size = size.clone();

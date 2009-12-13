@@ -15,6 +15,7 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this._description = "you";
 	this._char = "@";
 	this._kills = 0;
+	this._quests = [];
 	
 	this.setFeat(RPG.FEAT_DV, 5);
 	this.setFeat(RPG.FEAT_MAX_HP, 10);
@@ -26,6 +27,22 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this.addEffect(tc);
 	
 	this.fullStats();
+}
+
+RPG.Beings.PC.prototype.getQuests = function() {
+	return this._quests;
+}
+
+RPG.Beings.PC.prototype.addQuest = function(quest) {
+	this._quests.push(quest);
+	return this;
+}
+
+RPG.Beings.PC.prototype.removeQuest = function(quest) {
+	var index = this._quests.indexOf(quest);
+	if (index == -1) { throw new Error("Cannot find quest"); }
+	this._quests.splice(index, 1);
+	return this;
 }
 
 RPG.Beings.PC.prototype.getKills = function() {

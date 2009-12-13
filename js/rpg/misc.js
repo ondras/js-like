@@ -151,10 +151,11 @@ RPG.Misc.IActor.prototype.yourTurn = function() {
  * @class Chat - hierarchical dialog structure
  */
 RPG.Misc.Chat = OZ.Class();
-RPG.Misc.Chat.prototype.init = function(text, sound) {
+RPG.Misc.Chat.prototype.init = function(text) {
 	this._text = text;
 	this._options = [];
-	this._sound = sound;
+	this._sound = null;
+	this._end = null;
 }
 RPG.Misc.Chat.prototype.addOption = function(text, something) {
 	this._options.push([text, something]);
@@ -168,6 +169,17 @@ RPG.Misc.Chat.prototype.getOptions = function() {
 }
 RPG.Misc.Chat.prototype.getSound = function() {
 	return this._sound;
+}
+RPG.Misc.Chat.prototype.setSound = function(sound) {
+	this._sound = sound;
+	return this;
+}
+RPG.Misc.Chat.prototype.getEnd = function() {
+	return this._end;
+}
+RPG.Misc.Chat.prototype.setEnd = function(end) {
+	this._end = end;
+	return this;
 }
 
 /**

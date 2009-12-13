@@ -508,7 +508,35 @@ RPG.Professions.BaseProfession.image = "";
 RPG.Professions.BaseProfession.init = function() {
 }
 RPG.Professions.BaseProfession.prototype.setup = function(being) {
+	var tmp = new RPG.Items.HealingPotion();
+	being.addItem(tmp);
+
+	var tmp = new RPG.Items.IronRation();
+	being.addItem(tmp);
+	
+	var tmp = new RPG.Items.Torch();
+	being.addItem(tmp);
 }
+
 RPG.Professions.BaseProfession.prototype.getImage = function() {
 	return this.constructor.image;
+}
+
+/**
+ * @class Quest
+ */
+RPG.Quests.BaseQuest = OZ.Class();
+RPG.Quests.BaseQuest.prototype.init = function() {
+	this._phase = RPG.QUEST_NEW;
+}
+RPG.Quests.BaseQuest.prototype.setPhase = function(phase) {
+	this._phase = phase;
+	return this;
+}
+RPG.Quests.BaseQuest.prototype.getPhase = function() {
+	return this._phase;
+}
+RPG.Quests.BaseQuest.prototype.done = function() {
+	RPG.UI.buffer.message("You have just completed a quest.");
+	this.setPhase(RPG.QUEST_DONE);
 }

@@ -21,10 +21,8 @@ RPG.Beings.NPC.prototype.randomGender = function() {
 	if (Math.randomPercentage() < 34) {
 		this._gender = RPG.GENDER_FEMALE;
 		this._description = "female " + this._description;
-		var f = this._feats[RPG.FEAT_STRENGTH];
-		f.setBase(f.getBase() - 2);
-		var f = this._feats[RPG.FEAT_DEXTERITY];
-		f.setBase(f.getBase() + 2);
+		this.adjustFeat(RPG.FEAT_STRENGTH, -2);
+		this.adjustFeat(RPG.FEAT_DEXTERITY, 2);
 	} else {
 		this._gender = RPG.GENDER_MALE;
 	}
@@ -85,3 +83,24 @@ RPG.Beings.NPC.prototype.describeThe = function() {
 RPG.Beings.NPC.prototype.describeIs = function() {
 	return "is";
 }
+
+/**
+ * Initiate chat with target being
+ */
+RPG.Beings.NPC.prototype.chat = function(who) {
+	RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, this._chat);
+}
+
+RPG.Beings.NPC.prototype.setChat = function(chat) {
+	this._chat = chat;
+	return this;
+}
+
+RPG.Beings.NPC.prototype.getChat = function() {
+	return this._chat;
+}
+
+RPG.Beings.NPC.prototype.isChatty = function() {
+	return !!this._chat;
+}
+

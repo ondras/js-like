@@ -288,6 +288,8 @@ RPG.Map.Village.prototype.init = function() {
 	var size = new RPG.Misc.Coords(width, height);
 	this.parent("A small village", size, 1);
 
+	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 2;
+	
     var celltypes = [
         RPG.Cells.Grass,
         RPG.Cells.Wall,
@@ -302,7 +304,6 @@ RPG.Map.Village.prototype.init = function() {
     var doors_right = new RPG.Features.Door();
     var stairs_down = new RPG.Features.Staircase.Down();
     var stairs_up = new RPG.Features.Staircase.Up();
-
     doors_left.close();
     doors_right.close();
 
@@ -320,8 +321,11 @@ RPG.Map.Village.prototype.init = function() {
     c = this.at(new RPG.Misc.Coords(12,2));
     c.setFeature(stairs_up);
 
+	this._elder = new RPG.Beings.VillageElder();
+	this.at(new RPG.Misc.Coords(13, 5)).setBeing(this._elder);
+	
     var residents = 5;
-	var chat = new RPG.Misc.Chat("You should investigate the dungeon near by!", "villager-work");
+	var chat = new RPG.Misc.Chat('"Work, work."', "villager-work");
     for (var i = 0; i < residents; i++) {
         var villager = new RPG.Beings.Villager();
 		villager.setChat(chat);
@@ -336,4 +340,8 @@ RPG.Map.Village.prototype.init = function() {
         c.setFeature(tree);
     }
 
+}
+
+RPG.Map.Village.prototype.getElder = function() {
+	return this._elder;
 }

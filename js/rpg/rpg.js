@@ -41,6 +41,9 @@ RPG.Misc = {};
 RPG.Professions = {};
 
 /** @namespace */
+RPG.Quests = {};
+
+/** @namespace */
 RPG.Races = {};
 
 /** @namespace */
@@ -155,6 +158,17 @@ RPG.SPELL_REMOTE		= 2;
 RPG.SPELL_DIRECTION		= 3;
 /** @constant */
 RPG.SPELL_TARGET		= 4;
+
+/** @constant */
+RPG.QUEST_NEW			= -1;
+/** @constant */
+RPG.QUEST_TALKED		= -2;
+/** @constant */
+RPG.QUEST_GIVEN			= -3;
+/** @constant */
+RPG.QUEST_DONE			= -4;
+/** @constant */
+RPG.QUEST_REWARDED		= -5;
 
 /** @constant */
 RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG.FEAT_MAGIC];

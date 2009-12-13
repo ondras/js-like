@@ -3,6 +3,8 @@
  */
 RPG.World = {
 	_actions: [],
+	_listeners: {},
+	_listenerId: 0,
 	_running: false, /* is the engine running? */
 	_lock: 0, /* lock level */
 	_map: null,
@@ -100,7 +102,6 @@ RPG.World.action = function(a) {
 	this.run(); 
 }
 
-
 /**
  * Pause 
  */
@@ -117,6 +118,15 @@ RPG.World.unlock = function() {
 	this.run();
 }
 
+RPG.World.addActionListener = function(action, callback) {
+	this._listeners[this._listenerId] = [action, callback];
+	return this._listenerId++;
+}
+
+RPG.World.removeActionListener = function(id) {
+	delete this._listeners[id];
+}
+
 /**
  * Act
  */ 
@@ -128,8 +138,8 @@ RPG.World._decide = function() {
 		action.execute();
 		/* if this action took some time, our actor's turn is over */
 		if (action.tookTime()) { this._clearActor(); }
-		/* let everyone know it happened */
-		this.dispatch("action", action);
+		/* let interested parties know it happened */
+		this._dispatchAction(action);
 	} else if (!this._actor) { /* no actions and no actor - pick one */
 		this._setActor();
 	} else { /* no actions, actor selected - he is probably deciding */
@@ -159,5 +169,13 @@ RPG.World._setActor = function() {
 		this._actor.yourTurn(); 
 	} else { /* no actor available */
 		this._running = false;
+	}
+}
+
+RPG.World._dispatchAction = function(action) {
+	var ctor = action.constructor;
+	for (var id in this._listeners) {
+		var item = this._listeners[id];
+		if (item[0] == ctor) { item[1](action); }
 	}
 }

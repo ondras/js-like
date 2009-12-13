@@ -13,7 +13,6 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._name = "";
 	this._race = null;
 	this._cell = null;
-	this._chat = null;
 	this._gender = RPG.GENDER_NEUTER;
 	this._items = [];
 	this._stats = {};
@@ -94,17 +93,29 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 RPG.Beings.BaseBeing.prototype.setCell = function(cell) {
 	var oldRoom = null;
 	var newRoom = null;
+	var oldMap = null;
+	var newMap = null;
+	
 	if (this._cell) { 
 		this._removeModifiers(this._cell); 
 		oldRoom = this._cell.getRoom();
+		oldMap = this._cell.getMap();
 	}
+	
 	if (cell) {
 		this._addModifiers(cell);
 		newRoom = cell.getRoom();
+		newMap = cell.getMap();
 	}
+	
 	if (oldRoom != newRoom) {
 		if (oldRoom) { this._removeModifiers(oldRoom); }
 		if (newRoom) { this._addModifiers(newRoom); }
+	}
+	
+	if (oldMap != newMap) {
+		if (oldMap) { this._removeModifiers(oldMap); }
+		if (newMap) { this._addModifiers(newMap); }
 	}
 
 	this._cell = cell;
@@ -164,16 +175,6 @@ RPG.Beings.BaseBeing.prototype.unequip = function(slot) {
 RPG.Beings.BaseBeing.prototype.getItems = function() { 
 	return this._items;
 }
-
-RPG.Beings.BaseBeing.prototype.setChat = function(chat) {
-	this._chat = chat;
-	return this;
-}
-
-RPG.Beings.BaseBeing.prototype.getChat = function() {
-	return this._chat;
-}
-
 
 /**
  * Return all available slots

@@ -415,12 +415,17 @@ RPG.Actions.Kick.prototype.execute = function() {
 RPG.Actions.Chat = OZ.Class().extend(RPG.Actions.BaseAction);
 RPG.Actions.Chat.prototype.execute = function() {
 	/* only PC is allowed to chat */
+	if (this._target.isHostile(RPG.World.pc)) {
+		var s = RPG.Misc.format("%The is not in the mood for talking!", this._target);
+		RPG.UI.buffer.message(s);
+		return;
+	}
+	
 	var s = RPG.Misc.format("You talk to %a.", this._target);
 	RPG.UI.buffer.message(s);
-	
-	var chat = this._target.getChat();
-	if (chat) {
-		RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, chat);
+
+	if (this._target.isChatty()) {
+		this._target.chat(this._source);
 	} else {
 		var s = RPG.Misc.format("%He does not reply.", this._target);
 		RPG.UI.buffer.message(s);

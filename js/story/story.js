@@ -11,7 +11,7 @@ RPG.Story.prototype.init = function() {
 //	this._chat = this._buildChat();
 	this._mapgen = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
 
-	OZ.Event.add(RPG.World, "action", this.bind(this._action));
+	RPG.World.addActionListener(RPG.Actions.Death, this.bind(this._death));
 }
 
 RPG.Story.prototype.go = function() {
@@ -20,9 +20,7 @@ RPG.Story.prototype.go = function() {
 	var w = OZ.DOM.win()[0];
 	var d = OZ.DOM.elm("div", {width:Math.round(w/2) + "px"});
 	var p1 = OZ.DOM.elm("p");
-	p1.innerHTML = "You are about to dive into the depths of a dungeon. "
-					+ "Your task is to venture into the lowest level, retrieve as much "
-					+ "valuables as possible and safely return to the surface.";
+	p1.innerHTML = "Who do you want to play in this game?";
 	var p2 = OZ.DOM.elm("p", {className: "name"});
 	p2.innerHTML = "Your name: ";
 	p2.appendChild(this._name);
@@ -33,9 +31,7 @@ RPG.Story.prototype.go = function() {
 	OZ.Event.add(cg, "chargen", this.bind(this._charGen));
 }
 
-RPG.Story.prototype._action = function(e) {
-	var a = e.data;
-	if (!(a instanceof RPG.Actions.Death)) { return; }
+RPG.Story.prototype._death = function(a) {
 	if (a.getSource() == this._pc) { this._endGame(); }
 }
 
@@ -67,15 +63,6 @@ RPG.Story.prototype._createPC = function(race, profession, name) {
 	RPG.World.pc = pc;
 	RPG.World.setStory(this);
 	pc.setName(name);
-
-	var tmp = new RPG.Items.HealingPotion();
-	pc.addItem(tmp);
-
-	var tmp = new RPG.Items.IronRation();
-	pc.addItem(tmp);
-	
-	var tmp = new RPG.Items.Torch();
-	pc.addItem(tmp);
 
 	return pc;
 }
@@ -185,9 +172,7 @@ RPG.Story.prototype._randomDungeon = function() {
 		RPG.Decorators.Doors.getInstance().decorate(map, roomTreasure, {locked: 1});
 		RPG.Decorators.Treasure.getInstance().decorate(map, roomTreasure, {treasure: 1});
 
-		var troll = new RPG.Beings.Troll();
-		troll.setName("Chleba");
-		map.at(roomTreasure.getCenter()).setBeing(troll);
+		map.at(roomTreasure.getCenter()).setBeing(this._boss);
 	}
 	
 	/* artifact */
@@ -217,6 +202,12 @@ RPG.Story.prototype._firstMap = function() {
 
     var map = new RPG.Map.Village();
 	this._attachNext(map);
+	var elder = map.getElder();
+
+	var troll = new RPG.Beings.Troll();
+	troll.setName("Chleba");
+	this._boss = troll;
+	elder.setEnemy(this._boss);
 	
 	this._attachGameover(map);
 	this._maps.push(map);
@@ -244,17 +235,17 @@ RPG.Story.prototype._buildChat = function() {
 	var c = new RPG.Misc.Chat("Hi, what am I supposed to do?")
 		.addOption("Nothing special")
 		.addOption("Some activity please", new RPG.Misc.Chat("What activity?")
-			.addOption("Kill me!", function(action) {
-				action.getTarget().clearTasks();
-				action.getTarget().addTask(new RPG.Engine.AI.Kill(action.getSource()));
+			.addOption("Kill me!", function(being) {
+				being.clearTasks();
+				being.addTask(new RPG.Engine.AI.Kill(RPG.World.pc));
 			})
 			.addOption("Attack me!", function(action) {
-				action.getTarget().clearTasks();
-				action.getTarget().addTask(new RPG.Engine.AI.Attack(action.getSource()));
+				being.clearTasks();
+				being.addTask(new RPG.Engine.AI.Attack(RPG.World.pc));
 			})
 			.addOption("Run away!", function(action) {
-				action.getTarget().clearTasks();
-				action.getTarget().addTask(new RPG.Engine.AI.Retreat(action.getSource()));
+				being.clearTasks();
+				being.addTask(new RPG.Engine.AI.Retreat(RPG.World.pc));
 			})
 		);
 	return c;
