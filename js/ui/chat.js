@@ -15,6 +15,9 @@ RPG.UI.Chat.prototype._showPart = function(chat) {
 	var result = null;
 	var num = null;
 	
+	var sound = chat.getSound();
+//	if (sound) { RPG.UI.sound.play(sound); }
+	
 	if (options.length) {
 		var str = text;
 		str += "\n\n";
@@ -41,10 +44,6 @@ RPG.UI.Chat.prototype._showPart = function(chat) {
 		} else if (todo) {
 			todo(this._action);
 		}
-	} else {
-		/* end of conversation; execute end if any */
-		var end = this._current.getEnd();
-		if (end) { end(this._action); }
 	}
 	
 	RPG.UI.setMode(RPG.UI_NORMAL);

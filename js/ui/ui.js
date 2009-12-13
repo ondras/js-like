@@ -154,9 +154,11 @@ RPG.UI.build = function() {
 	d.appendChild(new RPG.UI.Command.WeaponStats().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.KickStats().getButton().getInput());
 
-	var d = OZ.DOM.elm("div", {innerHTML:"Miscellaneous: "});
-	c.appendChild(d);
-	d.appendChild(new RPG.UI.Command.Mute().getButton().getInput());
+	if (this.sound.isSupported()) {
+		var d = OZ.DOM.elm("div", {innerHTML:"Miscellaneous: "});
+		c.appendChild(d);
+		d.appendChild(new RPG.UI.Command.Mute().getButton().getInput());
+	}
 }
 
 RPG.UI.showDialog = function(data, title) {

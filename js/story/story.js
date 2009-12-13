@@ -4,8 +4,7 @@
 RPG.Story = OZ.Class();
 
 RPG.Story.prototype.init = function() {
-	RPG.UI.sound = new RPG.UI.Sound();
-	RPG.UI.sound.preloadBackground("de1m1");
+	RPG.UI.sound.preload("de1m1");
 	this._maxDepth = 6;
 	this._maps = [];
 	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
@@ -59,7 +58,7 @@ RPG.Story.prototype._charGen = function(e) {
 	RPG.World.addActor(this._pc);
 	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
 	
-	RPG.UI.sound.playBackground();
+	RPG.UI.sound.playBackground("de1m1");
 	RPG.World.action(new RPG.Actions.Move(this._pc, cell));
 }
 
@@ -216,8 +215,7 @@ RPG.Story.prototype._down = function(staircase) {
 RPG.Story.prototype._firstMap = function() {
 //	var map = this._randomDungeon();
 
-    var mapgen = new RPG.Generators.Village();
-    var map = mapgen.generate("A small village");
+    var map = new RPG.Map.Village();
 	this._attachNext(map);
 	
 	this._attachGameover(map);

@@ -214,62 +214,6 @@ RPG.Features.BaseFeature.prototype.visibleThrough = function() {
  */
 RPG.Map = OZ.Class().implement(RPG.Misc.ISerializable);
 
-/**
- * Factory method. Creates map from an array of arrays of integers.
- * Cells is array of cell constructors
- */
-RPG.Map.fromIntMap = function(id, intMap, danger, cells) {
-	var width = intMap.length;
-	var height = intMap[0].length;
-	
-	var coords = new RPG.Misc.Coords(width, height);
-	var map = new RPG.Map(id, coords, danger);
-	
-	for (var x=0;x<width;x++) { 
-		for (var y=0;y<height;y++) {
-			coords.x = x;
-			coords.y = y;
-
-            var cell = this._cellFromNumber(intMap[x][y],cells);
-
-			/* create walkable section */
-			if (cell.isFree()) {
-				map.setCell(coords, cell);
-				continue;
-			}
-			
-			/* 
-             * check neighbors; create nonpassable only if there is at least one passable neighbor 
-             *
-             */
-			var ok = false;
-			var neighbor = coords.clone();
-			for (var i=-1;i<=1;i++) {
-				for (var j=-1;j<=1;j++) {
-					neighbor.x = coords.x + i;
-					neighbor.y = coords.y + j;
-
-                    if (map.isValid(neighbor)) {
-                        var neighborCell = this._cellFromNumber(intMap[neighbor.x][neighbor.y],cells);
-                        if (neighborCell.isFree()) { ok = true; }
-                    }
-				}
-			}
-			
-			if (ok) {
-				map.setCell(coords, cell);
-				continue;
-			}
-		}
-	}
-
-	return map;
-}
-
-RPG.Map._cellFromNumber = function(celltype, cells) {
-    return new cells[celltype]();
-}
-
 RPG.Map.prototype.init = function(id, size, danger) {
 	this._id = id;
 	this._welcome = "";
@@ -497,6 +441,71 @@ RPG.Map.prototype._assignRoom = function(corner1, corner2, room) {
 }
 
 /**
+ * Populates cells in this map based on an array of arrays of integers.
+ * @param {int[][]} intMap
+ * @param {RPG.Cells.BaseCell[]} cells Array of used cells
+ */
+RPG.Map.prototype.fromIntMap = function(intMap, cells) {
+	var tmpCells = [];
+	
+	var w = intMap.length;
+	var h = intMap[0].length;
+	
+	/* first, create all cells */
+	for (var i=0;i<w;i++) {
+		tmpCells.push([]);
+		for (var j=0;j<h;j++) {
+			var cell = this._cellFromNumber(intMap[i][j], cells);
+			tmpCells[i].push(cell);
+		}
+	}
+	
+	/* second, decide which should be included in this map */
+	var coords = new RPG.Misc.Coords(0, 0);
+	for (var x=0;x<w;x++) { 
+		for (var y=0;y<h;y++) {
+			coords.x = x;
+			coords.y = y;
+            var cell = tmpCells[x][y];
+
+			/* passable section */
+			if (cell.visibleThrough()) {
+				this.setCell(coords, cell);
+				continue;
+			}
+			
+			/* check neighbors; create nonpassable only if there is at least one passable neighbor */
+			var ok = false;
+			var neighbor = coords.clone();
+			var minW = Math.max(0, x-1);
+			var maxW = Math.min(w-1, x+1);
+			var minH = Math.max(0, y-1);
+			var maxH = Math.min(h-1, y+1);
+			for (var i=minW;i<=maxW;i++) {
+				for (var j=minH;j<=maxH;j++) {
+					neighbor.x = i;
+					neighbor.y = j;
+					var neighborCell = tmpCells[i][j];
+					if (neighborCell.visibleThrough()) { ok = true; }
+				}
+			}
+			
+			if (ok) {
+				this.setCell(coords, cell);
+				continue;
+			}
+		}
+	}
+
+	return this;
+}
+
+RPG.Map.prototype._cellFromNumber = function(celltype, cells) {
+    return new cells[celltype]();
+}
+
+
+/**
  * @class Map decorator
  */
 RPG.Decorators.BaseDecorator = OZ.Class();
@@ -539,7 +548,12 @@ RPG.Generators.BaseGenerator.prototype.generate = function(id, danger) {
 }
 
 RPG.Generators.BaseGenerator.prototype._dig = function(id, danger) {
-	var map = RPG.Map.fromIntMap(id, this._bitMap, danger, this._maptypes);
+	var width = this._bitMap.length;
+	var height = this._bitMap[0].length;
+	var size = new RPG.Misc.Coords(width, height);
+	var map = new RPG.Map(id, size, danger);
+	map.fromIntMap(this._bitMap, this._maptypes);
+	
 	for (var i=0;i<this._rooms.length;i++) {
 		map.addRoom(this._rooms[i]);
 	}

@@ -33,7 +33,7 @@ RPG.Cells.Water.prototype.init = function() {
 	this.parent();
 	this._description = "water";
 	this._char = "=";
-	this._image = "";       // FIXME
+	this._image = "water";
 	this._color = "darkblue";
 	this._type = RPG.BLOCKS_MOVEMENT;
 }
@@ -68,11 +68,23 @@ RPG.Cells.Wall.Fake.prototype.getRealCell = function() {
 }
 
 /**
+ * @class Tree
+ * @augments RPG.Features.BaseFeature
+ */
+RPG.Features.Tree = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.Tree.prototype.init = function() {
+	this.parent();
+	this._image = "tree";
+	this._char = "T";
+	this._color = "green";
+	this._description = "tree";
+}
+
+/**
  * @class Door
  * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Door = OZ.Class().extend(RPG.Features.BaseFeature);
-
 RPG.Features.Door.prototype.init = function() {
 	this.parent();
 	this._hp = 4;
@@ -249,3 +261,79 @@ RPG.Features.Staircase.Up.prototype.init = function() {
 	this._image = "staircase-up";
 }
 
+
+/**
+ * @class Village map
+ * @augments RPG.Map
+ */
+RPG.Map.Village = OZ.Class().extend(RPG.Map);
+
+RPG.Map.Village.prototype.init = function() {
+    var cellmap = [
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [3,0,1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [3,3,1,2,2,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0],
+        [0,3,1,1,1,1,0,0,0,0,0,1,2,2,2,1,0,0,0,0],
+        [0,3,0,0,0,0,0,0,0,0,0,1,1,1,2,1,0,0,0,0],
+        [0,3,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,3,0,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    ];
+
+	var height = cellmap.length;
+	var width = cellmap[0].length;
+	var size = new RPG.Misc.Coords(width, height);
+	this.parent("A small village", size, 1);
+
+    var celltypes = [
+        RPG.Cells.Grass,
+        RPG.Cells.Wall,
+        RPG.Cells.Corridor,
+        RPG.Cells.Water,
+    ];
+
+    this.fromIntMap(cellmap.transpose(), celltypes);
+	this.setWelcome("You come to a small peaceful village.");
+    
+    var doors_left = new RPG.Features.Door();
+    var doors_right = new RPG.Features.Door();
+    var stairs_down = new RPG.Features.Staircase.Down();
+    var stairs_up = new RPG.Features.Staircase.Up();
+
+    doors_left.close();
+    doors_right.close();
+
+    var c = null;
+
+    c = this.at(new RPG.Misc.Coords(5,3));
+    c.setFeature(doors_left);
+
+    c = this.at(new RPG.Misc.Coords(14,6));
+    c.setFeature(doors_right);
+
+    c = this.at(new RPG.Misc.Coords(18,9));
+    c.setFeature(stairs_down);
+
+    c = this.at(new RPG.Misc.Coords(12,2));
+    c.setFeature(stairs_up);
+
+    var residents = 5;
+	var chat = new RPG.Misc.Chat("You should investigate the dungeon near by!", "villager-work");
+    for (var i = 0; i < residents; i++) {
+        var villager = new RPG.Beings.Villager();
+		villager.setChat(chat);
+        c = this.getFreeCell();
+        c.setBeing(villager);
+    }
+
+    var trees = 5;
+    for (var i=0;i<trees;i++) {
+        var tree = new RPG.Features.Tree();
+        c = this.getFreeCell();
+        c.setFeature(tree);
+    }
+
+}

@@ -40,7 +40,7 @@ OZ.Class = function() {
 		}
 		return this;
 	};
-	c.extends = function(ctor) {
+	c["extends"] = function(ctor) {
 		var cl = this;
 		while (cl) {
 			if (cl._extend == ctor) { return true; }

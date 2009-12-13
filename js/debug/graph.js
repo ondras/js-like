@@ -18,6 +18,7 @@ var Graph = {
 	
 	list:function(node, name) {
 		if (!(node instanceof Object)) { return; }
+		if (node.parent) { return; } /* instance! */
 		if (this.cached(node)) { return; } /* already have */
 		
 		if (node.extend) {

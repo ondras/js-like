@@ -97,7 +97,7 @@ RPG.Items.Torch = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Torch.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 2), new RPG.Misc.RandomValue(4, 3));
 	this._color = "gray";
-	this._image = "torch"; /* FIXME */
+	this._image = "torch";
 	this._description = "torch"; 
 	
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 1;

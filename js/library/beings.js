@@ -45,6 +45,7 @@ RPG.Beings.Goblin.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Villager = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Villager.factory.ignore = true;
 RPG.Beings.Villager.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 	this.randomGender();

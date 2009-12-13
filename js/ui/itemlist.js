@@ -325,7 +325,7 @@ RPG.UI.Spelllist.prototype._filterByGroup = function(name, data) {
 	var ctor = this._groups[name];
 	for (var i=0;i<data.length;i++) {
 		var item = data[i].item;
-		if (item == ctor || item.extends(ctor)) { arr.push(data[i]); }
+		if (item == ctor || item["extends"](ctor)) { arr.push(data[i]); }
 	}
 	return arr;
 }
