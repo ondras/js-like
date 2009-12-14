@@ -128,8 +128,6 @@ RPG.UI.Slots.prototype._item = function(index, items) {
 	var slot = this._slots[index];
 	var item = items[0][0]; 
 	this._being.equip(item, slot);
-
-	slot.setItem(item);
 	this._redrawSlot(index);
 }
 

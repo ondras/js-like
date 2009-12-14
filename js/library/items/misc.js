@@ -266,6 +266,7 @@ RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 	this._description = "ring of " + RPG.Feats[attribute].name;
 	this._descriptionPlural = "rings of " + RPG.Feats[attribute].name;
 }
+
 RPG.Items.RingOfAttribute.prototype.clone = function() {
 	var clone = new this.constructor(this._attribute, 0);
 	clone._modifiers[this._attribute] = this._modifiers[this._attribute];
@@ -299,6 +300,19 @@ RPG.Items.Scroll.prototype.init = function(spell) {
 	this._color = "#fff";
 	this._image = "scroll";
 	this._description = "scroll of " + spell.name.capitalize();
+}
+
+RPG.Items.Scroll.prototype.clone = function() {
+	return new this(this._spell);
+}
+
+RPG.Items.Scroll.prototype.isSameAs = function(item) {
+	if (!this.parent(item)) { return false; }
+	return (this._spell == item.getSpell());
+}
+
+RPG.Items.Scroll.prototype.getSpell = function() {
+	return this._spell;
 }
 
 RPG.Items.Scroll.prototype.read = function(being) {

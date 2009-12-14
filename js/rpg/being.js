@@ -167,9 +167,9 @@ RPG.Beings.BaseBeing.prototype.unequip = function(slot) {
 	if (!item) { return; }
 	
 	slot.setItem(null);
-	this.addItem(item);	
-
 	this._removeModifiers(item);
+
+	this.addItem(item);
 }
 
 RPG.Beings.BaseBeing.prototype.getItems = function() { 
@@ -347,7 +347,7 @@ RPG.Beings.BaseBeing.prototype.dropAll = function() {
 			this._cell.addItem(this._items[i]);
 		}
 	}
-	this._items = [];	
+	this._items = [];
 }
 
 /**

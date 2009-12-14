@@ -190,7 +190,7 @@ RPG.Decorators.Treasure.prototype.decorate = function(map, room, options) {
 }
 RPG.Decorators.Treasure.prototype._generateTreasure = function(danger) {
 	if (Math.randomPercentage() < 67) {
-		return RPG.Items.Gold.factory.method(danger);
+		return RPG.Items.Gold.factory.method.call(RPG.Items.Gold, danger);
 	} else {
 		return RPG.Items.Gem.getInstance(danger);
 	}

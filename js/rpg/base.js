@@ -97,7 +97,7 @@ RPG.Items.BaseItem.prototype.clone = function() {
 }
 
 /**
- * Create an item which represent a subset of this item
+ * Create an item which represents a subset of this item
  * @param {int} amount How many items do we subtract?
  * @returns {RPG.Items.BaseItem} Sub-heap
  */
