@@ -160,17 +160,10 @@ RPG.Beings.VillageElder.prototype.isChatty = function() {
 }
 
 RPG.Beings.VillageElder.prototype.setEnemy = function(being) {
-	this._quest = new RPG.Quests.ElderQuest(this, being);
-}
+	this._quest = new RPG.Quests.Kill(this, being);
 
-RPG.Beings.VillageElder.prototype.setStaircase = function(staircase) {
+	var staircase = this._cell.getMap().getFeatures(RPG.Features.Staircase.Down)[0];
 	this._staircase = staircase;
 	this._staircaseCell = staircase.getCell();
 	this._staircaseCell.setFeature(null);
 }
-
-/**
- * @class Quest to kill on behalf of village elder
- * @augments RPG.Quests.Kill
- */
-RPG.Quests.ElderQuest = OZ.Class().extend(RPG.Quests.Kill);

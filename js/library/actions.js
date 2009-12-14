@@ -249,19 +249,17 @@ RPG.Actions.Teleport.prototype.execute = function() {
 		RPG.UI.buffer.message("You suddenly teleport away!");
 	} else {
 		if (pc.canSee(sourceCoords)) {
-			var str = this._source.describeA().capitalize();
-			str += " suddenly disappears!";
-			RPG.UI.buffer.message(str);
+			var s = RPG.Misc.format("%A suddenly disappears!");
+			RPG.UI.buffer.message(s);
 		}
 		
 		if (pc.canSee(targetCoords)) {
-			var str = this._source.describeA().capitalize();
 			if (pc.canSee(sourceCoords)) {
-				str += " immediately reappears!";
+				var s = RPG.Misc.format("%The immediately reappears!");
 			} else {
-				str += " suddenly appears from nowhere!";
+				var s = RPG.Misc.format("%A suddenly appears from nowhere!");
 			}
-			RPG.UI.buffer.message(str);
+			RPG.UI.buffer.message(s);
 		}
 	}
 	
@@ -295,11 +293,10 @@ RPG.Actions.Pick.prototype.execute = function() {
 
 		this._source.addItem(item);
 		
-		var str = this._source.describeA().capitalize();
-		str += " " + (you ? "pick" : "picks") + " up ";
-		str += (you ? item.describeThe() : item.describeA());
-		str += ".";
-		RPG.UI.buffer.message(str);
+		var verb = RPG.Misc.verb("pick", this._source);
+		var modifier = (you ? "the" : "a");
+		var s = RPG.Misc.format("%A %s up %"+modifier+".", this._source, verb, item);
+		RPG.UI.buffer.message(s);
 	}
 }
 
@@ -331,11 +328,10 @@ RPG.Actions.Drop.prototype.execute = function() {
 		}
 		cell.addItem(item);
 		
-		var str = this._source.describeA().capitalize();
-		str += " " + (you ? "drop" : "drops") + " ";
-		str += (you ? item.describeThe() : item.describeA());
-		str += ".";
-		RPG.UI.buffer.message(str);
+		var verb = RPG.Misc.verb("drop", this._source);
+		var modifier = (you ? "the" : "a");
+		var s = RPG.Misc.format("%A %s %"+modifier+".", this._source, verb, item);
+		RPG.UI.buffer.message(s);
 	}
 }
 
@@ -395,9 +391,10 @@ RPG.Actions.Kick.prototype.execute = function() {
 			var item = items[items.length-1];
 			map.at(this._target).removeItem(item);
 			map.at(targetCoords).addItem(item);
-			var str = "You kick " + item.describeThe() + ". ";
-			str += "It slides away.";
-			RPG.UI.buffer.message(str);
+			
+			var s = RPG.Mis.format("You kick %the. It slides away.", item);
+			RPG.UI.buffer.message(s);
+			
 			var memory = pc.mapMemory();
 			memory.updateCoords(this._target);
 			memory.updateCoords(targetCoords);
@@ -463,14 +460,16 @@ RPG.Actions.Search.prototype._search = function(cell) {
 
 		var desc = "passage";
 		if (realCell.getFeature()) { desc = realCell.getFeature().describe(); }
-		RPG.UI.buffer.message("You discovered a hidden "+desc+"!");
+		var s = RPG.Misc.format("You discover a hidden %s!", desc);
+		RPG.UI.buffer.message(s);
 		return 1;
 	}
 	
 	var f = cell.getFeature();
 	if (f && f instanceof RPG.Features.Trap && !f.knowsAbout(this._source) && RPG.Rules.isTrapDetected(this._source, f)) {
 		this._source.trapMemory().remember(f);
-		RPG.UI.buffer.message("You discover " + f.describeA() + "!");
+		var s = RPG.Misc.format("You discover %a!", f);
+		RPG.UI.buffer.message(s);
 		return 1;
 	}
 	
@@ -543,14 +542,9 @@ RPG.Actions.TrapEncounter.prototype.execute = function() {
 		pc.mapMemory().updateCoords(coords);
 	} else if (pc.canSee(coords)) {
 		/* already knows */
-		var str = this._source.describeA().capitalize() + " ";
-		if (you) {
-			str += "sidestep "+this._target.describeThe();
-		} else {
-			str += "sidesteps "+this._target.describeA();
-		}
-		str += ".";
-		RPG.UI.buffer.message(str);
+		var verb = RPG.Misc.verb("sidestep", this._source);
+		var s = RPG.Misc.format("%A %s %a.", this._source, verb, this._target);
+		RPG.UI.buffer.message(s);
 	}
 }
 
@@ -565,17 +559,17 @@ RPG.Actions.Pit.prototype.execute = function() {
 	var canSee = pc.canSee(this._target.getCell().getCoords());
 
 	if (canSee) {
-		var str = this._source.describeA().capitalize();
-		str += " " + (you ? "fall" : "falls") + " into a pit!";
-		RPG.UI.buffer.message(str);
+		var verb = RPG.Misc.verb("fall", this._source);
+		var s = RPG.Misc.format("%A %s into a pit!", this._source, verb);
+		RPG.UI.buffer.message(s);
 	}
 	
 	var dmg = RPG.Rules.getTrapDamage(this._source, this._target);
 	this._source.adjustStat(RPG.STAT_HP, -dmg);
 	
 	if (!this._source.isAlive() && canSee && !you) {
-		var str = this._source.describeThe().capitalize() + " suddenly collapses!";
-		RPG.UI.buffer.message(str);
+		var s = RPG.Misc.format("%The suddenly collapses!", this._source);
+		RPG.UI.buffer.message(s);
 	}
 	
 }
@@ -623,13 +617,9 @@ RPG.Actions.Consume.prototype.execute = function(verb, method) {
 		this._target = this._target.subtract(1);
 	}
 
-	str += this._source.describe().capitalize() + " ";
-	if (you) {
-		str += verb +  " " + this._target.describeThe() + ".";
-	} else {
-		str += verb + "s " + this._target.describeA() + ".";
-	}
-	RPG.UI.buffer.message(str);
+	var v = RPG.Misc.verb(verb, this._source);
+	var s = RPG.Misc.format("%A %s %a.", this._source, v, this._target);
+	RPG.UI.buffer.message(s);
 	
 	method.call(this._target, this._source);
 }
@@ -670,12 +660,12 @@ RPG.Actions.Heal.prototype.execute = function() {
 	var str = "";
 	
 	if (hp == max) {
-		str += "All";
+		str = "all";
 	} else {
-		str += "Some of";
+		str = "some of";
 	}
-	str += " "+b.describeHis()+" wounds are healed."
-	RPG.UI.buffer.message(str);
+	var s = RPG.Misc.format("%S %his wounds are healed.", str, this._source);
+	RPG.UI.buffer.message(s);
 }
 
 /**
@@ -698,16 +688,16 @@ RPG.Actions.SwitchPosition.prototype.execute = function() {
 	if (being.isHostile(this._source)) {
 		/* impossible */
 		if (you) {
-			RPG.UI.buffer.message(being.describeThe().capitalize() + " resists!");
+			var s = RPG.Misc.format("%The resists!", being);
+			RPG.UI.buffer.message(s);
 		}
 	} else {
-		var str = "";
 		if (you) {
-			str += "You switch positions.";
+			RPG.UI.buffer.message("You switch positions.");
 		} else if (pc.canSee(this._target.getCoords())) {
-			str += this._source.describeA().capitalize() + " sneaks past " + being.describeA() + ".";
+			var s = RPG.Misc.format("%A sneaks past %a.", this._source, being);
+			RPG.UI.buffer.message(s);
 		}
-		RPG.UI.buffer.message(str);
 		
 		/* fake pre-position */
 		var source = this._source.getCell();

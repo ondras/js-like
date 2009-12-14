@@ -209,10 +209,7 @@ RPG.Story.prototype._firstMap = function() {
 	troll.setName("Chleba");
 	this._boss = troll;
 	elder.setEnemy(this._boss);
-	
-	var down = map.getFeatures(RPG.Features.Staircase.Down)[0];
-	elder.setStaircase(down);
-	
+
 	this._attachGameover(map);
 	this._maps.push(map);
 	return map;
