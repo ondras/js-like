@@ -294,8 +294,7 @@ RPG.Actions.Pick.prototype.execute = function() {
 		this._source.addItem(item);
 		
 		var verb = RPG.Misc.verb("pick", this._source);
-		var modifier = (you ? "the" : "a");
-		var s = RPG.Misc.format("%A %s up %"+modifier+".", this._source, verb, item);
+		var s = RPG.Misc.format("%A %s up %a.", this._source, verb, item);
 		RPG.UI.buffer.message(s);
 	}
 }
@@ -329,8 +328,7 @@ RPG.Actions.Drop.prototype.execute = function() {
 		cell.addItem(item);
 		
 		var verb = RPG.Misc.verb("drop", this._source);
-		var modifier = (you ? "the" : "a");
-		var s = RPG.Misc.format("%A %s %"+modifier+".", this._source, verb, item);
+		var s = RPG.Misc.format("%A %s %a.", this._source, verb, item);
 		RPG.UI.buffer.message(s);
 	}
 }
