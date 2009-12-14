@@ -1001,3 +1001,21 @@ RPG.UI.Command.Read.prototype._done = function(items) {
 	var item = items[0][0];
 	RPG.UI.action(RPG.Actions.Read, item);
 }
+
+/**
+ * @class List quests
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Quests = OZ.Class().extend(RPG.UI.Command);
+RPG.UI.Command.Quests.prototype.init = function() {
+	this.parent("Quests");
+	this._button.setChar("q");
+}
+RPG.UI.Command.Quests.prototype.exec = function() {
+	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
+	new RPG.UI.Questlist(RPG.World.pc.getQuests(), this.bind(this._done));
+}
+
+RPG.UI.Command.Quests.prototype._done = function() {
+	RPG.UI.setMode(RPG.UI_NORMAL);
+}

@@ -153,6 +153,7 @@ RPG.UI.build = function() {
 	d.appendChild(new RPG.UI.Command.Backlog().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.WeaponStats().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.KickStats().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Quests().getButton().getInput());
 
 	if (this.sound.isSupported()) {
 		var d = OZ.DOM.elm("div", {innerHTML:"Miscellaneous: "});

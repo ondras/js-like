@@ -164,3 +164,11 @@ body {
 .dialog .chargen img {
 	cursor: pointer;
 }
+
+.dialog .quests {
+	width: 100%;
+}
+
+.dialog .quests .active {
+	font-style: italic;
+}

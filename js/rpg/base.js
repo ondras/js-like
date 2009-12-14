@@ -526,17 +526,38 @@ RPG.Professions.BaseProfession.prototype.getImage = function() {
  * @class Quest
  */
 RPG.Quests.BaseQuest = OZ.Class();
-RPG.Quests.BaseQuest.prototype.init = function() {
+RPG.Quests.BaseQuest.prototype.init = function(giver) {
 	this._phase = RPG.QUEST_NEW;
+	this._giver = giver;
+	this._task = null;
 }
 RPG.Quests.BaseQuest.prototype.setPhase = function(phase) {
 	this._phase = phase;
+	
+	switch (phase) {
+		case RPG.QUEST_GIVEN:
+			RPG.World.pc.addQuest(this);
+		break;
+		case RPG.QUEST_DONE:
+			RPG.UI.buffer.message("You have just completed a quest.");
+		break;
+		case RPG.QUEST_REWARDED:
+			RPG.World.pc.removeQuest(this);
+		break;
+	}
+	
 	return this;
 }
 RPG.Quests.BaseQuest.prototype.getPhase = function() {
 	return this._phase;
 }
-RPG.Quests.BaseQuest.prototype.done = function() {
-	RPG.UI.buffer.message("You have just completed a quest.");
-	this.setPhase(RPG.QUEST_DONE);
+RPG.Quests.BaseQuest.prototype.getGiver = function() {
+	return this._giver;
+}
+RPG.Quests.BaseQuest.prototype.getTask = function() {
+	return this._task;
+}
+RPG.Quests.BaseQuest.prototype.setTask = function(task) {
+	this._task = task;
+	return this;
 }
