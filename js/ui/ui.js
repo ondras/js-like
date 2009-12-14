@@ -217,8 +217,9 @@ RPG.UI._dim = function() {
 	document.body.appendChild(div);
 	this._dimmer = div;
 	
-	
 	var sync = function() {
+		div.style.width = "0px";
+		div.style.height = "0px";
 		var port = OZ.DOM.win();
 		var scroll = OZ.DOM.scroll();
 		div.style.left = scroll[0]+"px";

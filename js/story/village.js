@@ -147,12 +147,14 @@ RPG.Beings.VillageElder.prototype.init = function() {
 	
 	this._chats[RPG.QUEST_GIVEN] = new RPG.Misc.Chat('"That critter is still alive. Find it and kill it!"');
 	
-	this._chats[RPG.QUEST_DONE] = new RPG.Misc.Chat('"Thank you for your help! We won\'t forget what you did for our village!"')
+	this._chats[RPG.QUEST_DONE] = new RPG.Misc.Chat([
+		'"Thank you for your help! We won\'t forget what you did for our village!"',
+		'"Take this gold as our gratitude."'
+	])
 		.setEnd(function(){
 			this._quest.setPhase(RPG.QUEST_REWARDED);
 			this._quest = null;
 		});
-
 }
 
 RPG.Beings.VillageElder.prototype.chat = function(who) {
@@ -166,10 +168,20 @@ RPG.Beings.VillageElder.prototype.isChatty = function() {
 }
 
 RPG.Beings.VillageElder.prototype.setEnemy = function(being) {
-	this._quest = new RPG.Quests.Kill(this, being);
+	this._quest = new RPG.Quests.ElderEnemy(this, being);
 
 	var staircase = this._cell.getMap().getFeatures(RPG.Features.Staircase.Down)[0];
 	this._staircase = staircase;
 	this._staircaseCell = staircase.getCell();
 	this._staircaseCell.setFeature(null);
+}
+
+/**
+ * @class Elder's enemy quest
+ * @augments RPG.Quests.Kill
+ */
+RPG.Quests.ElderEnemy = OZ.Class().extend(RPG.Quests.Kill);
+RPG.Quests.ElderEnemy.prototype.reward = function() {
+	var gold = new RPG.Items.Gold(1000);
+	RPG.World.pc.addItem(gold);
 }

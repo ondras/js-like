@@ -209,6 +209,8 @@ RPG.Story.prototype._firstMap = function() {
 	this._boss = troll;
 	elder.setEnemy(this._boss);
 	
+	map.getFreeCell().setBeing(troll);
+	
 	this._attachGameover(map);
 	this._maps.push(map);
 	return map;

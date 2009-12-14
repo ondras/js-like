@@ -443,6 +443,7 @@ RPG.Quests.BaseQuest.prototype.setPhase = function(phase) {
 		break;
 		case RPG.QUEST_REWARDED:
 			RPG.World.pc.removeQuest(this);
+			this.reward();
 		break;
 	}
 	
@@ -461,3 +462,6 @@ RPG.Quests.BaseQuest.prototype.setTask = function(task) {
 	this._task = task;
 	return this;
 }
+RPG.Quests.BaseQuest.prototype.reward = function() {
+}
+
