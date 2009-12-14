@@ -24,7 +24,7 @@ RPG.UI.Questlist.prototype._build = function(quests) {
 		t.appendChild(body);
 	} else {
 		var p = OZ.DOM.elm("p");
-		p.innerHTML = "You are not currently involved in any quests.";
+		p.innerHTML = "You do not participate in any quests.";
 		this._dom.container.appendChild(p);
 	}
 	

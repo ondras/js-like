@@ -76,6 +76,12 @@ RPG.Map.Village.prototype.init = function() {
         c.setFeature(tree);
     }
 
+	this._sound = "tristram";
+}
+
+RPG.Map.Village.prototype.use = function() {
+	this.parent();
+	RPG.UI.sound.preload("doom");
 }
 
 RPG.Map.Village.prototype.getElder = function() {

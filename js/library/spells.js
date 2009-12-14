@@ -21,8 +21,7 @@ RPG.Spells.Heal.prototype.cast = function(dir) {
 		return;
 	}
 
-	var a = new RPG.Actions.Heal(being, 5); /* FIXME amount */
-	RPG.World.action(a);
+	being.heal(5); /* FIXME amount */
 }
 
 /**
@@ -46,8 +45,7 @@ RPG.Spells.Teleport.prototype.cast = function(coords) {
 		return;
 	}
 
-	var a = new RPG.Actions.Teleport(this._caster, target);
-	RPG.World.action(a);
+	this._caster.teleport(target);
 }
 
 /**
@@ -140,12 +138,11 @@ RPG.Spells.Projectile.prototype.iterate = function() {
 	} else if (!cell.isFree()) {
 		var b = cell.getBeing();
 		if (b) {
-			var a = new RPG.Actions.MagicAttack(this._caster, b, this);
-			RPG.World.action(a);
+			this._caster.attackMagic(b, this);
 		} else {
 			end = true;
-			var str = RPG.Misc.format("%The hits %a and disappears.", this, cell.getFeature() || cell);
-			RPG.UI.buffer.message(str);
+			var s = RPG.Misc.format("%The hits %a and disappears.", this, cell.getFeature() || cell);
+			RPG.UI.buffer.message(s);
 		}
 	}
 

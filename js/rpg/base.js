@@ -289,23 +289,7 @@ RPG.Effects.BaseEffect.prototype.init = function(being) {
 RPG.Effects.BaseEffect.prototype.go = function() {
 }
 
-/** 
- * @class Basic action
- */
-RPG.Actions.BaseAction = OZ.Class();
-
-/**
- * @param {?} source Something that performs this action
- * @param {?} target Action target
- * @param {?} params Any params necessary
- */
-RPG.Actions.BaseAction.prototype.init = function(source, target, params) {
-	this._source = source;
-	this._target = target;
-	this._params = params;
-	this._tookTime = true;
-}
-RPG.Actions.BaseAction.prototype.getSource = function() {
+/*
  	if (!window.__log) { window.__log = []; }
 	var caller = arguments.callee.caller;
 	var found = false;
@@ -314,91 +298,7 @@ RPG.Actions.BaseAction.prototype.getSource = function() {
 		if (item[0] == caller) { item[1]++; found = true; }
 	}
 	if (!found) { window.__log.push([caller, 1]); }
-
-	return this._source;
-}
-RPG.Actions.BaseAction.prototype.getTarget = function() {
-	return this._target;
-}
-/**
- * @returns {bool} Did this action took some time?
- */
-RPG.Actions.BaseAction.prototype.tookTime = function() {
-	return this._tookTime;
-}
-/**
- * Process this action
- */
-RPG.Actions.BaseAction.prototype.execute = function() {
-}
-
-RPG.Actions.BaseAction.prototype._describeLocal = function() {
-	var pc = RPG.World.pc;
-	var cell = pc.getCell();
-	
-	var f = cell.getFeature();
-	if (f && f.knowsAbout(pc)) {
-		var s = RPG.Misc.format("You see %a.", f);
-		RPG.UI.buffer.message(s);
-	}
-	
-	var items = cell.getItems();
-	if (items.length > 1) {
-		RPG.UI.buffer.message("Several items are lying here.");
-	} else if (items.length == 1) {
-		var item = items[0];
-		var s = RPG.Misc.format("%A %is lying here.", item, item);
-		RPG.UI.buffer.message(s);
-	}
-}
-
-RPG.Actions.BaseAction.prototype._describeRemote = function(cell) {
-	var pc = RPG.World.pc;
-	var coords = cell.getCoords();
-	
-	if (!pc.canSee(coords)) {
-		RPG.UI.buffer.message("You do not see that place.");
-		return;
-	}
-	
-	var b = cell.getBeing();
-	if (b) {
-		if (b == pc) {
-			var s = RPG.Misc.format("You see yourself. You are %s wounded.", b.woundedState());
-			RPG.UI.buffer.message(s);
-		} else {
-			var s = RPG.Misc.format("You see %a. %He %is %s wounded.", b, b, b, b.woundedState());
-			RPG.UI.buffer.message(s);
-			if (b.isHostile(pc)) {
-				s = RPG.Misc.format("%The is hostile.", b);
-			} else {
-				s = RPG.Misc.format("%The does not seem to be hostile.", b);
-			}
-			RPG.UI.buffer.message(s);
-		}
-		return;
-	}
-	
-	var arr = [];
-	
-	var f = cell.getFeature();
-	if (f && f.knowsAbout(pc)) {
-		arr.push(f.describeA());
-	}
-	
-	var items = cell.getItems();
-	if (items.length > 1) {
-		arr.push("several items");
-	} else if (items.length > 0) {
-		arr.push(items[0].describeA(pc));
-	}
-	
-	if (!arr.length) {
-		arr.push(cell.describeA());
-	}
-
-	RPG.UI.buffer.message("You see " + arr.join(" and ")+".");
-}
+*/
 
 /**
  * @class Body part - place for an item
@@ -539,7 +439,7 @@ RPG.Quests.BaseQuest.prototype.setPhase = function(phase) {
 			RPG.World.pc.addQuest(this);
 		break;
 		case RPG.QUEST_DONE:
-			RPG.UI.buffer.message("You have just completed a quest.");
+			RPG.UI.buffer.important("You have just completed a quest.");
 		break;
 		case RPG.QUEST_REWARDED:
 			RPG.World.pc.removeQuest(this);

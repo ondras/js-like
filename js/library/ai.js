@@ -31,9 +31,9 @@ RPG.Engine.AI.prototype.setBeing = function(being) {
 	being.addGoal = this.bind(this.addGoal);
 	being.clearTasks = this.bind(this.clearTasks);
 	
-	this._ec.push(RPG.World.addActionListener(RPG.Actions.Death, this.bind(this._death)));
-	this._ec.push(RPG.World.addActionListener(RPG.Actions.Attack, this.bind(this._attack)));
-	this._ec.push(RPG.World.addActionListener(RPG.Actions.MagicAttack, this.bind(this._attack)));
+	this._ec.push(OZ.Event.add(null, "death", this.bind(this._death)));
+	this._ec.push(OZ.Event.add(null, "attack-melee", this.bind(this._attack)));
+	this._ec.push(OZ.Event.add(null, "attack-magic", this.bind(this._attack)));
 }
 
 RPG.Engine.AI.prototype.isHostile = function(being) {
@@ -55,9 +55,9 @@ RPG.Engine.AI.prototype.syncWithAlignment = function() {
 /**
  * Some attack action happened; does this influence our tasks/goals?
  */
-RPG.Engine.AI.prototype._attack = function(action) {
-	var source = action.getSource();
-	var target = action.getTarget();
+RPG.Engine.AI.prototype._attack = function(e) {
+	var source = e.target;
+	var target = e.data.being;
 
 	/* only actions which target us */
 	if (target != this._being) { return; }
@@ -100,10 +100,11 @@ RPG.Engine.AI.prototype._attack = function(action) {
 /**
  * Someone died
  */
-RPG.Engine.AI.prototype._death = function(action) {
+RPG.Engine.AI.prototype._death = function(e) {
 	/* we just died */
-	if (action.getSource() != this._being) { return; }
-	this._ec.forEach(RPG.World.removeActionListener, RPG.World);
+	var being = e.target;
+	if (being != this._being) { return; }
+	this._ec.forEach(OZ.Event.remove);
 }
 /**
  * Pick one of available goals and try to satisfy it
@@ -224,9 +225,9 @@ RPG.Engine.AI.Wander.prototype.go = function() {
 	
 	var target = avail[Math.floor(Math.random() * avail.length)];
 	if (target) {
-		RPG.World.action(new RPG.Actions.Move(being, target));
+		being.move(target);
 	} else {
-		RPG.World.action(new RPG.Actions.Wait(being));
+		being.wait();
 	}
 	
 	this._wandered = true;
@@ -297,7 +298,7 @@ RPG.Engine.AI.Attack.prototype.go = function() {
 		var being = this._ai.getBeing();
 		this._attacked = true;
 		var slot = being.getMeleeSlot();
-		RPG.World.action(new RPG.Actions.Attack(being, this._target, slot));
+		being.attackMelee(this._target, slot);
 		return RPG.AI_OK;
 	}
 }
@@ -491,9 +492,9 @@ RPG.Engine.AI.GetToDistance.prototype.go = function() {
 	if (bestMoves.length) {
 		/* pick one of the "bestMoves" array */
 		var c = bestMoves[Math.floor(Math.random()*bestMoves.length)];
-		RPG.World.action(new RPG.Actions.Move(being, map.at(c)));
+		being.move(map.at(c));
 	} else {
-		RPG.World.action(new RPG.Actions.Wait(being));
+		being.wait();
 	}
 	
 	this._done = true;

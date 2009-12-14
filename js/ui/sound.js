@@ -64,6 +64,7 @@ RPG.UI.Sound.prototype.preload = function(name) {
  */
 RPG.UI.Sound.prototype.playBackground = function(name) {
 	if (!this._supported) { return; }
+	this._background.pause();
 	this._background = this.play(name);
 	OZ.Event.add(this._background, "ended", this.bind(this._ended));
 }

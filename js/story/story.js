@@ -4,14 +4,13 @@
 RPG.Story = OZ.Class();
 
 RPG.Story.prototype.init = function() {
-	RPG.UI.sound.preload("de1m1");
-	this._maxDepth = 6;
+	RPG.UI.sound.preload("tristram");
+	this._maxDepth = 3;
 	this._maps = [];
 	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
 //	this._chat = this._buildChat();
 	this._mapgen = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
 
-	RPG.World.addActionListener(RPG.Actions.Death, this.bind(this._death));
 }
 
 RPG.Story.prototype.go = function() {
@@ -31,10 +30,6 @@ RPG.Story.prototype.go = function() {
 	OZ.Event.add(cg, "chargen", this.bind(this._charGen));
 }
 
-RPG.Story.prototype._death = function(a) {
-	if (a.getSource() == this._pc) { this._endGame(); }
-}
-
 RPG.Story.prototype._charGen = function(e) {
 	if (!this._name.value) {
 		this._name.focus();
@@ -51,18 +46,20 @@ RPG.Story.prototype._charGen = function(e) {
 	
 	var map = this._firstMap();
 	map.use();
+
 	RPG.World.addActor(this._pc);
-	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
 	
-	RPG.UI.sound.playBackground("de1m1");
-	RPG.World.action(new RPG.Actions.Move(this._pc, cell));
+	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
+	this._pc.move(cell);
+	
+	RPG.World.run();
 }
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
 	var pc = new RPG.Beings.PC(new race(), new profession());
 	RPG.World.pc = pc;
-	RPG.World.setStory(this);
 	pc.setName(name);
+	OZ.Event.add(pc, "death", this.bind(this._endGame));
 
 	return pc;
 }
@@ -120,6 +117,8 @@ RPG.Story.prototype._randomDungeon = function() {
 		map = this._mapgen.generate("Dungeon #" + index, index + 1);
 		rooms = map.getRooms();
 	} while (rooms.length < 3);
+	
+	if (index == 1) { map.setSound("doom"); }
 
 	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01)	
 	var arr = [];
@@ -209,7 +208,7 @@ RPG.Story.prototype._firstMap = function() {
 	troll.setName("Chleba");
 	this._boss = troll;
 	elder.setEnemy(this._boss);
-
+	
 	this._attachGameover(map);
 	this._maps.push(map);
 	return map;
@@ -231,24 +230,3 @@ RPG.Story.prototype._attachPrevious = function(map, previousMap) {
 
 	up.setTarget(down.getCell());
 }
-/*
-RPG.Story.prototype._buildChat = function() {
-	var c = new RPG.Misc.Chat("Hi, what am I supposed to do?")
-		.addOption("Nothing special")
-		.addOption("Some activity please", new RPG.Misc.Chat("What activity?")
-			.addOption("Kill me!", function(being) {
-				being.clearTasks();
-				being.addTask(new RPG.Engine.AI.Kill(RPG.World.pc));
-			})
-			.addOption("Attack me!", function(action) {
-				being.clearTasks();
-				being.addTask(new RPG.Engine.AI.Attack(RPG.World.pc));
-			})
-			.addOption("Run away!", function(action) {
-				being.clearTasks();
-				being.addTask(new RPG.Engine.AI.Retreat(RPG.World.pc));
-			})
-		);
-	return c;
-}
-*/

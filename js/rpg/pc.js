@@ -276,6 +276,397 @@ RPG.Beings.PC.prototype._visibleCell = function(blocks, startArc, arcsPerCell, a
  */
 RPG.Beings.PC.prototype.die = function() {
 	RPG.UI.status.updateStat(RPG.STAT_HP, this._stats[RPG.STAT_HP]);
-	this._alive = false;
-	RPG.World.action(new RPG.Actions.Death(this)); 
+	this.parent();
+}
+
+/* ------------------------- ACTIONS -----------------*/
+
+RPG.Beings.PC.prototype.move = function(targetCell) {
+	this.parent(targetCell);
+	
+	if (targetCell) {
+		this._describeLocal();
+		this._mapMemory.updateVisible();
+	}
+}
+
+/**
+ * Flirt with someone
+ * @param {RPG.Cells.BaseCell} cell
+ */
+RPG.Beings.PC.prototype.flirt = function(cell) {
+	var being = cell.getBeing();
+
+	if (this == being) {
+		RPG.UI.buffer.message("You spend some nice time flirting with yourself.");
+		return;
+	}
+	
+	if (!being) {
+		RPG.UI.buffer.message("There is noone to flirt with!");
+		return;
+	}
+
+	var s = RPG.Misc.format("%The doesn't seem to be interested.", being);
+	RPG.UI.buffer.message(s);
+	RPG.World.endTurn();
+}
+
+/**
+ * Switch position
+ * @param {RPG.Cells.BaseCell} cell
+ */
+RPG.Beings.PC.prototype.switchPosition = function(cell) {
+	var being = cell.getBeing();
+	
+	if (!being) {
+		RPG.UI.buffer.message("There is noone to switch position with.");
+		return;
+	}
+	
+	if (being.isHostile(this)) {
+		/* impossible */
+		var s = RPG.Misc.format("%The resists!", being);
+		RPG.UI.buffer.message(s);
+	} else {
+		RPG.UI.buffer.message("You switch positions.");
+/*
+		} else if (pc.canSee(this._target.getCoords())) {
+			var s = RPG.Misc.format("%A sneaks past %a.", this._source, being);
+			RPG.UI.buffer.message(s);
+		}
+*/		
+		/* fake pre-position */
+		var source = this._cell;
+		this.setCell(cell);
+		being.setCell(source);
+		
+		this.move(cell);
+		being.move(source);
+	}
+
+	RPG.World.endTurn();
+}
+
+RPG.Beings.PC.prototype.equipDone = function(item, slot) {
+	RPG.UI.buffer.message("You adjust your equipment.");
+	this._mapMemory.updateVisible();
+	RPG.World.endTurn();
+}
+
+/**
+ * Looking around
+ * @param {RPG.Cells.BaseCell} cell
+ */
+RPG.Beings.PC.prototype.look = function(cell) {
+	this._describeRemote(cell);
+}
+
+RPG.Beings.PC.prototype.manualTrap = function(trap) {
+	trap.setOff();
+	RPG.World.endTurn();
+}
+
+
+/**
+ * Enter staircase or other level-changer
+ * @param {RPG.Features.BaseFeature} feature
+ */
+RPG.Beings.PC.prototype.enterLocation = function() {
+	var cell = this._cell.getFeature().getTarget();
+
+	if (cell) {	
+		/* switch maps */
+		var map = cell.getMap();
+		map.use();
+		
+		RPG.World.addActor(this);
+		this.move(cell);
+	}
+}
+
+/**
+ * Enter staircase leading upwards
+ */
+RPG.Beings.PC.prototype.ascend = function() {
+	RPG.UI.buffer.message("You climb upwards...");
+	this.enterLocation();
+}
+
+/**
+ * Enter staircase leading downwards
+ */
+RPG.Beings.PC.prototype.descend = function() {
+	RPG.UI.buffer.message("You climb downwards...");
+	this.enterLocation();
+}
+
+
+
+/**
+ * Search surroundings
+ */
+RPG.Beings.PC.prototype.search = function() {
+	RPG.UI.buffer.message("You search your surroundings...");
+	var found = 0;
+	
+	var map = this._cell.getMap();
+	var cells = map.cellsInCircle(this._cell.getCoords(), 1, false);
+	for (var i=0;i<cells.length;i++) {
+		found += this._search(cells[i]);
+	}
+	
+	if (found) { this._mapMemory.updateVisible(); }
+	RPG.World.endTurn();
+}
+
+/**
+ * @returns {int} 1 = revealed, 0 = not revealed
+ */
+RPG.Beings.PC.prototype._search = function(cell) {
+	if (cell instanceof RPG.Cells.Wall.Fake && RPG.Rules.isFakeDetected(this, cell)) {
+		/* reveal! */
+		var realCell = cell.getRealCell();
+		cell.getMap().setCell(cell.getCoords(), realCell);
+
+		var desc = "passage";
+		if (realCell.getFeature()) { desc = realCell.getFeature().describe(); }
+		var s = RPG.Misc.format("You discover a hidden %s!", desc);
+		RPG.UI.buffer.message(s);
+		return 1;
+	}
+	
+	var f = cell.getFeature();
+	if (f && f instanceof RPG.Features.Trap && !f.knowsAbout(this) && RPG.Rules.isTrapDetected(this, f)) {
+		this._trapMemory.remember(f);
+		var s = RPG.Misc.format("You discover %a!", f);
+		RPG.UI.buffer.message(s);
+		return 1;
+	}
+	
+	return 0;
+}
+
+
+RPG.Beings.PC.prototype.chat = function(being) {
+	this.parent(being);
+	
+	if (being.isHostile(this)) {
+		var s = RPG.Misc.format("%The is not in the mood for talking!", being);
+		RPG.UI.buffer.message(s);
+		return;
+	}
+	
+	var s = RPG.Misc.format("You talk to %a.", being);
+	RPG.UI.buffer.message(s);
+
+	if (being.isChatty()) {
+		being.chat(this);
+	} else {
+		var s = RPG.Misc.format("%He does not reply.", this._target);
+		RPG.UI.buffer.message(s);
+	}
+}
+
+
+/**
+ * Kick something
+ * @param {RPG.Cells.BaseCell} cell
+ */
+RPG.Beings.PC.prototype.kick = function(cell) {
+	var feature = cell.getFeature();
+	var being = cell.getBeing();
+	var items = cell.getItems();
+	
+	if (cell == this._cell) {
+		RPG.UI.buffer.message("You wouldn't do that, would you?");
+		return;
+	}
+	
+	RPG.World.endTurn();
+	
+	if (feature && feature instanceof RPG.Features.Door && feature.isClosed()) {
+		/* kick door */
+		var feet = this.getFeetSlot();
+		var dmg = feet.getDamage().roll();
+		var result = feature.damage(dmg);
+		if (result) {
+			RPG.UI.buffer.message("You kick the door, but it does not budge.");
+		} else {
+			RPG.UI.buffer.message("You shatter the door with a mighty kick!");
+			this._mapMemory.updateVisible();
+		}
+		return;
+	}
+	
+	if (being) {
+		/* kick being */
+		this.attackMelee(being, this.getFeetSlot());
+		return;
+	}
+
+	if (!cell.isFree()) {
+		RPG.UI.buffer.message("Ouch! That hurts!");
+		return;
+	}
+	
+	if (items.length) {
+		/* try kicking items */
+		var sourceCoords = this._cell.getCoords();
+		var diff = cell.getCoords().clone().minus(this._cell.getCoords());
+		var dir = 0;
+		for (var i=0;i<8;i++) {
+			if (RPG.DIR[i].toString() == diff.toString()) { dir = i; }
+		}
+		var target = cell.neighbor(dir);
+		
+		if (target && target.isFree()) {
+			/* kick topmost item */
+			var item = items[items.length-1];
+			cell.removeItem(item);
+			target.addItem(item);
+			
+			var s = RPG.Misc.format("You kick %the. It slides away.", item);
+			RPG.UI.buffer.message(s);
+			
+			var memory = this._mapMemory;
+			memory.updateCoords(cell.getCoords());
+			memory.updateCoords(target.getCoords());
+			return;
+		}
+	}
+	
+	RPG.UI.buffer.message("You kick in empty air.");
+}
+
+RPG.Beings.PC.prototype.teleport = function(cell) {
+	RPG.UI.buffer.message("You suddenly teleport away!");
+	this.parent(cell);
+}
+
+RPG.Beings.PC.prototype.open = function(door) {
+	RPG.World.endTurn();
+	
+	var locked = door.isLocked();
+	if (locked) { 
+		RPG.UI.buffer.message("The door is locked. You do not have the appropriate key."); 
+		return;
+	}
+	
+	var stuck = RPG.Rules.isDoorStuck(this, door);
+	if (stuck) {
+		RPG.UI.buffer.message("Ooops! The door is stuck.");
+		return;
+	}
+	
+	door.open();
+	var verb = RPG.Misc.verb("open", this);
+	var s = RPG.Misc.format("%A %s the door.", this, verb);
+	RPG.UI.buffer.message(s);
+	this._mapMemory.updateVisible();
+}
+
+RPG.Beings.PC.prototype.attackMagic = function(being, spell) {
+	this.parent(being, spell);
+	if (!being.isAlive()) { this.addKill(being); }
+}
+
+RPG.Beings.PC.prototype.attackMelee = function(being, slot) {
+	this.parent(being, slot);
+	if (!being.isAlive()) { this.addKill(being); }
+}
+/* ------------------- PRIVATE --------------- */
+
+RPG.Beings.PC.prototype._describeAttack = function(hit, damage, kill, being, slot) {
+	var killVerb = ["kill", "slay"].random();
+	var hitVerb = (slot instanceof RPG.Slots.Kick ? "kick" : "hit");
+
+	if (!hit) {
+		var s = RPG.Misc.format("You miss %the.", being);
+		RPG.UI.buffer.message(s);
+		return;
+	}
+	
+	var s = RPG.Misc.format("You %s %the", hitVerb, being);
+	if (!damage) {
+		s += RPG.Misc.format(", but do not manage to harm %him.", being);
+		RPG.UI.buffer.message(s);
+		return;
+	}
+	
+	if (kill) {
+		s += RPG.Misc.format(" and %s %him!", killVerb, being);
+		RPG.UI.buffer.message(s);
+	} else {
+		s += RPG.Misc.format(" and %s wound %him.", being.woundedState(), being);
+		RPG.UI.buffer.message(s);
+	}
+}
+
+RPG.Beings.PC.prototype._describeLocal = function() {
+	var pc = RPG.World.pc;
+	var cell = pc.getCell();
+	
+	var f = cell.getFeature();
+	if (f && f.knowsAbout(pc)) {
+		var s = RPG.Misc.format("You see %a.", f);
+		RPG.UI.buffer.message(s);
+	}
+	
+	var items = cell.getItems();
+	if (items.length > 1) {
+		RPG.UI.buffer.message("Several items are lying here.");
+	} else if (items.length == 1) {
+		var item = items[0];
+		var s = RPG.Misc.format("%A %is lying here.", item, item);
+		RPG.UI.buffer.message(s);
+	}
+}
+
+RPG.Beings.PC.prototype._describeRemote = function(cell) {
+	var pc = RPG.World.pc;
+	var coords = cell.getCoords();
+	
+	if (!pc.canSee(coords)) {
+		RPG.UI.buffer.message("You do not see that place.");
+		return;
+	}
+	
+	var b = cell.getBeing();
+	if (b) {
+		if (b == pc) {
+			var s = RPG.Misc.format("You see yourself. You are %s wounded.", b.woundedState());
+			RPG.UI.buffer.message(s);
+		} else {
+			var s = RPG.Misc.format("You see %a. %He %is %s wounded.", b, b, b, b.woundedState());
+			RPG.UI.buffer.message(s);
+			if (b.isHostile(pc)) {
+				s = RPG.Misc.format("%The is hostile.", b);
+			} else {
+				s = RPG.Misc.format("%The does not seem to be hostile.", b);
+			}
+			RPG.UI.buffer.message(s);
+		}
+		return;
+	}
+	
+	var arr = [];
+	
+	var f = cell.getFeature();
+	if (f && f.knowsAbout(pc)) {
+		arr.push(f.describeA());
+	}
+	
+	var items = cell.getItems();
+	if (items.length > 1) {
+		arr.push("several items");
+	} else if (items.length > 0) {
+		arr.push(items[0].describeA(pc));
+	}
+	
+	if (!arr.length) {
+		arr.push(cell.describeA());
+	}
+
+	RPG.UI.buffer.message("You see " + arr.join(" and ")+".");
 }

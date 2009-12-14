@@ -120,11 +120,19 @@ RPG.Misc.ISerializable.prototype.clone = function() {
 RPG.Misc.IProjectile = OZ.Class()
 						.implement(RPG.Misc.IWeapon)
 						.implement(RPG.Visual.IVisual);
+						
+/**
+ * Launch this projectile
+ * @param {RPG.Misc.Coords} cell
+ * @param {?} direction
+ */
 RPG.Misc.IProjectile.prototype.launch = function(from, direction) {
 	this._coords = from;
 	this._dir = direction;
-	var a = new RPG.Actions.Projectile(this);
-	RPG.World.action(a);
+
+	RPG.World.lock();
+	var interval = 100;
+	this._interval = setInterval(this.bind(this._step), interval);
 }
 
 /**
@@ -134,6 +142,19 @@ RPG.Misc.IProjectile.prototype.launch = function(from, direction) {
 RPG.Misc.IProjectile.prototype.iterate = function() {
 	RPG.UI.map.setProjectile(this._coords, this);
 	return true;
+}
+
+RPG.Misc.IProjectile.prototype._step = function() {
+	var ok = this.iterate();
+	if (!ok) { 
+		clearInterval(this._interval); 
+		this._done();
+	}
+}
+
+RPG.Misc.IProjectile.prototype._done = function() {
+	RPG.UI.map.clearProjectiles();
+	RPG.World.unlock();
 }
 
 /**

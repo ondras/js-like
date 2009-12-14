@@ -84,13 +84,6 @@ RPG.Beings.NPC.prototype.describeIs = function() {
 	return "is";
 }
 
-/**
- * Initiate chat with target being
- */
-RPG.Beings.NPC.prototype.chat = function(who) {
-	RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, this._chat);
-}
-
 RPG.Beings.NPC.prototype.setChat = function(chat) {
 	this._chat = chat;
 	return this;
@@ -104,3 +97,72 @@ RPG.Beings.NPC.prototype.isChatty = function() {
 	return !!this._chat;
 }
 
+/* ------------------------- ACTIONS -----------------*/
+
+RPG.Beings.NPC.prototype.move = function(targetCell) {
+	var sourceCell = this._cell;
+
+	this.parent(targetCell);
+
+	if (sourceCell) { RPG.World.pc.mapMemory().updateCoords(sourceCell.getCoords()); }
+	if (targetCell) { RPG.World.pc.mapMemory().updateCoords(targetCell.getCoords());  }
+}
+
+/**
+ * Initiate chat with target being
+ */
+RPG.Beings.NPC.prototype.chat = function(being) {
+	RPG.World.endTurn();
+	RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, this._chat);
+}
+
+RPG.Beings.NPC.prototype.teleport = function(cell) {
+	var pc = RPG.World.pc;
+	var sc = this._cell.getCoords();
+	var tc = cell.getCoords();
+	
+	if (pc.canSee(sc)) {
+		var s = RPG.Misc.format("%A suddenly disappears!", this);
+		RPG.UI.buffer.message(s);
+	}
+	
+	if (pc.canSee(tc)) {
+		if (pc.canSee(sc)) {
+			var s = RPG.Misc.format("%The immediately reappears!", this);
+		} else {
+			var s = RPG.Misc.format("%A suddenly appears from nowhere!", this);
+		}
+		RPG.UI.buffer.message(s);
+	}
+	
+	this.parent(cell);
+}
+
+/* ------------------ PRIVATE --------------- */
+
+RPG.Beings.NPC.prototype._describeAttack = function(hit, damage, kill, being, slot) {
+	if (!hit) {
+		var s = RPG.Misc.format("%The misses %a.", this, being);
+		RPG.UI.buffer.message(s);
+		return;
+	}
+	
+	if (!damage) {
+		var s = RPG.Misc.format("%The fails to hurt %a.", this, being);
+		RPG.UI.buffer.message(s);
+		return;
+	}
+	
+	var s = RPG.Misc.format("%The hits %a", this, being);
+	if (kill) {
+		s += RPG.Misc.format(" and kills %him.", being);
+	} else {
+		if (being == RPG.World.pc) {
+			s += ".";
+		} else {
+			s+= RPG.Misc.format(" and %s wounds %him.", being.woundedState(), being);
+		}
+	}
+	
+	RPG.UI.buffer.message(s);
+}

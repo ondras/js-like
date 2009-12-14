@@ -161,8 +161,7 @@ RPG.Features.Trap.prototype.knowsAbout = function(being) {
 }
 
 RPG.Features.Trap.prototype.notify = function(being) {
-	var a = new RPG.Actions.TrapEncounter(being, this);
-	RPG.World.action(a);
+	being.trapEncounter(this);
 }
 
 RPG.Features.Trap.prototype.setOff = function() {
@@ -188,8 +187,7 @@ RPG.Features.Trap.Teleport.prototype.init = function() {
 
 RPG.Features.Trap.Teleport.prototype.setOff = function(e) {
 	var c = this._cell.getMap().getFreeCell();
-	var a = new RPG.Actions.Teleport(this._cell.getBeing(), c);
-	RPG.World.action(a);
+	this._cell.getBeing().teleport(c);
 }
 
 /**
@@ -208,9 +206,24 @@ RPG.Features.Trap.Pit.prototype.init = function() {
 	this._description = "pit trap";
 }
 
-RPG.Features.Trap.Pit.prototype.setOff = function(e) {
-	var a = new RPG.Actions.Pit(this._cell.getBeing(), this);
-	RPG.World.action(a);
+RPG.Features.Trap.Pit.prototype.setOff = function() {
+	var canSee = RPG.World.pc.canSee(this._cell.getCoords());
+	var being = this._cell.getBeing();
+
+	if (canSee) {
+		var verb = RPG.Misc.verb("fall", being);
+		var s = RPG.Misc.format("%A %s into a pit!", being, verb);
+		RPG.UI.buffer.message(s);
+	}
+
+	var dmg = RPG.Rules.getTrapDamage(being, this);
+	being.adjustStat(RPG.STAT_HP, -dmg);
+	
+	if (!being.isAlive() && canSee && being != RPG.World.pc) {
+		var s = RPG.Misc.format("%The suddenly collapses!", being);
+		RPG.UI.buffer.message(s);
+	}
+
 }
 
 /**

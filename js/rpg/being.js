@@ -352,17 +352,22 @@ RPG.Beings.BaseBeing.prototype.dropAll = function() {
 
 /**
  * This being dies
- * @param {RPG.Beings.BaseBeing || null} being The one who caused death
  */
 RPG.Beings.BaseBeing.prototype.die = function() {
 	this._alive = false;
+	this._cell.setBeing(null);
+
 	this.dropAll();
 	
 	if (Math.randomPercentage() < 34) {
 		var corpse = new RPG.Items.Corpse().setBeing(this);
 		this._cell.addItem(corpse);
 	}
-	RPG.World.action(new RPG.Actions.Death(this)); 
+
+	RPG.World.pc.mapMemory().updateCoords(this._cell.getCoords());
+	RPG.World.removeActor(this);
+	
+	this.dispatch("death");
 }
 
 /**
@@ -405,6 +410,334 @@ RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	var frac = 1 - hp/max;
 	var index = Math.floor(frac * def.length);
 	return def[index];
+}
+
+/* -------------------- ACTIONS --------------- */
+
+RPG.Beings.BaseBeing.prototype.wait = function() {
+	RPG.World.endTurn();
+}
+
+/**
+ * Moving being to a given cell
+ * @param {RPG.Cells.BaseCell} target
+ */
+RPG.Beings.BaseBeing.prototype.move = function(target) {
+	var source = this._cell;
+	
+	if (target && target.getRoom()) {
+		if (!source || source.getRoom() != target.getRoom()) {
+			target.getRoom().entered(this);
+		}
+	}
+
+	if (source) { source.setBeing(null); }
+	if (target) { target.setBeing(this); }
+
+	RPG.World.endTurn();
+}
+
+/**
+ * Reading, target = item
+ * @param {RPG.Items.BaseItem} item
+ */
+RPG.Beings.BaseBeing.prototype.read = function(item) {
+	var verb = RPG.Misc.verb("start", this);
+	var s = RPG.Misc.format("%A %s reading %the.", this, verb, item);
+	RPG.UI.buffer.message(s);
+	item.read(this);
+	RPG.World.endTurn();
+}
+
+/**
+ * Cast a spell
+ * @param {RPG.Spells.BaseSpell} spell
+ * @param {?} target spell specific
+ */
+RPG.Beings.BaseBeing.prototype.cast = function(spell, target) {
+	var cost = spell.getCost();
+	this.adjustStat(RPG.STAT_MANA, -cost);
+	
+	var verb = RPG.Misc.verb("cast", this);
+	var str = RPG.Misc.format("%D %s %d.", this, verb, spell);
+	RPG.UI.buffer.message(str);
+	
+	spell.cast(target);	
+	RPG.World.endTurn();
+}
+
+
+/**
+ * Heal wounds
+ * @param {int} amount
+ */
+RPG.Beings.BaseBeing.prototype.heal = function(amount) {
+	var hp = this.getStat(RPG.STAT_HP);
+	var max = this.getFeat(RPG.FEAT_MAX_HP);
+	if (hp == max) {
+		RPG.UI.buffer.message("Nothing happens.");
+		return;
+	}
+	
+	hp = this.adjustStat(RPG.STAT_HP, this._target);
+	var str = "";
+	
+	if (hp == max) {
+		str = "all";
+	} else {
+		str = "some of";
+	}
+	var s = RPG.Misc.format("%S %his wounds are healed.", str, this);
+	RPG.UI.buffer.message(s);
+}
+
+
+/**
+ * Abstract consumption
+ * @param {RPG.Items.BaseItem} item
+ * @param {?} owner
+ * @param {string} consumption verb
+ * @param {function} consumption method
+ */
+RPG.Beings.BaseBeing.prototype._consume = function(item, owner, verb, method) {
+	/* remove item from inventory / ground */
+	var i = item;
+	var amount = i.getAmount();
+	
+	if (amount == 1) {
+		owner.removeItem(i);
+	} else {
+		i = i.subtract(1);
+	}
+
+	var v = RPG.Misc.verb(verb, this);
+	var s = RPG.Misc.format("%A %s %a.", this, v, i);
+	RPG.UI.buffer.message(s);
+	
+	method.call(item, this);
+	
+	RPG.World.endTurn();
+}
+
+/**
+ * Eat something
+ * @param {PRG.Items.BaseItem} item
+ * @param {?} owner
+ */
+RPG.Beings.BaseBeing.prototype.eat = function(item, owner) {
+	this._consume(item, owner, "eat", item.eat);
+}
+
+/**
+ * Drink something
+ * @param {PRG.Items.BaseItem} item
+ * @param {?} owner
+ */
+RPG.Beings.BaseBeing.prototype.drink = function(item, owner) {
+	this._consume(item, owner, "drink", item.drink);
+}
+
+
+/**
+ * Moving across a trap
+ * @param {RPG.Features.Trap} trap
+ */
+RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
+	var coords = trap.getCell().getCoords();
+
+	var knows = this._trapMemory.remembers(trap);
+	var activated = true;
+	if (knows) { activated = RPG.Rules.isTrapActivated(this, trap); }
+
+	if (activated) {
+		/* dmg or whateva */
+		trap.setOff();
+
+		/* let the being know about this */
+		this._trapMemory.remember(trap);
+	} else if (RPG.World.pc.canSee(coords)) {
+	
+		/* already knows */
+		var verb = RPG.Misc.verb("sidestep", this);
+		var s = RPG.Misc.format("%A %s %a.", this, verb, trap);
+		RPG.UI.buffer.message(s);
+	}
+}
+
+/**
+ * Initiate chat
+ * @param {RPG.Beings.BaseBeing} being
+ */
+RPG.Beings.BaseBeing.prototype.chat = function(being) {
+	RPG.World.endTurn();
+}
+
+
+/**
+ * Droping item(s)
+ * @param {[item, amount][]} items
+ */
+RPG.Beings.BaseBeing.prototype.drop = function(items) {
+	for (var i=0;i<items.length;i++) {
+		var pair = items[i];
+		var item = pair[0];
+		var amount = pair[1];
+		
+		if (amount == item.getAmount()) {
+			/* easy, just remove item */
+			this.removeItem(item);
+		} else {
+			/* split heap */
+			item = item.subtract(amount);
+		}
+		this._cell.addItem(item);
+		
+		var verb = RPG.Misc.verb("drop", this);
+		var s = RPG.Misc.format("%A %s %a.", this, verb, item);
+		RPG.UI.buffer.message(s);
+	}
+	
+	RPG.World.endTurn();
+}
+
+
+/**
+ * Picking item(s)
+ * @param {[item, amount][]} items
+ */
+RPG.Beings.BaseBeing.prototype.pick = function(items) {
+	for (var i=0;i<items.length;i++) {
+		var pair = items[i];
+		var item = pair[0];
+		var amount = pair[1];
+		
+		if (amount == item.getAmount()) {
+			/* easy, just remove item */
+			this._cell.removeItem(item);
+		} else {
+			/* split heap */
+			item = item.subtract(amount);
+		}
+
+		this.addItem(item);
+		
+		var verb = RPG.Misc.verb("pick", this);
+		var s = RPG.Misc.format("%A %s up %a.", this, verb, item);
+		RPG.UI.buffer.message(s);
+	}
+
+	RPG.World.endTurn();
+}
+
+
+/**
+ * Teleporting to a given cell
+ * @param {RPG.Cells.BaseCell} cell
+ */
+RPG.Beings.BaseBeing.prototype.teleport = function(cell) {
+	this.move(cell);
+}
+
+/**
+ * Open a door
+ * @param {RPG.Features.Door} door
+ */
+RPG.Beings.BaseBeing.prototype.open = function(door) {
+	RPG.World.endTurn();
+	var locked = door.isLocked();
+	if (locked) { return; }
+	
+	var stuck = RPG.Rules.isDoorStuck(this, door);
+	if (stuck) { return; }
+	
+	var verb = RPG.Misc.verb("open", this);
+	var s = RPG.Misc.format("%A %s the door.", this, verb);
+	RPG.UI.buffer.message(s);
+	RPG.World.pc.mapMemory().updateVisible();
+}
+
+/**
+ * Close a door
+ * @param {RPG.Features.Door} door
+ */
+RPG.Beings.BaseBeing.prototype.close = function(door) {
+	RPG.World.endTurn();
+	var cell = door.getCell();
+	if (cell.getBeing()) {
+		RPG.UI.buffer.message("There is someone standing at the door.");
+		return;
+	}
+
+	var items = cell.getItems();
+	if (items.length) {
+		if (items.length == 1) {
+			RPG.UI.buffer.message("An item blocks the door.");
+		} else {
+			RPG.UI.buffer.message("Several items block the door.");
+		}
+		return;
+	}
+
+	door.close();
+	var verb = RPG.Misc.verb("close", this);
+	var s = RPG.Misc.format("%A %s the door.", this, verb);
+	RPG.UI.buffer.message(s);
+	RPG.World.pc.mapMemory().updateVisible();
+}
+
+/**
+ * Magical attack
+ * @param {RPG.Beings.BaseBeing} being
+ * @param {RPG.Spells.BaseSpell} spell
+ */
+RPG.Beings.BaseBeing.prototype.attackMagic = function(being, spell) {
+	var hit = RPG.Rules.isSpellHit(this, being, spell);
+	if (!hit) {
+		var verb = RPG.Misc.verb("evade", being);
+		var s = RPG.Misc.format("%A barely %s %the!", being, verb, spell);
+		RPG.UI.buffer.message(str);
+		return;
+	}
+
+	var s = RPG.Misc.format("%A %is hit by %the.", being, being, spell);
+	RPG.UI.buffer.message(s);
+
+	var dmg = RPG.Rules.getSpellDamage(being, spell);
+	being.adjustStat(RPG.STAT_HP, -dmg);
+
+	if (!being.isAlive()) {
+		var str = RPG.Misc.format("%The %is killed!", being, being);
+		RPG.UI.buffer.message(str);
+	}
+
+	this.dispatch("attack-magic", {being:being});
+}
+
+RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
+	var hit = false;
+	var damage = false;
+	var kill = false;
+	
+	/* hit? */
+	hit = RPG.Rules.isMeleeHit(this, being, slot);
+	if (hit) { 
+		/* damage? */
+		var crit = RPG.Rules.isCritical(this);
+		damage = RPG.Rules.getMeleeDamage(this, being, slot, crit);
+		if (damage) {
+			being.adjustStat(RPG.STAT_HP, -damage);
+			kill = !being.isAlive();
+		}
+	}
+	
+	this._describeAttack(hit, damage, kill, being, slot);
+	
+	RPG.World.endTurn();
+	this.dispatch("attack-melee", {being:being});
+}
+/* -------------------- PRIVATE --------------- */
+
+RPG.Beings.BaseBeing.prototype._describeAttack = function(hit, damage, kill, being, slot) {
 }
 
 RPG.Beings.BaseBeing.prototype._addModifiers = function(imodifier) {

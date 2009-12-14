@@ -220,6 +220,7 @@ RPG.Map.prototype.init = function(id, size, danger) {
 	this._modifiers = {};
 	this._id = id;
 	this._welcome = "";
+	this._sound = null;
 	this._size = size.clone();
 	this._data = [];
 	this._rooms = [];
@@ -235,6 +236,7 @@ RPG.Map.prototype.init = function(id, size, danger) {
 }
 
 RPG.Map.prototype.use = function() {
+	if (this._sound) { RPG.UI.sound.playBackground(this._sound); }
 	RPG.World.pc.mapMemory().setMap(this);
 	RPG.UI.status.updateMap(this._id);
 	if (this._welcome) { RPG.UI.buffer.message(this._welcome); }
@@ -248,6 +250,15 @@ RPG.Map.prototype.setWelcome = function(text) {
 
 RPG.Map.prototype.getWelcome = function() {
 	return this._welcome;
+}
+
+RPG.Map.prototype.setSound = function(sound) {
+	this._sound = sound;
+	return this;
+}
+
+RPG.Map.prototype.getSound = function() {
+	return this._sound;
 }
 
 RPG.Map.prototype.getId = function() {

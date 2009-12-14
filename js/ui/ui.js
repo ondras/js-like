@@ -59,7 +59,7 @@ RPG.UI.command = function(command) {
 		/* cancel */
 		if (this._pending) { this._pending.cancel(); }
 		command.exec();
-		return; 
+		return;
 	} 
 	
 	/* no commands in dialog mode (bar cancel) */
@@ -81,6 +81,7 @@ RPG.UI.command = function(command) {
 		}
 		if (command == this._pending) {
 			this._pending.exec(this._target);
+			RPG.World.run();
 		}
 		return; 
 	}
@@ -90,18 +91,7 @@ RPG.UI.command = function(command) {
 	} else {
 		command.exec();
 	}
-}
-
-/**
- * Pass an action to the World
- * @param {function} ctor action constructor
- * @param {?} target action target
- * @param {?} params action params
- */
-RPG.UI.action = function(ctor, target, params) {
-	if (this._locked) { return; }
-	var a = new ctor(RPG.World.pc, target, params);
-	RPG.World.action(a);
+	RPG.World.run();
 }
 
 RPG.UI.build = function() {

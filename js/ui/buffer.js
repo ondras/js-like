@@ -36,6 +36,11 @@ RPG.UI.TextBuffer.prototype.message = function(str) {
 	
 }
 
+RPG.UI.TextBuffer.prototype.important = function(str) {
+	this.message(str);
+	alert(str);
+}
+
 RPG.UI.TextBuffer.prototype.showBacklog = function() {
 	OZ.DOM.addClass(this._dom.container, "backlog");
 	this._flushBacklog();

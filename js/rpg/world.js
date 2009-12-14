@@ -2,15 +2,11 @@
  * @namespace Game world
  */
 RPG.World = {
-	_actions: [],
-	_listeners: {},
-	_listenerId: 0,
-	_running: false, /* is the engine running? */
+	_turnEnded: false,  /* is current actor finished? */
 	_lock: 0, /* lock level */
 	_map: null,
 	_scheduler: null,
-	pc: null,
-	_story: null
+	pc: null
 };
 
 /**
@@ -72,34 +68,36 @@ RPG.World.getMap = function() {
 	return this._map;
 }
 
-RPG.World.getStory = function() {
-	return this._story;
-}
-
-RPG.World.setStory = function(story) {
-	this._story = story;
-}
-
 /**
  * Enter main loop
  */
 RPG.World.run = function() {
-	if (this._lock) { return; }
-	if (this._running) { return; }
-	this._running = true;
-	while (1) {
-		if (!this._running) { break; }
-		this._decide();
+	while (!this._lock && this._turnEnded) {
+		var actor = this._scheduler.scheduleActor();
+		if (!actor) { break; }
+		
+		var effects = actor.getEffects();
+		for (var i=0;i<effects.length;i++) {
+			effects[i].go();
+		}
+		
+		if (actor == this.pc) { 
+			RPG.UI.status.updateRounds(this.pc.getTurnCount()); 
+			RPG.UI.setMode(RPG.UI_NORMAL);
+		} else {
+			RPG.UI.setMode(RPG.UI_LOCKED);
+		}
+
+		this._turnEnded = false;
+		actor.yourTurn();
 	}
 }
 
 /**
- * Add an action to be processed
- * @param {RPG.Actions.BaseAction} a
+ * Current actor's turn is finished.
  */
-RPG.World.action = function(a) {
-	this._actions.push(a);
-	this.run(); 
+RPG.World.endTurn = function() {
+	this._turnEnded = true;
 }
 
 /**
@@ -107,7 +105,6 @@ RPG.World.action = function(a) {
  */
 RPG.World.lock = function() {
 	this._lock++;
-	this._running = false;
 }
 
 /**
@@ -116,66 +113,4 @@ RPG.World.lock = function() {
 RPG.World.unlock = function() {
 	this._lock--;
 	this.run();
-}
-
-RPG.World.addActionListener = function(action, callback) {
-	this._listeners[this._listenerId] = [action, callback];
-	return this._listenerId++;
-}
-
-RPG.World.removeActionListener = function(id) {
-	delete this._listeners[id];
-}
-
-/**
- * Act
- */ 
-RPG.World._decide = function() {
-	if (this._actions.length) { /* there are actions to process */
-		/* get first action */
-		var action = this._actions.shift(); 
-		/* execute it */
-		action.execute();
-		/* if this action took some time, our actor's turn is over */
-		if (action.tookTime()) { this._clearActor(); }
-		/* let interested parties know it happened */
-		this._dispatchAction(action);
-	} else if (!this._actor) { /* no actions and no actor - pick one */
-		this._setActor();
-	} else { /* no actions, actor selected - he is probably deciding */
-		this._running = false;
-	}
-}
-
-RPG.World._clearActor = function() {
-	if (this._actor == this.pc) { 
-		RPG.UI.setMode(RPG.UI_LOCKED); 
-		RPG.UI.status.updateRounds(this.pc.getTurnCount());
-	}
-	this._actor = null;
-}
-
-RPG.World._setActor = function() {
-	this._actor = this._scheduler.scheduleActor();
-
-	if (this._actor == this.pc) { RPG.UI.setMode(RPG.UI_NORMAL); }
-	
-	if (this._actor) { 
-		var effects = this._actor.getEffects();
-		for (var i=0;i<effects.length;i++) {
-			effects[i].go();
-		}
-	
-		this._actor.yourTurn(); 
-	} else { /* no actor available */
-		this._running = false;
-	}
-}
-
-RPG.World._dispatchAction = function(action) {
-	var ctor = action.constructor;
-	for (var id in this._listeners) {
-		var item = this._listeners[id];
-		if (item[0] == ctor) { item[1](action); }
-	}
 }

@@ -11,8 +11,7 @@ RPG.Items.Consumable.prototype.init = function() {
 RPG.Items.Consumable.prototype.eat = function(being) {
 	var max = being.getFeat(RPG.FEAT_MAX_HP);
 	var amount = Math.floor(max/4) || 1;
-	var a = new RPG.Actions.Heal(being, amount);
-	RPG.World.action(a);
+	being.heal(amount);
 }
 
 /**
@@ -217,8 +216,7 @@ RPG.Items.HealingPotion.prototype.init = function() {
 RPG.Items.HealingPotion.prototype.drink = function(being) {
 	var max = being.getFeat(RPG.FEAT_MAX_HP);
 	var amount = Math.floor(max/2) || 1;
-	var a = new RPG.Actions.Heal(being, amount);
-	RPG.World.action(a);
+	being.heal(amount);
 }
 
 /**
