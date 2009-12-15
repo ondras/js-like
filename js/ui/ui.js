@@ -17,7 +17,6 @@ RPG.UI.setMode = function(mode, command, data) {
 		case RPG.UI_NORMAL:
 			this._pending = null;
 			this._adjustButtons({commands:true, cancel:false, dir:true});
-			this.map.setFocus(RPG.World.pc.getCell().getCoords());
 		break;
 		case RPG.UI_LOCKED:
 			this._adjustButtons({commands:false, cancel:false, dir:false});
@@ -42,6 +41,10 @@ RPG.UI.setMode = function(mode, command, data) {
 	}
 }
 
+RPG.UI.refocus = function() {
+	this.map.setFocus(RPG.World.pc.getCell().getCoords());
+}
+
 /**
  * This command wants to be executed
  */
@@ -55,7 +58,7 @@ RPG.UI.command = function(command) {
 	/* no sry */
 	if (this._mode == RPG.UI_LOCKED) { return; } 
 	
-	if (command instanceof RPG.UI.Command.Cancel && this._mode != RPG.UI_NORMAL) { 
+	if (command instanceof RPG.UI.Command.Cancel) { 
 		/* cancel */
 		if (this._pending) { this._pending.cancel(); }
 		command.exec();

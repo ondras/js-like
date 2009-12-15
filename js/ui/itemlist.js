@@ -82,7 +82,7 @@ RPG.UI.Itemlist.prototype._addEvents = function() {
 	this._events.push(OZ.Event.add(document, "keypress",this.bind(this._keyPress)));
 	
 	if (this._pick) {
-		this._events.push(OZ.Event.add(this._dom.container, "click", this.bind(this._click)))
+		this._events.push(OZ.Event.add(this._dom.container, "click", this.bind(this._click)));
 	}
 	
 	if (this._pick == -1) {
@@ -150,11 +150,13 @@ RPG.UI.Itemlist.prototype._buildBottom = function() {
 	b.setChar("-");
 	this._buttons.push(b);
 	this._dom.prev = b;
+	this._dom.container.appendChild(b.getInput());
 
-	var b = new RPG.UI.Button("Previous page", this.bind(this._next));
+	var b = new RPG.UI.Button("Next page", this.bind(this._next));
 	b.setChar("+");
 	this._buttons.push(b);
 	this._dom.next = b;
+	this._dom.container.appendChild(b.getInput());
 }
 
 RPG.UI.Itemlist.prototype._buildGroup = function(name, data) {
@@ -265,6 +267,8 @@ RPG.UI.Itemlist.prototype._done = function() {
 	}
 
 	this._events.forEach(OZ.Event.remove);
+	this._events = [];
+	
 	for (var i=0;i<this._buttons.length;i++) {
 		this._buttons[i].destroy();
 	}

@@ -5,7 +5,7 @@ RPG.Story = OZ.Class();
 
 RPG.Story.prototype.init = function() {
 	RPG.UI.sound.preload("tristram");
-	this._maxDepth = 3;
+	this._maxDepth = 6;
 	this._maps = [];
 	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
 //	this._chat = this._buildChat();
@@ -208,8 +208,6 @@ RPG.Story.prototype._firstMap = function() {
 	troll.setName("Chleba");
 	this._boss = troll;
 	elder.setEnemy(this._boss);
-	
-	map.getFreeCell().setBeing(troll);
 	
 	this._attachGameover(map);
 	this._maps.push(map);

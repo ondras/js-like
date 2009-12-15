@@ -384,13 +384,12 @@ RPG.UI.Command.Pick.prototype.exec = function() {
 		RPG.World.pc.pick([[item, amount]]);
 		return;
 	}
-	
 	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 	new RPG.UI.Itemlist(items, "Select items to be picked up", -1, this.bind(this._done));
 }
 RPG.UI.Command.Pick.prototype._done = function(items) {
-	RPG.UI.setMode(RPG.UI_NORMAL);
 	RPG.World.pc.pick(items);
+	RPG.UI.setMode(RPG.UI_NORMAL);
 }
 
 /**
@@ -413,8 +412,8 @@ RPG.UI.Command.Drop.prototype.exec = function() {
 	}
 }
 RPG.UI.Command.Drop.prototype._done = function(items) {
-	RPG.UI.setMode(RPG.UI_NORMAL);
 	RPG.World.pc.drop(items);
+	RPG.UI.setMode(RPG.UI_NORMAL);
 }
 
 /**
@@ -432,8 +431,8 @@ RPG.UI.Command.Inventory.prototype.exec = function() {
 }
 
 RPG.UI.Command.Inventory.prototype._done = function(changed) {
-	RPG.UI.setMode(RPG.UI_NORMAL);
 	if (changed) { RPG.World.pc.equipDone(); }
+	RPG.UI.setMode(RPG.UI_NORMAL);
 }
 
 /**
@@ -453,8 +452,8 @@ RPG.UI.Command.Autowalk.prototype.init = function() {
 RPG.UI.Command.Autowalk.prototype.exec = function(cmd) {
 	if (cmd) {
 		/* direction given */
-		RPG.UI.setMode(RPG.UI_NORMAL);
 		this._start(cmd.getDir());
+		RPG.UI.setMode(RPG.UI_NORMAL);
 	} else {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Walk continuously");
 	}
@@ -732,6 +731,10 @@ RPG.UI.Command.Look.prototype.exec = function(cmd) {
 	}
 }
 
+RPG.UI.Command.Look.prototype.cancel = function() {
+	RPG.UI.refocus();
+}
+
 /**
  * Abstract consumption command
  * @augments RPG.UI.Command
@@ -772,11 +775,11 @@ RPG.UI.Command.Consume.prototype._filter = function(items, itemCtor) {
 	return arr;
 }
 RPG.UI.Command.Consume.prototype._done = function(items) {
-	RPG.UI.setMode(RPG.UI_NORMAL);
 	if (!items.length) { return; }
 	
 	var item = items[0][0];
 	this._method.call(RPG.World.pc, item, this._container); 
+	RPG.UI.setMode(RPG.UI_NORMAL);
 }
 
 /**
@@ -863,7 +866,7 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 		}
 		
 	} else { /* we have spell and optionally a direction/target */
-		RPG.UI.setMode(RPG.UI_NORMAL);
+		RPG.UI.refocus();
 
 		var type = this._spell.getType();
 		
@@ -882,6 +885,7 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 		}
 
 		RPG.World.pc.cast(this._spell, target);
+		RPG.UI.setMode(RPG.UI_NORMAL);
 		this._spell = null;		
 	}
 }

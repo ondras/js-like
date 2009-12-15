@@ -287,6 +287,7 @@ RPG.Beings.PC.prototype.move = function(targetCell) {
 	if (targetCell) {
 		this._describeLocal();
 		this._mapMemory.updateVisible();
+		RPG.UI.refocus();
 	}
 }
 
