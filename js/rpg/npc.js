@@ -48,7 +48,7 @@ RPG.Beings.NPC.prototype.getAlignment = function() {
 RPG.Beings.NPC.prototype.describe = function() {
 	var s = this._description;
 	if (this._gender == RPG.GENDER_FEMALE) { s = "female "+s; }
-	if (this._name) { s = this._name + ", the " + s; }
+	if (this._name) { s = this._name + " the " + s.capitalize(); }
 	return s;
 }
 

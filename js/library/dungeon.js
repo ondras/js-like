@@ -238,6 +238,21 @@ RPG.Features.Staircase.prototype.init = function() {
 	this._target = null;
 }
 
+RPG.Features.Staircase.prototype.enter = function(being) {
+	var cell = this.getTarget();
+
+	if (cell) {	
+		/* switch maps */
+		var map = cell.getMap();
+		map.use();
+		
+		RPG.World.addActor(being);
+		return being.move(cell);
+	} else {
+		return being.wait();
+	}
+}
+
 RPG.Features.Staircase.prototype.setTarget = function(cell) {
 	this._target = cell;
 }

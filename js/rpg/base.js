@@ -140,12 +140,30 @@ RPG.Items.BaseItem.prototype.describe = function() {
 		s += this._descriptionPlural || (this._description + "s");
 	}
 
-	if (this._remembered) {
+	if (this._remembered) { /* known items show modifiers, if any */
 		var mods = this._describeModifiers();
 		if (mods) { s += " " + mods; }
 	}
 
 	return s;
+}
+
+/**
+ * Return are/is string for this item
+ * @returns {string}
+ */
+RPG.Items.BaseItem.prototype.describeIs = function() {
+	if (this._amount == 1) {
+		return (this._uncountable ? "are" : "is");
+	} else { return "is"; }
+}
+
+RPG.Items.BaseItem.prototype.describeA = function() {
+	if (this._uncountable) {
+		return this.describe();
+	} else {
+		return RPG.Visual.IVisual.prototype.describeA.call(this);
+	}
 }
 
 RPG.Items.BaseItem.prototype._describeModifiers = function() {
@@ -216,17 +234,6 @@ RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
 	listOfItems.push(this);
 	return false;
 }
-
-/**
- * Return are/is string for this item
- * @returns {string}
- */
-RPG.Items.BaseItem.prototype.describeIs = function() {
-	if (this._amount == 1) {
-		return (this._uncountable ? "are" : "is");
-	} else { return "is"; }
-}
-
 
 /**
  * @class Basic race

@@ -92,6 +92,7 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	if (this._dir == RPG.CENTER) {
 		var result = RPG.World.pc.wait();
 		RPG.World.actionResult(result);
+		return;
 	}
 	
 	var pc = RPG.World.pc;
@@ -665,7 +666,7 @@ RPG.UI.Command.Descend.prototype.exec = function() {
 	var pc = RPG.World.pc;
 	var f = pc.getCell().getFeature();
 	if (f && f instanceof RPG.Features.Staircase.Down) {
-		RPG.World.pc.descend();
+		var result = RPG.World.pc.descend();
 		RPG.World.actionResult(result);
 	} else {
 		RPG.UI.buffer.message("You don't see any stairs leading downwards.");

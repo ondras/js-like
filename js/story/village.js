@@ -61,10 +61,14 @@ RPG.Map.Village.prototype.init = function() {
 	this.at(new RPG.Misc.Coords(13, 5)).setBeing(this._elder);
 	
 	var residents = 5;
-	var chat = new RPG.Misc.Chat('"Work, work."', "villager-work");
+	var chats = [
+		new RPG.Misc.Chat('"Work, work."', "villager-work"),
+		new RPG.Misc.Chat('"Ask our elder."', "villager-work")
+	];
+	
     for (var i = 0; i < residents; i++) {
         var villager = new RPG.Beings.Villager();
-		villager.setChat(chat);
+		villager.setChat(chats.random());
         c = this.getFreeCell();
         c.setBeing(villager);
     }

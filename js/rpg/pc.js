@@ -386,18 +386,8 @@ RPG.Beings.PC.prototype.look = function(cell) {
  * @param {RPG.Features.BaseFeature} feature
  */
 RPG.Beings.PC.prototype.enterLocation = function() {
-	var cell = this._cell.getFeature().getTarget();
-
-	if (cell) {	
-		/* switch maps */
-		var map = cell.getMap();
-		map.use();
-		
-		RPG.World.addActor(this);
-		this.move(cell);
-	}
-	
-	return RPG.ACTION_TIME;
+	var f = this._cell.getFeature();
+	return f.enter(this);
 }
 
 /**
