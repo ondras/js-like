@@ -318,6 +318,30 @@ RPG.Beings.BaseBeing.prototype.getSpeed = function() {
 	return this.getFeat(RPG.FEAT_SPEED);
 }
 
+/**
+ * Heal wounds
+ * @param {int} amount
+ */
+RPG.Beings.BaseBeing.prototype.heal = function(amount) {
+	var hp = this.getStat(RPG.STAT_HP);
+	var max = this.getFeat(RPG.FEAT_MAX_HP);
+	if (hp == max) {
+		RPG.UI.buffer.message("Nothing happens.");
+		return;
+	}
+	
+	hp = this.adjustStat(RPG.STAT_HP, this._target);
+	var str = "";
+	
+	if (hp == max) {
+		str = "all";
+	} else {
+		str = "some of";
+	}
+	var s = RPG.Misc.format("%S %his wounds are healed.", str, this);
+	RPG.UI.buffer.message(s);
+}
+
 /* ============================== MISC ==================================== */
 
 RPG.Beings.BaseBeing.prototype.isAlive = function() {
@@ -412,132 +436,6 @@ RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	return def[index];
 }
 
-/* -------------------- ACTIONS --------------- */
-
-RPG.Beings.BaseBeing.prototype.wait = function() {
-	RPG.World.endTurn();
-}
-
-/**
- * Moving being to a given cell
- * @param {RPG.Cells.BaseCell} target
- */
-RPG.Beings.BaseBeing.prototype.move = function(target) {
-	var source = this._cell;
-	
-	if (target && target.getRoom()) {
-		if (!source || source.getRoom() != target.getRoom()) {
-			target.getRoom().entered(this);
-		}
-	}
-
-	if (source) { source.setBeing(null); }
-	if (target) { target.setBeing(this); }
-
-	RPG.World.endTurn();
-}
-
-/**
- * Reading, target = item
- * @param {RPG.Items.BaseItem} item
- */
-RPG.Beings.BaseBeing.prototype.read = function(item) {
-	var verb = RPG.Misc.verb("start", this);
-	var s = RPG.Misc.format("%A %s reading %the.", this, verb, item);
-	RPG.UI.buffer.message(s);
-	item.read(this);
-	RPG.World.endTurn();
-}
-
-/**
- * Cast a spell
- * @param {RPG.Spells.BaseSpell} spell
- * @param {?} target spell specific
- */
-RPG.Beings.BaseBeing.prototype.cast = function(spell, target) {
-	var cost = spell.getCost();
-	this.adjustStat(RPG.STAT_MANA, -cost);
-	
-	var verb = RPG.Misc.verb("cast", this);
-	var str = RPG.Misc.format("%D %s %d.", this, verb, spell);
-	RPG.UI.buffer.message(str);
-	
-	spell.cast(target);	
-	RPG.World.endTurn();
-}
-
-
-/**
- * Heal wounds
- * @param {int} amount
- */
-RPG.Beings.BaseBeing.prototype.heal = function(amount) {
-	var hp = this.getStat(RPG.STAT_HP);
-	var max = this.getFeat(RPG.FEAT_MAX_HP);
-	if (hp == max) {
-		RPG.UI.buffer.message("Nothing happens.");
-		return;
-	}
-	
-	hp = this.adjustStat(RPG.STAT_HP, this._target);
-	var str = "";
-	
-	if (hp == max) {
-		str = "all";
-	} else {
-		str = "some of";
-	}
-	var s = RPG.Misc.format("%S %his wounds are healed.", str, this);
-	RPG.UI.buffer.message(s);
-}
-
-
-/**
- * Abstract consumption
- * @param {RPG.Items.BaseItem} item
- * @param {?} owner
- * @param {string} consumption verb
- * @param {function} consumption method
- */
-RPG.Beings.BaseBeing.prototype._consume = function(item, owner, verb, method) {
-	/* remove item from inventory / ground */
-	var i = item;
-	var amount = i.getAmount();
-	
-	if (amount == 1) {
-		owner.removeItem(i);
-	} else {
-		i = i.subtract(1);
-	}
-
-	var v = RPG.Misc.verb(verb, this);
-	var s = RPG.Misc.format("%A %s %a.", this, v, i);
-	RPG.UI.buffer.message(s);
-	
-	method.call(item, this);
-	
-	RPG.World.endTurn();
-}
-
-/**
- * Eat something
- * @param {PRG.Items.BaseItem} item
- * @param {?} owner
- */
-RPG.Beings.BaseBeing.prototype.eat = function(item, owner) {
-	this._consume(item, owner, "eat", item.eat);
-}
-
-/**
- * Drink something
- * @param {PRG.Items.BaseItem} item
- * @param {?} owner
- */
-RPG.Beings.BaseBeing.prototype.drink = function(item, owner) {
-	this._consume(item, owner, "drink", item.drink);
-}
-
-
 /**
  * Moving across a trap
  * @param {RPG.Features.Trap} trap
@@ -565,11 +463,119 @@ RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
 }
 
 /**
+ * Teleporting to a given cell
+ * @param {RPG.Cells.BaseCell} cell
+ */
+RPG.Beings.BaseBeing.prototype.teleport = function(cell) {
+	this.move(cell);
+}
+
+/* -------------------- ACTIONS --------------- */
+
+RPG.Beings.BaseBeing.prototype.wait = function() {
+	return RPG.ACTION_TIME;
+}
+
+/**
+ * Moving being to a given cell
+ * @param {RPG.Cells.BaseCell} target
+ */
+RPG.Beings.BaseBeing.prototype.move = function(target) {
+	var source = this._cell;
+	
+	if (target && target.getRoom()) {
+		if (!source || source.getRoom() != target.getRoom()) {
+			target.getRoom().entered(this);
+		}
+	}
+
+	if (source) { source.setBeing(null); }
+	if (target) { target.setBeing(this); }
+
+	return RPG.ACTION_TIME;
+}
+
+/**
+ * Reading, target = item
+ * @param {RPG.Items.BaseItem} item
+ */
+RPG.Beings.BaseBeing.prototype.read = function(item) {
+	var verb = RPG.Misc.verb("start", this);
+	var s = RPG.Misc.format("%A %s reading %the.", this, verb, item);
+	RPG.UI.buffer.message(s);
+	item.read(this);
+
+	return RPG.ACTION_TIME;
+}
+
+/**
+ * Cast a spell
+ * @param {RPG.Spells.BaseSpell} spell
+ * @param {?} target spell specific
+ */
+RPG.Beings.BaseBeing.prototype.cast = function(spell, target) {
+	var cost = spell.getCost();
+	this.adjustStat(RPG.STAT_MANA, -cost);
+	
+	var verb = RPG.Misc.verb("cast", this);
+	var str = RPG.Misc.format("%D %s %d.", this, verb, spell);
+	RPG.UI.buffer.message(str);
+	
+	spell.cast(target);	
+	return RPG.ACTION_TIME;
+}
+
+/**
+ * Abstract consumption
+ * @param {RPG.Items.BaseItem} item
+ * @param {?} owner
+ * @param {string} consumption verb
+ * @param {function} consumption method
+ */
+RPG.Beings.BaseBeing.prototype._consume = function(item, owner, verb, method) {
+	/* remove item from inventory / ground */
+	var i = item;
+	var amount = i.getAmount();
+	
+	if (amount == 1) {
+		owner.removeItem(i);
+	} else {
+		i = i.subtract(1);
+	}
+
+	var v = RPG.Misc.verb(verb, this);
+	var s = RPG.Misc.format("%A %s %a.", this, v, i);
+	RPG.UI.buffer.message(s);
+	
+	method.call(item, this);
+	
+	return RPG.ACTION_TIME;
+}
+
+/**
+ * Eat something
+ * @param {PRG.Items.BaseItem} item
+ * @param {?} owner
+ */
+RPG.Beings.BaseBeing.prototype.eat = function(item, owner) {
+	return this._consume(item, owner, "eat", item.eat);
+}
+
+/**
+ * Drink something
+ * @param {PRG.Items.BaseItem} item
+ * @param {?} owner
+ */
+RPG.Beings.BaseBeing.prototype.drink = function(item, owner) {
+	return this._consume(item, owner, "drink", item.drink);
+}
+
+/**
  * Initiate chat
  * @param {RPG.Beings.BaseBeing} being
  */
 RPG.Beings.BaseBeing.prototype.chat = function(being) {
-	RPG.World.endTurn();
+	return RPG.ACTION_TIME;
 }
 
 
@@ -597,9 +603,8 @@ RPG.Beings.BaseBeing.prototype.drop = function(items) {
 		RPG.UI.buffer.message(s);
 	}
 	
-	RPG.World.endTurn();
+	return RPG.ACTION_TIME;
 }
-
 
 /**
  * Picking item(s)
@@ -626,16 +631,7 @@ RPG.Beings.BaseBeing.prototype.pick = function(items) {
 		RPG.UI.buffer.message(s);
 	}
 
-	RPG.World.endTurn();
-}
-
-
-/**
- * Teleporting to a given cell
- * @param {RPG.Cells.BaseCell} cell
- */
-RPG.Beings.BaseBeing.prototype.teleport = function(cell) {
-	this.move(cell);
+	return RPG.ACTION_TIME;
 }
 
 /**
@@ -643,7 +639,6 @@ RPG.Beings.BaseBeing.prototype.teleport = function(cell) {
  * @param {RPG.Features.Door} door
  */
 RPG.Beings.BaseBeing.prototype.open = function(door) {
-	RPG.World.endTurn();
 	var locked = door.isLocked();
 	if (locked) { return; }
 	
@@ -654,6 +649,8 @@ RPG.Beings.BaseBeing.prototype.open = function(door) {
 	var s = RPG.Misc.format("%A %s the door.", this, verb);
 	RPG.UI.buffer.message(s);
 	RPG.World.pc.mapMemory().updateVisible();
+
+	return RPG.ACTION_TIME;
 }
 
 /**
@@ -661,7 +658,6 @@ RPG.Beings.BaseBeing.prototype.open = function(door) {
  * @param {RPG.Features.Door} door
  */
 RPG.Beings.BaseBeing.prototype.close = function(door) {
-	RPG.World.endTurn();
 	var cell = door.getCell();
 	if (cell.getBeing()) {
 		RPG.UI.buffer.message("There is someone standing at the door.");
@@ -683,6 +679,8 @@ RPG.Beings.BaseBeing.prototype.close = function(door) {
 	var s = RPG.Misc.format("%A %s the door.", this, verb);
 	RPG.UI.buffer.message(s);
 	RPG.World.pc.mapMemory().updateVisible();
+
+	return RPG.ACTION_TIME;
 }
 
 /**
@@ -711,6 +709,7 @@ RPG.Beings.BaseBeing.prototype.attackMagic = function(being, spell) {
 	}
 
 	this.dispatch("attack-magic", {being:being});
+	return RPG.ACTION_NO_TIME;
 }
 
 RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
@@ -732,9 +731,10 @@ RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
 	
 	this._describeAttack(hit, damage, kill, being, slot);
 	
-	RPG.World.endTurn();
 	this.dispatch("attack-melee", {being:being});
+	return RPG.ACTION_TIME;
 }
+
 /* -------------------- PRIVATE --------------- */
 
 RPG.Beings.BaseBeing.prototype._describeAttack = function(hit, damage, kill, being, slot) {

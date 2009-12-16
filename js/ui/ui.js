@@ -81,10 +81,9 @@ RPG.UI.command = function(command) {
 			this._target = test;
 			RPG.UI.map.setFocus(this._target);
 			this._pending.notify(this._target);
-		}
-		if (command == this._pending) {
+		} else if (command == this._pending) {
+			/* targetting finished, launch */
 			this._pending.exec(this._target);
-			RPG.World.run();
 		}
 		return; 
 	}
@@ -94,7 +93,6 @@ RPG.UI.command = function(command) {
 	} else {
 		command.exec();
 	}
-	RPG.World.run();
 }
 
 RPG.UI.build = function() {

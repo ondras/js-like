@@ -279,16 +279,33 @@ RPG.Beings.PC.prototype.die = function() {
 	this.parent();
 }
 
+RPG.Beings.PC.prototype.yourTurn = function() {
+	RPG.UI.status.updateRounds(this.getTurnCount()); 
+	return RPG.ACTION_DEFER;
+}
+
+RPG.Beings.PC.prototype.teleport = function(cell) {
+	RPG.UI.buffer.message("You suddenly teleport away!");
+	this.parent(cell);
+}
+
 /* ------------------------- ACTIONS -----------------*/
 
+RPG.Beings.PC.prototype.activateTrap = function(trap) {
+	trap.setOff();
+	return RPG.ACTION_TIME;
+}
+
 RPG.Beings.PC.prototype.move = function(targetCell) {
-	this.parent(targetCell);
+	var result = this.parent(targetCell);
 	
 	if (targetCell) {
 		this._describeLocal();
 		this._mapMemory.updateVisible();
 		RPG.UI.refocus();
 	}
+	
+	return result;
 }
 
 /**
@@ -300,17 +317,17 @@ RPG.Beings.PC.prototype.flirt = function(cell) {
 
 	if (this == being) {
 		RPG.UI.buffer.message("You spend some nice time flirting with yourself.");
-		return;
+		return RPG.ACTION_TIME;
 	}
 	
 	if (!being) {
 		RPG.UI.buffer.message("There is noone to flirt with!");
-		return;
+		return RPG.ACTION_TIME;
 	}
 
 	var s = RPG.Misc.format("%The doesn't seem to be interested.", being);
 	RPG.UI.buffer.message(s);
-	RPG.World.endTurn();
+	return RPG.ACTION_TIME;
 }
 
 /**
@@ -322,7 +339,7 @@ RPG.Beings.PC.prototype.switchPosition = function(cell) {
 	
 	if (!being) {
 		RPG.UI.buffer.message("There is noone to switch position with.");
-		return;
+		return RPG.ACTION_TIME;
 	}
 	
 	if (being.isHostile(this)) {
@@ -346,13 +363,13 @@ RPG.Beings.PC.prototype.switchPosition = function(cell) {
 		being.move(source);
 	}
 
-	RPG.World.endTurn();
+	return RPG.ACTION_TIME;
 }
 
 RPG.Beings.PC.prototype.equipDone = function(item, slot) {
 	RPG.UI.buffer.message("You adjust your equipment.");
 	this._mapMemory.updateVisible();
-	RPG.World.endTurn();
+	return RPG.ACTION_TIME;
 }
 
 /**
@@ -361,13 +378,8 @@ RPG.Beings.PC.prototype.equipDone = function(item, slot) {
  */
 RPG.Beings.PC.prototype.look = function(cell) {
 	this._describeRemote(cell);
+	return RPG.ACTION_NO_TIME;
 }
-
-RPG.Beings.PC.prototype.manualTrap = function(trap) {
-	trap.setOff();
-	RPG.World.endTurn();
-}
-
 
 /**
  * Enter staircase or other level-changer
@@ -384,6 +396,8 @@ RPG.Beings.PC.prototype.enterLocation = function() {
 		RPG.World.addActor(this);
 		this.move(cell);
 	}
+	
+	return RPG.ACTION_TIME;
 }
 
 /**
@@ -391,7 +405,7 @@ RPG.Beings.PC.prototype.enterLocation = function() {
  */
 RPG.Beings.PC.prototype.ascend = function() {
 	RPG.UI.buffer.message("You climb upwards...");
-	this.enterLocation();
+	return this.enterLocation();
 }
 
 /**
@@ -399,10 +413,8 @@ RPG.Beings.PC.prototype.ascend = function() {
  */
 RPG.Beings.PC.prototype.descend = function() {
 	RPG.UI.buffer.message("You climb downwards...");
-	this.enterLocation();
+	return this.enterLocation();
 }
-
-
 
 /**
  * Search surroundings
@@ -418,7 +430,8 @@ RPG.Beings.PC.prototype.search = function() {
 	}
 	
 	if (found) { this._mapMemory.updateVisible(); }
-	RPG.World.endTurn();
+
+	return RPG.ACTION_TIME;
 }
 
 /**
@@ -448,14 +461,13 @@ RPG.Beings.PC.prototype._search = function(cell) {
 	return 0;
 }
 
-
 RPG.Beings.PC.prototype.chat = function(being) {
-	this.parent(being);
+	var result = this.parent(being);
 	
 	if (being.isHostile(this)) {
 		var s = RPG.Misc.format("%The is not in the mood for talking!", being);
 		RPG.UI.buffer.message(s);
-		return;
+		return RPG.ACTION_TIME;
 	}
 	
 	var s = RPG.Misc.format("You talk to %a.", being);
@@ -467,8 +479,9 @@ RPG.Beings.PC.prototype.chat = function(being) {
 		var s = RPG.Misc.format("%He does not reply.", this._target);
 		RPG.UI.buffer.message(s);
 	}
+	
+	return result;
 }
-
 
 /**
  * Kick something
@@ -481,10 +494,8 @@ RPG.Beings.PC.prototype.kick = function(cell) {
 	
 	if (cell == this._cell) {
 		RPG.UI.buffer.message("You wouldn't do that, would you?");
-		return;
+		return RPG.ACTION_NO_TIME;
 	}
-	
-	RPG.World.endTurn();
 	
 	if (feature && feature instanceof RPG.Features.Door && feature.isClosed()) {
 		/* kick door */
@@ -497,18 +508,18 @@ RPG.Beings.PC.prototype.kick = function(cell) {
 			RPG.UI.buffer.message("You shatter the door with a mighty kick!");
 			this._mapMemory.updateVisible();
 		}
-		return;
+		return RPG.ACTION_TIME;
 	}
 	
 	if (being) {
 		/* kick being */
 		this.attackMelee(being, this.getFeetSlot());
-		return;
+		return RPG.ACTION_TIME;
 	}
 
 	if (!cell.isFree()) {
 		RPG.UI.buffer.message("Ouch! That hurts!");
-		return;
+		return RPG.ACTION_TIME;
 	}
 	
 	if (items.length) {
@@ -533,31 +544,25 @@ RPG.Beings.PC.prototype.kick = function(cell) {
 			var memory = this._mapMemory;
 			memory.updateCoords(cell.getCoords());
 			memory.updateCoords(target.getCoords());
-			return;
+			return RPG.ACTION_TIME;
 		}
 	}
 	
 	RPG.UI.buffer.message("You kick in empty air.");
-}
-
-RPG.Beings.PC.prototype.teleport = function(cell) {
-	RPG.UI.buffer.message("You suddenly teleport away!");
-	this.parent(cell);
+	return RPG.ACTION_TIME;
 }
 
 RPG.Beings.PC.prototype.open = function(door) {
-	RPG.World.endTurn();
-	
 	var locked = door.isLocked();
 	if (locked) { 
 		RPG.UI.buffer.message("The door is locked. You do not have the appropriate key."); 
-		return;
+		return RPG.ACTION_TIME;
 	}
 	
 	var stuck = RPG.Rules.isDoorStuck(this, door);
 	if (stuck) {
 		RPG.UI.buffer.message("Ooops! The door is stuck.");
-		return;
+		return RPG.ACTION_TIME;
 	}
 	
 	door.open();
@@ -565,17 +570,22 @@ RPG.Beings.PC.prototype.open = function(door) {
 	var s = RPG.Misc.format("%A %s the door.", this, verb);
 	RPG.UI.buffer.message(s);
 	this._mapMemory.updateVisible();
+	
+	return RPG.ACTION_TIME;
 }
 
 RPG.Beings.PC.prototype.attackMagic = function(being, spell) {
-	this.parent(being, spell);
+	var result = this.parent(being, spell);
 	if (!being.isAlive()) { this.addKill(being); }
+	return result;
 }
 
 RPG.Beings.PC.prototype.attackMelee = function(being, slot) {
-	this.parent(being, slot);
+	var result = this.parent(being, slot);
 	if (!being.isAlive()) { this.addKill(being); }
+	return result;
 }
+
 /* ------------------- PRIVATE --------------- */
 
 RPG.Beings.PC.prototype._describeAttack = function(hit, damage, kill, being, slot) {

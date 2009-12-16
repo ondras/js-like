@@ -2,17 +2,13 @@
  * @namespace Game world
  */
 RPG.World = {
-	_turnEnded: false,  /* is current actor finished? */
+	_actor: false, /* current actor */
+	_actionResult: RPG.ACTION_TIME, /* result of current action */
 	_lock: 0, /* lock level */
 	_map: null,
 	_scheduler: null,
 	pc: null
 };
-
-/**
- * Event dispatcher, static version
- */
-RPG.World.dispatch = OZ.Class().prototype.dispatch;
 
 RPG.World.init = function() {
 	this._scheduler = new RPG.Misc.Scheduler();
@@ -69,35 +65,36 @@ RPG.World.getMap = function() {
 }
 
 /**
- * Enter main loop
+ * Enter main loop. This goes until the world gets locked.
  */
 RPG.World.run = function() {
-	while (!this._lock && this._turnEnded) {
-		var actor = this._scheduler.scheduleActor();
-		if (!actor) { break; }
+	while (!this._lock) {
 		
-		var effects = actor.getEffects();
-		for (var i=0;i<effects.length;i++) {
-			effects[i].go();
-		}
-		
-		if (actor == this.pc) { 
-			RPG.UI.status.updateRounds(this.pc.getTurnCount()); 
-			RPG.UI.setMode(RPG.UI_NORMAL);
-		} else {
-			RPG.UI.setMode(RPG.UI_LOCKED);
+		/* evaluate previous action */
+		switch (this._actionResult) {
+			case RPG.ACTION_DEFER: /* lock and wait until (ui) decides */
+				this.lock(); 
+			break;
+			
+			case RPG.ACTION_TIME: /* regular action, go for next actor */
+				this._newActor();
+			break;
+			
+			case RPG.ACTION_NO_TIME: /* executed in no time, give him another turn */
+			break;
 		}
 
-		this._turnEnded = false;
-		actor.yourTurn();
+		if (!this._actor) { break; }
+		this._actionResult = this._actor.yourTurn();
 	}
 }
 
 /**
- * Current actor's turn is finished.
+ * Asynchronous action result callback; initiates main loop by unlocking.
  */
-RPG.World.endTurn = function() {
-	this._turnEnded = true;
+RPG.World.actionResult = function(actionResult) {
+	this._actionResult = actionResult;
+	this.unlock();
 }
 
 /**
@@ -113,4 +110,18 @@ RPG.World.lock = function() {
 RPG.World.unlock = function() {
 	this._lock--;
 	this.run();
+}
+
+RPG.World._newActor = function() {
+	var actor = this._scheduler.scheduleActor();
+
+	if (actor == this.pc && this._actor != this.pc) { RPG.UI.setMode(RPG.UI_NORMAL); }
+	if (actor && actor != this.pc && this._actor == this.pc) { RPG.UI.setMode(RPG.UI_LOCKED); }
+	
+	this._actor = actor;
+	if (!this._actor) { return; }
+	var effects = this._actor.getEffects();
+	for (var i=0;i<effects.length;i++) {
+		effects[i].go();
+	}
 }

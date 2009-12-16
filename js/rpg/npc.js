@@ -7,14 +7,13 @@ RPG.Beings.NPC.factory.ignore = true;
 
 RPG.Beings.NPC.prototype.init = function(race) {
 	this.parent(race);
-	this._ai = new RPG.Engine.AI();
-	this._ai.setBeing(this);
+	this._ai = new RPG.Engine.AI(this);
 	
 	this._alignment = RPG.ALIGNMENT_NEUTRAL;
 }
 
-RPG.Beings.NPC.prototype.getAI = function() {
-	return this._ai;
+RPG.Beings.NPC.prototype.yourTurn = function() {
+	return this._ai.yourTurn();
 }
 
 RPG.Beings.NPC.prototype.randomGender = function() {
@@ -97,25 +96,6 @@ RPG.Beings.NPC.prototype.isChatty = function() {
 	return !!this._chat;
 }
 
-/* ------------------------- ACTIONS -----------------*/
-
-RPG.Beings.NPC.prototype.move = function(targetCell) {
-	var sourceCell = this._cell;
-
-	this.parent(targetCell);
-
-	if (sourceCell) { RPG.World.pc.mapMemory().updateCoords(sourceCell.getCoords()); }
-	if (targetCell) { RPG.World.pc.mapMemory().updateCoords(targetCell.getCoords());  }
-}
-
-/**
- * Initiate chat with target being
- */
-RPG.Beings.NPC.prototype.chat = function(being) {
-	RPG.World.endTurn();
-	RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, this._chat);
-}
-
 RPG.Beings.NPC.prototype.teleport = function(cell) {
 	var pc = RPG.World.pc;
 	var sc = this._cell.getCoords();
@@ -136,6 +116,27 @@ RPG.Beings.NPC.prototype.teleport = function(cell) {
 	}
 	
 	this.parent(cell);
+}
+
+/* ------------------------- ACTIONS -----------------*/
+
+RPG.Beings.NPC.prototype.move = function(targetCell) {
+	var sourceCell = this._cell;
+
+	var result = this.parent(targetCell);
+
+	if (sourceCell) { RPG.World.pc.mapMemory().updateCoords(sourceCell.getCoords()); }
+	if (targetCell) { RPG.World.pc.mapMemory().updateCoords(targetCell.getCoords());  }
+	
+	return result;
+}
+
+/**
+ * Initiate chat with target being
+ */
+RPG.Beings.NPC.prototype.chat = function(being) {
+	RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, this._chat);
+	return RPG.ACTION_TIME;
 }
 
 /* ------------------ PRIVATE --------------- */

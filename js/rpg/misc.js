@@ -166,6 +166,7 @@ RPG.Misc.IActor.prototype.getSpeed = function() {};
  * World asks actor to perform an action
  */ 
 RPG.Misc.IActor.prototype.yourTurn = function() {
+	return RPG.ACTION_TIME;
 }
 
 /**

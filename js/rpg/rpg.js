@@ -194,6 +194,13 @@ RPG.CENTER				= 8;
 /** @constant */
 RPG.DIR = {};
 
+/** @constant */
+RPG.ACTION_TIME 		= 0;
+/** @constant */
+RPG.ACTION_NO_TIME 		= 1;
+/** @constant */
+RPG.ACTION_DEFER		= 2;
+
 /**
  * Generates a normally distributed random number, mean = 0.
  * @param {float} stddev Standard deviation. ~95% of the absolute values will be lower than 2*stddev.

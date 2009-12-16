@@ -90,8 +90,8 @@ RPG.UI.Command.Direction.prototype.getDir = function() {
 RPG.UI.Command.Direction.prototype.exec = function() {
 	/* wait */
 	if (this._dir == RPG.CENTER) {
-		RPG.World.pc.wait();
-		return;
+		var result = RPG.World.pc.wait();
+		RPG.World.actionResult(result);
 	}
 	
 	var pc = RPG.World.pc;
@@ -107,20 +107,23 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	var b = cell.getBeing();
 	if (b) {
 		var hand = pc.getMeleeSlot();
-		RPG.World.pc.attackMelee(b, hand);
+		var result = RPG.World.pc.attackMelee(b, hand);
+		RPG.World.actionResult(result);
 		return;
 	} 
 	
 	/* closed door there? */
 	var f = cell.getFeature();
 	if (f && f instanceof RPG.Features.Door && f.isClosed()) {
-		RPG.World.pc.open(f);
+		var result = RPG.World.pc.open(f);
+		RPG.World.actionResult(result);
 		return;
 	}
 	
 	/* can we move there? */
 	if (cell.isFree()) {
-		RPG.World.pc.move(cell);
+		var result = RPG.World.pc.move(cell);
+		RPG.World.actionResult(result);
 		return;
 	}	
 }
@@ -227,23 +230,27 @@ RPG.UI.Command.Open.prototype.exec = function(cmd) {
 	var pc = RPG.World.pc;
 
 	if (cmd) {
+		RPG.UI.setMode(RPG.UI_NORMAL);
 		/* direction given */
 		var cell = pc.getCell().neighbor(cmd.getDir());
 		var f = cell.getFeature();
 		if (f && f instanceof RPG.Features.Door && f.isClosed()) {
 			/* correct direction */
-			RPG.World.pc.open(f);
+			var result = RPG.World.pc.open(f);
+			RPG.World.actionResult(result);
+			return;
 		} else {
 			/* incorrect direction */
 			RPG.UI.buffer.message("there is no door at that location.");
 		}
-		RPG.UI.setMode(RPG.UI_NORMAL);
 	} else {
 		/* no direction, check surroundings */
 		var doors = this._surroundingDoors(true);
 		if (doors instanceof RPG.Features.Door) {
 			/* exactly one door found */
-			RPG.World.pc.open(doors);
+			var result = RPG.World.pc.open(doors);
+			RPG.World.actionResult(result);
+			return;
 		} else if (doors == 0) {
 			RPG.UI.buffer.message("There are no closed doors nearby.");
 		} else {
@@ -266,23 +273,26 @@ RPG.UI.Command.Close.prototype.exec = function(cmd) {
 	var pc = RPG.World.pc;
 
 	if (cmd) {
+		RPG.UI.setMode(RPG.UI_NORMAL);
 		/* direction given */
 		var cell = pc.getCell().neighbor(cmd.getDir());
 		var f = cell.getFeature();
 		if (f && f instanceof RPG.Features.Door && !f.isClosed()) {
 			/* correct direction */
-			RPG.World.pc.close(f);
+			var result = RPG.World.pc.close(f);
+			RPG.World.actionResult(result);
+			return;
 		} else {
 			/* incorrect direction */
 			RPG.UI.buffer.message("there is no door at that location.");
 		}
-		RPG.UI.setMode(RPG.UI_NORMAL);
 	} else {
 		/* no direction, check surroundings */
 		var doors = this._surroundingDoors(false);
 		if (doors instanceof RPG.Features.Door) {
 			/* exactly one door found */
-			RPG.World.pc.close(doors);
+			var result = RPG.World.pc.close(doors);
+			RPG.World.actionResult(result);
 		} else if (doors == 0) {
 			RPG.UI.buffer.message("There are no opened doors nearby.");
 		} else {
@@ -303,9 +313,10 @@ RPG.UI.Command.Kick.prototype.init = function() {
 }
 RPG.UI.Command.Kick.prototype.exec = function(cmd) {
 	if (cmd) {
-		var cell = RPG.World.pc.getCell().neighbor(cmd.getDir());
-		RPG.World.pc.kick(cell);
 		RPG.UI.setMode(RPG.UI_NORMAL);
+		var cell = RPG.World.pc.getCell().neighbor(cmd.getDir());
+		var result = RPG.World.pc.kick(cell);
+		RPG.World.actionResult(result);
 	} else {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Kick");
 	}
@@ -327,20 +338,24 @@ RPG.UI.Command.Chat.prototype.exec = function(cmd) {
 
 	if (cmd) {
 		/* direction given */
+		RPG.UI.setMode(RPG.UI_NORMAL);
 		var cell = pc.getCell().neighbor(cmd.getDir());
 		var being = cell.getBeing();
 		if (!being) {
 			RPG.UI.buffer.message(errMsg);
 		} else {
-			RPG.World.pc.chat(being);
+			var result = RPG.World.pc.chat(being);
+			RPG.World.actionResult(result);
+			return;
 		}
-		RPG.UI.setMode(RPG.UI_NORMAL);
 	} else {
 		var beings = this._surroundingBeings();
 		if (!beings.length) {
 			RPG.UI.buffer.message(errMsg);
 		} else if (beings.length == 1) {
-			RPG.World.pc.chat(beings[0]);
+			var result = RPG.World.pc.chat(beings[0]);
+			RPG.World.actionResult(result);
+			return;
 		} else {
 			RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Chat");
 		}
@@ -357,7 +372,8 @@ RPG.UI.Command.Search.prototype.init = function() {
 	this._button.setChar("s");
 }
 RPG.UI.Command.Search.prototype.exec = function() {
-	RPG.World.pc.search();
+	var result = RPG.World.pc.search();
+	RPG.World.actionResult(result);
 }
 
 /**
@@ -381,15 +397,18 @@ RPG.UI.Command.Pick.prototype.exec = function() {
 	if (items.length == 1) {
 		var item = items[0];
 		var amount = item.getAmount();
-		RPG.World.pc.pick([[item, amount]]);
+		var result = RPG.World.pc.pick([[item, amount]]);
+		RPG.World.actionResult(result);
 		return;
 	}
+	
 	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 	new RPG.UI.Itemlist(items, "Select items to be picked up", -1, this.bind(this._done));
 }
 RPG.UI.Command.Pick.prototype._done = function(items) {
-	RPG.World.pc.pick(items);
 	RPG.UI.setMode(RPG.UI_NORMAL);
+	var result = RPG.World.pc.pick(items);
+	RPG.World.actionResult(result);
 }
 
 /**
@@ -412,8 +431,9 @@ RPG.UI.Command.Drop.prototype.exec = function() {
 	}
 }
 RPG.UI.Command.Drop.prototype._done = function(items) {
-	RPG.World.pc.drop(items);
 	RPG.UI.setMode(RPG.UI_NORMAL);
+	var result = RPG.World.pc.drop(items);
+	RPG.World.actionResult(result);
 }
 
 /**
@@ -431,8 +451,11 @@ RPG.UI.Command.Inventory.prototype.exec = function() {
 }
 
 RPG.UI.Command.Inventory.prototype._done = function(changed) {
-	if (changed) { RPG.World.pc.equipDone(); }
 	RPG.UI.setMode(RPG.UI_NORMAL);
+	if (changed) { 
+		var result = RPG.World.pc.equipDone(); 
+		RPG.World.actionResult(result);
+	}
 }
 
 /**
@@ -452,8 +475,8 @@ RPG.UI.Command.Autowalk.prototype.init = function() {
 RPG.UI.Command.Autowalk.prototype.exec = function(cmd) {
 	if (cmd) {
 		/* direction given */
-		this._start(cmd.getDir());
 		RPG.UI.setMode(RPG.UI_NORMAL);
+		this._start(cmd.getDir());
 	} else {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Walk continuously");
 	}
@@ -472,7 +495,8 @@ RPG.UI.Command.Autowalk.prototype._start = function(dir) {
 	this._steps = 0;
 	this._yt = pc.yourTurn;
 	pc.yourTurn = this.bind(this._yourTurn);
-	this._step();
+	var result = this._step();
+	RPG.World.actionResult(result);
 }
 
 /**
@@ -496,10 +520,11 @@ RPG.UI.Command.Autowalk.prototype._saveState = function(dir) {
 RPG.UI.Command.Autowalk.prototype._yourTurn = function() {
 	if (this._check()) {
 		/* still going */
-		this._step();
+		return this._step();
 	} else {
 		/* walk no more */
 		RPG.World.pc.yourTurn = this._yt;
+		return RPG.World.pc.yourTurn();
 	}
 }
 
@@ -573,9 +598,9 @@ RPG.UI.Command.Autowalk.prototype._step = function() {
 	var pc = RPG.World.pc;
 	
 	if (this._dir == RPG.CENTER) {
-		RPG.World.pc.wait();
+		return RPG.World.pc.wait();
 	} else {
-		RPG.World.pc.move(pc.getCell().neighbor(this._dir));
+		return RPG.World.pc.move(pc.getCell().neighbor(this._dir));
 	}
 }
 
@@ -617,7 +642,8 @@ RPG.UI.Command.Ascend.prototype.exec = function() {
 	var pc = RPG.World.pc;
 	var f = pc.getCell().getFeature();
 	if (f && f instanceof RPG.Features.Staircase.Up) {
-		RPG.World.pc.ascend();
+		var result = RPG.World.pc.ascend();
+		RPG.World.actionResult(result);
 	} else {
 		RPG.UI.buffer.message("You don't see any stairs leading upwards.");
 	}
@@ -640,6 +666,7 @@ RPG.UI.Command.Descend.prototype.exec = function() {
 	var f = pc.getCell().getFeature();
 	if (f && f instanceof RPG.Features.Staircase.Down) {
 		RPG.World.pc.descend();
+		RPG.World.actionResult(result);
 	} else {
 		RPG.UI.buffer.message("You don't see any stairs leading downwards.");
 	}
@@ -661,7 +688,8 @@ RPG.UI.Command.Trap.prototype.exec = function() {
 	var pc = RPG.World.pc;
 	var f = pc.getCell().getFeature();
 	if (f && f instanceof RPG.Features.Trap && f.knowsAbout(pc)) {
-		f.setOff();
+		var result = pc.activateTrap(f);
+		RPG.World.actionResult(result);
 	} else {
 		RPG.UI.buffer.message("There is no trap you are aware of.");
 	}
@@ -724,7 +752,8 @@ RPG.UI.Command.Look.prototype.exec = function(cmd) {
 		if (!cell) { return; }
 		
 		RPG.UI.map.setFocus(this._coords);
-		RPG.World.pc.look(cell);
+		var result = RPG.World.pc.look(cell);
+		RPG.World.actionResult(result);
 	} else {
 		this._coords = RPG.World.pc.getCell().getCoords().clone();
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Look around");
@@ -778,8 +807,9 @@ RPG.UI.Command.Consume.prototype._done = function(items) {
 	if (!items.length) { return; }
 	
 	var item = items[0][0];
-	this._method.call(RPG.World.pc, item, this._container); 
 	RPG.UI.setMode(RPG.UI_NORMAL);
+	var result = this._method.call(RPG.World.pc, item, this._container); 
+	RPG.World.actionResult(result);
 }
 
 /**
@@ -835,8 +865,9 @@ RPG.UI.Command.SwitchPosition.prototype.exec = function(cmd) {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Switch position");
 	} else {
 		var cell = RPG.World.pc.getCell().neighbor(cmd.getDir());
-		RPG.World.pc.switchPosition(cell);
 		RPG.UI.setMode(RPG.UI_NORMAL);
+		var result = RPG.World.pc.switchPosition(cell);
+		RPG.World.actionResult(result);
 	}
 }
 
@@ -884,9 +915,10 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 			break;
 		}
 
-		RPG.World.pc.cast(this._spell, target);
 		RPG.UI.setMode(RPG.UI_NORMAL);
+		var result = RPG.World.pc.cast(this._spell, target);
 		this._spell = null;		
+		RPG.World.actionResult(result);
 	}
 }
 
@@ -944,9 +976,10 @@ RPG.UI.Command.Flirt.prototype.exec = function(cmd) {
 	if (!cmd) {
 		RPG.UI.setMode(RPG.UI_WAIT_DIRECTION, this, "Flirt with someone");
 	} else {
-		var cell = RPG.World.pc.getCell().neighbor(cmd.getDir());
-		RPG.World.pc.flirt(cell);
 		RPG.UI.setMode(RPG.UI_NORMAL);
+		var cell = RPG.World.pc.getCell().neighbor(cmd.getDir());
+		var result = RPG.World.pc.flirt(cell);
+		RPG.World.actionResult(result);
 	}
 }
 
@@ -1001,7 +1034,8 @@ RPG.UI.Command.Read.prototype._done = function(items) {
 	if (!items.length) { return; }
 	
 	var item = items[0][0];
-	RPG.World.pc.read(item);
+	var result = RPG.World.pc.read(item);
+	RPG.World.actionResult(result);
 }
 
 /**
