@@ -472,6 +472,7 @@ RPG.UI.Command.Autowalk.prototype.init = function() {
 	this._right = false;
 	this._steps = 0;
 	this._yt = null;
+	this._beings = 0;
 }
 RPG.UI.Command.Autowalk.prototype.exec = function(cmd) {
 	if (cmd) {
@@ -496,6 +497,7 @@ RPG.UI.Command.Autowalk.prototype._start = function(dir) {
 	this._steps = 0;
 	this._yt = pc.yourTurn;
 	pc.yourTurn = this.bind(this._yourTurn);
+	this._beings = Infinity;
 	var result = this._step();
 	RPG.World.actionResult(result);
 }
@@ -537,6 +539,10 @@ RPG.UI.Command.Autowalk.prototype._check = function() {
 	var cell = pc.getCell();
 	var map = cell.getMap();
 	var coords = cell.getCoords();
+	
+	var count = this._beingCount();
+	if (count > this._beings) { return false; }
+	this._beings = count;
 
 	if (this._steps == 50) { return false; } /* too much steps */
 	if (cell.getItems().length) { return false; } /* we stepped across some items */
@@ -603,6 +609,17 @@ RPG.UI.Command.Autowalk.prototype._step = function() {
 	} else {
 		return RPG.World.pc.move(pc.getCell().neighbor(this._dir));
 	}
+}
+
+RPG.UI.Command.Autowalk.prototype._beingCount = function() {
+	var counter = 0;
+	var map = RPG.World.pc.getCell().getMap();
+	var visible = RPG.World.pc.getVisibleCoords();
+	for (var i=0;i<visible.length;i++) {
+		var c = visible[i];
+		if (map.at(c).getBeing()) { counter++; }
+	}
+	return counter;
 }
 
 /**
@@ -805,10 +822,10 @@ RPG.UI.Command.Consume.prototype._filter = function(items, itemCtor) {
 	return arr;
 }
 RPG.UI.Command.Consume.prototype._done = function(items) {
+	RPG.UI.setMode(RPG.UI_NORMAL);
 	if (!items.length) { return; }
 	
 	var item = items[0][0];
-	RPG.UI.setMode(RPG.UI_NORMAL);
 	var result = this._method.call(RPG.World.pc, item, this._container); 
 	RPG.World.actionResult(result);
 }

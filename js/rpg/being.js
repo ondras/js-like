@@ -330,7 +330,7 @@ RPG.Beings.BaseBeing.prototype.heal = function(amount) {
 		return;
 	}
 	
-	hp = this.adjustStat(RPG.STAT_HP, this._target);
+	hp = this.adjustStat(RPG.STAT_HP, amount);
 	var str = "";
 	
 	if (hp == max) {

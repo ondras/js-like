@@ -9,7 +9,7 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this._image += "-" + profession.getImage();
 	
 	this._mapMemory = new RPG.Memory.MapMemory();
-	this._visibleCells = [];
+	this._visibleCoords = [];
 	
 	this._spells = [];
 	this._description = "you";
