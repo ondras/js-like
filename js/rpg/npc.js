@@ -118,6 +118,13 @@ RPG.Beings.NPC.prototype.teleport = function(cell) {
 	this.parent(cell);
 }
 
+/**
+ * NPCs just cheat. They can see everything in their sight range...
+ */
+RPG.Beings.NPC.prototype.canSee = function(target) {
+	return target.distance(this._cell.getCoords()) <= this.getFeat(RPG.FEAT_SIGHT_RANGE);
+}
+
 /* ------------------------- ACTIONS -----------------*/
 
 RPG.Beings.NPC.prototype.move = function(targetCell) {

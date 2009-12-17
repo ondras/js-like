@@ -400,15 +400,17 @@ RPG.Beings.BaseBeing.prototype.die = function() {
  * @returns {bool}
  */
 RPG.Beings.BaseBeing.prototype.canSee = function(target) {
+	return true;
+	/*
 	var source = this._cell.getCoords();
 	var map = this._cell.getMap();
-	if (source.distance(target) <= 1) { return true; } /* optimalization: can see self & surroundings */
+	if (source.distance(target) <= 1) { return true; } // optimalization: can see self & surroundings
 	if (source.distance(target) > this.getFeat(RPG.FEAT_SIGHT_RANGE)) { return false; } 
 
-	/* direct visibility */
+	// direct visibility
 	if (map.lineOfSight(source,target)) { return true; }
 
-	/* test alternate starting cell for validity */
+	// test alternate starting cell for validity
 	var offsets = [
 		[1, 0],
 		[-1, 0],
@@ -424,6 +426,7 @@ RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 	}
 
 	return false;
+	* */
 }
 
 RPG.Beings.BaseBeing.prototype.woundedState = function() {

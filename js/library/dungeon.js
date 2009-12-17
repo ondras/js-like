@@ -35,7 +35,6 @@ RPG.Cells.Water.prototype.init = function() {
 	this._char = "=";
 	this._image = "water";
 	this._color = "darkblue";
-	this._type = RPG.BLOCKS_MOVEMENT;
 }
 
 /**

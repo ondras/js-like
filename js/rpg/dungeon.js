@@ -366,6 +366,7 @@ RPG.Map.prototype.getRooms = function() {
 
 /**
  * Is it possible to see from one cell to another?
+ * @obsolete
  * @param {RPG.Misc.Coords} c1
  * @param {RPG.Misc.Coords} c2
  * @returns {bool}
@@ -422,6 +423,13 @@ RPG.Map.prototype.getFreeCell = function(noItems) {
 	return all[index];
 }
 
+/**
+ * Return array of cells forming a "circle", e.g. having constant radius from a center point
+ * @param {RPG.Misc.Coords} center
+ * @param {int} radius
+ * @param {bool} includeInvalid Include "null" value where a cell does not exist?
+ * @returns {RPG.Cells.BaseCell[]}
+ */
 RPG.Map.prototype.cellsInCircle = function(center, radius, includeInvalid) {
 	var arr = [];
 	var W = this._size.x;
@@ -445,6 +453,46 @@ RPG.Map.prototype.cellsInCircle = function(center, radius, includeInvalid) {
 	}
 	return arr;
 }
+
+/**
+ * Line connecting two cells
+ * @param {RPG.Misc.Coords} c1
+ * @param {RPG.Misc.Coords} c2
+ * @returns {RPG.Cells.BaseCell[]}
+ */
+RPG.Map.prototype.cellsInLine = function(c1, c2) {
+	var result = [this._data[c1.x][c1.y]];
+	
+	var dx = c2.x-c1.x;
+	var dy = c2.y-c1.y;
+	if (Math.abs(dx) > Math.abs(dy)) {
+		var major = "x";
+		var minor = "y";
+		var majorstep = dx > 0 ? 1 : -1;
+		var minorstep = dy > 0 ? 1 : -1;
+		var delta = Math.abs(dy/dx);
+	} else {
+		var major = "y";
+		var minor = "x";
+		var majorstep = dy > 0 ? 1 : -1;
+		var minorstep = dx > 0 ? 1 : -1;
+		var delta = Math.abs(dx/dy);
+	}
+	var error = 0;
+	var current = c1.clone();
+	while (current[major] != c2[major]) {
+		current[major] += majorstep;
+		error += delta;
+		if (error + 0.001 > 0.5) {
+			current[minor] += minorstep;
+			error -= 1;
+		}
+		result.push(this._data[current.x][current.y]);
+	}
+	
+	return result;
+}
+
 
 RPG.Map.prototype._assignRoom = function(corner1, corner2, room) {
 	for (var i=corner1.x;i<=corner2.x;i++) {
@@ -550,22 +598,21 @@ RPG.Decorators.BaseDecorator.prototype._freeNeighbors = function(map, center) {
 RPG.Generators.BaseGenerator = OZ.Class();
 
 RPG.Generators.BaseGenerator.prototype.init = function(size, maptypes) {
-	this._maptypes = maptypes || [RPG.Cells.Corridor, RPG.Cells.Wall];
 	this._size = size;
+	this._maptypes = maptypes || [RPG.Cells.Corridor, RPG.Cells.Wall];
+
+	this._dug = 0;
 	this._bitMap = null;
 	this._rooms = [];
 }
 
 RPG.Generators.BaseGenerator.prototype.generate = function(id, danger) {
 	this._blankMap();
-	return this._dig(id, danger);
+	return this._convertToMap(id, danger);
 }
 
-RPG.Generators.BaseGenerator.prototype._dig = function(id, danger) {
-	var width = this._bitMap.length;
-	var height = this._bitMap[0].length;
-	var size = new RPG.Misc.Coords(width, height);
-	var map = new RPG.Map(id, size, danger);
+RPG.Generators.BaseGenerator.prototype._convertToMap = function(id, danger) {
+	var map = new RPG.Map(id, this._size, danger);
 	map.fromIntMap(this._bitMap, this._maptypes);
 	
 	for (var i=0;i<this._rooms.length;i++) {
@@ -600,6 +647,8 @@ RPG.Generators.BaseGenerator.prototype._freeNeighbors = function(center) {
 RPG.Generators.BaseGenerator.prototype._blankMap = function() {
 	this._rooms = [];
 	this._bitMap = [];
+	this._dug = 0;
+	
 	for (var i=0;i<this._size.x;i++) {
 		this._bitMap.push([]);
 		for (var j=0;j<this._size.y;j++) {
@@ -618,6 +667,7 @@ RPG.Generators.BaseGenerator.prototype._digRoom = function(corner1, corner2) {
 		}
 	}
 	
+	this._dug += (corner2.x-corner1.x) * (corner2.y-corner1.y);
 }
 
 RPG.Generators.BaseGenerator.prototype._generateCoords = function(minSize) {
