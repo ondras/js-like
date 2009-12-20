@@ -104,14 +104,14 @@ RPG.Beings.PC.prototype.setFeat = function(feat, value) {
 }
 
 /**
- * @see RPG.Visual.IVisual#describeA
+ * @see RPG.Misc.IVisual#describeA
  */
 RPG.Beings.PC.prototype.describeA = function() {
 	return this.describe();
 }
 
 /**
- * @see RPG.Visual.IVisual#describeThe
+ * @see RPG.Misc.IVisual#describeThe
  */
 RPG.Beings.PC.prototype.describeThe = function() {
 	return this.describe();
@@ -140,7 +140,7 @@ RPG.Beings.PC.prototype.describeHis = function() {
 
 
 /**
- * @see RPG.Visual.IVisual#describeIs
+ * @see RPG.Misc.IVisual#describeIs
  */
 RPG.Beings.PC.prototype.describeIs = function() {
 	return "are";
@@ -514,12 +514,7 @@ RPG.Beings.PC.prototype.kick = function(cell) {
 	
 	if (items.length) {
 		/* try kicking items */
-		var sourceCoords = this._cell.getCoords();
-		var diff = cell.getCoords().clone().minus(this._cell.getCoords());
-		var dir = 0;
-		for (var i=0;i<8;i++) {
-			if (RPG.DIR[i].toString() == diff.toString()) { dir = i; }
-		}
+		var dir = this._cell.getCoords().dirTo(cell.getCoords());
 		var target = cell.neighbor(dir);
 		
 		if (target && target.isFree()) {

@@ -61,15 +61,12 @@ RPG.Spells = {};
 /** @namespace */
 RPG.UI = {};
 
-/** @namespace */
-RPG.Visual = {};
-
 /** @constant */
 RPG.BLOCKS_NOTHING		= 0;
 /** @constant */
-RPG.BLOCKS_MOVEMENT	 	= 1; /* can not be moved onto, e.g. wall */
+RPG.BLOCKS_MOVEMENT	 	= 1; /* can not be moved onto */
 /** @constant */
-RPG.BLOCKS_LIGHT 		= 2; /* can not be seen through */
+RPG.BLOCKS_LIGHT 		= 2; /* can not be seen through, e.g. a wall */
 
 /** @constant */
 RPG.GENDER_MALE			= 0;

@@ -1,10 +1,10 @@
 /**
  * @class Basic being
- * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.IVisual
  * @augments RPG.Misc.IActor
  */
 RPG.Beings.BaseBeing = OZ.Class()
-						.implement(RPG.Visual.IVisual)
+						.implement(RPG.Misc.IVisual)
 						.implement(RPG.Misc.IActor);
 RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._initVisuals();
@@ -521,7 +521,7 @@ RPG.Beings.BaseBeing.prototype.cast = function(spell, target) {
 	this.adjustStat(RPG.STAT_MANA, -cost);
 	
 	var verb = RPG.Misc.verb("cast", this);
-	var str = RPG.Misc.format("%D %s %d.", this, verb, spell);
+	var str = RPG.Misc.format("%D %s %a.", this, verb, spell);
 	RPG.UI.buffer.message(str);
 	
 	spell.cast(target);	

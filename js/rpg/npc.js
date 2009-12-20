@@ -43,7 +43,7 @@ RPG.Beings.NPC.prototype.getAlignment = function() {
 
 /**
  * Takes gender and name into account
- * @see RPG.Visual.IVisual#describe
+ * @see RPG.Misc.IVisual#describe
  */
 RPG.Beings.NPC.prototype.describe = function() {
 	var s = this._description;
@@ -54,7 +54,7 @@ RPG.Beings.NPC.prototype.describe = function() {
 
 /**
  * Takes name into account
- * @see RPG.Visual.IVisual#describeA
+ * @see RPG.Misc.IVisual#describeA
  */
 RPG.Beings.NPC.prototype.describeA = function() {
 	if (this._name) { 
@@ -66,7 +66,7 @@ RPG.Beings.NPC.prototype.describeA = function() {
 
 /**
  * Takes name into account
- * @see RPG.Visual.IVisual#describeThe
+ * @see RPG.Misc.IVisual#describeThe
  */
 RPG.Beings.NPC.prototype.describeThe = function() {
 	if (this._name) { 
@@ -77,7 +77,7 @@ RPG.Beings.NPC.prototype.describeThe = function() {
 }
 
 /**
- * @see RPG.Visual.IVisual#describeIs
+ * @see RPG.Misc.IVisual#describeIs
  */
 RPG.Beings.NPC.prototype.describeIs = function() {
 	return "is";

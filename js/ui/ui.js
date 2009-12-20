@@ -144,6 +144,7 @@ RPG.UI.build = function() {
 	d.appendChild(new RPG.UI.Command.Backlog().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.WeaponStats().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.KickStats().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.KillStats().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Quests().getButton().getInput());
 
 	if (this.sound.isSupported()) {

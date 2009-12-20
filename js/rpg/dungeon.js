@@ -1,11 +1,11 @@
 /**
  * @class Dungeon cell
  * @augments RPG.Misc.IModifier
- * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.IVisual
  * @augments RPG.Misc.ISerializable
  */
 RPG.Cells.BaseCell = OZ.Class()
-						.implement(RPG.Visual.IVisual)
+						.implement(RPG.Misc.IVisual)
 						.implement(RPG.Misc.IModifier)
 						.implement(RPG.Misc.ISerializable);
 RPG.Cells.BaseCell.prototype.init = function() {
@@ -83,6 +83,10 @@ RPG.Cells.BaseCell.prototype.setRoom = function(room) {
 
 RPG.Cells.BaseCell.prototype.getRoom = function() {
 	return this._room;
+}
+
+RPG.Cells.BaseCell.prototype.getType = function() {
+	return this._type;
 }
 
 /**
@@ -163,11 +167,11 @@ RPG.Rooms.BaseRoom.prototype.entered = function(being) {
 
 /**
  * @class Dungeon feature
- * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.IVisual
  * @augments RPG.Misc.ISerializable
  */
 RPG.Features.BaseFeature = OZ.Class()
-							.implement(RPG.Visual.IVisual)
+							.implement(RPG.Misc.IVisual)
 							.implement(RPG.Misc.ISerializable);
 RPG.Features.BaseFeature.prototype.init = function() {
 	this._cell = null;
@@ -192,6 +196,10 @@ RPG.Features.BaseFeature.prototype.getCell = function() {
  * @param {RPG.Beings.BaseBeing} being
  */
 RPG.Features.BaseFeature.prototype.notify = function(being) {
+}
+
+RPG.Features.BaseFeature.prototype.getType = function() {
+	return this._type;
 }
 
 /**
@@ -493,6 +501,53 @@ RPG.Map.prototype.cellsInLine = function(c1, c2) {
 	return result;
 }
 
+/**
+ * Returns cells in a flood-filled area
+ * @param {RPG.Misc.Coords} center
+ * @param {int} radius
+ */
+RPG.Map.prototype.cellsInArea = function(center, radius) {
+	var result = [];
+	var cell = this._data[center.x][center.y];
+	
+	function go(x, depth) {
+		var index = -1;
+		for (var i=0;i<result.length;i++) {
+			var item = result[i];
+			if (item[0] != x) { continue; }
+			if (item[1] <= depth) { 
+				return; /* we have this one with better depth */
+			} else {
+				index = i;
+			}
+		}
+		
+		if (index == -1) {
+			result.push([x, depth]); /* new node */
+			if (depth == radius) { return; }
+		} else {
+			result[0][1] = depth; /* we had this one with worse depth */
+		}
+		
+		/* check neighbors */
+		for (var i=0;i<8;i++) {
+			var n = x.neighbor(i);
+			if (!n) { continue; }
+			if (!n.visibleThrough()) { continue; }
+			arguments.callee(n, depth+1);
+		}
+		
+	}
+	
+	go(cell, 0);
+	
+	var arr = [];
+	for (var i=0;i<result.length;i++) {
+		arr.push(result[i][0]);
+	}
+	
+	return arr;
+}
 
 RPG.Map.prototype._assignRoom = function(corner1, corner2, room) {
 	for (var i=corner1.x;i<=corner2.x;i++) {

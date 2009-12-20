@@ -62,12 +62,12 @@ RPG.Feats.AdvancedFeat.prototype._drd = function() {
 
 /**
  * @class Basic item
- * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.IVisual
  * @augments RPG.Misc.IModifier
  * @augments RPG.Misc.ISerializable
  */
 RPG.Items.BaseItem = OZ.Class()
-						.implement(RPG.Visual.IVisual)
+						.implement(RPG.Misc.IVisual)
 						.implement(RPG.Misc.IModifier)
 						.implement(RPG.Misc.ISerializable);
 RPG.Items.BaseItem.factory.ignore = true;
@@ -129,7 +129,7 @@ RPG.Items.BaseItem.prototype.remember = function() {
 
 /**
  * Items are described with respect to their "remembered" state
- * @see RPG.Visual.IVisual#describe
+ * @see RPG.Misc.IVisual#describe
  */
 RPG.Items.BaseItem.prototype.describe = function() {
 	var s = "";
@@ -162,7 +162,7 @@ RPG.Items.BaseItem.prototype.describeA = function() {
 	if (this._uncountable) {
 		return this.describe();
 	} else {
-		return RPG.Visual.IVisual.prototype.describeA.call(this);
+		return RPG.Misc.IVisual.prototype.describeA.call(this);
 	}
 }
 
@@ -237,9 +237,9 @@ RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
 
 /**
  * @class Basic race
- * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.IVisual
  */
-RPG.Races.BaseRace = OZ.Class().implement(RPG.Visual.IVisual);
+RPG.Races.BaseRace = OZ.Class().implement(RPG.Misc.IVisual);
 RPG.Races.BaseRace.name = "";
 RPG.Races.BaseRace.image = "";
 RPG.Races.BaseRace.prototype.init = function() {
@@ -349,67 +349,10 @@ RPG.Slots.BaseSlot.prototype.getName = function() {
 }
 
 /**
- * @class Base abstract spell
- * @augments RPG.Misc.ISerializable
- * @augments RPG.Misc.IWeapon
- * @augments RPG.Visual.IVisual
- */
-RPG.Spells.BaseSpell = OZ.Class()
-						.implement(RPG.Misc.ISerializable)
-						.implement(RPG.Misc.IWeapon)
-						.implement(RPG.Visual.IVisual);
-RPG.Spells.BaseSpell.factory.ignore = true;
-RPG.Spells.BaseSpell.cost = null;
-RPG.Spells.BaseSpell.name = "";
-RPG.Spells.BaseSpell.damage = null;
-
-RPG.Spells.BaseSpell.prototype.init = function(caster) {
-	this._initVisuals();
-	
-	this._type = RPG.SPELL_SELF;
-	this._caster = caster;
-	this._hit = new RPG.Misc.RandomValue(5, 3);
-	this._damage = null;
-}
-
-RPG.Spells.BaseSpell.prototype.describe = function() {
-	return this.constructor.name;
-}
-
-RPG.Spells.BaseSpell.prototype.cast = function(target) {
-}
-
-RPG.Spells.BaseSpell.prototype.getCost = function() { 
-	return this.constructor.cost;
-}
-
-RPG.Spells.BaseSpell.prototype.getType = function() { 
-	return this._type;
-}
-
-RPG.Spells.BaseSpell.prototype.getDamage = function() {
-	var base = this.constructor.damage;
-	var m = base.mean + this._caster.getFeat(RPG.FEAT_DAMAGE_MAGIC);
-	var v = base.variance;
-	return new RPG.Misc.RandomValue(m, v);
-}
-
-RPG.Spells.BaseSpell.prototype.getHit = function() {
-	var base = this._hit;
-	var m = base.mean + this._caster.getFeat(RPG.FEAT_HIT_MAGIC);
-	var v = base.variance;
-	return new RPG.Misc.RandomValue(m, v);
-}
-
-RPG.Spells.BaseSpell.prototype.getCaster = function() {
-	return this._caster;
-}
-
-/**
  * @class Base profession
- * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.IVisual
  */
-RPG.Professions.BaseProfession = OZ.Class().implement(RPG.Visual.IVisual);
+RPG.Professions.BaseProfession = OZ.Class().implement(RPG.Misc.IVisual);
 RPG.Professions.BaseProfession.name = "";
 RPG.Professions.BaseProfession.image = "";
 RPG.Professions.BaseProfession.init = function() {

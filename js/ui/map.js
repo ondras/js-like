@@ -51,7 +51,7 @@ RPG.UI.BaseMap.prototype.setFocus = function(coords) {
 /**
  * Draw a projectile at a given coords
  */
-RPG.UI.BaseMap.prototype.setProjectile = function(coords, projectile) {
+RPG.UI.BaseMap.prototype.addProjectile = function(coords, projectile) {
 	var cell = this._dom.data[coords.x][coords.y];
 	var index = this._projectiles.indexOf(cell);
 	if (index == -1) { this._projectiles.push(cell); }
@@ -61,7 +61,7 @@ RPG.UI.BaseMap.prototype.setProjectile = function(coords, projectile) {
 /**
  * Remove all drawn projectiles
  */
-RPG.UI.BaseMap.prototype.clearProjectiles = function() {
+RPG.UI.BaseMap.prototype.removeProjectiles = function() {
 	while (this._projectiles.length) {
 		var p = this._projectiles.shift();
 		p.removeProjectile();
@@ -82,7 +82,7 @@ RPG.UI.BaseCell.prototype.init = function(owner, coords) {
 
 /**
  * Update cell contents
- * @param {RPG.Visual.IVisual[]} data Array of data to be shown
+ * @param {RPG.Misc.IVisual[]} data Array of data to be shown
  * @param {bool} remembered Is this a remembered part of a map?
  */
 RPG.UI.BaseCell.prototype.update = function(data, remembered) {
@@ -262,6 +262,8 @@ RPG.UI.ASCIICell.prototype.update = function(data, remembered) {
 	if (!item) {
 		this._dom.node.innerHTML = "&nbsp;";
 		this._dom.node.style.color = "white";
+		this._currentChar = "&nbsp;";
+		this._currentColor = "white";
 		return;
 	}
 

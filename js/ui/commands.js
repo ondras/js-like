@@ -752,6 +752,24 @@ RPG.UI.Command.KickStats.prototype.exec = function() {
 }
 
 /**
+ * @class Show kill statistics
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.KillStats = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.KillStats.prototype.init = function() {
+	this.parent("Kill statistics");
+	this._button.setCtrl();
+	this._button.setChar("k");
+}
+
+RPG.UI.Command.KillStats.prototype.exec = function() {
+	var pc = RPG.World.pc;
+	var kills = pc.getKills();
+	alert("Beings killed so far: "+kills);
+}
+
+/**
  * @class Look around
  * @augments RPG.UI.Command
  */
@@ -902,6 +920,10 @@ RPG.UI.Command.Cast.prototype.init = function() {
 }
 
 RPG.UI.Command.Cast.prototype.notify = function(coords) {
+	if (this._spell.getType() == RPG.SPELL_TARGET) {
+		var source = RPG.World.pc.getCell();
+		this._spell.showTrajectory(source, coords);
+	}
 }
 
 RPG.UI.Command.Cast.prototype.exec = function(coords) {
@@ -916,6 +938,7 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 		
 	} else { /* we have spell and optionally a direction/target */
 		RPG.UI.refocus();
+		RPG.UI.map.removeProjectiles();
 
 		var type = this._spell.getType();
 		
@@ -942,6 +965,8 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 
 RPG.UI.Command.Cast.prototype.cancel = function() {
 	this._spell = null;
+	RPG.UI.map.removeProjectiles();
+	RPG.UI.refocus();
 }
 
 /**
@@ -977,6 +1002,10 @@ RPG.UI.Command.Cast.prototype._done = function(spells) {
 		case RPG.SPELL_TARGET:
 			RPG.UI.setMode(RPG.UI_WAIT_TARGET, this, "Cast a spell");
 		break;
+	}
+	
+	if (type == RPG.SPELL_TARGET) {
+		this.notify(RPG.World.pc.getCell().getCoords());
 	}
 }
 

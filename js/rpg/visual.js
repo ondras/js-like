@@ -1,9 +1,9 @@
 /**
  * @class Visual interface: everyting that can be visualized have this
  */
-RPG.Visual.IVisual = OZ.Class();
+RPG.Misc.IVisual = OZ.Class();
 
-RPG.Visual.IVisual.prototype._initVisuals = function() {
+RPG.Misc.IVisual.prototype._initVisuals = function() {
 	this._char = null;
 	this._color = null;
 	this._image = null;
@@ -14,7 +14,7 @@ RPG.Visual.IVisual.prototype._initVisuals = function() {
  * Returns an ascii character
  * @returns {string}
  */
-RPG.Visual.IVisual.prototype.getChar = function() {
+RPG.Misc.IVisual.prototype.getChar = function() {
 	return this._char;
 }
 
@@ -22,7 +22,7 @@ RPG.Visual.IVisual.prototype.getChar = function() {
  * Returns html color string
  * @returns {string}
  */
-RPG.Visual.IVisual.prototype.getColor = function() {
+RPG.Misc.IVisual.prototype.getColor = function() {
 	return this._color;
 }
 
@@ -30,7 +30,7 @@ RPG.Visual.IVisual.prototype.getColor = function() {
  * Returns an image file name 
  * @returns {string}
  */
-RPG.Visual.IVisual.prototype.getImage = function() {
+RPG.Misc.IVisual.prototype.getImage = function() {
 	return this._image;
 }
 
@@ -38,14 +38,14 @@ RPG.Visual.IVisual.prototype.getImage = function() {
  * Describe self
  * @returns {string}
  */
-RPG.Visual.IVisual.prototype.describe = function() {
+RPG.Misc.IVisual.prototype.describe = function() {
 	return this._description;
 }
 
 /**
  * Describe + prefix with indefinite article
  */
-RPG.Visual.IVisual.prototype.describeA = function() {
+RPG.Misc.IVisual.prototype.describeA = function() {
 	var base = this.describe();
 	var result = "a";
 	if (base.charAt(0).match(/[aeiouy]/i)) { result += "n"; }
@@ -56,6 +56,6 @@ RPG.Visual.IVisual.prototype.describeA = function() {
 /**
  * Describe + prefix with definite article
  */
-RPG.Visual.IVisual.prototype.describeThe = function() {
+RPG.Misc.IVisual.prototype.describeThe = function() {
 	return "the " + this.describe();
 }

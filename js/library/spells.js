@@ -76,84 +76,6 @@ RPG.Spells.Knock.prototype.cast = function(dir) {
 }
 
 /**
- * @class Abstract projectile spell
- * @augments RPG.Spells.BaseSpell
- * @augments RPG.Misc.IProjectile
- */
-RPG.Spells.Projectile = OZ.Class()
-						.extend(RPG.Spells.BaseSpell)
-						.implement(RPG.Misc.IProjectile);
-RPG.Spells.Projectile.factory.ignore = true;
-
-RPG.Spells.Projectile.prototype.init = function(caster) {
-	this.parent(caster);
-
-	this._coords = null;
-	this._dir = null;
-	this._distance = 5;
-	this._traveledDistance = 0;
-	this._baseImage = "";
-	
-	this._chars = {};
-	this._chars[RPG.N]  = "|";
-	this._chars[RPG.NE] = "/";
-	this._chars[RPG.E]  = "–";
-	this._chars[RPG.SE] = "\\";
-	this._chars[RPG.S]  = "|";
-	this._chars[RPG.SW] = "/";
-	this._chars[RPG.W]  = "–";
-	this._chars[RPG.NW] = "\\";
-	
-	this._suffixes = {};
-	this._suffixes[RPG.N]  = "n";
-	this._suffixes[RPG.NE] = "ne";
-	this._suffixes[RPG.E]  = "e";
-	this._suffixes[RPG.SE] = "se";
-	this._suffixes[RPG.S]  = "s";
-	this._suffixes[RPG.SW] = "sw";
-	this._suffixes[RPG.W]  = "w";
-	this._suffixes[RPG.NW] = "nw";
-}
-
-RPG.Spells.Projectile.prototype.cast = function(dir) {
-	this._char = this._chars[dir];
-	this._image = this._baseImage + "-" + this._suffixes[dir];
-
-	var coords = this._caster.getCell().getCoords();
-	this._startCoords = coords;
-	this._traveledDistance = 0;
-	
-	this.launch(coords.clone(), dir);
-}
-
-RPG.Spells.Projectile.prototype.iterate = function() {
-	this._traveledDistance++;
-	
-	this._coords.plus(RPG.DIR[this._dir]);
-	var cell = this._caster.getCell().getMap().at(this._coords);
-
-	var end = false;
-	if (this._traveledDistance > this._distance || !cell) {
-		end = true;
-	} else if (!cell.isFree()) {
-		var b = cell.getBeing();
-		if (b) {
-			this._caster.attackMagic(b, this);
-		} else {
-			end = true;
-			var s = RPG.Misc.format("%The hits %a and disappears.", this, cell.getFeature() || cell);
-			RPG.UI.buffer.message(s);
-		}
-	}
-
-	if (end) {
-		return false;
-	} else {
-		return RPG.Misc.IProjectile.prototype.iterate.call(this);
-	}
-}
-
-/**
  * @class Magic bolt spell
  * @augments RPG.Spells.Projectile
  */
@@ -168,3 +90,38 @@ RPG.Spells.MagicBolt.prototype.init = function(caster) {
 	this._baseImage = "magic-bolt";
 	this._color = "blueviolet";
 }
+
+RPG.Spells.MagicExplosion = OZ.Class().extend(RPG.Spells.Attack);
+RPG.Spells.MagicExplosion.name = "magic explosion";
+RPG.Spells.MagicExplosion.cost = 11;
+RPG.Spells.MagicExplosion.damage = new RPG.Misc.RandomValue(5, 3);
+RPG.Spells.MagicExplosion.prototype.init = function(caster) {
+	this.parent(caster);
+	this._type = RPG.SPELL_SELF;
+	this._radius = 2;
+
+	this._baseImage = "magic-bolt";
+	this._color = "blueviolet";
+	
+	this._explosion = new RPG.Spells.Attack.Explosion("*", "red"); 
+}
+
+RPG.Spells.MagicExplosion.prototype.cast = function() {
+	this.explode(this._caster.getCell().getCoords(), this._radius, this._explosion);
+}
+
+
+RPG.Spells.Fireball = OZ.Class().extend(RPG.Spells.Projectile);
+RPG.Spells.Fireball.name = "fireball";
+RPG.Spells.Fireball.cost = 12;
+RPG.Spells.Fireball.damage = new RPG.Misc.RandomValue(5, 3);
+RPG.Spells.Fireball.prototype.init = function(caster) {
+	this.parent(caster);
+	this._type = RPG.SPELL_TARGET;
+	this._range = 6;
+	this._radius = 2;
+	
+	this._baseImage = "magic-bolt";
+	this._color = "blueviolet";
+}
+

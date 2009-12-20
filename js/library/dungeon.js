@@ -77,6 +77,7 @@ RPG.Features.Tree.prototype.init = function() {
 	this._char = "T";
 	this._color = "green";
 	this._description = "tree";
+	this._type = RPG.BLOCKS_MOVEMENT;
 }
 
 /**

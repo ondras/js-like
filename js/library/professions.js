@@ -43,7 +43,9 @@ RPG.Professions.Wizard.prototype.setup = function(being) {
 	being.adjustFeat(RPG.FEAT_HIT_MAGIC, 3);
 
 	being.addSpell(RPG.Spells.Heal);
-	
+//	being.addSpell(RPG.Spells.MagicExplosion);
+//	being.addSpell(RPG.Spells.Fireball);
+
 	var scroll = new RPG.Items.Scroll(RPG.Spells.MagicBolt);
 	being.addItem(scroll);
 }
