@@ -76,6 +76,27 @@ RPG.Spells.Knock.prototype.cast = function(dir) {
 }
 
 /**
+ * @class Explosion spell
+ * @augments RPG.Spells.Attack
+ */
+RPG.Spells.MagicExplosion = OZ.Class().extend(RPG.Spells.Attack);
+RPG.Spells.MagicExplosion.name = "magic explosion";
+RPG.Spells.MagicExplosion.cost = 11;
+RPG.Spells.MagicExplosion.damage = new RPG.Misc.RandomValue(5, 3);
+RPG.Spells.MagicExplosion.prototype.init = function(caster) {
+	this.parent(caster);
+	this._type = RPG.SPELL_SELF;
+	this._radius = 2;
+
+	this._explosionImage = "magic-explosion";
+	this._color = "yellow";
+}
+
+RPG.Spells.MagicExplosion.prototype.cast = function() {
+	this.explode(this._caster.getCell().getCoords(), this._radius, true);
+}
+
+/**
  * @class Magic bolt spell
  * @augments RPG.Spells.Projectile
  */
@@ -86,31 +107,30 @@ RPG.Spells.MagicBolt.damage = new RPG.Misc.RandomValue(4, 1);
 RPG.Spells.MagicBolt.prototype.init = function(caster) {
 	this.parent(caster);
 	this._type = RPG.SPELL_DIRECTION;
+	this._range = 5;
 
 	this._baseImage = "magic-bolt";
 	this._color = "blueviolet";
 }
 
-RPG.Spells.MagicExplosion = OZ.Class().extend(RPG.Spells.Attack);
-RPG.Spells.MagicExplosion.name = "magic explosion";
-RPG.Spells.MagicExplosion.cost = 11;
-RPG.Spells.MagicExplosion.damage = new RPG.Misc.RandomValue(5, 3);
-RPG.Spells.MagicExplosion.prototype.init = function(caster) {
-	this.parent(caster);
-	this._type = RPG.SPELL_SELF;
-	this._radius = 2;
+RPG.Spells.MagicBolt.prototype.fly = function(cell) {
+	this.parent(cell);
 
-	this._baseImage = "magic-bolt";
-	this._color = "blueviolet";
-	
-	this._explosion = new RPG.Spells.Attack.Explosion("*", "red"); 
+	var b = cell.getBeing();
+	if (b) {
+		this._caster.attackMagic(b, this);
+	} else if (!cell.visibleThrough()) {
+		if (RPG.World.pc.canSee(cell.getCoords())) {
+			var s = RPG.Misc.format("%The hits %a and disappears.", this, cell.getFeature() || cell);
+			RPG.UI.buffer.message(s);
+		}
+	}
 }
 
-RPG.Spells.MagicExplosion.prototype.cast = function() {
-	this.explode(this._caster.getCell().getCoords(), this._radius, this._explosion);
-}
-
-
+/**
+ * @class Fireball spell
+ * @augments RPG.Spells.Projectile
+ */
 RPG.Spells.Fireball = OZ.Class().extend(RPG.Spells.Projectile);
 RPG.Spells.Fireball.name = "fireball";
 RPG.Spells.Fireball.cost = 12;
@@ -121,7 +141,19 @@ RPG.Spells.Fireball.prototype.init = function(caster) {
 	this._range = 6;
 	this._radius = 2;
 	
-	this._baseImage = "magic-bolt";
-	this._color = "blueviolet";
+	this._explosionImage = "fireball-explosion";
+	this._baseImage = "fireball";
+	this._color = "red"; 
 }
 
+RPG.Spells.Fireball.prototype.fly = function(cell) {
+	this.parent(cell);
+
+	if (this._flight.index+1 == this._flight.cells.length) {
+		this.explode(cell.getCoords(), this._radius, false);
+	}
+}
+
+RPG.Spells.Fireball.prototype._done = function() {
+	RPG.World.unlock();
+}

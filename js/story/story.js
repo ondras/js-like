@@ -5,10 +5,9 @@ RPG.Story = OZ.Class();
 
 RPG.Story.prototype.init = function() {
 	RPG.UI.sound.preload("tristram");
-	this._maxDepth = 6;
+	this._maxDepth = 3;
 	this._maps = [];
 	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
-//	this._chat = this._buildChat();
 	this._mapgen = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
 
 }
@@ -155,6 +154,7 @@ RPG.Story.prototype._randomDungeon = function() {
 	
 	/* stairs down */
 	if (this._maps.length + 1 < this._maxDepth) {
+		map.setSound("doom");
 		var roomDown = arr.random();
 		var index = arr.indexOf(roomDown);
 		arr.splice(index, 1);
@@ -163,6 +163,7 @@ RPG.Story.prototype._randomDungeon = function() {
 		this._attachNext(map);
 	} else {
 		/* last level */
+		map.setSound("doom2");
 
 		/* treasure */
 		var roomTreasure = arr.random();
@@ -197,8 +198,6 @@ RPG.Story.prototype._down = function(staircase) {
 }
 
 RPG.Story.prototype._firstMap = function() {
-//	var map = this._randomDungeon();
-
     var map = new RPG.Map.Village();
 	this._attachNext(map);
 

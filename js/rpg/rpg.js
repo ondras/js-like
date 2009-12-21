@@ -170,6 +170,14 @@ RPG.QUEST_REWARDED		= -5;
 /** @constant */
 RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG.FEAT_MAGIC];
 
+/**
+ * Directional constants should not be renumbered. Current numbering offers:
+ * - for (i=0;i<8;i++)
+ * - index +- 2 (mod 8) = normal
+ * - index +- 4 (mod 8) = opposite
+ * - index % 2 = diagonal
+ */
+
 /** @constant */
 RPG.N					= 0;
 /** @constant */

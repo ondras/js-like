@@ -13,10 +13,8 @@ RPG.UI.Chat.prototype._showPart = function(chat) {
 	var options = chat.getOptions();
 	var result = null;
 
-	/**	
 	var sound = chat.getSound();
 	if (sound) { RPG.UI.sound.play(sound); }
-	*/
 
 	/* show someting */
 	if (options.length) {

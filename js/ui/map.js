@@ -36,6 +36,11 @@ RPG.UI.BaseMap.prototype.resize = function(size) {
 
 RPG.UI.BaseMap.prototype.redrawCoords = function(coords, data, remembered) {
 	var cell = this._dom.data[coords.x][coords.y];
+	var index = this._projectiles.indexOf(cell);
+	if (index != -1) {
+		this._projectiles.splice(index, 1);
+		cell.removeProjectile();
+	}
 	cell.update(data, remembered);
 }
 
@@ -200,6 +205,8 @@ RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 		type = "spells";
 	} else if (what instanceof RPG.Features.BaseFeature) {
 		type = "features";
+	} else {
+		type = "misc";
 	}
 	
 	var url = "img/"+type+"/"+src+".png";

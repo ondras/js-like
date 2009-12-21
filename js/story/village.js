@@ -62,8 +62,8 @@ RPG.Map.Village.prototype.init = function() {
 	
 	var residents = 5;
 	var chats = [
-		new RPG.Misc.Chat('"Work, work."', "villager-work"),
-		new RPG.Misc.Chat('"Ask our elder."', "villager-work")
+		new RPG.Misc.Chat('"Work, work."').setSound("villager-work"),
+		new RPG.Misc.Chat('"Ask our elder."')
 	];
 	
     for (var i = 0; i < residents; i++) {

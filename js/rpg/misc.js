@@ -60,8 +60,6 @@ RPG.Misc.Coords.prototype.dirTo = function(c) {
 	throw new Error("Cannot compute direction");
 }
 
-
-
 RPG.DIR[RPG.N] =  new RPG.Misc.Coords( 0, -1);
 RPG.DIR[RPG.NE] = new RPG.Misc.Coords( 1, -1);
 RPG.DIR[RPG.E] =  new RPG.Misc.Coords( 1,  0);
@@ -138,11 +136,16 @@ RPG.Misc.IProjectile = OZ.Class()
 
 RPG.Misc.IProjectile.prototype._initProjectile = function() {
 	this._range = 5;
-	this._baseImage = "";
-	this._lastCell = null;
-	this._cells = [];
-	this._cellIndex = -1;
 	
+	this._flight = {
+		index: -1,
+		cells: [],
+		chars: [],
+		images: []
+	}
+	
+	this._baseImage = "";
+
 	this._chars = {};
 	this._chars[RPG.N]  = "|";
 	this._chars[RPG.NE] = "/";
@@ -163,16 +166,14 @@ RPG.Misc.IProjectile.prototype._initProjectile = function() {
 	this._suffixes[RPG.W]  = "w";
 	this._suffixes[RPG.NW] = "nw";
 }
-						
+
 /**
  * Launch this projectile
  * @param {RPG.Cells.BaseCell} source
  * @param {?} target
  */
 RPG.Misc.IProjectile.prototype.launch = function(source, target) {
-	this._lastCell = source;
-	this._cells = this._getTrajectory(source, target);
-	this._cellIndex = 0;
+	this._computeTrajectory(source, target);
 
 	RPG.World.lock();
 	var interval = 75;
@@ -183,9 +184,9 @@ RPG.Misc.IProjectile.prototype.launch = function(source, target) {
  * Flying above a given cell
  * @returns {bool} still in flight?
  */
-RPG.Misc.IProjectile.prototype.fly = function(cell) {
+RPG.Misc.IProjectile.prototype.fly = function() {
+	var cell = this._flight.cells[this._flight.index];
 	RPG.UI.map.addProjectile(cell.getCoords(), this);
-	return true;
 }
 
 /**
@@ -194,36 +195,33 @@ RPG.Misc.IProjectile.prototype.fly = function(cell) {
  * @param {?} target
  */
 RPG.Misc.IProjectile.prototype.showTrajectory = function(source, target) {
-	var cells = this._getTrajectory(source, target);
+	this._computeTrajectory(source, target);
 	var pc = RPG.World.pc;
 	
 	RPG.UI.map.removeProjectiles();
-	for (var i=0;i<cells.length;i++) {
-		var cell = cells[i];
+	for (var i=0;i<this._flight.cells.length;i++) {
+		var cell = this._flight.cells[i];
 		
 		if (!pc.canSee(cell.getCoords())) { continue; }
 		
-		var mark = (i+1 == cells.length ? RPG.Misc.IProjectile.endMark : RPG.Misc.IProjectile.mark);
-		RPG.UI.map.addProjectile(cells[i].getCoords(), mark);
+		var mark = (i+1 == this._flight.cells.length ? RPG.Misc.IProjectile.endMark : RPG.Misc.IProjectile.mark);
+		RPG.UI.map.addProjectile(cell.getCoords(), mark);
 	}
 }
 
 RPG.Misc.IProjectile.prototype._step = function() {
-	if (this._cellIndex == this._cells.length) { 
+	this._flight.index++;
+	var index = this._flight.index;
+	
+	if (index == this._flight.cells.length) { 
 		clearInterval(this._interval); 
 		this._done();
 		return;
 	}
-
-	var current = this._cells[this._cellIndex];
-	var dir = this._lastCell.getCoords().dirTo(current.getCoords());
-	this._lastCell = current;
 	
-	this._char = this._chars[dir];
-	this._image = this._baseImage + "-" + this._suffixes[dir];
-
-	this.fly(current);
-	this._cellIndex++;
+	this._char = this._flight.chars[index];
+	this._image = this._flight.images[index];
+	this.fly(this._flight.cells[index]);
 }
 
 RPG.Misc.IProjectile.prototype._done = function() {
@@ -232,26 +230,31 @@ RPG.Misc.IProjectile.prototype._done = function() {
 }
 
 /**
- * Get all cells in trajectory
+ * Precompute trajectory + its visuals
  * @param {RPG.Cells.BaseCell} source
  * @param {RPG.Misc.Coords} target
  */
-RPG.Misc.IProjectile.prototype._getTrajectory = function(source, target) {
+RPG.Misc.IProjectile.prototype._computeTrajectory = function(source, target) {
+	this._flight.index = -1;
+	this._flight.cells = [];
+	this._flight.chars = [];
+	this._flight.images = [];
+
 	var map = RPG.World.getMap();
 	var cells = map.cellsInLine(source.getCoords(), target);
-	cells.shift();
-	
-	var result = [];
-	var max = Math.min(this._range, cells.length);
-	
-	for (var i=0;i<max;i++) {
+	var max = Math.min(this._range+1, cells.length);
+
+	for (var i=1;i<max;i++) {
 		var cell = cells[i];
-		result.push(cell);
-		
+		var prev = cells[i-1];
+
+		this._flight.cells.push(cell);
+		var dir = prev.getCoords().dirTo(cell.getCoords());
+		this._flight.chars.push(this._chars[dir]);
+		this._flight.images.push(this._baseImage + "-" + this._suffixes[dir]);
+
 		if (!cell.isFree()) { break; }
 	}
-	
-	return result;
 }
 
 /**
@@ -262,7 +265,7 @@ RPG.Misc.IProjectile.Mark = OZ.Class().implement(RPG.Misc.IVisual);
 RPG.Misc.IProjectile.Mark.prototype.init = function() {
 	this._char = "*";
 	this._color = "white";
-	this._image = ""; /* FIXME */
+	this._image = "crosshair";
 }
 
 /**
@@ -273,7 +276,7 @@ RPG.Misc.IProjectile.EndMark = OZ.Class().implement(RPG.Misc.IVisual);
 RPG.Misc.IProjectile.EndMark.prototype.init = function() {
 	this._char = "X";
 	this._color = "white";
-	this._image = ""; /* FIXME */
+	this._image = "crosshair-end";
 }
 
 RPG.Misc.IProjectile.mark = new RPG.Misc.IProjectile.Mark();
