@@ -521,7 +521,7 @@ RPG.Beings.BaseBeing.prototype.cast = function(spell, target) {
 	this.adjustStat(RPG.STAT_MANA, -cost);
 	
 	var verb = RPG.Misc.verb("cast", this);
-	var str = RPG.Misc.format("%D %s %a.", this, verb, spell);
+	var str = RPG.Misc.format("%D %s %D.", this, verb, spell);
 	RPG.UI.buffer.message(str);
 	
 	spell.cast(target);	
