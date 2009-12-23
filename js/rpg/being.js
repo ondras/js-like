@@ -430,7 +430,7 @@ RPG.Beings.BaseBeing.prototype.canSee = function(target) {
 }
 
 RPG.Beings.BaseBeing.prototype.woundedState = function() {
-	var def = ["slightly", "moderately", "severly", "critically"];
+	var def = ["slightly", "moderately", "severely", "critically"];
 	var hp = this._stats[RPG.STAT_HP];
 	var max = this._feats[RPG.FEAT_MAX_HP].getValue();
 	if (hp == max) { return "not"; }
