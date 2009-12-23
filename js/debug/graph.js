@@ -29,7 +29,7 @@ var Graph = {
 			this.cache.push(obj);
 		}
 		
-		var forbidden = ["prototype","_implement","_extend"];
+		var forbidden = ["prototype","_implement","_extend","bind"];
 		for (var p in node) {
 			if (forbidden.indexOf(p) != -1) { continue; }
 			var n = (name ? name+"." : "")+p;

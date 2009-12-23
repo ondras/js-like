@@ -95,18 +95,19 @@ RPG.Memory.Map.prototype.updateVisible = function() {
 	
 	var visible = pc.getVisibleCoords();
 	var coords = null;
-	
+	var tmp = 0;
 	/* check all cells visible before; if some is not visible now, mark it as remembered */
 	for (var i=0; i<this._lastVisibleCoords.length; i++) {
 		coords = this._lastVisibleCoords[i];
 		var ok = false;
 		for (var j=0;j<visible.length;j++) {
+			tmp++;
 			var vis = visible[j];
 			if (vis.x == coords.x && vis.y == coords.y) { ok = true; }
 		}
 		if (!ok) { this._data[coords.x][coords.y].setState(RPG.MAP_REMEMBERED); }
 	}
-	
+
 	/* take all currently visible and mark them as visible */
 	for (var i=0;i<visible.length;i++) {
 		coords = visible[i];

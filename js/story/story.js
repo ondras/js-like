@@ -5,7 +5,7 @@ RPG.Story = OZ.Class();
 
 RPG.Story.prototype.init = function() {
 	RPG.UI.sound.preload("tristram");
-	this._maxDepth = 3;
+	this._maxDepth = 6;
 	this._maps = [];
 	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
 	this._mapgen = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));

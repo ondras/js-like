@@ -403,91 +403,59 @@ RPG.Engine.AI.GetToDistance.prototype.isSatisfied = function() {
 RPG.Engine.AI.GetToDistance.prototype.go = function() {
 	var being = this._ai.getBeing();
 	var cell = being.getCell();
-	var map = cell.getMap();
-	var current = cell.getCoords();
-
-	/**
-	 * For a given starting coords and depth, this function returns two values:
-	 * a) to which distance from our target it is possible to move with a given number of steps
-	 * b) how many steps it will take to do so
-	 */
-	function getBestDistance(coords, depth) {
-		var step = 0;
-		var best = coords.distance(this._coords);
-		if (!depth) { return [best, step]; }
-		
-		var c = coords.clone();
-		for (var i=-1;i<=1;i++) {
-			for (var j=-1;j<=1;j++) {
-				c.x = coords.x+i;
-				c.y = coords.y+j;
-				/* PERF */
-//				if (!map._data[c.x][c.y].isFree()) { continue; }
-				var cell = map.at(c);
-				if (!cell) { continue; }
-				if (!cell.isFree()) { continue; }
-				var result = arguments.callee.call(this, c, depth-1);
-				var resultBest = result[0];
-				var resultStep = result[1] + 1;
+	
+	
+	var currentDistance = cell.getCoords().distance(this._coords); /* we have this distance now */
+	var bestDistance = currentDistance; /* best distance found so far */
+	var bestCell = null; /* neighbor cell with best resulting distance */
+	
+	var radius = 3; /* max radius to try */
+	var todo = [cell]; /* stack */
+	var currentIndex = 0; /* pointer to currently tried cell */
+	var maxIndex = 1; /* pointer to first cell in next radius*/
+	var current = null;
+	var neighbor = null;
+	
+	var r = 1;
+	while (r <= radius) { /* for all available radii */
+		while (currentIndex < maxIndex) { /* for all cells in current radius */
+			current = todo[currentIndex++];
+			for (var i=0;i<8;i++) { /* for all neighbors */
+				neighbor = current.neighbor(i);
+				if (!neighbor) { continue; }
+				if (!neighbor.isFree()) { continue; }
+				if (todo.indexOf(neighbor) != -1) { continue; }
 				
-				if (this._isBetter(resultBest, best)) { 
-					best = resultBest; 
-					step = resultStep;
-				}
-			}
-		}
-		return [best, step];
-	}
+				neighbor._prev = current; /* so we can trace back the optimal sibling */
 
-	/* we can move in 8 directions; try them and find those which move us closest in the shortest time */
-	
-	/* recursion depth */
-	var depth = 2;
-	/* array of final candidates */
-	var bestMoves = [];
-	/* best target distance */
-	var bestDistance = null;
-	/* lowest amount of steps to achieve it */
-	var bestSteps = Number.POSITIVE_INFINITY;
-	for (var i=-1;i<=1;i++) {
-		for (var j=-1;j<=1;j++) {
-			var t = current.clone();
-			t.x += i;
-			t.y += j;
-			
-			/* do not try waiting at this moment */
-			if (i==0 && j==0) { continue; }
-			
-			var cell = map.at(t);
-			if (!cell) { continue; }
-			
-			/* discard non-free places */
-			if (!cell.isFree()) { continue; }
-			
-			var result = getBestDistance.call(this, t, depth);
-//			console.log("Best distance for "+t+" (depth "+depth+") is "+result);
-			
-			if (bestDistance == null || this._isBetter(result[0], bestDistance)) {
-				/* this is either the first try, or the best (so far) step */
-				bestDistance = result[0];
-				bestSteps = result[1];
-				bestMoves = [];
-			} else if (result[0] == bestDistance && result[1] < bestSteps) {
-				/* same distance as our best try, but better stepcount */
-				bestSteps = result[1];
-				bestMoves = [];
+				var dist = neighbor.getCoords().distance(this._coords); /* have we found a better candidate? */
+				if (this._isBetter(dist, bestDistance)) { /* yes! */
+					bestDistance = dist;
+					bestCell = neighbor;
+
+					if (dist == this._distance) { /* cutoff - already at best distance */
+						r = radius+1;
+						currentIndex = maxIndex;
+						break;
+					}
+					
+					if (r == radius && Math.abs(dist-currentDistance) == radius) { /* cutoff - this cannot be improved */
+						r = radius+1;
+						currentIndex = maxIndex;
+						break;
+					}
+				}
+
+				if (r < radius) { todo.push(neighbor); } /* add to be processed */
 			}
-			
-			/* superb candidate */
-			if (result[0] == bestDistance && result[1] == bestSteps) { bestMoves.push(t); }
-			
 		}
+		r++;
+		maxIndex = todo.length;
 	}
 	
-	if (bestMoves.length) {
-		/* pick one of the "bestMoves" array */
-		var c = bestMoves[Math.floor(Math.random()*bestMoves.length)];
-		this._ai._actionResult = being.move(map.at(c));
+	if (bestCell) {
+		while (bestCell._prev != cell) { bestCell = bestCell._prev; }
+		this._ai._actionResult = being.move(bestCell);
 	} else {
 		this._ai._actionResult = being.wait();
 	}

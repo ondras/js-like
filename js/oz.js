@@ -1,4 +1,4 @@
-/* (c) 2007 - now() Ondrej Zara, 1.3 */
+/* (c) 2007 - now() Ondrej Zara, 1.4 */
 var OZ = {
 	$:function(x) { return typeof(x) == "string" ? document.getElementById(x) : x; },
 	opera:!!window.opera,
@@ -56,12 +56,7 @@ var OZ = {
 			this.prototype = new tmp();
 			return this;
 		};
-		c.prototype.bind = function(fnc) {
-			var obj = this;
-			return function() {
-				return fnc.apply(obj,arguments);
-			}
-		};
+		c.prototype.bind = function(fnc) { return fnc.bind(this); };
 		c.prototype.dispatch = function(type, data) {
 			var obj = {
 				type:type,
@@ -217,6 +212,16 @@ var OZ = {
 		return xhr;
 	}
 }
+
+if (!Function.prototype.bind) {
+	Function.prototype.bind = function(thisObj) { 
+		var fn = this;
+		var args = Array.prototype.slice.call(arguments, 1); 
+		return function() { 
+			return fn.apply(thisObj, args.concat(Array.prototype.slice.call(arguments))); 
+		}
+	}
+};
 
 if (!Array.prototype.indexOf) { 
 	Array.prototype.indexOf = function(item, from) {

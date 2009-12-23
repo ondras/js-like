@@ -301,7 +301,7 @@ RPG.Items.Scroll.prototype.init = function(spell) {
 }
 
 RPG.Items.Scroll.prototype.clone = function() {
-	return new this(this._spell);
+	return new this.constructor(this._spell);
 }
 
 RPG.Items.Scroll.prototype.isSameAs = function(item) {
