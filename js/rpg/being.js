@@ -311,6 +311,15 @@ RPG.Beings.BaseBeing.prototype.adjustFeat = function(feat, diff) {
 	return this.setFeat(feat, this._feats[feat].getBase() + diff);
 }
 
+RPG.Beings.BaseBeing.prototype.setGender = function(gender) {
+	this._gender = gender;
+	return this;
+}
+
+RPG.Beings.BaseBeing.prototype.getGender = function() {
+	return this._gender;
+}
+
 /**
  * @see RPG.Engine.IActor#getSpeed
  */

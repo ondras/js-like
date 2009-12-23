@@ -18,12 +18,11 @@ RPG.Beings.NPC.prototype.yourTurn = function() {
 
 RPG.Beings.NPC.prototype.randomGender = function() {
 	if (Math.randomPercentage() < 34) {
-		this._gender = RPG.GENDER_FEMALE;
-		this._description = "female " + this._description;
+		this.setGender(RPG.GENDER_FEMALE);
 		this.adjustFeat(RPG.FEAT_STRENGTH, -2);
 		this.adjustFeat(RPG.FEAT_DEXTERITY, 2);
 	} else {
-		this._gender = RPG.GENDER_MALE;
+		this.setGender(RPG.GENDER_MALE);
 	}
 }
 
