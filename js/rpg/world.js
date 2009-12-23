@@ -21,6 +21,7 @@ RPG.World.init = function() {
 
 	var f = new RPG.Misc.Factory().add(RPG.Beings.NPC);
 	RPG.Beings.NPC.getInstance = f.bind(f.getInstance);
+	RPG.Beings.NPC.getClass = f.bind(f.getClass);
 
 	var f = new RPG.Misc.Factory().add(RPG.Features.Trap);
 	RPG.Features.Trap.getInstance = f.bind(f.getInstance);
