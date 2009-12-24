@@ -107,7 +107,7 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	/* being there? */
 	var b = cell.getBeing();
 	if (b) {
-		var hand = pc.getMeleeSlot();
+		var hand = pc.getSlot(RPG.SLOT_WEAPON);
 		var result = RPG.World.pc.attackMelee(b, hand);
 		RPG.World.actionResult(result);
 		return;
@@ -726,7 +726,7 @@ RPG.UI.Command.WeaponStats.prototype.init = function() {
 
 RPG.UI.Command.WeaponStats.prototype.exec = function() {
 	var pc = RPG.World.pc;
-	var hand = pc.getMeleeSlot();
+	var hand = pc.getSlot(RPG.SLOT_WEAPON);
 	var hit = hand.getHit();
 	var dmg = hand.getDamage();
 	alert("Current weapon hit/damage: "+hit.toString()+"/"+dmg.toString());
@@ -745,7 +745,7 @@ RPG.UI.Command.KickStats.prototype.init = function() {
 
 RPG.UI.Command.KickStats.prototype.exec = function() {
 	var pc = RPG.World.pc;
-	var feet = pc.getFeetSlot();
+	var feet = pc.getSlot(RPG.SLOT_FEET);
 	var hit = feet.getHit();
 	var dmg = feet.getDamage();
 	alert("Current kick hit/damage: "+hit.toString()+"/"+dmg.toString());

@@ -158,6 +158,12 @@ RPG.Beings.BaseBeing.prototype.equip = function(item, slot) {
 		item = item.subtract(1);
 	}
 	slot.setItem(item);
+	
+	/* remove shield for dual-handed weapons */
+	if ((slot instanceof RPG.Slots.Weapon) && item.isDualHand()) {
+		var shieldSlot = this.getSlot(RPG.SLOT_SHIELD);
+		if (shieldSlot) { this.unequip(shieldSlot); }
+	}
 
 	this._addModifiers(item);
 }
@@ -183,16 +189,11 @@ RPG.Beings.BaseBeing.prototype.getSlots = function() {
 	return this._race.getSlots();
 }
 
-RPG.Beings.BaseBeing.prototype.getMeleeSlot = function() {
-	return this._race.getMeleeSlot();
-}
-
-RPG.Beings.BaseBeing.prototype.getFeetSlot = function() {
-	return this._race.getFeetSlot();
-}
-
-RPG.Beings.BaseBeing.prototype.getHeadSlot = function() {
-	return this._race.getHeadSlot();
+/**
+ * Return slot by its type constant
+ */
+RPG.Beings.BaseBeing.prototype.getSlot = function(type) {
+	return this._race.getSlot(type);
 }
 
 /**

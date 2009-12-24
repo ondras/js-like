@@ -9,8 +9,13 @@ RPG.Items.Weapon.prototype.init = function(hit, damage) {
 	this.parent();
 	this.setHit(hit);
 	this.setDamage(damage);
+	this._dualHand = false;
 	this._char = ")";
 	this._color = "lightgray";
+}
+
+RPG.Items.Weapon.prototype.isDualHand = function() {
+	return this._dualHand;
 }
 
 RPG.Items.Weapon.prototype._describeModifiers = function() {
@@ -114,6 +119,7 @@ RPG.Items.KlingonSword.prototype.init = function() {
 	this._modifiers[RPG.FEAT_DV] = 1;
 	this._modifiers[RPG.FEAT_PV] = 1;
 	this._modifiers[RPG.FEAT_STRENGTH] = 2;
+	this._dualHand = true;
 	this._color = "gold";
 	this._image = "klingon-sword";
 	this._description = "Klingon ceremonial sword";

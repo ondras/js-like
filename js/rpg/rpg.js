@@ -168,6 +168,21 @@ RPG.QUEST_DONE			= -4;
 RPG.QUEST_REWARDED		= -5;
 
 /** @constant */
+RPG.SLOT_HEAD			= 0;
+/** @constant */
+RPG.SLOT_WEAPON			= 1;
+/** @constant */
+RPG.SLOT_SHIELD			= 2;
+/** @constant */
+RPG.SLOT_FEET			= 3;
+/** @constant */
+RPG.SLOT_ARMOR			= 4;
+/** @constant */
+RPG.SLOT_LRING			= 5;
+/** @constant */
+RPG.SLOT_RRING			= 6;
+
+/** @constant */
 RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG.FEAT_MAGIC];
 
 /**

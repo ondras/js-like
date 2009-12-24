@@ -22,19 +22,19 @@ RPG.Beings.Goblin.prototype.init = function() {
 	if (Math.randomPercentage() < 21) {
 		var dagger = new RPG.Items.Dagger();
 		this.addItem(dagger);
-		this.equip(dagger, this.getMeleeSlot());
+		this.equip(dagger, this.getSlot(RPG.SLOT_WEAPON));
 	}
 	
 	if (Math.randomPercentage() < 21) {
 		var cap = new RPG.Items.MetalCap();
 		this.addItem(cap);
-		this.equip(cap, this.getHeadSlot());
+		this.equip(cap, this.getSlot(RPG.SLOT_HEAD));
 	}
 	
 	if (Math.randomPercentage() < 21) {
 		var boots = new RPG.Items.LeatherBoots();
 		this.addItem(boots);
-		this.equip(boots, this.getFeetSlot());
+		this.equip(boots, this.getSlot(RPG.SLOT_FEET));
 	}
 	
 	this.fullStats();
@@ -100,7 +100,7 @@ RPG.Beings.Troll.prototype.init = function() {
 	this._description = "troll";
 	this._image = "troll";
 	
-	this.getMeleeSlot().setHit(new RPG.Misc.RandomValue(10, 5));
+	this.getSlot(RPG.SLOT_WEAPON).setHit(new RPG.Misc.RandomValue(10, 5));
 
 
 	this.fullStats();
@@ -226,7 +226,7 @@ RPG.Beings.Wolf.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 10);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 10);
 	this.setFeat(RPG.FEAT_DEXTERITY, 11);
-	this.getMeleeSlot().setHit(new RPG.Misc.RandomValue(7, 4));
+	this.getSlot(RPG.SLOT_WEAPON).setHit(new RPG.Misc.RandomValue(7, 4));
 
 	this._char = "d";
 	this._color = "white";
@@ -347,13 +347,13 @@ RPG.Beings.Orc.prototype.init = function() {
 	if (Math.randomPercentage() < 21) {
 		var dagger = new RPG.Items.OrcishDagger();
 		this.addItem(dagger);
-		this.equip(dagger, this.getMeleeSlot());
+		this.equip(dagger, this.getSlot(RPG.SLOT_WEAPON));
 	}
 	
 	if (Math.randomPercentage() < 21) {
 		var cap = new RPG.Items.MetalCap();
 		this.addItem(cap);
-		this.equip(cap, this.getHeadSlot());
+		this.equip(cap, this.getSlot(RPG.SLOT_HEAD)());
 	}
 	
 	this.fullStats();
@@ -379,13 +379,13 @@ RPG.Beings.LargeOrc.prototype.init = function() {
 	if (Math.randomPercentage() < 41) {
 		var dagger = new RPG.Items.OrcishDagger();
 		this.addItem(dagger);
-		this.equip(dagger, this.getMeleeSlot());
+		this.equip(dagger, this.getSlot(RPG.SLOT_WEAPON));
 	}
 	
 	if (Math.randomPercentage() < 21) {
 		var cap = new RPG.Items.MetalCap();
 		this.addItem(cap);
-		this.equip(cap, this.getHeadSlot());
+		this.equip(cap, this.getSlot(RPG.SLOT_HEAD)());
 	}
 	
 	this.fullStats();
@@ -413,13 +413,13 @@ RPG.Beings.OrcChieftain.prototype.init = function() {
 	if (Math.randomPercentage() < 41) {
 		var dagger = new RPG.Items.OrcishDagger();
 		this.addItem(dagger);
-		this.equip(dagger, this.getMeleeSlot());
+		this.equip(dagger, this.getSlot(RPG.SLOT_WEAPON));
 	}
 	
 	if (Math.randomPercentage() < 41) {
 		var cap = new RPG.Items.MetalCap();
 		this.addItem(cap);
-		this.equip(cap, this.getHeadSlot());
+		this.equip(cap, this.getSlot(RPG.SLOT_HEAD)());
 	}
 	
 	this.fullStats();
@@ -473,7 +473,7 @@ RPG.Beings.Gnoll.prototype.init = function() {
 	if (Math.randomPercentage() < 31) {
 		var axe = new RPG.Items.Axe();
 		this.addItem(axe);
-		this.equip(axe, this.getMeleeSlot());
+		this.equip(axe, this.getSlot(RPG.SLOT_WEAPON));
 	}
 
 	this.fullStats();
@@ -503,7 +503,7 @@ RPG.Beings.Kobold.prototype.init = function() {
 	if (Math.randomPercentage() < 31) {
 		var club = new RPG.Items.Club();
 		this.addItem(club);
-		this.equip(club, this.getMeleeSlot());
+		this.equip(club, this.getSlot(RPG.SLOT_WEAPON));
 	}
 
 	this.fullStats();

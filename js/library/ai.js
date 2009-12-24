@@ -292,7 +292,7 @@ RPG.Engine.AI.Attack.prototype.go = function() {
 		/* perform an attack */
 		var being = this._ai.getBeing();
 		this._attacked = true;
-		var slot = being.getMeleeSlot();
+		var slot = being.getSlot(RPG.SLOT_WEAPON);
 		this._ai._actionResult = being.attackMelee(this._target, slot);
 		return RPG.AI_OK;
 	}

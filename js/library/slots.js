@@ -21,20 +21,20 @@ RPG.Slots.Kick.prototype.getDamage = function() {
 }
 
 /**
- * @class Melee-weapon-based slot
+ * @class Weapon-based slot
  * @augments RPG.Slots.BaseSlot
  * @augments RPG.Misc.IWeapon
  */
-RPG.Slots.Melee = OZ.Class()
+RPG.Slots.Weapon = OZ.Class()
 					.extend(RPG.Slots.BaseSlot)
 					.implement(RPG.Misc.IWeapon);
-RPG.Slots.Melee.prototype.init = function(name) {
+RPG.Slots.Weapon.prototype.init = function(name) {
 	this.parent(name, [RPG.Items.Weapon]);
 	this._hit = null;
 	this._damage = null;
 }
 
-RPG.Slots.Melee.prototype.getHit = function() {
+RPG.Slots.Weapon.prototype.getHit = function() {
 	var v = 0;
 	var m = this._being.getFeat(RPG.FEAT_HIT);
 	
@@ -49,7 +49,7 @@ RPG.Slots.Melee.prototype.getHit = function() {
 	return new RPG.Misc.RandomValue(m, v);
 }
 
-RPG.Slots.Melee.prototype.getDamage = function() {
+RPG.Slots.Weapon.prototype.getDamage = function() {
 	var v = 0;
 	var m = this._being.getFeat(RPG.FEAT_DAMAGE);
 	

@@ -244,13 +244,7 @@ RPG.Races.BaseRace.name = "";
 RPG.Races.BaseRace.image = "";
 RPG.Races.BaseRace.prototype.init = function() {
 	this._initVisuals();
-	this._slots = [];
-
-	this._headSlot = null;
-	this._meleeSlot = null;
-	this._rangedSlot = null;
-	this._kickSlot = null;
-	
+	this._slots = {};
 	this._defaults = {};
 	this._defaults[RPG.FEAT_REGEN_HP] = 10; /* per 100 turns */
 	this._defaults[RPG.FEAT_REGEN_MANA] = 10; /* per 100 turns */
@@ -269,20 +263,8 @@ RPG.Races.BaseRace.prototype.getSlots = function() {
 	return this._slots;
 }
 
-RPG.Races.BaseRace.prototype.getMeleeSlot = function() {
-	return this._meleeSlot;
-}
-
-RPG.Races.BaseRace.prototype.getRangedSlot = function() {
-	return this._rangedSlot;
-}
-
-RPG.Races.BaseRace.prototype.getFeetSlot = function() {
-	return this._feetSlot;
-}
-
-RPG.Races.BaseRace.prototype.getHeadSlot = function() {
-	return this._headSlot;
+RPG.Races.BaseRace.prototype.getSlot = function(type) {
+	return this._slots[type] || null;
 }
 
 /**

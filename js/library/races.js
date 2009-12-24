@@ -15,35 +15,21 @@ RPG.Races.Humanoid.prototype.init = function() {
 	this._defaults[RPG.FEAT_DEXTERITY] = 11;
 	this._defaults[RPG.FEAT_MAGIC] = 11;
 
-	var head = new RPG.Slots.BaseSlot("Head", [RPG.Items.HeadGear]);
-	this._slots.push(head);
-	this._headSlot = head;
+	this._slots[RPG.SLOT_HEAD] = new RPG.Slots.BaseSlot("Head", [RPG.Items.HeadGear]);
+	this._slots[RPG.SLOT_ARMOR] = new RPG.Slots.BaseSlot("Armor", [RPG.Items.Armor]);
+	this._slots[RPG.SLOT_SHIELD] = new RPG.Slots.BaseSlot("Shield", [RPG.Items.Shield]);
+	this._slots[RPG.SLOT_LRING] = new RPG.Slots.BaseSlot("Left ring", [RPG.Items.Ring]);
+	this._slots[RPG.SLOT_RRING] = new RPG.Slots.BaseSlot("Right ring", [RPG.Items.Ring]);
 	
-	var armor = new RPG.Slots.BaseSlot("Armor", [RPG.Items.Armor]);
-	this._slots.push(armor);
-
-	var shield = new RPG.Slots.BaseSlot("Shield", [RPG.Items.Shield]);
-	this._slots.push(shield);
-
-	var hand = new RPG.Slots.Melee("Hand");
-	this._slots.push(hand);
-	this._meleeSlot = hand;
+	var weapon = new RPG.Slots.Weapon("Weapon");
+	this._slots[RPG.SLOT_WEAPON] = weapon;
+	weapon.setHit(new RPG.Misc.RandomValue(5, 4));
+	weapon.setDamage(new RPG.Misc.RandomValue(2, 1));
 	
-	var lring = new RPG.Slots.BaseSlot("Left ring", [RPG.Items.Ring]);
-	this._slots.push(lring);
-
-	var rring = new RPG.Slots.BaseSlot("Right ring", [RPG.Items.Ring]);
-	this._slots.push(rring);
-
-	var feet = new RPG.Slots.Kick("Feet")
-	this._slots.push(feet);
-	this._feetSlot = feet;
-	
-	hand.setHit(new RPG.Misc.RandomValue(5, 4));
-	hand.setDamage(new RPG.Misc.RandomValue(2, 1));
-
+	var feet = new RPG.Slots.Kick("Feet");
 	feet.setHit(new RPG.Misc.RandomValue(5, 3));
 	feet.setDamage(new RPG.Misc.RandomValue(3, 1));
+	this._slots[RPG.SLOT_FEET] = feet;
 }
 
 /**
@@ -128,7 +114,7 @@ RPG.Races.Animal.prototype.init = function() {
 
 	var teeth = new RPG.Slots.Melee("Teeth");
 	this._slots.push(teeth);
-	this._meleeSlot = teeth;
+	this._weaponSlot = teeth;
 	
 	teeth.setHit(new RPG.Misc.RandomValue(5, 4));
 	teeth.setDamage(new RPG.Misc.RandomValue(2, 1));

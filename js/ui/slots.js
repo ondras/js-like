@@ -12,7 +12,7 @@ RPG.UI.Slots.prototype.init = function(being, callback) {
 	};
 	this._buttons = [];
 	this._pendingIndex = -1;
-	this._slots = being.getSlots();
+	this._slots = [];
 	
 	this._somethingDone = false;
 
@@ -28,12 +28,21 @@ RPG.UI.Slots.prototype._build = function() {
 	var tb = OZ.DOM.elm("tbody");
 	OZ.DOM.append([this._dom.container, table], [table, tb]);
 	
-	for (var i=0;i<this._slots.length;i++) {
-		var slot = this._slots[i];
+	var index = 0;
+	var order = [RPG.SLOT_HEAD, RPG.SLOT_ARMOR, RPG.SLOT_WEAPON, RPG.SLOT_SHIELD, 
+				RPG.SLOT_LRING, RPG.SLOT_RRING, RPG.SLOT_FEET];
+	
+	for (var i=0;i<order.length;i++) {
+		var c = order[i];
+		var slot = this._being.getSlot(c);
+		if (!slot) { continue; }
+		
+		this._slots.push(slot);
+	
 		var row = OZ.DOM.elm("tr");
 		tb.appendChild(row);
 
-		var ch = String.fromCharCode("a".charCodeAt(0) + i);
+		var ch = String.fromCharCode("a".charCodeAt(0) + index);
 		var b = new RPG.UI.Button("", this.bind(this._buttonActivated));
 		this._buttons.push(b);
 		b.setChar(ch);
@@ -47,8 +56,10 @@ RPG.UI.Slots.prototype._build = function() {
 		
 		var td = OZ.DOM.elm("td");
 		this._dom.items.push(td);
-		this._redrawSlot(i);
+		this._redrawSlot(index);
 		row.appendChild(td);
+		
+		index++;
 	}
 	
 }
@@ -128,7 +139,14 @@ RPG.UI.Slots.prototype._item = function(index, items) {
 	var slot = this._slots[index];
 	var item = items[0][0]; 
 	this._being.equip(item, slot);
-	this._redrawSlot(index);
+	this._redrawSlots();
+}
+
+/**
+ * Redraw all slots
+ */
+RPG.UI.Slots.prototype._redrawSlots = function() {
+	for (var i=0;i<this._slots.length;i++) { this._redrawSlot(i); }
 }
 
 /**
