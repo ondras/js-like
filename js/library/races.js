@@ -112,10 +112,8 @@ RPG.Races.Animal.prototype.init = function() {
 	this._defaults[RPG.FEAT_DEXTERITY] = 12;
 	this._defaults[RPG.FEAT_MAGIC] = 7;
 
-	var teeth = new RPG.Slots.Melee("Teeth");
-	this._slots.push(teeth);
-	this._weaponSlot = teeth;
-	
+	var teeth = new RPG.Slots.Weapon("Teeth");
 	teeth.setHit(new RPG.Misc.RandomValue(5, 4));
 	teeth.setDamage(new RPG.Misc.RandomValue(2, 1));
+	this._slots[RPG.SLOT_WEAPON] = teeth;
 }

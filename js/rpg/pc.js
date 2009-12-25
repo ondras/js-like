@@ -489,7 +489,7 @@ RPG.Beings.PC.prototype.kick = function(cell) {
 	
 	if (feature && feature instanceof RPG.Features.Door && feature.isClosed()) {
 		/* kick door */
-		var feet = this.getFeetSlot();
+		var feet = this.getSlot(RPG.SLOT_FEET);
 		var dmg = feet.getDamage().roll();
 		var result = feature.damage(dmg);
 		if (result) {
@@ -503,7 +503,7 @@ RPG.Beings.PC.prototype.kick = function(cell) {
 	
 	if (being) {
 		/* kick being */
-		this.attackMelee(being, this.getFeetSlot());
+		this.attackMelee(being, this.getSlot(RPG.SLOT_FEET));
 		return RPG.ACTION_TIME;
 	}
 
@@ -600,16 +600,13 @@ RPG.Beings.PC.prototype._describeAttack = function(hit, damage, kill, being, slo
 }
 
 RPG.Beings.PC.prototype._describeLocal = function() {
-	var pc = RPG.World.pc;
-	var cell = pc.getCell();
-	
-	var f = cell.getFeature();
-	if (f && f.knowsAbout(pc)) {
-		var s = RPG.Misc.format("You see %a.", f);
+	var f = this._cell.getFeature();
+	if (f && f.knowsAbout(this)) {
+		var s = RPG.Misc.format("%A.", f);
 		RPG.UI.buffer.message(s);
 	}
 	
-	var items = cell.getItems();
+	var items = this._cell.getItems();
 	if (items.length > 1) {
 		RPG.UI.buffer.message("Several items are lying here.");
 	} else if (items.length == 1) {
@@ -620,49 +617,100 @@ RPG.Beings.PC.prototype._describeLocal = function() {
 }
 
 RPG.Beings.PC.prototype._describeRemote = function(cell) {
-	var pc = RPG.World.pc;
 	var coords = cell.getCoords();
 	
-	if (!pc.canSee(coords)) {
-		RPG.UI.buffer.message("You do not see that place.");
+	if (!this.canSee(coords)) {
+		RPG.UI.buffer.message("You can not see that place.");
 		return;
 	}
 	
 	var b = cell.getBeing();
 	if (b) {
-		if (b == pc) {
-			var s = RPG.Misc.format("You see yourself. You are %s wounded.", b.woundedState());
+		var s = "";
+		if (b == this) {
+			s = RPG.Misc.format("You are %s wounded.", b.woundedState());
 			RPG.UI.buffer.message(s);
 		} else {
-			var s = RPG.Misc.format("You see %a. %He %is %s wounded.", b, b, b, b.woundedState());
-			RPG.UI.buffer.message(s);
-			if (b.isHostile(pc)) {
-				s = RPG.Misc.format("%The is hostile.", b);
-			} else {
-				s = RPG.Misc.format("%The does not seem to be hostile.", b);
-			}
-			RPG.UI.buffer.message(s);
+			this._describeBeing(b);
 		}
 		return;
 	}
 	
-	var arr = [];
-	
+	var s = RPG.Misc.format("%A.", cell);
+	RPG.UI.buffer.message(s);
+
 	var f = cell.getFeature();
-	if (f && f.knowsAbout(pc)) {
-		arr.push(f.describeA());
+	if (f && f.knowsAbout(this)) {
+		var s = RPG.Misc.format("%A.", f);
+		RPG.UI.buffer.message(s);
 	}
 	
 	var items = cell.getItems();
-	if (items.length > 1) {
-		arr.push("several items");
-	} else if (items.length > 0) {
-		arr.push(items[0].describeA(pc));
+	if (items.length) {
+		var what = "";
+		if (items.length > 1) {
+			what = "several items are";
+		} else if (items.length > 0) {
+			what = RPG.Misc.format("%a %is", items[0], items[0]);
+		}
+		var s = RPG.Misc.format("%S lying there.", what);
+		RPG.UI.buffer.message(s);
 	}
 	
-	if (!arr.length) {
-		arr.push(cell.describeA());
-	}
-
-	RPG.UI.buffer.message("You see " + arr.join(" and ")+".");
 }
+
+RPG.Beings.PC.prototype._describeBeing = function(b) {
+	/* being with equipped weapon and/or shield */
+	var arr = [];
+	var ws = b.getSlot(RPG.SLOT_WEAPON);
+	var weapon = (ws ? ws.getItem() : null);
+	var ss = b.getSlot(RPG.SLOT_SHIELD);
+	var shield = (ss ? ss.getItem() : null);
+	if (weapon) { arr.push(RPG.Misc.format("%a", weapon)); }
+	if (shield) { arr.push(RPG.Misc.format("%a", shield)); }
+	var format = "%A";
+	if (arr.length) {
+		format += ", wielding " + arr.join(" and ") + ".";
+	} else {
+		format += ".";
+	}
+	var s = RPG.Misc.format(format, b);
+	RPG.UI.buffer.message(s);
+
+	/* difficulty report */
+	this._describeDifficulty(b);
+	
+	/* wound status */
+	var s = RPG.Misc.format("%He %is %s wounded.", b, b, b.woundedState());
+	RPG.UI.buffer.message(s);
+	
+	/* hostility */
+	if (b.isHostile(this)) {
+		s = RPG.Misc.format("%The is hostile.", b);
+	} else {
+		s = RPG.Misc.format("%The does not seem to be hostile.", b);
+	}
+	RPG.UI.buffer.message(s);
+}
+
+RPG.Beings.PC.prototype._describeDifficulty = function(b) {
+	var feats = RPG.ATTRIBUTES.clone();
+	feats.push(RPG.FEAT_DV);
+	feats.push(RPG.FEAT_PV);
+	feats.push(RPG.FEAT_MAX_HP);
+	feats.push(RPG.FEAT_MAX_MANA);
+	feats.push(RPG.FEAT_SPEED);
+	
+	var better = 0;
+	for (var i=0;i<feats.length;i++) {
+		var feat = feats[i];
+		if (b.getFeat(feat) > this.getFeat(feat)) { better++; }
+	}
+	
+	better /= feats.length; /* 0-1 */
+	var list = ["trivial", "easy", "moderate", "tough", "difficult"];
+	var index = Math.round(better*(list.length-1));
+	var s = RPG.Misc.format("%He %is a %s opponent.", b, b, list[index]);
+	RPG.UI.buffer.message(s);
+}
+

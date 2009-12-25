@@ -353,7 +353,7 @@ RPG.Beings.Orc.prototype.init = function() {
 	if (Math.randomPercentage() < 21) {
 		var cap = new RPG.Items.MetalCap();
 		this.addItem(cap);
-		this.equip(cap, this.getSlot(RPG.SLOT_HEAD)());
+		this.equip(cap, this.getSlot(RPG.SLOT_HEAD));
 	}
 	
 	this.fullStats();
@@ -385,7 +385,7 @@ RPG.Beings.LargeOrc.prototype.init = function() {
 	if (Math.randomPercentage() < 21) {
 		var cap = new RPG.Items.MetalCap();
 		this.addItem(cap);
-		this.equip(cap, this.getSlot(RPG.SLOT_HEAD)());
+		this.equip(cap, this.getSlot(RPG.SLOT_HEAD));
 	}
 	
 	this.fullStats();
@@ -419,7 +419,7 @@ RPG.Beings.OrcChieftain.prototype.init = function() {
 	if (Math.randomPercentage() < 41) {
 		var cap = new RPG.Items.MetalCap();
 		this.addItem(cap);
-		this.equip(cap, this.getSlot(RPG.SLOT_HEAD)());
+		this.equip(cap, this.getSlot(RPG.SLOT_HEAD));
 	}
 	
 	this.fullStats();

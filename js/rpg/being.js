@@ -49,7 +49,7 @@ RPG.Beings.BaseBeing.prototype._setRace = function(race) {
 	
 	/* bind all slots to a particular being */
 	var slots = race.getSlots();
-	for (var i=0;i<slots.length;i++) { slots[i].setBeing(this); }
+	for (var p in slots) { slots[p].setBeing(this); }
 }
 
 /**
@@ -160,9 +160,15 @@ RPG.Beings.BaseBeing.prototype.equip = function(item, slot) {
 	slot.setItem(item);
 	
 	/* remove shield for dual-handed weapons */
-	if ((slot instanceof RPG.Slots.Weapon) && item.isDualHand()) {
+	if ((slot == this.getSlot(RPG.SLOT_WEAPON)) && item.isDualHand()) {
 		var shieldSlot = this.getSlot(RPG.SLOT_SHIELD);
 		if (shieldSlot) { this.unequip(shieldSlot); }
+	}
+
+	/* remove dual-handed weapon if shield is equipped */
+	if ((slot == this.getSlot(RPG.SLOT_SHIELD)) && item) {
+		var weapon = this.getSlot(RPG.SLOT_WEAPON).getItem();
+		if (weapon && weapon.isDualHand()) { this.unequip(this.getSlot(RPG.SLOT_WEAPON)); }
 	}
 
 	this._addModifiers(item);
@@ -305,7 +311,8 @@ RPG.Beings.BaseBeing.prototype.getFeat = function(feat) {
 }
 
 RPG.Beings.BaseBeing.prototype.setFeat = function(feat, value) {
-	return this._feats[feat].setBase(value);
+	this._feats[feat].setBase(value);
+	return this.updateFeat(feat);
 }
 
 RPG.Beings.BaseBeing.prototype.adjustFeat = function(feat, diff) {
