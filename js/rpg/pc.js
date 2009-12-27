@@ -477,7 +477,7 @@ RPG.Beings.PC.prototype.kick = function(cell) {
 	var items = cell.getItems();
 	
 	if (cell == this._cell) {
-		RPG.UI.buffer.message("You wouldn't do that, would you?");
+		RPG.UI.buffer.message("You would not do that, would you?");
 		return RPG.ACTION_NO_TIME;
 	}
 	

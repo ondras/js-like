@@ -152,12 +152,7 @@ RPG.Beings.BaseBeing.prototype.removeItem = function(item) {
 RPG.Beings.BaseBeing.prototype.equip = function(item, slot) {
 	if (slot.getItem()) { this.unequip(slot); }
 	
-	if (item.getAmount() == 1) {
-		this.removeItem(item);
-	} else {
-		item = item.subtract(1);
-	}
-	slot.setItem(item);
+	var it = slot.setItem(item); /* adding to slot could have modified the item (by subtracting etc) */
 	
 	/* remove shield for dual-handed weapons */
 	if ((slot == this.getSlot(RPG.SLOT_WEAPON)) && item.isDualHand()) {
@@ -171,7 +166,7 @@ RPG.Beings.BaseBeing.prototype.equip = function(item, slot) {
 		if (weapon && weapon.isDualHand()) { this.unequip(this.getSlot(RPG.SLOT_WEAPON)); }
 	}
 
-	this._addModifiers(item);
+	this._addModifiers(it);
 }
 
 RPG.Beings.BaseBeing.prototype.unequip = function(slot) {
@@ -749,6 +744,12 @@ RPG.Beings.BaseBeing.prototype.attackMagic = function(being, spell) {
 	return RPG.ACTION_NO_TIME;
 }
 
+RPG.Beings.BaseBeing.prototype.launch = function(projectile, cell) {
+	RPG.World.lock();
+	projectile.launch(this._cell, cell.getCoords());
+	return RPG.ACTION_TIME;
+}
+
 RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
 	var hit = false;
 	var damage = false;
@@ -770,6 +771,10 @@ RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
 	
 	this.dispatch("attack-melee", {being:being});
 	return RPG.ACTION_TIME;
+}
+
+RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
+	/* FIXME */
 }
 
 /* -------------------- PRIVATE --------------- */

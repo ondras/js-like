@@ -30,7 +30,7 @@ RPG.UI.Slots.prototype._build = function() {
 	
 	var index = 0;
 	var order = [RPG.SLOT_HEAD, RPG.SLOT_ARMOR, RPG.SLOT_WEAPON, RPG.SLOT_SHIELD, 
-				RPG.SLOT_LRING, RPG.SLOT_RRING, RPG.SLOT_FEET];
+				RPG.SLOT_LRING, RPG.SLOT_RRING, RPG.SLOT_FEET, RPG.SLOT_PROJECTILE];
 	
 	for (var i=0;i<order.length;i++) {
 		var c = order[i];

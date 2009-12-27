@@ -20,6 +20,7 @@ RPG.Races.Humanoid.prototype.init = function() {
 	this._slots[RPG.SLOT_SHIELD] = new RPG.Slots.BaseSlot("Shield", [RPG.Items.Shield]);
 	this._slots[RPG.SLOT_LRING] = new RPG.Slots.BaseSlot("Left ring", [RPG.Items.Ring]);
 	this._slots[RPG.SLOT_RRING] = new RPG.Slots.BaseSlot("Right ring", [RPG.Items.Ring]);
+	this._slots[RPG.SLOT_PROJECTILE] = new RPG.Slots.Projectile("Quiver");
 	
 	var weapon = new RPG.Slots.Weapon("Weapon");
 	this._slots[RPG.SLOT_WEAPON] = weapon;

@@ -1102,3 +1102,62 @@ RPG.UI.Command.Quests.prototype.exec = function() {
 RPG.UI.Command.Quests.prototype._done = function() {
 	RPG.UI.setMode(RPG.UI_NORMAL);
 }
+
+/**
+ * @class Throw/shoot command
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Launch = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.Launch.prototype.init = function() {
+	this.parent("Throw/shoot");
+	this._button.setChar("t");
+	this._projectile = null;
+}
+
+RPG.UI.Command.Launch.prototype.notify = function(coords) {
+	var source = RPG.World.pc.getCell();
+	this._projectile.showTrajectory(source, coords);
+}
+
+RPG.UI.Command.Launch.prototype.exec = function(coords) {
+	var pc = RPG.World.pc;
+	if (!coords) {
+		var item = pc.getSlot(RPG.SLOT_PROJECTILE).getItem();
+		if (!item) { 
+			RPG.UI.buffer.message("You have no projectiles ready.");
+			return;
+		}
+		
+		if (item.getAmount() == 1) {
+			this._projectile = item;
+			pc.unequip(pc.getSlot(RPG.SLOT_PROJECTILE));
+			pc.removeItem(item);
+		} else {
+			this._projectile = item.subtract(1);
+		}
+		
+		RPG.UI.setMode(RPG.UI_WAIT_TARGET, this, "Shoot");
+	} else {
+		RPG.UI.refocus();
+		RPG.UI.map.removeProjectiles();
+		RPG.UI.setMode(RPG.UI_NORMAL);
+		var map = pc.getCell().getMap();
+		
+		var cell = map.at(coords);
+		if (cell == pc.getCell()) {
+			RPG.UI.buffer.message("You do not want to do that, do you?");
+			this.projectile = null;
+			return;
+		}
+		
+		var result = RPG.World.pc.launch(this._projectile, cell);
+		this._projectile = null;		
+		RPG.World.actionResult(result);
+	}
+}
+
+RPG.UI.Command.Launch.prototype.cancel = function() {
+	RPG.UI.map.removeProjectiles();
+	RPG.UI.refocus();
+}

@@ -184,7 +184,7 @@ RPG.Misc.IProjectile.prototype.launch = function(source, target) {
  * Flying above a given cell
  * @returns {bool} still in flight?
  */
-RPG.Misc.IProjectile.prototype.fly = function() {
+RPG.Misc.IProjectile.prototype._fly = function() {
 	var cell = this._flight.cells[this._flight.index];
 	RPG.UI.map.addProjectile(cell.getCoords(), this);
 }
@@ -221,7 +221,7 @@ RPG.Misc.IProjectile.prototype._step = function() {
 	
 	this._char = this._flight.chars[index];
 	this._image = this._flight.images[index];
-	this.fly(this._flight.cells[index]);
+	this._fly(this._flight.cells[index]);
 }
 
 RPG.Misc.IProjectile.prototype._done = function() {

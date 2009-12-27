@@ -125,8 +125,8 @@ RPG.Spells.Projectile.prototype.cast = function(target) {
 	this.launch(this._caster.getCell(), target);
 }
 
-RPG.Spells.Projectile.prototype.fly = function() {
-	RPG.Misc.IProjectile.prototype.fly.call(this);
+RPG.Spells.Projectile.prototype._fly = function() {
+	RPG.Misc.IProjectile.prototype._fly.call(this);
 
 	var cell = this._flight.cells[this._flight.index];
 	var bounce = this._flight.bounces[this._flight.index];

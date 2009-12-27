@@ -113,7 +113,7 @@ RPG.Spells.MagicBolt.prototype.init = function(caster) {
 	this._color = "blueviolet";
 }
 
-RPG.Spells.MagicBolt.prototype.fly = function(cell) {
+RPG.Spells.MagicBolt.prototype._fly = function(cell) {
 	this.parent(cell);
 
 	var b = cell.getBeing();
@@ -146,7 +146,7 @@ RPG.Spells.Fireball.prototype.init = function(caster) {
 	this._color = "red"; 
 }
 
-RPG.Spells.Fireball.prototype.fly = function(cell) {
+RPG.Spells.Fireball.prototype._fly = function(cell) {
 	this.parent(cell);
 
 	if (this._flight.index+1 == this._flight.cells.length) {

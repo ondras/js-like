@@ -59,6 +59,10 @@ RPG.Story.prototype._createPC = function(race, profession, name) {
 	RPG.World.pc = pc;
 	pc.setName(name);
 	OZ.Event.add(pc, "death", this.bind(this._endGame));
+	
+	var rocks = new RPG.Items.Rock();
+	rocks.setAmount(5);
+	pc.addItem(rocks);
 
 	return pc;
 }

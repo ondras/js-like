@@ -63,3 +63,21 @@ RPG.Slots.Weapon.prototype.getDamage = function() {
 
 	return new RPG.Misc.RandomValue(m, v);
 }
+
+/**
+ * @class Projectile slot (rocks, arrows, ...)
+ * This slot holds the whole heap of items, no subtracting is done.
+ * @augments RPG.Slots.BaseSlot
+ * @augments RPG.Misc.IWeapon
+ */
+RPG.Slots.Projectile = OZ.Class()
+						.extend(RPG.Slots.BaseSlot);
+RPG.Slots.Projectile.prototype.init = function(name) {
+	this.parent(name, [RPG.Items.Projectile]);
+}
+
+RPG.Slots.Projectile.prototype.setItem = function(item) {
+	if (item) { this._being.removeItem(item); }
+	this._item = item;
+	return item;
+}
