@@ -84,7 +84,7 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 		this._feats[name] = new RPG.Feats.BaseFeat(this, defaults[name] || 0);
 	}
 	
-	for (var p in this._feats) { this.updateFeat(p); }
+	for (var p in this._feats) { this._updateFeat(p); }
 }
 
 /**
@@ -288,7 +288,11 @@ RPG.Beings.BaseBeing.prototype.setStat = function(stat, value) {
 	return this._stats[stat];
 }
 
-RPG.Beings.BaseBeing.prototype.updateFeat = function(feat) {
+/**
+ * Recompute modifiers and modified value for a given feat
+ * @param {int} feat
+ */
+RPG.Beings.BaseBeing.prototype._updateFeat = function(feat) {
 	var f = this._feats[feat];
 	var modifier = 0;
 	for (var i=0;i<this._modifierList.length;i++) {
@@ -299,22 +303,35 @@ RPG.Beings.BaseBeing.prototype.updateFeat = function(feat) {
 	if (f instanceof RPG.Feats.AdvancedFeat) {
 		var modified = f.getModified();
 		for (var i=0;i<modified.length;i++) {
-			this.updateFeat(modified[i]);
+			this._updateFeat(modified[i]);
 		}
 	}
 	
 	return f.getValue();
 }
 
+/**
+ * Get final feat value
+ * @param {int} feat
+*/
 RPG.Beings.BaseBeing.prototype.getFeat = function(feat) {
 	return this._feats[feat].getValue();
 }
 
+/**
+ * Set base feat value
+ * @param {int} feat
+ */
 RPG.Beings.BaseBeing.prototype.setFeat = function(feat, value) {
 	this._feats[feat].setBase(value);
-	return this.updateFeat(feat);
+	return this._updateFeat(feat);
 }
 
+/**
+ * Adjust base feat value
+ * @param {int} feat
+ * @param {int} diff
+ */
 RPG.Beings.BaseBeing.prototype.adjustFeat = function(feat, diff) {
 	return this.setFeat(feat, this._feats[feat].getBase() + diff);
 }
@@ -772,9 +789,12 @@ RPG.Beings.BaseBeing.prototype._removeModifiers = function(imodifier) {
 	this._updateFeatsByModifier(imodifier);
 }
 
+/**
+ * Update all feats modified by this IModifier
+ */
 RPG.Beings.BaseBeing.prototype._updateFeatsByModifier = function(imodifier) {
 	var list = imodifier.getModified();
 	for (var i=0;i<list.length;i++) {
-		this.updateFeat(list[i]);
+		this._updateFeat(list[i]);
 	}
 }

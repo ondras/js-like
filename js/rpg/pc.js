@@ -91,14 +91,8 @@ RPG.Beings.PC.prototype.setStat = function(stat, value) {
 	return value;
 }
 
-RPG.Beings.PC.prototype.updateFeat = function(feat) {
+RPG.Beings.PC.prototype._updateFeat = function(feat) {
 	var value = this.parent(feat);
-	RPG.UI.status.updateFeat(feat, value);
-	return value;
-}
-
-RPG.Beings.PC.prototype.setFeat = function(feat, value) {
-	var value = this.parent(feat, value);
 	RPG.UI.status.updateFeat(feat, value);
 	return value;
 }
