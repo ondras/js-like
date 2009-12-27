@@ -30,6 +30,7 @@ RPG.AI.prototype.getBeing = function() {
 
 /**
  * Add a fallback task. This one is executed if no other task is available.
+ * @param {RPG.AI.Task} task
  */
 RPG.AI.prototype.setDefaultTask = function(task) {
 	this._defaultTask = task;
@@ -37,27 +38,45 @@ RPG.AI.prototype.setDefaultTask = function(task) {
 	return this;
 }
 
+/**
+ * Add a new task 
+ * @param {RPG.AI.Task} task
+ */
 RPG.AI.prototype.addTask = function(task) {
 	this._tasks.push(task);
 	task.setAI(this);
 	return this;
 }
 
+/**
+ * Remove existing task
+ * @param {RPG.AI.Task} task
+ */
 RPG.AI.prototype.removeTask = function(task) {
 	var index = this._tasks.indexOf(task);
 	if (index == -1) { throw new Error("Cannot find task to be removed"); }
 	this._tasks.splice(index, 1);
 }
 
+/**
+ * Clear all non-default tasks 
+ */
 RPG.AI.prototype.clearTasks = function() {
 	this._tasks = [];
 }
 
+/**
+ * To be called by tasks; informing the AI about their actionresult
+ */
 RPG.AI.prototype.setActionResult = function(result) {
 	this._actionResult = result;
 	return this;
 }
 
+/**
+ * Is this AI hostile to a given being?
+ * @param {RPG.Beings.BaseBeing} being
+ */
 RPG.AI.prototype.isHostile = function(being) {
 	for (var i=0;i<this._tasks.length;i++) {
 		var task = this._tasks[i];	
@@ -66,6 +85,9 @@ RPG.AI.prototype.isHostile = function(being) {
 	return false;
 }
 
+/**
+ * We became chaotic, kill PC!
+ */
 RPG.AI.prototype.syncWithAlignment = function() {
 	var pc = RPG.World.pc;
 	var a = this._being.getAlignment();
@@ -75,8 +97,7 @@ RPG.AI.prototype.syncWithAlignment = function() {
 }
 
 /**
- * Pick one of available tasks
- and try to satisfy it
+ * Pick one of available tasks and try to satisfy it
  */
 RPG.AI.prototype.yourTurn = function() {
 	var taskPtr = this._tasks.length-1;
@@ -216,7 +237,7 @@ RPG.AI.cellToDistance = function(source, target, distance) {
 }
 
 /**
- * @class Task
+ * @class Base Task
  */
 RPG.AI.Task = OZ.Class();
 RPG.AI.Task.prototype.init = function() {
