@@ -7,9 +7,12 @@ RPG.Beings.NPC.factory.ignore = true;
 
 RPG.Beings.NPC.prototype.init = function(race) {
 	this.parent(race);
-	this._ai = new RPG.Engine.AI(this);
-	
+	this._ai = new RPG.AI(this);
 	this._alignment = RPG.ALIGNMENT_NEUTRAL;
+}
+
+RPG.Beings.NPC.prototype.ai = function() {
+	return this._ai;
 }
 
 RPG.Beings.NPC.prototype.yourTurn = function() {

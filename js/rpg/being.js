@@ -329,7 +329,7 @@ RPG.Beings.BaseBeing.prototype.getGender = function() {
 }
 
 /**
- * @see RPG.Engine.IActor#getSpeed
+ * @see RPG.Misc.IActor#getSpeed
  */
 RPG.Beings.BaseBeing.prototype.getSpeed = function() {
 	return this.getFeat(RPG.FEAT_SPEED);

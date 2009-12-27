@@ -17,9 +17,6 @@ RPG.Cells = {};
 RPG.Decorators = {};
 
 /** @namespace */
-RPG.Engine = {};
-
-/** @namespace */
 RPG.Effects = {};
 
 /** @namespace */
@@ -89,7 +86,7 @@ RPG.UI_WAIT_CHAT		= 4;
 /** @constant */
 RPG.AI_OK				= 0;
 /** @constant */
-RPG.AI_RETRY			= 1;
+RPG.AI_ALREADY_DONE		= 1;
 /** @constant */
 RPG.AI_IMPOSSIBLE		= 2;
 

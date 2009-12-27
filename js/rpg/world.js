@@ -49,7 +49,7 @@ RPG.World.removeActor = function(actor) {
 
 /**
  * Switch to a new map
- * @param {RPG.Engine.Map} map
+ * @param {RPG.Map} map
  */
 RPG.World.setMap = function(map) {
 	this._map = map;

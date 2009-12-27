@@ -59,6 +59,9 @@ RPG.Map.Village.prototype.init = function() {
 
 	this._elder = new RPG.Beings.VillageElder();
 	this.at(new RPG.Misc.Coords(13, 5)).setBeing(this._elder);
+
+	var task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(12, 5), new RPG.Misc.Coords(14, 5));
+	this._elder.ai().setDefaultTask(task);
 	
 	var residents = 5;
 	var chats = [
