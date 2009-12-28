@@ -360,7 +360,7 @@ RPG.Beings.PC.prototype.switchPosition = function(cell) {
 	return RPG.ACTION_TIME;
 }
 
-RPG.Beings.PC.prototype.equipDone = function(item, slot) {
+RPG.Beings.PC.prototype.equipDone = function() {
 	RPG.UI.buffer.message("You adjust your equipment.");
 	this._mapMemory.updateVisible();
 	return RPG.ACTION_TIME;
@@ -649,8 +649,7 @@ RPG.Beings.PC.prototype._describeRemote = function(cell) {
 		}
 		var s = RPG.Misc.format("%S lying there.", what);
 		RPG.UI.buffer.message(s);
-	}
-	
+	}	
 }
 
 RPG.Beings.PC.prototype._describeBeing = function(b) {

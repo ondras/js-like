@@ -1125,19 +1125,28 @@ RPG.UI.Command.Launch.prototype.exec = function(coords) {
 	if (!coords) {
 		var item = pc.getSlot(RPG.SLOT_PROJECTILE).getItem();
 		if (!item) { 
-			RPG.UI.buffer.message("You have no projectiles ready.");
+			RPG.UI.buffer.message("You have no ammunition ready.");
 			return;
+		}
+		
+		var weaponCtor = item.getWeapon();
+		if (weaponCtor) {
+			var weapon = pc.getSlot(RPG.SLOT_WEAPON).getItem();
+			if (!weapon || !(weapon instanceof weaponCtor)) {
+				RPG.UI.buffer.message("You have no suitable weapon for this ammunition.");
+				return;
+			}
 		}
 		
 		if (item.getAmount() == 1) {
 			this._projectile = item;
-			pc.unequip(pc.getSlot(RPG.SLOT_PROJECTILE));
+			pc.unequip(RPG.SLOT_PROJECTILE);
 			pc.removeItem(item);
 		} else {
 			this._projectile = item.subtract(1);
 		}
 		
-		RPG.UI.setMode(RPG.UI_WAIT_TARGET, this, "Shoot");
+		RPG.UI.setMode(RPG.UI_WAIT_TARGET, this, "Throw/shoot");
 	} else {
 		RPG.UI.refocus();
 		RPG.UI.map.removeProjectiles();

@@ -310,10 +310,7 @@ RPG.Slots.BaseSlot.prototype.filterAllowed = function(itemList) {
 	var arr = [];
 	for (var i=0;i<itemList.length;i++) {
 		var item = itemList[i];
-		for (var j=0;j<this._allowed.length;j++) {
-			var allowed = this._allowed[j];
-			if (item instanceof allowed) { arr.push(item); }
-		}
+		if (item instanceof this._allowed) { arr.push(item); }
 	}
 	return arr;
 }
@@ -323,7 +320,9 @@ RPG.Slots.BaseSlot.prototype.setItem = function(item) {
 	
 	if (it) {
 		if (it.getAmount() == 1) {
-			this._being.removeItem(it);
+			if (this._being.hasItem(it)) {
+				this._being.removeItem(it);
+			}
 		} else {
 			it = it.subtract(1);
 		}

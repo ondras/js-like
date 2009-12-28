@@ -140,6 +140,11 @@ RPG.Beings.BaseBeing.prototype.getName = function() {
 
 RPG.Beings.BaseBeing.prototype.addItem = function(item) { 
 	item.mergeInto(this._items);
+	return this;
+}
+
+RPG.Beings.BaseBeing.prototype.hasItem = function(item) {
+	return (this._items.indexOf(item) != -1);
 }
 
 RPG.Beings.BaseBeing.prototype.removeItem = function(item) { 
@@ -149,34 +154,26 @@ RPG.Beings.BaseBeing.prototype.removeItem = function(item) {
 	return this;
 }
 
-RPG.Beings.BaseBeing.prototype.equip = function(item, slot) {
-	if (slot.getItem()) { this.unequip(slot); }
+RPG.Beings.BaseBeing.prototype.equip = function(slotId, item) {
+	var slot = this.getSlot(slotId);
+	if (slot.getItem()) { this.unequip(slotId); }
 	
 	var it = slot.setItem(item); /* adding to slot could have modified the item (by subtracting etc) */
-	
-	/* remove shield for dual-handed weapons */
-	if ((slot == this.getSlot(RPG.SLOT_WEAPON)) && item.isDualHand()) {
-		var shieldSlot = this.getSlot(RPG.SLOT_SHIELD);
-		if (shieldSlot) { this.unequip(shieldSlot); }
-	}
-
-	/* remove dual-handed weapon if shield is equipped */
-	if ((slot == this.getSlot(RPG.SLOT_SHIELD)) && item) {
-		var weapon = this.getSlot(RPG.SLOT_WEAPON).getItem();
-		if (weapon && weapon.isDualHand()) { this.unequip(this.getSlot(RPG.SLOT_WEAPON)); }
-	}
-
 	this._addModifiers(it);
 }
 
-RPG.Beings.BaseBeing.prototype.unequip = function(slot) {
+RPG.Beings.BaseBeing.prototype.unequip = function(slotId) {
+	var slot = this.getSlot(slotId);
+	if (!slot) { return this; }
+	
 	var item = slot.getItem();
-	if (!item) { return; }
+	if (!item) { return this; }
 	
 	slot.setItem(null);
 	this._removeModifiers(item);
-
 	this.addItem(item);
+	
+	return this;
 }
 
 RPG.Beings.BaseBeing.prototype.getItems = function() { 
@@ -390,10 +387,7 @@ RPG.Beings.BaseBeing.prototype.fullStats = function() {
  */
 RPG.Beings.BaseBeing.prototype.dropAll = function() {
 	var slots = this._race.getSlots();
-	for (var i=0;i<slots.length;i++) {
-		var s = slots[i];
-		this.unequip(s);
-	}
+	for (var p in slots) { this.unequip(p); }
 
 	for (var i=0;i<this._items.length;i++) { /* drop items */
 		if (Math.randomPercentage() < 81) {
@@ -715,6 +709,12 @@ RPG.Beings.BaseBeing.prototype.close = function(door) {
 	return RPG.ACTION_TIME;
 }
 
+RPG.Beings.BaseBeing.prototype.launch = function(projectile, cell) {
+	projectile.setBeing(this);
+	projectile.launch(this._cell, cell.getCoords());
+	return RPG.ACTION_TIME;
+}
+
 /**
  * Magical attack
  * @param {RPG.Beings.BaseBeing} being
@@ -724,30 +724,23 @@ RPG.Beings.BaseBeing.prototype.attackMagic = function(being, spell) {
 	var hit = RPG.Rules.isSpellHit(this, being, spell);
 	if (!hit) {
 		var verb = RPG.Misc.verb("evade", being);
-		var s = RPG.Misc.format("%A barely %s %the!", being, verb, spell);
-		RPG.UI.buffer.message(str);
-		return;
-	}
+		var s = RPG.Misc.format("%A barely %s %a!", being, verb, spell);
+		RPG.UI.buffer.message(s);
+	} else {
+		var s = RPG.Misc.format("%A %is hit by %the.", being, being, spell);
+		RPG.UI.buffer.message(s);
 
-	var s = RPG.Misc.format("%A %is hit by %the.", being, being, spell);
-	RPG.UI.buffer.message(s);
+		var dmg = RPG.Rules.getSpellDamage(being, spell);
+		being.adjustStat(RPG.STAT_HP, -dmg);
 
-	var dmg = RPG.Rules.getSpellDamage(being, spell);
-	being.adjustStat(RPG.STAT_HP, -dmg);
-
-	if (!being.isAlive()) {
-		var str = RPG.Misc.format("%The %is killed!", being, being);
-		RPG.UI.buffer.message(str);
+		if (!being.isAlive()) {
+			var str = RPG.Misc.format("%The %is killed!", being, being);
+			RPG.UI.buffer.message(str);
+		}
 	}
 
 	this.dispatch("attack-magic", {being:being});
 	return RPG.ACTION_NO_TIME;
-}
-
-RPG.Beings.BaseBeing.prototype.launch = function(projectile, cell) {
-	RPG.World.lock();
-	projectile.launch(this._cell, cell.getCoords());
-	return RPG.ACTION_TIME;
 }
 
 RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
@@ -774,7 +767,26 @@ RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
 }
 
 RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
-	/* FIXME */
+	var hit = RPG.Rules.isRangedHit(this, being, projectile);
+	if (!hit) {
+		var verb = RPG.Misc.verb("evade", being);
+		var s = RPG.Misc.format("%A barely %s %a!", being, verb, projectile);
+		RPG.UI.buffer.message(s);
+	} else {
+		var s = RPG.Misc.format("%A %is hit by %a.", being, being, projectile);
+		RPG.UI.buffer.message(s);
+
+		var dmg = RPG.Rules.getRangedDamage(this, being, projectile);
+		being.adjustStat(RPG.STAT_HP, -dmg);
+
+		if (!being.isAlive()) {
+			var str = RPG.Misc.format("%The %is killed!", being, being);
+			RPG.UI.buffer.message(str);
+		}
+	}
+		
+	this.dispatch("attack-ranged", {being:being});
+	return RPG.ACTION_NO_TIME;
 }
 
 /* -------------------- PRIVATE --------------- */

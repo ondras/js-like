@@ -25,8 +25,7 @@ RPG.Beings.Skeleton.prototype.init = function() {
 	
 	if (Math.randomPercentage() < 21) {
 		var sword = new RPG.Items.ShortSword();
-		this.addItem(sword);
-		this.equip(sword, this.getSlot(RPG.SLOT_WEAPON));
+		this.equip(RPG.SLOT_WEAPON, sword);
 	}
 
 	this.fullStats();

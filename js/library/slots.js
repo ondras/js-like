@@ -13,11 +13,13 @@ RPG.Slots.Kick.prototype.init = function(name) {
 }
 
 RPG.Slots.Kick.prototype.getHit = function() {
-	return new RPG.Misc.RandomValue(this._hit.mean + this._being.getFeat(RPG.FEAT_HIT), this._hit.variance);
+	var addedHit = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_HIT), 0);
+	return this._hit.add(addedHit);
 }
 
 RPG.Slots.Kick.prototype.getDamage = function() {
-	return new RPG.Misc.RandomValue(this._damage.mean + this._being.getFeat(RPG.FEAT_DAMAGE), this._damage.variance);
+	var addedDamage = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_DAMAGE), 0);
+	return this._damage.add(addedDamage);
 }
 
 /**
@@ -29,51 +31,56 @@ RPG.Slots.Weapon = OZ.Class()
 					.extend(RPG.Slots.BaseSlot)
 					.implement(RPG.Misc.IWeapon);
 RPG.Slots.Weapon.prototype.init = function(name) {
-	this.parent(name, [RPG.Items.Weapon]);
+	this.parent(name, RPG.Items.Weapon);
 	this._hit = null;
 	this._damage = null;
 }
 
-RPG.Slots.Weapon.prototype.getHit = function() {
-	var v = 0;
-	var m = this._being.getFeat(RPG.FEAT_HIT);
-	
-	if (this._item) {
-		v = this._item.getHit().variance;
-		m += this._item.getHit().mean;
-	} else {
-		v = this._hit.variance;
-		m += this._hit.mean;
-	}
+RPG.Slots.Weapon.prototype.setItem = function(item) {
+	/* remove shield for dual-handed weapons */
+	if (item && item.isDualHand()) { this._being.unequip(RPG.SLOT_SHIELD); }
 
-	return new RPG.Misc.RandomValue(m, v);
+	return this.parent(item);
+}
+
+RPG.Slots.Weapon.prototype.getHit = function() {
+	var addedHit = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_HIT), 0);
+	return addedHit.add(this._item ? this._item.getHit() : this._hit);
 }
 
 RPG.Slots.Weapon.prototype.getDamage = function() {
-	var v = 0;
-	var m = this._being.getFeat(RPG.FEAT_DAMAGE);
-	
-	if (this._item) {
-		v = this._item.getDamage().variance;
-		m += this._item.getDamage().mean;
-	} else {
-		v = this._damage.variance;
-		m += this._damage.mean;
+	var addedDamage = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_DAMAGE), 0);
+	return addedDamage.add(this._item ? this._item.getDamage() : this._damage);
+}
+
+/**
+ * @class Shield slot
+ * @augments RPG.Slots.BaseSlot
+ */
+RPG.Slots.Shield = OZ.Class().extend(RPG.Slots.BaseSlot);
+RPG.Slots.Shield.prototype.init = function(name) {
+	this.parent(name, RPG.Items.Shield);
+}
+
+RPG.Slots.Shield.prototype.setItem = function(item) {
+	/* remove dual-handed weapon if shield is equipped */
+	if (item) {
+		var weapon = this._being.getSlot(RPG.SLOT_WEAPON).getItem();
+		if (weapon && weapon.isDualHand()) { this._being.unequip(RPG.SLOT_WEAPON); }
 	}
 
-	return new RPG.Misc.RandomValue(m, v);
+	return this.parent(item);
 }
 
 /**
  * @class Projectile slot (rocks, arrows, ...)
  * This slot holds the whole heap of items, no subtracting is done.
  * @augments RPG.Slots.BaseSlot
- * @augments RPG.Misc.IWeapon
  */
 RPG.Slots.Projectile = OZ.Class()
 						.extend(RPG.Slots.BaseSlot);
 RPG.Slots.Projectile.prototype.init = function(name) {
-	this.parent(name, [RPG.Items.Projectile]);
+	this.parent(name, RPG.Items.Projectile);
 }
 
 RPG.Slots.Projectile.prototype.setItem = function(item) {
@@ -81,3 +88,5 @@ RPG.Slots.Projectile.prototype.setItem = function(item) {
 	this._item = item;
 	return item;
 }
+
+

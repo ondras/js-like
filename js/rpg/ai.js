@@ -19,6 +19,7 @@ RPG.AI.prototype.init = function(being) {
 
 	this._ec.push(OZ.Event.add(being, "death", this.bind(this._death)));
 	this._ec.push(OZ.Event.add(null, "attack-melee", this.bind(this._attack)));
+	this._ec.push(OZ.Event.add(null, "attack-ranged", this.bind(this._attack)));
 	this._ec.push(OZ.Event.add(null, "attack-magic", this.bind(this._attack)));
 	
 	this.setDefaultTask(new RPG.AI.Wander());

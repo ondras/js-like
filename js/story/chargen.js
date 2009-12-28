@@ -11,8 +11,9 @@ RPG.CharGen.prototype.races = [
 ];
 
 RPG.CharGen.prototype.professions = [
+	RPG.Professions.Adventurer,
 	RPG.Professions.Warrior,
-	RPG.Professions.Ranger,
+	RPG.Professions.Archer,
 	RPG.Professions.Wizard
 ];
 

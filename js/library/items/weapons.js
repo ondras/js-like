@@ -104,6 +104,7 @@ RPG.Items.Torch.prototype.init = function() {
 	this._color = "gray";
 	this._image = "torch";
 	this._description = "torch"; 
+	this._descriptionPlural = "torches"; 
 	
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 1;
 }
@@ -137,6 +138,7 @@ RPG.Items.Projectile.prototype.init = function(hit, damage) {
 	this.parent(hit, damage);
 	this._initProjectile();
 	this._being = null;
+	this._weapon = null;
 	this._baseChar = "";
 }
 
@@ -145,18 +147,65 @@ RPG.Items.Projectile.prototype.setBeing = function(being) {
 	return this;
 }
 
+RPG.Items.Projectile.prototype.getWeapon = function() {
+	return this._weapon;
+}
+
+RPG.Items.Projectile.prototype.getHit = function() {
+	var addedHit = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_HIT), 0);
+	if (this._weapon) {
+		var w = this._being.getSlot(RPG.SLOT_WEAPON).getItem();
+		if (w) { addedHit = addedHit.add(w.getHit()); }
+	}
+	return this._hit.add(addedHit);
+}
+
+RPG.Items.Projectile.prototype.getDamage = function() {
+	var addedDamage = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_DAMAGE), 0);
+	if (this._weapon) {
+		var w = this._being.getSlot(RPG.SLOT_WEAPON).getItem();
+		if (w) { addedDamage = addedDamage.add(w.getDamage()); }
+	}
+	return this._damage.add(addedDamage);
+}
+
 RPG.Items.Projectile.prototype._fly = function() {	
 	RPG.UI.map.removeProjectiles();
 	RPG.Misc.IProjectile.prototype._fly.call(this);
 }
 
 RPG.Items.Projectile.prototype._done = function() {
+	var recovered = RPG.Rules.isProjectileRecovered(this);
+
 	this._char = this._baseChar;
+	this._image = this._baseImage;
+
 	var cell = this._flight.cells[this._flight.cells.length-1];
 	var b = cell.getBeing();
+	var f = cell.getFeature();
+	var dropPossible = false;
+	
 	if (b) {
+		if (recovered) { b.addItem(this); }
 		this._being.attackRanged(b, this);
+	} else {
+		if (cell.isFree()) { 
+			dropPossible = true;
+		} else {
+			var f = cell.getFeature() || cell;
+			var s = RPG.Misc.format("%A hits %a.", this, f);
+			RPG.UI.buffer.message(s);
+		}
 	}
+	
+	if (recovered && dropPossible) {
+		cell.addItem(this);
+		var pc = RPG.World.pc;
+		if (pc.canSee(cell.getCoords())) {
+			pc.mapMemory().updateCoords(cell.getCoords());
+		}
+	}
+
 	RPG.Misc.IProjectile.prototype._done.call(this);
 }
 
@@ -166,9 +215,9 @@ RPG.Items.Projectile.prototype._done = function() {
  */
 RPG.Items.Rock = OZ.Class().extend(RPG.Items.Projectile);
 RPG.Items.Rock.prototype.init = function() {
-	this.parent(new RPG.Misc.RandomValue(3, 1), new RPG.Misc.RandomValue(2, 1));
+	this.parent(new RPG.Misc.RandomValue(1, 1), new RPG.Misc.RandomValue(1, 1));
 	var ch = "*";
-	this._baseImage = ""; /* FIXME */
+	this._baseImage = "rock";
 	this._baseChar = ch;
 	this._color = "gray";
 	for (var dir in RPG.DIR) { 
@@ -178,3 +227,41 @@ RPG.Items.Rock.prototype.init = function() {
 	this._char = ch;
 	this._description = "rock";
 }
+
+/**
+ * @class Arrow
+ * @augments RPG.Items.Projectile
+ */
+RPG.Items.Arrow = OZ.Class().extend(RPG.Items.Projectile);
+RPG.Items.Arrow.factory.method = function(danger) {
+	var amount = 10*(1 + Math.round(Math.random() * danger * 1.5));
+	return new this(amount);
+}
+RPG.Items.Arrow.prototype.init = function(amount) {
+	this.parent(new RPG.Misc.RandomValue(2, 1), new RPG.Misc.RandomValue(2, 1));
+	var ch = "*";
+	this._baseImage = "arrow";
+	this._baseChar = "/";
+	this._char = ch;
+	this._color = "brown";
+	this._description = "arrow";
+	this._amount = amount;
+	
+	this._weapon = RPG.Items.Bow;
+}
+
+/**
+ * @class Bow
+ */
+RPG.Items.Bow = OZ.Class().extend(RPG.Items.Weapon);
+RPG.Items.Bow.factory.ignore = true;
+
+RPG.Items.ShortBow = OZ.Class().extend(RPG.Items.Bow);
+RPG.Items.ShortBow.prototype.init = function() {
+	this.parent(new RPG.Misc.RandomValue(3, 1), new RPG.Misc.RandomValue(3, 1));
+	this._description = "short bow";
+	this._char = "}";
+	this._image = "short-bow"; 
+}
+
+

@@ -1,4 +1,17 @@
 /**
+ * @class Adventurer profession
+ * @augments RPG.Professions.BaseProfession
+ */
+RPG.Professions.Adventurer = OZ.Class().extend(RPG.Professions.BaseProfession);
+RPG.Professions.Adventurer.name = "adventurer";
+RPG.Professions.Adventurer.image = "adventurer";
+RPG.Professions.Adventurer.prototype.setup = function(being) {
+	this.parent(being);
+
+	being.addSpell(RPG.Spells.Heal);
+}
+
+/**
  * @class Warrior profession
  * @augments RPG.Professions.BaseProfession
  */
@@ -16,16 +29,17 @@ RPG.Professions.Warrior.prototype.setup = function(being) {
 }
 
 /**
- * @class Ranger profession
+ * @class Archer profession
  * @augments RPG.Professions.BaseProfession
  */
-RPG.Professions.Ranger = OZ.Class().extend(RPG.Professions.BaseProfession);
-RPG.Professions.Ranger.name = "ranger";
-RPG.Professions.Ranger.image = "ranger";
-RPG.Professions.Ranger.prototype.setup = function(being) {
+RPG.Professions.Archer = OZ.Class().extend(RPG.Professions.BaseProfession);
+RPG.Professions.Archer.name = "archer";
+RPG.Professions.Archer.image = "archer";
+RPG.Professions.Archer.prototype.setup = function(being) {
 	this.parent(being);
 
-	being.addSpell(RPG.Spells.Heal);
+	being.addItem(new RPG.Items.ShortBow());
+	being.addItem(new RPG.Items.Arrow(30));
 }
 
 /**

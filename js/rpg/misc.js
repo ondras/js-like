@@ -18,6 +18,15 @@ RPG.Misc.RandomValue.prototype.roll = function() {
 }
 
 /**
+ * Add another random value
+ */
+RPG.Misc.RandomValue.prototype.add = function(rv) {
+	var m = this.mean + rv.mean;
+	var v = Math.max(this.variance, rv.variance);
+	return new this.constructor(m, v);
+}
+
+/**
  * @class Coordinates
  */
 RPG.Misc.Coords = OZ.Class();
@@ -230,7 +239,7 @@ RPG.Misc.IProjectile.prototype._done = function() {
 }
 
 /**
- * Precompute trajectory + its visuals
+ * Precompute trajectory + its visuals. Stop at first non-free cell.
  * @param {RPG.Cells.BaseCell} source
  * @param {RPG.Misc.Coords} target
  */
@@ -251,7 +260,9 @@ RPG.Misc.IProjectile.prototype._computeTrajectory = function(source, target) {
 		this._flight.cells.push(cell);
 		var dir = prev.getCoords().dirTo(cell.getCoords());
 		this._flight.chars.push(this._chars[dir]);
-		this._flight.images.push(this._baseImage + "-" + this._suffixes[dir]);
+		var image = this._baseImage;
+		if (this._suffixes[dir]) { image += "-" + this._suffixes[dir]; }
+		this._flight.images.push(image);
 
 		if (!cell.isFree()) { break; }
 	}
@@ -259,7 +270,7 @@ RPG.Misc.IProjectile.prototype._computeTrajectory = function(source, target) {
 
 /**
  * @class Projectile mark
- * @augments RPG.IVisual
+ * @augments RPG.Misc.IVisual
  */
 RPG.Misc.IProjectile.Mark = OZ.Class().implement(RPG.Misc.IVisual);
 RPG.Misc.IProjectile.Mark.prototype.init = function() {
@@ -270,7 +281,7 @@ RPG.Misc.IProjectile.Mark.prototype.init = function() {
 
 /**
  * @class Projectile end mark
- * @augments RPG.IVisual
+ * @augments RPG.Misc.IVisual
  */
 RPG.Misc.IProjectile.EndMark = OZ.Class().implement(RPG.Misc.IVisual);
 RPG.Misc.IProjectile.EndMark.prototype.init = function() {

@@ -8,11 +8,11 @@ RPG.UI.Slots.prototype.init = function(being, callback) {
 	this._callback = callback;
 	this._dom = {
 		container: null,
-		items: []
+		items: {}
 	};
 	this._buttons = [];
-	this._pendingIndex = -1;
-	this._slots = [];
+	this._slots = {};
+	this._slotIds = [];
 	
 	this._somethingDone = false;
 
@@ -33,11 +33,12 @@ RPG.UI.Slots.prototype._build = function() {
 				RPG.SLOT_LRING, RPG.SLOT_RRING, RPG.SLOT_FEET, RPG.SLOT_PROJECTILE];
 	
 	for (var i=0;i<order.length;i++) {
-		var c = order[i];
-		var slot = this._being.getSlot(c);
+		var slotId = order[i];
+		var slot = this._being.getSlot(slotId);
 		if (!slot) { continue; }
 		
-		this._slots.push(slot);
+		this._slotIds.push(slotId);
+		this._slots[slotId] = slot;
 	
 		var row = OZ.DOM.elm("tr");
 		tb.appendChild(row);
@@ -55,8 +56,8 @@ RPG.UI.Slots.prototype._build = function() {
 		row.appendChild(td);
 		
 		var td = OZ.DOM.elm("td");
-		this._dom.items.push(td);
-		this._redrawSlot(index);
+		this._dom.items[slotId] = td;
+		this._redrawSlot(slotId);
 		row.appendChild(td);
 		
 		index++;
@@ -101,44 +102,41 @@ RPG.UI.Slots.prototype._done = function() {
  */
 RPG.UI.Slots.prototype._buttonActivated = function(b) {
 	var index = this._buttons.indexOf(b);
-	this._toggle(index);
+	this._toggle(this._slotIds[index]);
 }
 
 /**
  * Switch slot state
  */
-RPG.UI.Slots.prototype._toggle = function(index) {
-	var slot = this._slots[index];
+RPG.UI.Slots.prototype._toggle = function(slotId) {
+	var slot = this._slots[slotId];
 	var item = slot.getItem();
 	if (item) {
-		this._being.unequip(slot);
+		this._being.unequip(slotId);
 		this._somethingDone = true;
-		this._redrawSlot(index);
+		this._redrawSlot(slotId);
 	} else {
 		this._disableButtons();
 		var all = this._being.getItems();
 		var filtered = slot.filterAllowed(all);
 		var label = "Select item for '" + slot.getName() + "'";
-		var cb = function(items) {
-			this._item(index, items);
-		}
+		var cb = function(items) { this._item(slotId, items); }
 		new RPG.UI.Itemlist(filtered, label, 1, this.bind(cb));
 	}
 }
 
 /**
  * Put item to a given slot. To be called as a callback from Itemlist
- * @param {int} index Slot index
+ * @param {int} slotId Slot ID
  * @param {array} items [[item, amount]]
  */
-RPG.UI.Slots.prototype._item = function(index, items) {
+RPG.UI.Slots.prototype._item = function(slotId, items) {
 	this._show();
 	if (!items.length) { return; }	
 
 	this._somethingDone = true;
-	var slot = this._slots[index];
 	var item = items[0][0]; 
-	this._being.equip(item, slot);
+	this._being.equip(slotId, item);
 	this._redrawSlots();
 }
 
@@ -146,15 +144,15 @@ RPG.UI.Slots.prototype._item = function(index, items) {
  * Redraw all slots
  */
 RPG.UI.Slots.prototype._redrawSlots = function() {
-	for (var i=0;i<this._slots.length;i++) { this._redrawSlot(i); }
+	for (var p in this._slots) { this._redrawSlot(p); }
 }
 
 /**
  * Redraw one slot item
  */
-RPG.UI.Slots.prototype._redrawSlot = function(index) {
-	var slot = this._slots[index];
-	var td = this._dom.items[index];
+RPG.UI.Slots.prototype._redrawSlot = function(slotId) {
+	var slot = this._slots[slotId];
+	var td = this._dom.items[slotId];
 	var item = slot.getItem();
 	if (item) {
 		td.innerHTML = "&nbsp;" + item.describe() + "&nbsp;";

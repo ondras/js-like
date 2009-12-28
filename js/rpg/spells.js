@@ -51,20 +51,17 @@ RPG.Spells.Attack.prototype.init = function(caster) {
 	this._hit = new RPG.Misc.RandomValue(5, 3);
 	this._damage = null;
 }
-					
-RPG.Spells.Attack.prototype.getDamage = function() {
-	var base = this.constructor.damage;
-	var m = base.mean + this._caster.getFeat(RPG.FEAT_DAMAGE_MAGIC);
-	var v = base.variance;
-	return new RPG.Misc.RandomValue(m, v);
-}
 
 RPG.Spells.Attack.prototype.getHit = function() {
-	var base = this._hit;
-	var m = base.mean + this._caster.getFeat(RPG.FEAT_HIT_MAGIC);
-	var v = base.variance;
-	return new RPG.Misc.RandomValue(m, v);
+	var addedHit = new RPG.Misc.RandomValue(this._caster.getFeat(RPG.FEAT_HIT_MAGIC), 0);
+	return this._hit.plus(addedHit);
 }
+
+RPG.Spells.Attack.prototype.getDamage = function() {
+	var addedDamange = new RPG.Misc.RandomValue(this._caster.getFeat(RPG.FEAT_DAMAGE_MAGIC), 0);
+	return this.constructor.damage.plus(addedDamage);
+}
+
 
 /**
  * Explosion
@@ -166,7 +163,10 @@ RPG.Spells.Projectile.prototype._computeTrajectory = function(source, target) {
 				this._flight.bounces.push(false);
 				this._flight.cells.push(cell);
 				this._flight.chars.push(this._chars[dir]);
-				this._flight.images.push(this._baseImage + "-" + this._suffixes[dir]);
+				
+				var image = this._baseImage;
+				if (this._suffixes[dir]) { image += "-" + this._suffixes[dir]; }
+				this._flight.images.push(image);
 				
 				if (!cell.visibleThrough()) { break; }
 			} else {

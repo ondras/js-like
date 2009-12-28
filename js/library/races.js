@@ -15,11 +15,11 @@ RPG.Races.Humanoid.prototype.init = function() {
 	this._defaults[RPG.FEAT_DEXTERITY] = 11;
 	this._defaults[RPG.FEAT_MAGIC] = 11;
 
-	this._slots[RPG.SLOT_HEAD] = new RPG.Slots.BaseSlot("Head", [RPG.Items.HeadGear]);
-	this._slots[RPG.SLOT_ARMOR] = new RPG.Slots.BaseSlot("Armor", [RPG.Items.Armor]);
-	this._slots[RPG.SLOT_SHIELD] = new RPG.Slots.BaseSlot("Shield", [RPG.Items.Shield]);
-	this._slots[RPG.SLOT_LRING] = new RPG.Slots.BaseSlot("Left ring", [RPG.Items.Ring]);
-	this._slots[RPG.SLOT_RRING] = new RPG.Slots.BaseSlot("Right ring", [RPG.Items.Ring]);
+	this._slots[RPG.SLOT_HEAD] = new RPG.Slots.BaseSlot("Head", RPG.Items.HeadGear);
+	this._slots[RPG.SLOT_ARMOR] = new RPG.Slots.BaseSlot("Armor", RPG.Items.Armor);
+	this._slots[RPG.SLOT_SHIELD] = new RPG.Slots.Shield("Shield");
+	this._slots[RPG.SLOT_LRING] = new RPG.Slots.BaseSlot("Left ring", RPG.Items.Ring);
+	this._slots[RPG.SLOT_RRING] = new RPG.Slots.BaseSlot("Right ring", RPG.Items.Ring);
 	this._slots[RPG.SLOT_PROJECTILE] = new RPG.Slots.Projectile("Quiver");
 	
 	var weapon = new RPG.Slots.Weapon("Weapon");

@@ -116,7 +116,7 @@ RPG.Beings.VillageElder.prototype.init = function() {
 	
 	var sword = new RPG.Items.LongSword();
 	this.addItem(sword);
-	this.equip(sword, this.getSlot(RPG.SLOT_WEAPON));
+	this.equip(RPG.SLOT_WEAPON, sword);
 	
 	this._description = "village elder";
 	this._char = "@";
