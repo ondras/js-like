@@ -55,7 +55,7 @@ RPG.Story.prototype._charGen = function(e) {
 }
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
-	var pc = new RPG.Beings.PC(new race(), new profession());
+	var pc = new RPG.Beings.God(new race(), new profession());
 	RPG.World.pc = pc;
 	pc.setName(name);
 	OZ.Event.add(pc, "death", this.bind(this._endGame));

@@ -84,7 +84,10 @@ RPG.Slots.Projectile.prototype.init = function(name) {
 }
 
 RPG.Slots.Projectile.prototype.setItem = function(item) {
-	if (item) { this._being.removeItem(item); }
+	if (item) { 
+		this._being.removeItem(item); 
+		item.setBeing(this._being);
+	}
 	this._item = item;
 	return item;
 }

@@ -710,7 +710,6 @@ RPG.Beings.BaseBeing.prototype.close = function(door) {
 }
 
 RPG.Beings.BaseBeing.prototype.launch = function(projectile, cell) {
-	projectile.setBeing(this);
 	projectile.launch(this._cell, cell.getCoords());
 	return RPG.ACTION_TIME;
 }
@@ -770,7 +769,7 @@ RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
 	var hit = RPG.Rules.isRangedHit(this, being, projectile);
 	if (!hit) {
 		var verb = RPG.Misc.verb("evade", being);
-		var s = RPG.Misc.format("%A barely %s %a!", being, verb, projectile);
+		var s = RPG.Misc.format("%A %s %a!", being, verb, projectile);
 		RPG.UI.buffer.message(s);
 	} else {
 		var s = RPG.Misc.format("%A %is hit by %a.", being, being, projectile);

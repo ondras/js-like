@@ -137,6 +137,7 @@ RPG.Items.Projectile = OZ.Class()
 RPG.Items.Projectile.prototype.init = function(hit, damage) {
 	this.parent(hit, damage);
 	this._initProjectile();
+	this._range = 2;
 	this._being = null;
 	this._weapon = null;
 	this._baseChar = "";
@@ -167,6 +168,15 @@ RPG.Items.Projectile.prototype.getDamage = function() {
 		if (w) { addedDamage = addedDamage.add(w.getDamage()); }
 	}
 	return this._damage.add(addedDamage);
+}
+
+RPG.Items.Projectile.prototype.getRange = function() {
+	var r = this._range;
+	if (this._weapon) {
+		var w = this._being.getSlot(RPG.SLOT_WEAPON).getItem();
+		if (w && (w instanceof this._weapon)) { r += w.getRange(); }
+	}
+	return r;
 }
 
 RPG.Items.Projectile.prototype._fly = function() {	
@@ -226,6 +236,7 @@ RPG.Items.Rock.prototype.init = function() {
 	}
 	this._char = ch;
 	this._description = "rock";
+	this._range = 3;
 }
 
 /**
@@ -255,6 +266,14 @@ RPG.Items.Arrow.prototype.init = function(amount) {
  */
 RPG.Items.Bow = OZ.Class().extend(RPG.Items.Weapon);
 RPG.Items.Bow.factory.ignore = true;
+RPG.Items.Bow.prototype.init = function(hit, damage) {
+	this.parent(hit, damage);
+	this._range = 4;
+}
+
+RPG.Items.Bow.prototype.getRange = function() {
+	return this._range;
+}
 
 RPG.Items.ShortBow = OZ.Class().extend(RPG.Items.Bow);
 RPG.Items.ShortBow.prototype.init = function() {

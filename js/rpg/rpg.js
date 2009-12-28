@@ -5,9 +5,6 @@
 var RPG = {}
 
 /** @namespace */
-RPG.Actions = {};
-
-/** @namespace */
 RPG.Beings = {};
 
 /** @namespace */

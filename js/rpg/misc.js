@@ -144,7 +144,7 @@ RPG.Misc.IProjectile = OZ.Class()
 						.implement(RPG.Misc.IVisual);
 
 RPG.Misc.IProjectile.prototype._initProjectile = function() {
-	this._range = 5;
+	this._range = 4;
 	
 	this._flight = {
 		index: -1,
@@ -174,6 +174,10 @@ RPG.Misc.IProjectile.prototype._initProjectile = function() {
 	this._suffixes[RPG.SW] = "sw";
 	this._suffixes[RPG.W]  = "w";
 	this._suffixes[RPG.NW] = "nw";
+}
+
+RPG.Misc.IProjectile.prototype.getRange = function() {
+	return this._range;
 }
 
 /**
@@ -251,7 +255,7 @@ RPG.Misc.IProjectile.prototype._computeTrajectory = function(source, target) {
 
 	var map = RPG.World.getMap();
 	var cells = map.cellsInLine(source.getCoords(), target);
-	var max = Math.min(this._range+1, cells.length);
+	var max = Math.min(this.getRange()+1, cells.length);
 
 	for (var i=1;i<max;i++) {
 		var cell = cells[i];
