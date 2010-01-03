@@ -6,17 +6,22 @@ RPG.Map.Village = OZ.Class().extend(RPG.Map);
 
 RPG.Map.Village.prototype.init = function() {
     var cellmap = [
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [3,0,1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [3,3,1,2,2,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0],
-        [0,3,1,1,1,1,0,0,0,0,0,1,2,2,2,1,0,0,0,0],
-        [0,3,0,0,0,0,0,0,0,0,0,1,1,1,2,1,0,0,0,0],
-        [0,3,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,3,0,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        [0,0,0,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,3,3,3,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,3,3,3,0,0,1,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,3,3,3,0,1,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,3,3,3,1,2,2,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0],
+        [0,0,0,0,0,0,3,3,3,1,1,1,1,0,0,0,0,0,1,2,2,2,1,0,0,0,0,0,1,2,2,2,1,0,0],
+        [0,1,1,1,0,0,0,3,3,0,0,0,0,0,0,0,0,0,1,2,2,2,1,0,0,0,0,0,1,2,2,2,1,0,0],
+        [0,1,0,1,0,0,0,0,3,0,1,1,1,0,0,0,0,0,1,1,1,2,1,0,0,0,0,0,2,2,2,2,1,0,0],
+        [0,1,0,1,0,0,0,3,3,0,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,1,0,0],
+        [0,1,0,0,0,0,0,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,1,0,0],
+        [0,1,1,1,0,0,0,0,3,3,0,0,0,0,0,0,0,1,1,1,2,1,0,0,0,0,0,0,1,1,1,1,1,0,0],
+        [0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,1,2,2,2,1,0,0,0,0,0,0,0,0,3,3,0,0,0],
+        [0,0,0,0,0,0,0,3,3,3,3,0,0,0,0,0,0,1,2,2,2,1,0,0,0,0,0,0,0,0,0,3,3,0,0],
+        [0,0,0,0,0,0,0,3,3,3,3,0,0,0,0,0,0,1,2,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,3,3,0,3,3,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,3,3,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ];
 
 	var height = cellmap.length;
@@ -36,33 +41,74 @@ RPG.Map.Village.prototype.init = function() {
     this.fromIntMap(cellmap.transpose(), celltypes);
 	this.setWelcome("You come to a small peaceful village.");
 
-    var doors_left = new RPG.Features.Door();
-    var doors_right = new RPG.Features.Door();
+    var doors_healer = new RPG.Features.Door();
+    var doors_smith = new RPG.Features.Door();
+    var doors_shop = new RPG.Features.Door();
+    var doors_townhall = new RPG.Features.Door();
     var stairs_down = new RPG.Features.Staircase.Down();
     var stairs_up = new RPG.Features.Staircase.Up();
-    doors_left.close();
-    doors_right.close();
+    doors_healer.close();
+    doors_smith.open();
+    doors_shop.open();
+    doors_townhall.close();
 
     var c = null;
 
-    c = this.at(new RPG.Misc.Coords(5,3));
-    c.setFeature(doors_left);
+    c = this.at(new RPG.Misc.Coords(12,3));
+    c.setFeature(doors_healer);
 
-    c = this.at(new RPG.Misc.Coords(14,6));
-    c.setFeature(doors_right);
+    c = this.at(new RPG.Misc.Coords(21,7));
+    c.setFeature(doors_smith);
 
-    c = this.at(new RPG.Misc.Coords(18,9));
+    c = this.at(new RPG.Misc.Coords(28,7));
+    c.setFeature(doors_townhall);
+
+    c = this.at(new RPG.Misc.Coords(20,10));
+    c.setFeature(doors_shop);
+
+    c = this.at(new RPG.Misc.Coords(32,14));
     c.setFeature(stairs_down);
 
-    c = this.at(new RPG.Misc.Coords(12,2));
+    c = this.at(new RPG.Misc.Coords(20,2));
     c.setFeature(stairs_up);
 
-	this._elder = new RPG.Beings.VillageElder();
-	this.at(new RPG.Misc.Coords(13, 5)).setBeing(this._elder);
+    var task = null;
 
-	var task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(12, 5), new RPG.Misc.Coords(14, 5));
+	this._elder = new RPG.Beings.VillageElder();
+	this.at(new RPG.Misc.Coords(30, 5)).setBeing(this._elder);
+    task = new RPG.AI.Wait();
 	this._elder.ai().setDefaultTask(task);
-	
+
+    this._witch = new RPG.Beings.VillageWitch();
+    this.at(new RPG.Misc.Coords(2,7)).setBeing(this._witch);
+    task = new RPG.AI.Wait();
+	this._witch.ai().setDefaultTask(task);
+
+    this._healer = new RPG.Beings.VillageHealer();
+    this.at(new RPG.Misc.Coords(11,3)).setBeing(this._healer);
+    task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(10, 2), new RPG.Misc.Coords(11, 4));
+	this._healer.ai().setDefaultTask(task);
+
+    this._smith = new RPG.Beings.VillageSmith();
+    this.at(new RPG.Misc.Coords(20,6)).setBeing(this._smith);
+    task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(19, 5), new RPG.Misc.Coords(21, 6));
+	this._smith.ai().setDefaultTask(task);
+
+    this._shopkeeper = new RPG.Beings.VillageShopkeeper();
+    this.at(new RPG.Misc.Coords(19,11)).setBeing(this._shopkeeper);
+    task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(19, 11), new RPG.Misc.Coords(21, 13));
+	this._shopkeeper.ai().setDefaultTask(task);
+
+    this._guard_one = new RPG.Beings.VillageGuard();
+    this.at(new RPG.Misc.Coords(27,6)).setBeing(this._guard_one);
+    task = new RPG.AI.Wait();
+	this._guard_one.ai().setDefaultTask(task);
+
+    this._guard_two = new RPG.Beings.VillageGuard();
+    this.at(new RPG.Misc.Coords(27,8)).setBeing(this._guard_two);
+    task = new RPG.AI.Wait();
+	this._guard_two.ai().setDefaultTask(task);
+
 	var residents = 5;
 	var chats = [
 		new RPG.Misc.Chat('"Work, work."').setSound("villager-work"),
@@ -93,6 +139,172 @@ RPG.Map.Village.prototype.use = function() {
 
 RPG.Map.Village.prototype.getElder = function() {
 	return this._elder;
+}
+
+RPG.Map.Village.prototype.getSmith = function() {
+	return this._smith;
+}
+
+RPG.Map.Village.prototype.getHealer = function() {
+	return this._healer;
+}
+
+RPG.Map.Village.prototype.getWitch = function() {
+	return this._witch;
+}
+
+RPG.Map.Village.prototype.getShopkeeper = function() {
+	return this._shopkeeper;
+}
+
+/**
+ * @class Village healer
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.VillageHealer = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.VillageHealer.factory.ignore = true;
+RPG.Beings.VillageHealer.prototype.init = function() {
+	this.parent(new RPG.Races.Humanoid());
+
+	this._gender = RPG.GENDER_MALE;
+	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	this.setFeat(RPG.FEAT_DEXTERITY, 15);
+	this.setFeat(RPG.FEAT_MAGIC, 20);
+	this.setFeat(RPG.FEAT_DV, 10);
+	this.setFeat(RPG.FEAT_PV, 10);
+	this.setFeat(RPG.FEAT_MAX_HP, 20);
+	
+	this._description = "village healer";
+	this._char = "@";
+	this._color = "red";
+	this._image = "";
+
+    this.setChat(new RPG.Misc.Chat('"Time will heal every scar."'));
+	
+	this.fullStats();
+}
+
+/**
+ * @class Village shopkeeper
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.VillageShopkeeper = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.VillageShopkeeper.factory.ignore = true;
+RPG.Beings.VillageShopkeeper.prototype.init = function() {
+	this.parent(new RPG.Races.Humanoid());
+
+	this._gender = RPG.GENDER_FEMALE;
+	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	
+	this._description = "shopkeeper";
+	this._char = "@";
+	this._color = "red";
+	this._image = "";
+
+	this.setChat(new RPG.Misc.Chat('"Be careful and don\'t break anything!"'));
+	
+	this.fullStats();
+}
+
+/**
+ * @class Village witch
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.VillageWitch = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.VillageWitch.factory.ignore = true;
+RPG.Beings.VillageWitch.prototype.init = function() {
+	this.parent(new RPG.Races.Humanoid());
+
+	this._gender = RPG.GENDER_FEMALE;
+	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	this.setFeat(RPG.FEAT_MAGIC, 25);
+	this.setFeat(RPG.FEAT_MAX_HP, 20);
+
+	var broom = new RPG.Items.Broom();
+	this.addItem(broom);
+	this.equip(RPG.SLOT_WEAPON,broom);
+	
+	this._description = "witch";
+	this._char = "@";
+	this._color = "blue";
+	this._image = "";
+	
+	this.setChat(new RPG.Misc.Chat('"Quidquid latine dictum sit, altum sonatur."'));
+
+	this.fullStats();
+}
+
+/**
+ * @class Village guard
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.VillageGuard = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.VillageGuard.factory.ignore = true;
+RPG.Beings.VillageGuard.prototype.init = function() {
+	this.parent(new RPG.Races.Humanoid());
+
+	this._gender = RPG.GENDER_MALE;
+	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	this.setFeat(RPG.FEAT_STRENGTH, 20);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
+	this.setFeat(RPG.FEAT_DEXTERITY, 20);
+	this.setFeat(RPG.FEAT_MAGIC, 20);
+	this.setFeat(RPG.FEAT_DV, 10);
+	this.setFeat(RPG.FEAT_PV, 10);
+	this.setFeat(RPG.FEAT_MAX_HP, 20);
+
+	var sword = new RPG.Items.LongSword();
+	this.addItem(sword);
+	this.equip(RPG.SLOT_WEAPON,sword);
+
+	var shield = new RPG.Items.LargeShield();
+	this.addItem(shield);
+	this.equip(RPG.SLOT_SHIELD,shield);
+
+    var armor = new RPG.Items.ChainMail();
+    this.addItem(armor);
+    this.equip(RPG.SLOT_ARMOR,armor);
+	
+	this._description = "elder\'s guard";
+	this._char = "@";
+	this._color = "red";
+	this._image = "";
+	
+	this.setChat(new RPG.Misc.Chat('"Hey there! Friend or foe?"'));
+
+	this.fullStats();
+}
+
+/**
+ * @class Village smith
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.VillageSmith = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.VillageSmith.factory.ignore = true;
+RPG.Beings.VillageSmith.prototype.init = function() {
+	this.parent(new RPG.Races.Humanoid());
+
+	this._gender = RPG.GENDER_MALE;
+	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	this.setFeat(RPG.FEAT_STRENGTH, 20);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
+	this.setFeat(RPG.FEAT_DEXTERITY, 20);
+	this.setFeat(RPG.FEAT_MAGIC, 10);
+	this.setFeat(RPG.FEAT_DV, 10);
+	this.setFeat(RPG.FEAT_PV, 10);
+	this.setFeat(RPG.FEAT_MAX_HP, 20);
+	
+	var hammer = new RPG.Items.Hammer();
+	this.addItem(hammer);
+	this.equip(RPG.SLOT_WEAPON,hammer);
+	
+	this._description = "dwarven smith";
+	this._char = "h";
+	this._color = "darkgray";
+	this._image = "";
+	
+	this.setChat(new RPG.Misc.Chat('"Aye! Need some steel?"'));
+	this.fullStats();
 }
 
 /**
