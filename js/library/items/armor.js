@@ -126,16 +126,15 @@ RPG.Items.Clothes.prototype.init = function() {
 }
 
 /**
- * @class Mage robes
+ * @class Mage robe
  * @augments RPG.Items.Armor
  */
-RPG.Items.MageRobes = OZ.Class().extend(RPG.Items.Armor);
-RPG.Items.MageRobes.prototype.init = function() {
+RPG.Items.MageRobe = OZ.Class().extend(RPG.Items.Armor);
+RPG.Items.MageRobe.prototype.init = function() {
 	this.parent();
-	this._uncountable = true;
 	this._color = "red";
-	this._description = "mage robes";
-	this._image = "mage-robes"
+	this._description = "mage robe";
+	this._image = "mage-robe"
 	this._modifiers[RPG.FEAT_PV] = 1;
 	this._modifiers[RPG.FEAT_MAGIC] = 1;
 }
