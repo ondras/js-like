@@ -1,4 +1,15 @@
 /**
+ * @class Wait
+ * @augments RPG.AI.Task
+ */
+RPG.AI.Wait = OZ.Class().extend(RPG.AI.Task);
+RPG.AI.Wait.prototype.go = function() {
+	var being = this._ai.getBeing();
+    this._ai.setActionResult(being.wait());
+    return RPG.AI_OK;
+}
+
+/**
  * @class Wander in rectangular area
  * @augments RPG.AI.Task
  */
