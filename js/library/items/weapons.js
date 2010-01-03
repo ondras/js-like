@@ -95,6 +95,48 @@ RPG.Items.Axe.prototype.init = function() {
 }
 
 /**
+ * @class Hammer
+ * @augments RPG.Items.Weapon
+ */
+RPG.Items.Hammer = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.Hammer.prototype.init = function() {
+	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(7, 1));
+	
+	this._color = "darkgray";
+	this._image = "hammer";   
+	this._description = "hammer"; 
+	this._dualHand = true;
+}
+
+/**
+ * @class Staff
+ * @augments RPG.Items.Weapon
+ */
+RPG.Items.Staff = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.Staff.prototype.init = function() {
+	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(4, 2));
+	
+	this._color = "brown";
+	this._image = "";   
+	this._description = "staff"; 
+	this._dualHand = true;
+}
+
+/**
+ * @class Broom
+ * @augments RPG.Items.Weapon
+ */
+RPG.Items.Broom = OZ.Class().extend(RPG.Items.Weapon)
+RPG.Items.Broom.prototype.init = function() {
+	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(2, 4));
+	
+	this._color = "brown";
+	this._image = "";   
+	this._description = "broom"; 
+	this._dualHand = true;
+}
+
+/**
  * @class Torch
  * @augments RPG.Items.Weapon
  */
