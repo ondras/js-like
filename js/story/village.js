@@ -177,7 +177,7 @@ RPG.Beings.VillageHealer.prototype.init = function() {
 	this._description = "village healer";
 	this._char = "@";
 	this._color = "red";
-	this._image = "";
+	this._image = "";   // FIXME
 
     this.setChat(new RPG.Misc.Chat('"Time will heal every scar."'));
 	
@@ -199,7 +199,7 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
 	this._description = "shopkeeper";
 	this._char = "@";
 	this._color = "red";
-	this._image = "";
+	this._image = ""; // FIXME
 
 	this.setChat(new RPG.Misc.Chat('"Be careful and don\'t break anything!"'));
 	
@@ -227,7 +227,7 @@ RPG.Beings.VillageWitch.prototype.init = function() {
 	this._description = "witch";
 	this._char = "@";
 	this._color = "blue";
-	this._image = "";
+	this._image = ""; // FIXME
 	
 	this.setChat(new RPG.Misc.Chat('"Quidquid latine dictum sit, altum sonatur."'));
 
@@ -268,7 +268,7 @@ RPG.Beings.VillageGuard.prototype.init = function() {
 	this._description = "elder\'s guard";
 	this._char = "@";
 	this._color = "red";
-	this._image = "";
+	this._image = ""; // FIXME
 	
 	this.setChat(new RPG.Misc.Chat('"Hey there! Friend or foe?"'));
 
@@ -301,7 +301,7 @@ RPG.Beings.VillageSmith.prototype.init = function() {
 	this._description = "dwarven smith";
 	this._char = "h";
 	this._color = "darkgray";
-	this._image = "";
+	this._image = ""; // FIXME
 	
 	this.setChat(new RPG.Misc.Chat('"Aye! Need some steel?"'));
 	this.fullStats();

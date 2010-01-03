@@ -117,7 +117,7 @@ RPG.Items.Staff.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(4, 2));
 	
 	this._color = "brown";
-	this._image = "";   
+	this._image = "";  // FIXME
 	this._description = "staff"; 
 	this._dualHand = true;
 }
@@ -131,7 +131,7 @@ RPG.Items.Broom.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(2, 4));
 	
 	this._color = "brown";
-	this._image = "";   
+	this._image = "";  // FIXME
 	this._description = "broom"; 
 	this._dualHand = true;
 }
