@@ -195,6 +195,7 @@ RPG.Items.Projectile.prototype.getWeapon = function() {
 }
 
 RPG.Items.Projectile.prototype.getHit = function() {
+	if (!this._being) { return this.parent(); }
 	var addedHit = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_HIT), 0);
 	if (this._weapon) {
 		var w = this._being.getSlot(RPG.SLOT_WEAPON).getItem();
@@ -204,6 +205,7 @@ RPG.Items.Projectile.prototype.getHit = function() {
 }
 
 RPG.Items.Projectile.prototype.getDamage = function() {
+	if (!this._being) { return this.parent(); }
 	var addedDamage = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_DAMAGE), 0);
 	if (this._weapon) {
 		var w = this._being.getSlot(RPG.SLOT_WEAPON).getItem();
