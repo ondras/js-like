@@ -49,12 +49,8 @@ OZ.Class = function() {
 		return false;
 	}
 
-	c.prototype.bind = function(fnc) {
-		var obj = this;
-		return function() {
-			return fnc.apply(obj,arguments);
-		}
-	};
+	c.prototype.bind = function(fnc) { return fnc.bind(this); };
+
 	c.prototype.dispatch = function(type, data) {
 		var obj = {
 			type:type,
@@ -63,13 +59,15 @@ OZ.Class = function() {
 			data:data
 		}
 		var tocall = [];
-		for (var p in OZ.Event._cache) {
-			var item = OZ.Event._cache[p];
-			if (item[1] == type && (!item[0] || item[0] == this)) { tocall.push(item[2]); }
+		var list = OZ.Event._byName[type];
+		for (var id in list) {
+			var item = list[id];
+			if (!item[0] || item[0] == this) { tocall.push(item[2]); }
 		}
 		var len = tocall.length;
 		for (var i=0;i<len;i++) { tocall[i](obj); }
-	};
+	}
+
 	c.prototype.parent = function() {
 		var caller = arguments.callee.caller;
 		var owner = caller.owner || this.constructor;
