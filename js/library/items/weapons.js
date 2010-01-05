@@ -176,6 +176,7 @@ RPG.Items.KlingonSword.prototype.init = function() {
 RPG.Items.Projectile = OZ.Class()
 						.extend(RPG.Items.Weapon)
 						.implement(RPG.Misc.IProjectile);
+RPG.Items.Projectile.factory.ignore = true;
 RPG.Items.Projectile.prototype.init = function(hit, damage) {
 	this.parent(hit, damage);
 	this._initProjectile();

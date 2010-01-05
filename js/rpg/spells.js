@@ -45,7 +45,7 @@ RPG.Spells.BaseSpell.prototype.getCaster = function() {
 RPG.Spells.Attack = OZ.Class()
 					.extend(RPG.Spells.BaseSpell)
 					.implement(RPG.Misc.IWeapon);
-
+RPG.Spells.Attack.factory.ignore = true;
 RPG.Spells.Attack.prototype.init = function(caster) {
 	this.parent(caster);
 	this._hit = new RPG.Misc.RandomValue(5, 3);
@@ -109,7 +109,6 @@ RPG.Spells.Projectile = OZ.Class()
 						.extend(RPG.Spells.Attack)
 						.implement(RPG.Misc.IProjectile);
 RPG.Spells.Projectile.factory.ignore = true;
-
 RPG.Spells.Projectile.prototype.init = function(caster) {
 	this.parent(caster);
 	this._initProjectile();

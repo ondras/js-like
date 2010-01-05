@@ -5,6 +5,7 @@ RPG.UI.Sound = OZ.Class();
 
 RPG.UI.Sound.prototype.init = function() {
 	this._supported = !!window.Audio;
+	this._muted = false;
 	if (!this._supported) { return; }
 	
 	this._cache = [];
@@ -34,6 +35,7 @@ RPG.UI.Sound.prototype.play = function(name) {
 	}
 	
 	var a = new Audio(this._resolve(name));
+	a.muted = this._muted;
 	this._cache[name] = a;
 	a.autobuffer = true;
 	a.autoplay = true;
@@ -51,6 +53,7 @@ RPG.UI.Sound.prototype.preload = function(name) {
 	if (name in this._cache) { return this._cache[name]; }
 
 	var a = new Audio(this._resolve(name));
+	a.muted = this._muted;
 	this._cache[name] = a;
 	a.autobuffer = true;
 	a.load();
@@ -70,10 +73,11 @@ RPG.UI.Sound.prototype.playBackground = function(name) {
 }
 
 RPG.UI.Sound.prototype.getMuted = function() {
-	return this._background.muted;
+	return this._muted;
 }
 
 RPG.UI.Sound.prototype.setMuted = function(state) {
+	this._muted = state;
 	for (var name in this._cache) { this._cache[name].muted = state; }
 }
 

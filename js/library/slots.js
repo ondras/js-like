@@ -7,7 +7,7 @@ RPG.Slots.Kick = OZ.Class()
 					.extend(RPG.Slots.BaseSlot)
 					.implement(RPG.Misc.IWeapon);
 RPG.Slots.Kick.prototype.init = function(name) {
-	this.parent(name, [RPG.Items.Boots]);
+	this.parent(name, RPG.Items.Boots);
 	this._hit = null;
 	this._damage = null;
 }
