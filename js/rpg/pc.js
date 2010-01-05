@@ -23,7 +23,6 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	profession.setup(this);
 	
 	var tc = new RPG.Effects.TurnCounter(this);
-	this._turnCounter = tc;
 	this.addEffect(tc);
 	
 	this.fullStats();
@@ -51,10 +50,6 @@ RPG.Beings.PC.prototype.getKills = function() {
 
 RPG.Beings.PC.prototype.addKill = function(being) {
 	this._kills++;
-}
-
-RPG.Beings.PC.prototype.getTurnCount = function() {
-	return this._turnCounter.getCount();
 }
 
 RPG.Beings.PC.prototype.mapMemory = function() {
@@ -265,16 +260,7 @@ RPG.Beings.PC.prototype._visibleCell = function(blocks, startArc, arcsPerCell, a
 	return ok;
 }
 
-/**
- * PC being dies
- */
-RPG.Beings.PC.prototype.die = function() {
-	RPG.UI.status.updateStat(RPG.STAT_HP, this._stats[RPG.STAT_HP]);
-	this.parent();
-}
-
 RPG.Beings.PC.prototype.yourTurn = function() {
-	RPG.UI.status.updateRounds(this.getTurnCount()); 
 	return RPG.ACTION_DEFER;
 }
 

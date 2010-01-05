@@ -17,7 +17,6 @@ RPG.AI.prototype.init = function(being) {
 	this._actionResult = null; /* action result to return */
 	this._ec = [];
 
-	this._ec.push(OZ.Event.add(being, "death", this.bind(this._death)));
 	this._ec.push(OZ.Event.add(null, "attack-melee", this.bind(this._attack)));
 	this._ec.push(OZ.Event.add(null, "attack-ranged", this.bind(this._attack)));
 	this._ec.push(OZ.Event.add(null, "attack-magic", this.bind(this._attack)));
@@ -171,7 +170,7 @@ RPG.AI.prototype._attack = function(e) {
 /**
  * We just died, destroy the AI
  */
-RPG.AI.prototype._death = function(e) {
+RPG.AI.prototype.die = function(e) {
 	this._ec.forEach(OZ.Event.remove);
 }
 

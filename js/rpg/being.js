@@ -32,6 +32,10 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this.fullStats();
 }
 
+RPG.Beings.BaseBeing.prototype.toString = function() {
+	return this.describe();
+}
+
 RPG.Beings.BaseBeing.prototype.trapMemory = function() {
 	return this._trapMemory;
 }

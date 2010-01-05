@@ -5,20 +5,12 @@
 RPG.Effects.TurnCounter = OZ.Class().extend(RPG.Effects.BaseEffect);
 RPG.Effects.TurnCounter.prototype.init = function() {
 	this.parent();
-	this._turns = null;
-}
-RPG.Effects.TurnCounter.prototype.setBeing = function(being) {
-	this.parent(being);
 	this._turns = 0;
-	return this;
 }
 
 RPG.Effects.TurnCounter.prototype.go = function() {
 	this._turns++;
-}
-
-RPG.Effects.TurnCounter.prototype.getCount = function() {
-	return this._turns;
+	RPG.UI.status.updateRounds(this._turns); 
 }
 
 /**

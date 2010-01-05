@@ -43,6 +43,11 @@ RPG.Beings.NPC.prototype.getAlignment = function() {
 	return this._alignment;
 }
 
+RPG.Beings.NPC.prototype.die = function() {
+	this._ai.die();
+	this.parent();
+}
+
 /**
  * Takes gender and name into account
  * @see RPG.Misc.IVisual#describe
