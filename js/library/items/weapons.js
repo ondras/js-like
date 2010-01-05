@@ -115,9 +115,9 @@ RPG.Items.Hammer.prototype.init = function() {
 RPG.Items.Staff = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Staff.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(4, 2));
-	
+
 	this._color = "brown";
-	this._image = "";  // FIXME
+	this._image = "staff";
 	this._description = "staff"; 
 	this._dualHand = true;
 }
@@ -131,7 +131,7 @@ RPG.Items.Broom.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(2, 4));
 	
 	this._color = "brown";
-	this._image = "";  // FIXME
+	this._image = "broom";
 	this._description = "broom"; 
 	this._dualHand = true;
 }
