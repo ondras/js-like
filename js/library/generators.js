@@ -8,7 +8,7 @@ RPG.Generators.Arena.prototype.generate = function(id, danger) {
 	this._blankMap();
 	
 	var c1 = new RPG.Misc.Coords(1, 1);
-	var c2 = new RPG.Misc.Coords(this._size.x-1, this._size.y-1);
+	var c2 = new RPG.Misc.Coords(this._size.x-2, this._size.y-2);
 	this._digRoom(c1, c2);
 
 	return this._convertToMap(id, danger);
@@ -624,4 +624,199 @@ RPG.Generators.Digger.prototype._addSurroundingWalls = function(corner1, corner2
 			}
 		}
 	}
+}
+
+/**
+ * @class Divided maze generator
+ * @augments RPG.Generators.BaseGenerator
+ */
+RPG.Generators.DividedMaze = OZ.Class().extend(RPG.Generators.BaseGenerator);
+
+RPG.Generators.DividedMaze.prototype.init = function(size, maptypes) {
+	this.parent(size, maptypes);
+	this._stack = [];
+}
+
+RPG.Generators.DividedMaze.prototype.generate = function(id, danger) {
+	this._blankMap();
+	var w = this._size.x;
+	var h = this._size.y;
+	
+	for (var i=0;i<w;i++) {
+		for (var j=0;j<h;j++) {
+			if (i == 0 || j == 0 || i+1 == w || j+1 == h) { continue; }
+			this._bitMap[i][j] = 0;
+		}
+	}
+	
+	this._stack = [
+		[1, 1, w-2, h-2]
+	];
+	this._process();
+
+	return this._convertToMap(id, danger);
+}
+
+RPG.Generators.DividedMaze.prototype._process = function() {
+	while (this._stack.length) {
+		var room = this._stack.shift(); /* [left, top, right, bottom] */
+		this._partitionRoom(room);		
+	}
+}
+
+RPG.Generators.DividedMaze.prototype._partitionRoom = function(room) {
+	var availX = [];
+	var availY = [];
+	
+	for (var i=room[0]+1;i<room[2];i++) {
+		var top = this._bitMap[i][room[1]-1];
+		var bottom = this._bitMap[i][room[3]+1];
+		if (top && bottom && !(i % 2)) { availX.push(i); }
+	}
+	
+	for (var j=room[1]+1;j<room[3];j++) {
+		var left = this._bitMap[room[0]-1][j];
+		var right = this._bitMap[room[2]+1][j];
+		if (left && right && !(j % 2)) { availY.push(j); }
+	}
+
+	if (!availX.length || !availY.length) { return; }
+
+	var x = availX.random();
+	var y = availY.random();
+	
+	this._bitMap[x][y] = 1;
+	
+	var walls = [];
+	
+	var w = []; walls.push(w); /* left part */
+	for (var i=room[0]; i<x; i++) { 
+		this._bitMap[i][y] = 1;
+		w.push([i, y]); 
+	}
+	
+	var w = []; walls.push(w); /* right part */
+	for (var i=x+1; i<=room[2]; i++) { 
+		this._bitMap[i][y] = 1;
+		w.push([i, y]); 
+	}
+
+	var w = []; walls.push(w); /* top part */
+	for (var j=room[1]; j<y; j++) { 
+		this._bitMap[x][j] = 1;
+		w.push([x, j]); 
+	}
+	
+	var w = []; walls.push(w); /* bottom part */
+	for (var j=y+1; j<=room[3]; j++) { 
+		this._bitMap[x][j] = 1;
+		w.push([x, j]); 
+	}
+		
+	var solid = walls.random();
+	for (var i=0;i<walls.length;i++) {
+		var w = walls[i];
+		if (w == solid) { continue; }
+		
+		var hole = w.random();
+		this._bitMap[hole[0]][hole[1]] = 0;
+	}
+
+	this._stack.push([room[0], room[1], x-1, y-1]); /* left top */
+	this._stack.push([x+1, room[1], room[2], y-1]); /* right top */
+	this._stack.push([room[0], y+1, x-1, room[3]]); /* left bottom */
+	this._stack.push([x+1, y+1, room[2], room[3]]); /* right bottom */
+}
+
+/**
+ * @class Maze generator - Eller's algorithm
+ * See http://homepages.cwi.nl/~tromp/maze.html for explanation
+ * @augments RPG.Generators.BaseGenerator
+ */
+RPG.Generators.Maze = OZ.Class().extend(RPG.Generators.BaseGenerator);
+
+RPG.Generators.Maze.prototype.init = function(size, maptypes) {
+	this.parent(size, maptypes);
+	this._width = Math.ceil((this._size.x-2)/2);
+}
+
+RPG.Generators.Maze.prototype.generate = function(id, danger) {
+	this._blankMap();
+	
+	var w = this._size.x-2;
+	var h = this._size.y-2;
+	var rand = /* w/(w+h); */ 9/24;
+	
+	var L = [];
+	var R = [];
+	
+	for (var i=0;i<this._width;i++) {
+		L.push(i);
+		R.push(i);
+	}
+	L.push(this._width-1); /* fake stop-block at the right side */
+
+	for (var j=1;j+2<this._size.y;j+=2) {
+		/* one row */
+		for (var i=0;i<this._width;i++) {
+			/* cell coords (will be always empty) */
+			var x = 2*i+1;
+			var y = j;
+			this._bitMap[x][y] = 0;
+			
+			/* right connection */
+			if (i != L[i+1] && Math.random() > rand) {
+				this._addToList(i, L, R);
+				this._bitMap[x+1][y] = 0;
+			}
+			
+			/* bottom connection */
+			if (i != L[i] && Math.random() > rand) {
+				/* remove connection */
+				this._removeFromList(i, L, R);
+			} else {
+				/* create connection */
+				this._bitMap[x][y+1] = 0;
+			}
+		}
+	}
+
+	/* last row */
+	for (var i=0;i<this._width;i++) {
+		/* cell coords (will be always empty) */
+		var x = 2*i+1;
+		var y = j;
+		this._bitMap[x][y] = 0;
+		
+		/* right connection */
+		if (i != L[i+1] && (i == L[i] || Math.random() > rand)) {
+			/* dig right also if the cell is separated, so it gets connected to the rest of maze */
+			this._addToList(i, L, R);
+			this._bitMap[x+1][y] = 0;
+		}
+		
+		this._removeFromList(i, L, R);
+	}
+	
+	return this._convertToMap(id, danger);
+}
+
+/**
+ * Remove "i" from its list
+ */
+RPG.Generators.Maze.prototype._removeFromList = function(i, L, R) {
+	R[L[i]] = R[i];
+	L[R[i]] = L[i];
+	R[i] = i;
+	L[i] = i;
+}
+
+/**
+ * Join lists with "i" and "i+1"
+ */
+RPG.Generators.Maze.prototype._addToList = function(i, L, R) {
+	R[L[i+1]] = R[i];
+	L[R[i]] = L[i+1];
+	R[i] = i+1;
+	L[i+1] = i;
 }

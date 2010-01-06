@@ -404,3 +404,165 @@ RPG.Quests.ElderEnemy.prototype.reward = function() {
 	var gold = new RPG.Items.Gold(1000);
 	RPG.World.pc.addItem(gold);
 }
+
+/**
+ * @class Village-based story
+ * @augments RPG.Story
+ */
+RPG.Story.Village = OZ.Class().extend(RPG.Story);
+
+RPG.Story.Village.prototype.init = function() {
+	this.parent();
+	RPG.UI.sound.preload("tristram");
+	
+	this._maxDepth = 6;
+	this._maps = [];
+	
+	this._mapgen = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
+}
+
+RPG.Story.Village.prototype._createPC = function(race, profession, name) {
+	this.parent(race, profession, name);
+	var rocks = new RPG.Items.Rock();
+	rocks.setAmount(5);
+	RPG.World.pc.addItem(rocks);
+}
+
+RPG.Story.Village.prototype._generateMap = function() {
+	var map = null;
+	if (!this._maps.length) {
+		map = this._villageMap();
+	} else {
+		map = this._randomMap();
+	}
+	this._maps.push(map);
+	return map;
+}
+
+RPG.Story.Village.prototype._villageMap = function() {
+    var map = new RPG.Map.Village();
+	this._attachNext(map);
+	this._attachGameover(map);
+
+	var elder = map.getElder();
+	
+	var troll = new RPG.Beings.Troll();
+	troll.setName("Chleba");
+	this._boss = troll;
+	elder.setEnemy(this._boss);
+	
+	return map;
+}
+
+RPG.Story.Village.prototype._randomMap = function() {
+	var index = this._maps.length;
+	
+	var rooms = [];
+	var map = null;
+	do {
+		map = this._mapgen.generate("Dungeon #" + index, index + 1);
+		rooms = map.getRooms();
+	} while (rooms.length < 3);
+	
+	if (index == 1) { map.setSound("doom"); }
+
+	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01)	
+	var arr = [];
+
+	for (var i=0;i<rooms.length;i++) { 
+		RPG.Decorators.Doors.getInstance().decorate(map, rooms[i]);
+		arr.push(rooms[i]);
+	}
+	
+	/* enemies */
+	var max = 4 + Math.floor(Math.random()*6);
+	RPG.Decorators.Beings.getInstance().decorate(map, max);
+	
+	/* items */
+	var max = 2 + Math.floor(Math.random()*4);
+	RPG.Decorators.Items.getInstance().decorate(map, max);
+
+	/* traps */
+	var max = 1 + Math.floor(Math.random()*2);
+	RPG.Decorators.Traps.getInstance().decorate(map, max);
+
+	/* stairs up */
+	var roomUp = arr.random();
+	var index = arr.indexOf(roomUp);
+	arr.splice(index, 1);
+	var up = new RPG.Features.Staircase.Up();
+	map.at(roomUp.getCenter()).setFeature(up);
+	
+	/* bind to previous dungeon */
+	if (this._maps.length) {
+		var prev = this._maps[this._maps.length-1];
+		this._attachPrevious(map, prev);
+	}
+	
+	/* stairs down */
+	if (this._maps.length + 1 < this._maxDepth) {
+		map.setSound("doom");
+		var roomDown = arr.random();
+		var index = arr.indexOf(roomDown);
+		arr.splice(index, 1);
+		var down = new RPG.Features.Staircase.Down();
+		map.at(roomDown.getCenter()).setFeature(down);
+		this._attachNext(map);
+	} else {
+		/* last level */
+		map.setSound("doom2");
+
+		/* treasure */
+		var roomTreasure = arr.random();
+		var index = arr.indexOf(roomTreasure);
+		arr.splice(index, 1);
+		RPG.Decorators.Doors.getInstance().decorate(map, roomTreasure, {locked: 1});
+		RPG.Decorators.Treasure.getInstance().decorate(map, roomTreasure, {treasure: 1});
+
+		map.at(roomTreasure.getCenter()).setBeing(this._boss);
+	}
+	
+	/* artifact */
+	if (this._maps.length + 2 == this._maxDepth) {
+		var cell = map.getFreeCell(true);
+		var tmp = new RPG.Items.KlingonSword();
+		var trap = new RPG.Features.Trap.Teleport();
+		cell.setFeature(trap);
+		cell.addItem(tmp);
+	}
+
+	return map;
+}
+
+	
+/**
+ * Staircase needs its target dungeon generated
+ */
+RPG.Story.Village.prototype._down = function(staircase) {
+	var map = this._generateMap();
+	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
+	return up.getCell();
+}
+
+RPG.Story.Village.prototype._computeScore = function() {
+	var total = this.parent();
+	total += 150 * this._maps.length;
+	return total;
+}
+
+RPG.Story.Village.prototype._attachGameover = function(map) {
+	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
+	up.setTarget(this.bind(this._endGame));
+}
+
+RPG.Story.Village.prototype._attachNext = function(map) {
+	var down = map.getFeatures(RPG.Features.Staircase.Down)[0];
+	down.setTarget(this.bind(this._down));
+}
+	
+RPG.Story.Village.prototype._attachPrevious = function(map, previousMap) {
+	var down = previousMap.getFeatures(RPG.Features.Staircase.Down)[0];
+	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
+
+	up.setTarget(down.getCell());
+}
