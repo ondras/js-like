@@ -30,6 +30,8 @@ RPG.Map.Village.prototype.init = function() {
 	this.parent("A small village", size, 1);
 
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 2;
+	this._sound = "tristram";
+	this._staircases = [];
 	
     var celltypes = [
         RPG.Cells.Grass,
@@ -128,8 +130,7 @@ RPG.Map.Village.prototype.init = function() {
         c = this.getFreeCell();
         c.setFeature(tree);
     }
-
-	this._sound = "tristram";
+	
 }
 
 RPG.Map.Village.prototype.use = function() {
@@ -157,6 +158,9 @@ RPG.Map.Village.prototype.getShopkeeper = function() {
 	return this._shopkeeper;
 }
 
+RPG.Map.Village.prototype.showStaircase = function(who) {
+}
+
 /**
  * @class Village healer
  * @augments RPG.Beings.NPC
@@ -177,7 +181,7 @@ RPG.Beings.VillageHealer.prototype.init = function() {
 	this._description = "village healer";
 	this._char = "@";
 	this._color = "red";
-	this._image = "";   // FIXME
+	this._image = "village-healer";
 
     this.setChat(new RPG.Misc.Chat('"Time will heal every scar."'));
 	
@@ -199,7 +203,7 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
 	this._description = "shopkeeper";
 	this._char = "@";
 	this._color = "red";
-	this._image = ""; // FIXME
+	this._image = "village-shopkeeper";
 
 	this.setChat(new RPG.Misc.Chat('"Be careful and don\'t break anything!"'));
 	
@@ -215,7 +219,7 @@ RPG.Beings.VillageWitch.factory.ignore = true;
 RPG.Beings.VillageWitch.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 
-	this._gender = RPG.GENDER_FEMALE;
+	this.setGender(RPG.GENDER_FEMALE);
 	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
 	this.setFeat(RPG.FEAT_MAGIC, 25);
 	this.setFeat(RPG.FEAT_MAX_HP, 20);
@@ -227,7 +231,7 @@ RPG.Beings.VillageWitch.prototype.init = function() {
 	this._description = "witch";
 	this._char = "@";
 	this._color = "blue";
-	this._image = ""; // FIXME
+	this._image = "village-witch";
 	
 	this.setChat(new RPG.Misc.Chat('"Quidquid latine dictum sit, altum sonatur."'));
 
@@ -265,10 +269,10 @@ RPG.Beings.VillageGuard.prototype.init = function() {
     this.addItem(armor);
     this.equip(RPG.SLOT_ARMOR,armor);
 	
-	this._description = "elder\'s guard";
+	this._description = "elder's guard";
 	this._char = "@";
 	this._color = "red";
-	this._image = ""; // FIXME
+	this._image = "village-guard";
 	
 	this.setChat(new RPG.Misc.Chat('"Hey there! Friend or foe?"'));
 
@@ -301,7 +305,7 @@ RPG.Beings.VillageSmith.prototype.init = function() {
 	this._description = "dwarven smith";
 	this._char = "h";
 	this._color = "darkgray";
-	this._image = ""; // FIXME
+	this._image = "village-smith";
 	
 	this.setChat(new RPG.Misc.Chat('"Aye! Need some steel?"'));
 	this.fullStats();
@@ -348,7 +352,6 @@ RPG.Beings.VillageElder.prototype.init = function() {
 		'"Good luck!"'
 	]).setEnd(function() {
 		this._quest.setPhase(RPG.QUEST_GIVEN);
-		this._staircaseCell.setFeature(this._staircase);
 		RPG.World.pc.mapMemory().updateVisible();
 	});
 	
@@ -369,8 +372,7 @@ RPG.Beings.VillageElder.prototype.init = function() {
 	this._chats[RPG.QUEST_DONE] = new RPG.Misc.Chat([
 		'"Thank you for your help! We won\'t forget what you did for our village!"',
 		'"Take this gold as our gratitude."'
-	])
-		.setEnd(function(){
+	]).setEnd(function(){
 			this._quest.setPhase(RPG.QUEST_REWARDED);
 			this._quest = null;
 		});
@@ -395,11 +397,24 @@ RPG.Beings.VillageElder.prototype.setEnemy = function(being) {
 	this._staircaseCell.setFeature(null);
 }
 
+RPG.Beings.VillageElder.prototype.showStaircase = function() {
+	this._staircaseCell.setFeature(this._staircase);
+}
+
 /**
  * @class Elder's enemy quest
  * @augments RPG.Quests.Kill
  */
 RPG.Quests.ElderEnemy = OZ.Class().extend(RPG.Quests.Kill);
+
+RPG.Quests.ElderEnemy.prototype.setPhase = function(phase) {
+	this.parent(phase);
+	if (phase == RPG.QUEST_GIVEN) {
+		/* show staircase */
+		this._giver.showStaircase();
+	}
+}
+
 RPG.Quests.ElderEnemy.prototype.reward = function() {
 	var gold = new RPG.Items.Gold(1000);
 	RPG.World.pc.addItem(gold);

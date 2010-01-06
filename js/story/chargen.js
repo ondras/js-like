@@ -26,11 +26,6 @@ RPG.CharGen.prototype.build = function() {
 	var tb = OZ.DOM.elm("tbody");
 	t.appendChild(tb);
 	
-	var numRaces = 0;
-	var numProfessions = 0;
-	for (var p in RPG.CharGen.races) { numRaces++; }
-	for (var p in RPG.Professions) { numProfessions++; }
-	
 	/* right part with race/profession selection */
 	this._buildMatrix(tb);
 	
