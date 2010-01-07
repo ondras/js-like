@@ -251,8 +251,8 @@ RPG.Generators.Uniform.prototype._noFreeRooms = function() {
  */
 RPG.Generators.Digger = OZ.Class().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.Digger.prototype.init = function(size) {
-	this.parent(size);
+RPG.Generators.Digger.prototype.init = function(size, maptypes) {
+	this.parent(size, maptypes);
 	this._features = {
 		room: 2,
 		corridor: 4
@@ -819,4 +819,99 @@ RPG.Generators.Maze.prototype._addToList = function(i, L, R) {
 	L[R[i]] = L[i+1];
 	R[i] = i+1;
 	L[i+1] = i;
+}
+
+
+/**
+ * @class Maze generator - Icey's algorithm
+ * See http://www.roguebasin.roguelikedevelopment.org/index.php?title=Simple_maze for explanation
+ * @augments RPG.Generators.BaseGenerator
+ */
+RPG.Generators.IceyMaze = OZ.Class().extend(RPG.Generators.BaseGenerator);
+
+RPG.Generators.IceyMaze.prototype.init = function(size, maptypes) {
+	this.parent(size, maptypes);
+	this._regularity = 0;
+}
+
+RPG.Generators.IceyMaze.prototype.generate = function(id, danger) {
+	this._blankMap();
+	
+	var width = this._size.x;
+	var height = this._size.y;
+	if (width % 2) { width--; } 
+	if (height % 2) { height--; }
+	
+	var cx = 0;
+	var cy = 0;
+	var nx = 0;
+	var ny = 0;
+
+	var done = 0;
+	var blocked = false;
+	var dirs = [
+		[0, 0],
+		[0, 0],
+		[0, 0],
+		[0, 0]
+	];
+	do {
+		cx = 1 + 2*Math.floor(Math.random()*(width-1) / 2)
+		cy = 1 + 2*Math.floor(Math.random()*(height-1) / 2)
+
+		if (!done) { this._bitMap[cx][cy] = 0; }
+		if (!this._bitMap[cx][cy]) {
+			this._randomize(dirs);
+			do {
+				if (Math.round(Math.random() * this._regularity) == 0) { this._randomize(dirs); }
+				blocked = true;
+				for (var i=0;i<4;i++) {
+					nx = cx + dirs[i][0]*2;
+					ny = cy + dirs[i][1]*2;
+					if (this._isFree(nx, ny, width, height)) {
+						this._bitMap[nx][ny] = 0;
+						this._bitMap[cx + dirs[i][0]][cy + dirs[i][1]] = 0;
+						cx = nx;
+						cy = ny;
+						blocked = false;
+						done++;
+						break;
+					}
+				}
+			} while (!blocked);
+		}
+	} while (done+1 < (width)*(height)/4);
+	
+	return this._convertToMap(id, danger);
+}
+
+RPG.Generators.IceyMaze.prototype._randomize = function(dirs) {
+	for (var i=0;i<4;i++) {
+		dirs[i][0] = 0;
+		dirs[i][1] = 0;
+	}
+	
+	switch (Math.floor(Math.random()*4)) {
+		case 0:
+			dirs[0][0] = -1; dirs[1][0] = 1;
+			dirs[2][1] = -1; dirs[3][1] = 1;
+		break;
+		case 1:
+			dirs[3][0] = -1; dirs[2][0] = 1;
+			dirs[1][1] = -1; dirs[0][1] = 1;
+		break;
+		case 2:
+			dirs[2][0] = -1; dirs[3][0] = 1;
+			dirs[0][1] = -1; dirs[1][1] = 1;
+		break;
+		case 3:
+			dirs[1][0] = -1; dirs[0][0] = 1;
+			dirs[3][1] = -1; dirs[2][1] = 1;
+		break;
+	}
+}
+
+RPG.Generators.IceyMaze.prototype._isFree = function(x, y, width, height) {
+	if (x < 1 || y < 1 || x >= width || y >= height) { return false; }
+	return (this._bitMap[x][y] == 1);
 }
