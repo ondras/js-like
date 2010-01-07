@@ -257,6 +257,9 @@ RPG.Features.Staircase.prototype.setTarget = function(cell) {
 	this._target = cell;
 }
 
+/**
+ * @returns {RPG.Cells.BaseCell}
+ */
 RPG.Features.Staircase.prototype.getTarget = function() {
 	if (!this._target) { return null; }
 	if (typeof(this._target) == "function") {

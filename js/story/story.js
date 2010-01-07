@@ -42,7 +42,7 @@ RPG.Story.prototype._charPicked = function(e) {
 	RPG.UI.build();
 	
 	this._createPC(race, profession, this._name.value);
-	var map = this._generateMap();
+	var map = this._getMap();
 	map.use();
 
 	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
@@ -70,7 +70,7 @@ RPG.Story.prototype._death = function() {
 /**
  * Generate a map
  */
-RPG.Story.prototype._generateMap = function() {
+RPG.Story.prototype._getMap = function() {
 	return null;
 }
 

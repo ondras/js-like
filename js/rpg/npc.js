@@ -99,10 +99,6 @@ RPG.Beings.NPC.prototype.getChat = function() {
 	return this._chat;
 }
 
-RPG.Beings.NPC.prototype.isChatty = function() {
-	return !!this._chat;
-}
-
 RPG.Beings.NPC.prototype.teleport = function(cell) {
 	var pc = RPG.World.pc;
 	var sc = this._cell.getCoords();

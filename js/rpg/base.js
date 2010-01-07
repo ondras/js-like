@@ -369,9 +369,11 @@ RPG.Professions.BaseProfession.prototype.getImage = function() {
  */
 RPG.Quests.BaseQuest = OZ.Class();
 RPG.Quests.BaseQuest.prototype.init = function(giver) {
-	this._phase = RPG.QUEST_NEW;
+	this._phase = null;
 	this._giver = giver;
 	this._task = null;
+	
+	this.setPhase(RPG.QUEST_NEW);
 }
 RPG.Quests.BaseQuest.prototype.setPhase = function(phase) {
 	this._phase = phase;

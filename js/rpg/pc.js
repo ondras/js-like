@@ -443,7 +443,7 @@ RPG.Beings.PC.prototype.chat = function(being) {
 	var s = RPG.Misc.format("You talk to %a.", being);
 	RPG.UI.buffer.message(s);
 
-	if (being.isChatty()) {
+	if (being.getChat()) {
 		being.chat(this);
 	} else {
 		var s = RPG.Misc.format("%He does not reply.", this._target);

@@ -43,11 +43,49 @@ RPG.Map.Village.prototype.init = function() {
     this.fromIntMap(cellmap.transpose(), celltypes);
 	this.setWelcome("You come to a small peaceful village.");
 
+	this._buildPeople();
+
+    var trees = 5;
+    for (var i=0;i<trees;i++) {
+        var tree = new RPG.Features.Tree();
+        c = this.getFreeCell();
+        c.setFeature(tree);
+    }
+}
+
+RPG.Map.Village.prototype.use = function() {
+	this.parent();
+	RPG.UI.sound.preload("doom");
+}
+
+RPG.Map.Village.prototype.getElder = function() {
+	return this._elder;
+}
+
+RPG.Map.Village.prototype.getSmith = function() {
+	return this._smith;
+}
+
+RPG.Map.Village.prototype.getHealer = function() {
+	return this._healer;
+}
+
+RPG.Map.Village.prototype.getWitch = function() {
+	return this._witch;
+}
+
+RPG.Map.Village.prototype.getShopkeeper = function() {
+	return this._shopkeeper;
+}
+
+RPG.Map.Village.prototype.showStaircase = function(who) {
+}
+
+RPG.Map.Village.prototype._buildPeople = function() {
     var doors_healer = new RPG.Features.Door();
     var doors_smith = new RPG.Features.Door();
     var doors_shop = new RPG.Features.Door();
     var doors_townhall = new RPG.Features.Door();
-    var stairs_down = new RPG.Features.Staircase.Down();
     var stairs_up = new RPG.Features.Staircase.Up();
     doors_healer.close();
     doors_smith.open();
@@ -67,9 +105,6 @@ RPG.Map.Village.prototype.init = function() {
 
     c = this.at(new RPG.Misc.Coords(20,10));
     c.setFeature(doors_shop);
-
-    c = this.at(new RPG.Misc.Coords(32,14));
-    c.setFeature(stairs_down);
 
     c = this.at(new RPG.Misc.Coords(20,2));
     c.setFeature(stairs_up);
@@ -123,42 +158,6 @@ RPG.Map.Village.prototype.init = function() {
         c = this.getFreeCell();
         c.setBeing(villager);
     }
-
-    var trees = 5;
-    for (var i=0;i<trees;i++) {
-        var tree = new RPG.Features.Tree();
-        c = this.getFreeCell();
-        c.setFeature(tree);
-    }
-	
-}
-
-RPG.Map.Village.prototype.use = function() {
-	this.parent();
-	RPG.UI.sound.preload("doom");
-}
-
-RPG.Map.Village.prototype.getElder = function() {
-	return this._elder;
-}
-
-RPG.Map.Village.prototype.getSmith = function() {
-	return this._smith;
-}
-
-RPG.Map.Village.prototype.getHealer = function() {
-	return this._healer;
-}
-
-RPG.Map.Village.prototype.getWitch = function() {
-	return this._witch;
-}
-
-RPG.Map.Village.prototype.getShopkeeper = function() {
-	return this._shopkeeper;
-}
-
-RPG.Map.Village.prototype.showStaircase = function(who) {
 }
 
 /**
@@ -340,28 +339,34 @@ RPG.Beings.VillageElder.prototype.init = function() {
 	this._image = "village-elder";
 	
 	this.fullStats();
-	
-	this._quest = null;
-	this._chats = {};
-	this._staircase = null;
-	this._staircaseCell = null;
+}
 
+/**
+ * @class Elder's enemy quest
+ * @augments RPG.Quests.Kill
+ */
+RPG.Quests.ElderEnemy = OZ.Class().extend(RPG.Quests.Kill);
+
+RPG.Quests.ElderEnemy.prototype.init = function(giver, being, givenCallback) {
+	this._chats = {};
+	this._givenCallback = givenCallback;
+	
 	this._given = new RPG.Misc.Chat([
 		'"The evil being lives in a dungeon close to south-east part of our village."',
 		'"If you reach its lair, make sure you retrieve some of the treasure you find there."',
 		'"Good luck!"'
 	]).setEnd(function() {
-		this._quest.setPhase(RPG.QUEST_GIVEN);
+		this.setPhase(RPG.QUEST_GIVEN);
 		RPG.World.pc.mapMemory().updateVisible();
-	});
+	}.bind(this));
 	
 	this._chats[RPG.QUEST_NEW] = new RPG.Misc.Chat([
 		'"Our village was attacked by some evil being recently."',
-		'"Maybe you would like to help us?"'])
-		.addOption("No, I am not interested.", function() {
-			this._quest.setPhase(RPG.QUEST_TALKED);
-		})
-		.addOption("Yes, I would be happy to help!", this._given);
+		'"Maybe you would like to help us?"'
+	]).addOption("No, I am not interested.", function() {
+			this.setPhase(RPG.QUEST_TALKED);
+		}.bind(this)
+	).addOption("Yes, I would be happy to help!", this._given);
 		
 	this._chats[RPG.QUEST_TALKED] = new RPG.Misc.Chat('"So, you changed your mind regarding that little quest I offered you?"')
 		.addOption("No, I am still not interested.")
@@ -373,46 +378,18 @@ RPG.Beings.VillageElder.prototype.init = function() {
 		'"Thank you for your help! We won\'t forget what you did for our village!"',
 		'"Take this gold as our gratitude."'
 	]).setEnd(function(){
-			this._quest.setPhase(RPG.QUEST_REWARDED);
-			this._quest = null;
-		});
+		this.setPhase(RPG.QUEST_REWARDED);
+	}.bind(this));
+
+	this.parent(giver, being);
 }
-
-RPG.Beings.VillageElder.prototype.chat = function(who) {
-	var phase = this._quest.getPhase();
-	var chat = this._chats[phase];
-	RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, chat);
-}
-
-RPG.Beings.VillageElder.prototype.isChatty = function() {
-	return !!this._quest;
-}
-
-RPG.Beings.VillageElder.prototype.setEnemy = function(being) {
-	this._quest = new RPG.Quests.ElderEnemy(this, being);
-
-	var staircase = this._cell.getMap().getFeatures(RPG.Features.Staircase.Down)[0];
-	this._staircase = staircase;
-	this._staircaseCell = staircase.getCell();
-	this._staircaseCell.setFeature(null);
-}
-
-RPG.Beings.VillageElder.prototype.showStaircase = function() {
-	this._staircaseCell.setFeature(this._staircase);
-}
-
-/**
- * @class Elder's enemy quest
- * @augments RPG.Quests.Kill
- */
-RPG.Quests.ElderEnemy = OZ.Class().extend(RPG.Quests.Kill);
 
 RPG.Quests.ElderEnemy.prototype.setPhase = function(phase) {
 	this.parent(phase);
-	if (phase == RPG.QUEST_GIVEN) {
-		/* show staircase */
-		this._giver.showStaircase();
-	}
+	
+	this._giver.setChat(this._chats[phase]);
+	
+	if (phase == RPG.QUEST_GIVEN) { this._givenCallback(); }
 }
 
 RPG.Quests.ElderEnemy.prototype.reward = function() {
@@ -430,10 +407,12 @@ RPG.Story.Village.prototype.init = function() {
 	this.parent();
 	RPG.UI.sound.preload("tristram");
 	
-	this._maxDepth = 6;
-	this._maps = [];
+	this._maxElderDepth = 5;
+	this._elderDepth = 0;
 	
-	this._mapgen = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
+	this._boss = new RPG.Beings.Troll().setName("Chleba");
+	this._village = this._villageMap();
+	this._digger = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
 }
 
 RPG.Story.Village.prototype._createPC = function(race, profession, name) {
@@ -443,43 +422,37 @@ RPG.Story.Village.prototype._createPC = function(race, profession, name) {
 	RPG.World.pc.addItem(rocks);
 }
 
-RPG.Story.Village.prototype._generateMap = function() {
-	var map = null;
-	if (!this._maps.length) {
-		map = this._villageMap();
-	} else {
-		map = this._randomMap();
-	}
-	this._maps.push(map);
-	return map;
+RPG.Story.Village.prototype._getMap = function() {
+	return this._village;
 }
 
 RPG.Story.Village.prototype._villageMap = function() {
     var map = new RPG.Map.Village();
-	this._attachNext(map);
 	this._attachGameover(map);
 
 	var elder = map.getElder();
-	
-	var troll = new RPG.Beings.Troll();
-	troll.setName("Chleba");
-	this._boss = troll;
-	elder.setEnemy(this._boss);
-	
+	new RPG.Quests.ElderEnemy(elder, this._boss, this._showElderStaircase.bind(this));
+
 	return map;
 }
 
-RPG.Story.Village.prototype._randomMap = function() {
-	var index = this._maps.length;
-	
+RPG.Story.Village.prototype._showElderStaircase = function() {
+    var staircase = new RPG.Features.Staircase.Down();
+    this._village.at(new RPG.Misc.Coords(32,14)).setFeature(staircase);
+	staircase.setTarget(this._nextElderDungeon.bind(this));
+}
+
+RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
+	this._elderDepth++;
+
 	var rooms = [];
 	var map = null;
 	do {
-		map = this._mapgen.generate("Dungeon #" + index, index + 1);
+		map = this._digger.generate("Dungeon #" + this._elderDepth, this._elderDepth);
 		rooms = map.getRooms();
 	} while (rooms.length < 3);
 	
-	if (index == 1) { map.setSound("doom"); }
+	if (this._elderDepth == 1) { map.setSound("doom"); }
 
 	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01)	
 	var arr = [];
@@ -509,20 +482,17 @@ RPG.Story.Village.prototype._randomMap = function() {
 	map.at(roomUp.getCenter()).setFeature(up);
 	
 	/* bind to previous dungeon */
-	if (this._maps.length) {
-		var prev = this._maps[this._maps.length-1];
-		this._attachPrevious(map, prev);
-	}
+	up.setTarget(staircase.getCell());
 	
 	/* stairs down */
-	if (this._maps.length + 1 < this._maxDepth) {
+	if (this._elderDepth < this._maxElderDepth) {
 		map.setSound("doom");
 		var roomDown = arr.random();
 		var index = arr.indexOf(roomDown);
 		arr.splice(index, 1);
 		var down = new RPG.Features.Staircase.Down();
 		map.at(roomDown.getCenter()).setFeature(down);
-		this._attachNext(map);
+		down.setTarget(arguments.callee.bind(this));
 	} else {
 		/* last level */
 		map.setSound("doom2");
@@ -538,7 +508,7 @@ RPG.Story.Village.prototype._randomMap = function() {
 	}
 	
 	/* artifact */
-	if (this._maps.length + 2 == this._maxDepth) {
+	if (this._elderDepth+1 == this._maxElderDepth) {
 		var cell = map.getFreeCell(true);
 		var tmp = new RPG.Items.KlingonSword();
 		var trap = new RPG.Features.Trap.Teleport();
@@ -546,16 +516,6 @@ RPG.Story.Village.prototype._randomMap = function() {
 		cell.addItem(tmp);
 	}
 
-	return map;
-}
-
-	
-/**
- * Staircase needs its target dungeon generated
- */
-RPG.Story.Village.prototype._down = function(staircase) {
-	var map = this._generateMap();
-	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
 	return up.getCell();
 }
 
@@ -568,16 +528,4 @@ RPG.Story.Village.prototype._computeScore = function() {
 RPG.Story.Village.prototype._attachGameover = function(map) {
 	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
 	up.setTarget(this.bind(this._endGame));
-}
-
-RPG.Story.Village.prototype._attachNext = function(map) {
-	var down = map.getFeatures(RPG.Features.Staircase.Down)[0];
-	down.setTarget(this.bind(this._down));
-}
-	
-RPG.Story.Village.prototype._attachPrevious = function(map, previousMap) {
-	var down = previousMap.getFeatures(RPG.Features.Staircase.Down)[0];
-	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
-
-	up.setTarget(down.getCell());
 }
