@@ -521,7 +521,7 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 
 RPG.Story.Village.prototype._computeScore = function() {
 	var total = this.parent();
-	total += 150 * this._maps.length;
+	total += 150 * this._elderDepth;
 	return total;
 }
 

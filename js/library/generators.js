@@ -831,7 +831,7 @@ RPG.Generators.IceyMaze = OZ.Class().extend(RPG.Generators.BaseGenerator);
 
 RPG.Generators.IceyMaze.prototype.init = function(size, maptypes) {
 	this.parent(size, maptypes);
-	this._regularity = 0;
+	this._regularity = 10;
 }
 
 RPG.Generators.IceyMaze.prototype.generate = function(id, danger) {

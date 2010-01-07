@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" type="text/css" href="style.css" />
+
+		<script type="text/javascript" src="js/oz.js"></script>
+		<script type="text/javascript" src="js/oop.oz.js"></script>
+		<script type="text/javascript" src="js/rpg/rpg.js"></script>
+		<script type="text/javascript" src="js/rpg/ai.js"></script>
+		<script type="text/javascript" src="js/rpg/rules.js"></script>
+		<script type="text/javascript" src="js/rpg/visual.js"></script>
+		<script type="text/javascript" src="js/rpg/misc.js"></script>
+		<script type="text/javascript" src="js/rpg/base.js"></script>
+		<script type="text/javascript" src="js/rpg/being.js"></script>
+		<script type="text/javascript" src="js/rpg/dungeon.js"></script>
+		<script type="text/javascript" src="js/rpg/memory.js"></script>
+		<script type="text/javascript" src="js/rpg/world.js"></script>
+		<script type="text/javascript" src="js/rpg/pc.js"></script>
+		<script type="text/javascript" src="js/rpg/npc.js"></script>
+		<script type="text/javascript" src="js/rpg/spells.js"></script>
+
+		<script type="text/javascript" src="js/library/ai.js"></script>
+		<script type="text/javascript" src="js/library/decorators.js"></script>
+		<script type="text/javascript" src="js/library/dungeon.js"></script>
+		<script type="text/javascript" src="js/library/effects.js"></script>
+		<script type="text/javascript" src="js/library/feats.js"></script>
+		<script type="text/javascript" src="js/library/generators.js"></script>
+		<script type="text/javascript" src="js/library/professions.js"></script>
+		<script type="text/javascript" src="js/library/quests.js"></script>
+		<script type="text/javascript" src="js/library/races.js"></script>
+		<script type="text/javascript" src="js/library/rooms.js"></script>
+		<script type="text/javascript" src="js/library/slots.js"></script>
+		<script type="text/javascript" src="js/library/spells.js"></script>
+		<script type="text/javascript" src="js/library/items/armor.js"></script>
+		<script type="text/javascript" src="js/library/items/misc.js"></script>
+		<script type="text/javascript" src="js/library/items/weapons.js"></script>
+		<script type="text/javascript" src="js/library/beings/beings.js"></script>
+		<script type="text/javascript" src="js/library/beings/humans.js"></script>
+		<script type="text/javascript" src="js/library/beings/undead.js"></script>
+
+		<script type="text/javascript" src="js/ui/ui.js"></script>
+		<script type="text/javascript" src="js/ui/buffer.js"></script>
+		<script type="text/javascript" src="js/ui/map.js"></script>
+		<script type="text/javascript" src="js/ui/button.js"></script>
+		<script type="text/javascript" src="js/ui/commands.js"></script>
+		<script type="text/javascript" src="js/ui/chat.js"></script>
+		<script type="text/javascript" src="js/ui/itemlist.js"></script>
+		<script type="text/javascript" src="js/ui/mapswitch.js"></script>
+		<script type="text/javascript" src="js/ui/questlist.js"></script>
+		<script type="text/javascript" src="js/ui/sound.js"></script>
+		<script type="text/javascript" src="js/ui/status.js"></script>
+		<script type="text/javascript" src="js/ui/slots.js"></script>
+
+		<script type="text/javascript" src="js/story/chargen.js"></script>
+		<script type="text/javascript" src="js/story/story.js"></script>
+		<script type="text/javascript" src="js/story/village.js"></script>
+	</head>
+
+	<body>
+		<div id="buffer">
+			<ul id="mapswitch"></ul>
+		</div>
+		<div id="map"></div>
+		<div style="clear:both"></div>
+		
+		<div id="keypad"></div>
+		<div id="commands"></div>
+		
+		<div id="status"></div>
+		
+		<script type="text/javascript" src="js/debug/test.js"></script>
+		<script type="text/javascript" src="js/debug/graph.js"></script>
+		<script type="text/javascript" src="js/debug/story.js"></script>
+		<script type="text/javascript">
+			RPG.World.init();
+			var s = new RPG.Story.Testbed();
+			s.go();
+		</script>
+	</body>
+</html>
