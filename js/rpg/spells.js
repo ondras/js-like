@@ -54,12 +54,12 @@ RPG.Spells.Attack.prototype.init = function(caster) {
 
 RPG.Spells.Attack.prototype.getHit = function() {
 	var addedHit = new RPG.Misc.RandomValue(this._caster.getFeat(RPG.FEAT_HIT_MAGIC), 0);
-	return this._hit.plus(addedHit);
+	return this._hit.add(addedHit);
 }
 
 RPG.Spells.Attack.prototype.getDamage = function() {
-	var addedDamange = new RPG.Misc.RandomValue(this._caster.getFeat(RPG.FEAT_DAMAGE_MAGIC), 0);
-	return this.constructor.damage.plus(addedDamage);
+	var addedDamage = new RPG.Misc.RandomValue(this._caster.getFeat(RPG.FEAT_DAMAGE_MAGIC), 0);
+	return this.constructor.damage.add(addedDamage);
 }
 
 
@@ -189,7 +189,7 @@ RPG.Spells.Projectile.prototype._computeBounce = function(cell, dir) {
 	var newCell = cell;
 	var newDir = null;
 	
-	var leftDir = (dir-1) % 8;
+	var leftDir = (dir+7) % 8;
 	var rightDir = (dir+1) % 8;
 	var leftCell = cell.neighbor(leftDir);
 	var rightCell = cell.neighbor(rightDir);
@@ -201,7 +201,7 @@ RPG.Spells.Projectile.prototype._computeBounce = function(cell, dir) {
 		newDir = (dir+4) % 8;
 	} else if (leftFree) { /* bounce to the left */
 		newCell = leftCell; /* FIXME does this _always_ exist? */
-		newDir = (dir-2) % 8;
+		newDir = (dir+6) % 8;
 	} else { /* bounce to the right */
 		newCell = rightCell; /* FIXME does this _always_ exist? */
 		newDir = (dir+2) % 8;

@@ -145,7 +145,7 @@ RPG.Beings.NPC.prototype.move = function(targetCell) {
  * Initiate chat with target being
  */
 RPG.Beings.NPC.prototype.chat = function(being) {
-	RPG.UI.setMode(RPG.UI_WAIT_CHAT, this, this._chat);
+	RPG.UI.chat.show(this._chat, this)
 	return RPG.ACTION_TIME;
 }
 

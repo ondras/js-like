@@ -829,9 +829,9 @@ RPG.Generators.Maze.prototype._addToList = function(i, L, R) {
  */
 RPG.Generators.IceyMaze = OZ.Class().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.IceyMaze.prototype.init = function(size, maptypes) {
+RPG.Generators.IceyMaze.prototype.init = function(size, maptypes, regularity) {
 	this.parent(size, maptypes);
-	this._regularity = 10;
+	this._regularity = regularity || 0;
 }
 
 RPG.Generators.IceyMaze.prototype.generate = function(id, danger) {

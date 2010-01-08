@@ -21,6 +21,7 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._effects = [];
 	this._turnCounter = null;
 	this._modifierList = [];
+	this._spells = [];
 
 	this._setRace(race);
 	this._initStatsAndFeats();
@@ -90,6 +91,16 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	
 	for (var p in this._feats) { this._updateFeat(p); }
 }
+
+RPG.Beings.BaseBeing.prototype.addSpell = function(spell) {
+	this._spells.push(spell);
+	return this;
+}
+
+RPG.Beings.BaseBeing.prototype.getSpells = function() {
+	return this._spells;
+}
+
 
 /**
  * @param {SMap.Misc.Coords}
@@ -653,7 +664,8 @@ RPG.Beings.BaseBeing.prototype.pick = function(items) {
 			/* split heap */
 			item = item.subtract(amount);
 		}
-
+		
+		this.dispatch("pick", {item:item});
 		this.addItem(item);
 		
 		var verb = RPG.Misc.verb("pick", this);

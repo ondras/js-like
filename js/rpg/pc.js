@@ -11,7 +11,6 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this._mapMemory = new RPG.Memory.MapMemory();
 	this._visibleCoords = [];
 	
-	this._spells = [];
 	this._description = "you";
 	this._char = "@";
 	this._kills = 0;
@@ -69,15 +68,6 @@ RPG.Beings.PC.prototype.setName = function(name) {
 	this.parent(name);
 	RPG.UI.status.updateName(this._name);
 	return this;
-}
-
-RPG.Beings.PC.prototype.addSpell = function(spell) {
-	this._spells.push(spell);
-	return this;
-}
-
-RPG.Beings.PC.prototype.getSpells = function() {
-	return this._spells;
 }
 
 RPG.Beings.PC.prototype.setStat = function(stat, value) {
@@ -446,7 +436,7 @@ RPG.Beings.PC.prototype.chat = function(being) {
 	if (being.getChat()) {
 		being.chat(this);
 	} else {
-		var s = RPG.Misc.format("%He does not reply.", this._target);
+		var s = RPG.Misc.format("%He does not reply.", being);
 		RPG.UI.buffer.message(s);
 	}
 	

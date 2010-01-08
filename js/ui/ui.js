@@ -35,9 +35,6 @@ RPG.UI.setMode = function(mode, command, data) {
 		case RPG.UI_WAIT_DIALOG:
 			this._adjustButtons({commands:false, cancel:false, dir:false});
 		break;
-		case RPG.UI_WAIT_CHAT:
-			new RPG.UI.Chat(data, command);
-		break;
 	}
 }
 
@@ -108,6 +105,8 @@ RPG.UI.build = function() {
 	
 	var status = OZ.$("status");
 	this.status = new RPG.UI.Status(status);
+	
+	this.chat = new RPG.UI.Chat();
 	
 	var c = OZ.$("commands");
 	

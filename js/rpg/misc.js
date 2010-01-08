@@ -310,37 +310,123 @@ RPG.Misc.IActor.prototype.yourTurn = function() {
 }
 
 /**
- * @class Chat - hierarchical dialog structure
+ * @class Chat - dialog structure
  */
 RPG.Misc.Chat = OZ.Class();
-RPG.Misc.Chat.prototype.init = function(text) {
-	this._text = text;
-	this._options = [];
-	this._sound = null;
-	this._end = null;
+
+RPG.Misc.Chat.prototype.init = function(owner) {
+	this._owner = owner;
+	this._state = null;
+	this._states = {};
 }
-RPG.Misc.Chat.prototype.addOption = function(text, something) {
-	this._options.push([text, something]);
+
+RPG.Misc.Chat.prototype.setState = function(id) {
+	this._state = id;
+}
+
+/* GETTERS */
+
+/**
+ * Return what should be said right now
+ */
+RPG.Misc.Chat.prototype.getText = function(text) {
+	return this._states[this._state].text;
+}
+
+/**
+ * Return what should be played right now
+ */
+RPG.Misc.Chat.prototype.getSound = function(text) {
+	return this._states[this._state].sound;
+}
+
+/**
+ * Returns list of available answers
+ */
+RPG.Misc.Chat.prototype.getAnswers = function() {
+	return this._states[this._state].answers;
+}
+
+/**
+ * Advance the conversation using given answer index
+ * @param {int} answerIndex Irrelevant if current answerlist is empty
+ * @returns {bool} Should the conversation continue?
+ */
+RPG.Misc.Chat.prototype.advance = function(answerIndex) {
+	var obj = this._states[this._state];
+	var nextId = null;
+	if (obj.next.length) {
+		nextId = obj.next[answerIndex];
+	} else {
+		nextId = obj.nextId;
+	}
+	
+	if (nextId === null) { return false; } /* nowhere to advance */
+	
+	this._state = nextId;
+	obj = this._states[this._state];
+	if (obj.callback) { obj.callback.call(this._owner); }
+	
+	/* conversation stop */
+	return !obj.end;
+}
+
+/* SETTERS */
+
+/**
+ * Define a new state
+ * @param {int} id state identifier
+ * @param {string} text
+ * @param {int} [nextId] where to advance
+ */
+RPG.Misc.Chat.prototype.defineState = function(id, text, nextId) {
+	if (this._state === null) { this._state = id; }
+	
+	this._states[id] = {
+		text: text, /* what to say */
+		answers: [], /* available answers */
+		next: [], /* where to go for a given answer */
+		end: false, /* do we stop after reaching this state? */
+		nextId: null, /* where to go if no answer available */
+		callback: null,
+		sound: null
+	}
+	
+	if (arguments.length > 2) { this._states[id].nextId = nextId; }
+	
 	return this;
 }
-RPG.Misc.Chat.prototype.getText = function() {
-	return this._text;
-}
-RPG.Misc.Chat.prototype.getOptions = function() {
-	return this._options;
-}
-RPG.Misc.Chat.prototype.getSound = function() {
-	return this._sound;
-}
-RPG.Misc.Chat.prototype.setSound = function(sound) {
-	this._sound = sound;
+
+/**
+ * Mark this state as a conversation end, e.g. do not advance automatically
+ */
+RPG.Misc.Chat.prototype.defineEnd = function(id) {
+	this._states[id].end = true;
 	return this;
 }
-RPG.Misc.Chat.prototype.getEnd = function() {
-	return this._end;
+
+/**
+ * Define a sound for a state
+ */
+RPG.Misc.Chat.prototype.defineSound = function(id, sound) {
+	this._states[id].sound = sound;
+	return this;
 }
-RPG.Misc.Chat.prototype.setEnd = function(end) {
-	this._end = end;
+
+/**
+ * Define an answer for a state
+ */
+RPG.Misc.Chat.prototype.defineAnswer = function(id, text, nextId) {
+	this._states[id].answers.push(text);
+	this._states[id].next.push(nextId);
+	return this;
+}
+
+/**
+ * Define a callback for a state
+ */
+RPG.Misc.Chat.prototype.defineCallback = function(id, callback) {
+	this._states[id].callback = callback;
 	return this;
 }
 

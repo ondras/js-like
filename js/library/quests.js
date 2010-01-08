@@ -27,3 +27,25 @@ RPG.Quests.Kill.prototype._death = function(e) {
 	OZ.Event.remove(this._event);
 	this.setPhase(RPG.QUEST_DONE);
 }
+
+/**
+ * @class Retrieving quest
+ * @augments RPG.Quests.BaseQuest
+ */
+RPG.Quests.Retrieve = OZ.Class().extend(RPG.Quests.BaseQuest);
+
+RPG.Quests.Retrieve.prototype.init = function(giver, item) {
+	this.parent(giver);
+	this._item = item;
+
+	var s = RPG.Misc.format("Find %a and bring it to %the", item, giver);
+	this.setTask(s);
+	this._event = OZ.Event.add(RPG.World.pc, "pick", this.bind(this._pick));
+}
+
+RPG.Quests.Retrieve.prototype._pick = function(e) {
+	var item = e.data.item;
+	if (item != this._item) { return; }
+	OZ.Event.remove(this._event);
+	this.setPhase(RPG.QUEST_DONE);
+}

@@ -148,8 +148,8 @@ RPG.Map.Village.prototype._buildPeople = function() {
 
 	var residents = 5;
 	var chats = [
-		new RPG.Misc.Chat('"Work, work."').setSound("villager-work"),
-		new RPG.Misc.Chat('"Ask our elder."')
+		new RPG.Misc.Chat().defineState(0, '"Work, work."').defineSound(0, "villager-work"),
+		new RPG.Misc.Chat().defineState(0, '"Ask our elder."')
 	];
 	
     for (var i = 0; i < residents; i++) {
@@ -182,7 +182,7 @@ RPG.Beings.VillageHealer.prototype.init = function() {
 	this._color = "red";
 	this._image = "village-healer";
 
-    this.setChat(new RPG.Misc.Chat('"Time will heal every scar."'));
+    this.setChat();
 	
 	this.fullStats();
 }
@@ -342,49 +342,122 @@ RPG.Beings.VillageElder.prototype.init = function() {
 }
 
 /**
+ * @class Gift ring FIXME
+ * @augments RPG.Items.Ring
+ */
+RPG.Items.GiftRing = OZ.Class().extend(RPG.Items.Ring);
+RPG.Items.GiftRing.prototype.init = function() {
+	this.parent();
+	this._image= "gift-ring";
+	this._color = "gold";
+	this._description = "gift ring";
+}
+
+/**
  * @class Elder's enemy quest
  * @augments RPG.Quests.Kill
  */
 RPG.Quests.ElderEnemy = OZ.Class().extend(RPG.Quests.Kill);
 
 RPG.Quests.ElderEnemy.prototype.init = function(giver, being, givenCallback) {
-	this._chats = {};
+	var chat = new RPG.Misc.Chat(this);
+	giver.setChat(chat);
 	this._givenCallback = givenCallback;
 	
-	this._given = new RPG.Misc.Chat([
+	var GIVING = 0;
+	
+	/* first encounter */
+	chat.defineState(RPG.QUEST_NEW, [
+		'"Our village was attacked by some evil being recently."',
+		'"Maybe you would like to help us?"'
+	]);
+	chat.defineAnswer(RPG.QUEST_NEW, "Yes, I would be happy to help!", GIVING);
+	chat.defineAnswer(RPG.QUEST_NEW, "No, I am not interested.", RPG.QUEST_TALKED);
+	
+	/* second encounter, if not given yet */
+	chat.defineState(RPG.QUEST_TALKED, '"So, you changed your mind regarding that little quest I offered you?"');
+	chat.defineEnd(RPG.QUEST_TALKED);
+	chat.defineAnswer(RPG.QUEST_TALKED, "Yes, I am now ready to help!", GIVING);
+	chat.defineAnswer(RPG.QUEST_TALKED, "No, I am still not interested.", RPG.QUEST_TALKED);
+	chat.defineCallback(RPG.QUEST_TALKED, function() { this.setPhase(RPG.QUEST_TALKED); });
+	
+	/* giving the quest */
+	chat.defineState(GIVING, [
 		'"The evil being lives in a dungeon close to south-east part of our village."',
 		'"If you reach its lair, make sure you retrieve some of the treasure you find there."',
 		'"Good luck!"'
-	]).setEnd(function() {
-		this.setPhase(RPG.QUEST_GIVEN);
-		RPG.World.pc.mapMemory().updateVisible();
-	}.bind(this));
+	], RPG.QUEST_GIVEN);
 	
-	this._chats[RPG.QUEST_NEW] = new RPG.Misc.Chat([
-		'"Our village was attacked by some evil being recently."',
-		'"Maybe you would like to help us?"'
-	]).addOption("No, I am not interested.", function() {
-			this.setPhase(RPG.QUEST_TALKED);
-		}.bind(this)
-	).addOption("Yes, I would be happy to help!", this._given);
-		
-	this._chats[RPG.QUEST_TALKED] = new RPG.Misc.Chat('"So, you changed your mind regarding that little quest I offered you?"')
-		.addOption("No, I am still not interested.")
-		.addOption("Yes, I am now ready to help!", this._given);
+	/* given the quest */
+	chat.defineState(RPG.QUEST_GIVEN, '"That critter is still alive. Find it and kill it!"'); 
+	chat.defineEnd(RPG.QUEST_GIVEN);
+	chat.defineCallback(RPG.QUEST_GIVEN, function() { this.setPhase(RPG.QUEST_GIVEN); });
 	
-	this._chats[RPG.QUEST_GIVEN] = new RPG.Misc.Chat('"That critter is still alive. Find it and kill it!"');
-	
-	this._chats[RPG.QUEST_DONE] = new RPG.Misc.Chat([
+	/* giving the reward */
+	chat.defineState(RPG.QUEST_DONE, [
 		'"Thank you for your help! We won\'t forget what you did for our village!"',
 		'"Take this gold as our gratitude."'
-	]).setEnd(function(){
-		this.setPhase(RPG.QUEST_REWARDED);
-	}.bind(this));
+	], RPG.QUEST_REWARDED);
+	
+	/* already rewarded */
+	chat.defineState(RPG.QUEST_REWARDED, '"No problems in our village..."');
+	chat.defineEnd(RPG.QUEST_REWARDED);
+	chat.defineCallback(RPG.QUEST_REWARDED, function() { this.setPhase(RPG.QUEST_REWARDED); });
 
+	this._chat = chat;
 	this.parent(giver, being);
 }
 
 RPG.Quests.ElderEnemy.prototype.setPhase = function(phase) {
+	this.parent(phase);
+	if (phase == RPG.QUEST_DONE) { this._chat.setState(RPG.QUEST_DONE); }
+	if (phase == RPG.QUEST_GIVEN) { this._givenCallback(); }
+}
+
+RPG.Quests.ElderEnemy.prototype.reward = function() {
+	var gold = new RPG.Items.Gold(1000);
+	RPG.World.pc.addItem(gold);
+}
+
+/**
+ * @class Lost ring quest
+ * @augments RPG.Quests.Kill
+ */
+RPG.Quests.LostRing = OZ.Class().extend(RPG.Quests.Retrieve);
+
+RPG.Quests.LostRing.prototype.init = function(giver, being, givenCallback) {
+	this._chats = {};
+	this._givenCallback = givenCallback;
+	this._preferredReward = null;
+	
+	this._chats[RPG.QUEST_NEW] = new RPG.Misc.Chat([
+		'"Aye, times are bad.""',
+		'"My daughter\'s wedding is coming, but I lost my present for her."',
+		'"It is a precious little ring - I believe I had it in my pocket when I ventured to that old maze nearby."',
+		'"I may have lost it there; you can find the maze\'s entry in a nort-west corner of our village."'
+	]).setEnd(function(){
+		this.setPhase(RPG.QUEST_GIVEN);
+		RPG.World.pc.mapMemory().updateVisible();
+	}.bind(this));
+
+	this._chats[RPG.QUEST_GIVEN] = new RPG.Misc.Chat('"My daughter\'s wedding will be ruined without that ring!"');
+	
+	this._chats[RPG.QUEST_DONE] = new RPG.Misc.Chat([
+		'"So you managed to find the ring! You are a true hero indeed."',
+		'"As a reward, let me teach you a spell. What kind of magic do you prefer?"'
+	]).addOption("Defensive magic", function() {
+		this._preferredReward = 0;
+	}.bind(this)).addOption("Offensive magic", function() {
+		this._preferredReward = 1;
+	}.bind(this)).setEnd(function() {
+		this.setPhase(QUEST_REWARDED);
+	}.bind(this));
+	
+	this._chats[RPG.QUEST_REWARDED] = new RPG.Misc.Chat('"Time will heal every scar."');
+	this.parent(giver, being);
+}
+
+RPG.Quests.LostRing.prototype.setPhase = function(phase) {
 	this.parent(phase);
 	
 	this._giver.setChat(this._chats[phase]);
@@ -392,9 +465,11 @@ RPG.Quests.ElderEnemy.prototype.setPhase = function(phase) {
 	if (phase == RPG.QUEST_GIVEN) { this._givenCallback(); }
 }
 
-RPG.Quests.ElderEnemy.prototype.reward = function() {
-	var gold = new RPG.Items.Gold(1000);
-	RPG.World.pc.addItem(gold);
+RPG.Quests.LostRing.prototype.reward = function() {
+	var spell = (this._preferredReward ? RPG.Spells.MagicBolt : RPG.Spells.Heal);
+	var pc = RPG.World.pc;
+	if (pc.getSpells().indexOf(spell) != -1) { return; }
+	pc.addSpell(spell);
 }
 
 /**
@@ -409,10 +484,19 @@ RPG.Story.Village.prototype.init = function() {
 	
 	this._maxElderDepth = 5;
 	this._elderDepth = 0;
+	this._maxMazeDepth = 3;
+	this._mazeDepth = 0;
 	
-	this._boss = new RPG.Beings.Troll().setName("Chleba");
-	this._village = this._villageMap();
+	this._boss = null;
+	this._village = null;
+	this._ring = new RPG.Items.GiftRing();
+	
+	this._village = null;
 	this._digger = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
+	
+	this._maze1 = new RPG.Generators.DividedMaze(new RPG.Misc.Coords(59, 19));
+	this._maze2 = new RPG.Generators.IceyMaze(new RPG.Misc.Coords(59, 19), null, 10);
+	this._maze3 = new RPG.Generators.Maze(new RPG.Misc.Coords(59, 19));
 }
 
 RPG.Story.Village.prototype._createPC = function(race, profession, name) {
@@ -423,23 +507,36 @@ RPG.Story.Village.prototype._createPC = function(race, profession, name) {
 }
 
 RPG.Story.Village.prototype._getMap = function() {
+	this._village = this._villageMap();
 	return this._village;
 }
 
 RPG.Story.Village.prototype._villageMap = function() {
-    var map = new RPG.Map.Village();
+	var map = new RPG.Map.Village();
 	this._attachGameover(map);
 
+	this._boss = new RPG.Beings.Troll().setName("Chleba");
 	var elder = map.getElder();
 	new RPG.Quests.ElderEnemy(elder, this._boss, this._showElderStaircase.bind(this));
+
+	var healer = map.getHealer();
+//	new RPG.Quests.LostRing(healer, this._ring, this._showMazeStaircase.bind(this));
 
 	return map;
 }
 
 RPG.Story.Village.prototype._showElderStaircase = function() {
     var staircase = new RPG.Features.Staircase.Down();
-    this._village.at(new RPG.Misc.Coords(32,14)).setFeature(staircase);
+    this._village.at(new RPG.Misc.Coords(32, 14)).setFeature(staircase);
 	staircase.setTarget(this._nextElderDungeon.bind(this));
+	RPG.World.pc.mapMemory().updateVisible();
+}
+
+RPG.Story.Village.prototype._showMazeStaircase = function() {
+    var staircase = new RPG.Features.Staircase.Down();
+    this._village.at(new RPG.Misc.Coords(1, 1)).setFeature(staircase);
+	staircase.setTarget(this._nextMazeDungeon.bind(this));
+	RPG.World.pc.mapMemory().updateVisible();
 }
 
 RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
@@ -454,7 +551,7 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 	
 	if (this._elderDepth == 1) { map.setSound("doom"); }
 
-	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01)	
+	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);
 	var arr = [];
 
 	for (var i=0;i<rooms.length;i++) { 
@@ -516,6 +613,45 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 		cell.addItem(tmp);
 	}
 
+	return up.getCell();
+}
+
+RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
+	this._mazeDepth++;
+
+	var generator = this["_maze" + this._mazeDepth];
+	map = generator.generate("Maze #" + this._mazeDepth, this._mazeDepth);
+	if (this._mazeDepth == 1) { map.setSound("neverhood"); } /* FIXME */
+
+	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);
+	
+	/* enemies */
+	var max = 4 + Math.floor(Math.random()*6);
+	RPG.Decorators.Beings.getInstance().decorate(map, max);
+	
+	/* items */
+	var max = 2 + Math.floor(Math.random()*4);
+	RPG.Decorators.Items.getInstance().decorate(map, max);
+
+	/* traps */
+	var max = 1 + Math.floor(Math.random()*2);
+	RPG.Decorators.Traps.getInstance().decorate(map, max);
+
+	/* stairs up */
+	var up = new RPG.Features.Staircase.Up();
+	map.getFreeCell().setFeature(up);
+	
+	/* bind to previous dungeon */
+	up.setTarget(staircase.getCell());
+	
+	/* stairs down */
+	if (this._mazeDepth < this._maxMazeDepth) {
+		var down = new RPG.Features.Staircase.Down();
+		map.getFreeCell().setFeature(down);
+		down.setTarget(arguments.callee.bind(this));
+	} else {
+	}
+	
 	return up.getCell();
 }
 
