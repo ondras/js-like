@@ -257,15 +257,12 @@ RPG.Beings.VillageGuard.prototype.init = function() {
 	this.setFeat(RPG.FEAT_MAX_HP, 20);
 
 	var sword = new RPG.Items.LongSword();
-	this.addItem(sword);
 	this.equip(RPG.SLOT_WEAPON,sword);
 
 	var shield = new RPG.Items.LargeShield();
-	this.addItem(shield);
 	this.equip(RPG.SLOT_SHIELD,shield);
 
     var armor = new RPG.Items.ChainMail();
-    this.addItem(armor);
     this.equip(RPG.SLOT_ARMOR,armor);
 	
 	this._description = "elder's guard";
@@ -298,7 +295,6 @@ RPG.Beings.VillageSmith.prototype.init = function() {
 	this.setFeat(RPG.FEAT_MAX_HP, 20);
 	
 	var hammer = new RPG.Items.Hammer();
-	this.addItem(hammer);
 	this.equip(RPG.SLOT_WEAPON,hammer);
 	
 	this._description = "dwarven smith";
@@ -330,7 +326,6 @@ RPG.Beings.VillageElder.prototype.init = function() {
 	this.setFeat(RPG.FEAT_MAX_HP, 20);
 	
 	var sword = new RPG.Items.LongSword();
-	this.addItem(sword);
 	this.equip(RPG.SLOT_WEAPON, sword);
 	
 	this._description = "village elder";
@@ -342,15 +337,15 @@ RPG.Beings.VillageElder.prototype.init = function() {
 }
 
 /**
- * @class Gift ring FIXME
- * @augments RPG.Items.Ring
+ * @class Wedding necklace FIXME
+ * @augments RPG.Items.Necklace
  */
-RPG.Items.GiftRing = OZ.Class().extend(RPG.Items.Ring);
-RPG.Items.GiftRing.prototype.init = function() {
+RPG.Items.WeddingNecklace = OZ.Class().extend(RPG.Items.Necklace);
+RPG.Items.WeddingNecklace.prototype.init = function() {
 	this.parent();
-	this._image= "gift-ring";
+	this._image = "wedding-necklace"; /* FIXME */
 	this._color = "gold";
-	this._description = "gift ring";
+	this._description = "wedding necklace";
 }
 
 /**
@@ -420,53 +415,81 @@ RPG.Quests.ElderEnemy.prototype.reward = function() {
 }
 
 /**
- * @class Lost ring quest
- * @augments RPG.Quests.Kill
+ * @class Lost necklace quest
+ * @augments RPG.Quests.Retrieve
  */
-RPG.Quests.LostRing = OZ.Class().extend(RPG.Quests.Retrieve);
-
-RPG.Quests.LostRing.prototype.init = function(giver, being, givenCallback) {
-	this._chats = {};
+RPG.Quests.LostNecklace = OZ.Class().extend(RPG.Quests.Retrieve);
+RPG.Quests.LostNecklace.prototype.init = function(giver, item, givenCallback) {
 	this._givenCallback = givenCallback;
-	this._preferredReward = null;
+	this._reward = null;
 	
-	this._chats[RPG.QUEST_NEW] = new RPG.Misc.Chat([
-		'"Aye, times are bad.""',
+	var chat = new RPG.Misc.Chat(this);
+	giver.setChat(chat);
+	this._chat = chat;
+	var REWARD_DEFENSIVE = 0;
+	var REWARD_OFFENSIVE = 1;
+	var REWARD_TESTING = 2;
+	var REWARD_READY = 3;
+	
+	chat.defineState(RPG.QUEST_NEW, [
+		'"Aye, times are bad."',
 		'"My daughter\'s wedding is coming, but I lost my present for her."',
-		'"It is a precious little ring - I believe I had it in my pocket when I ventured to that old maze nearby."',
+		'"It is a precious little necklace - I believe I had it in my pocket when I ventured to that old maze nearby."',
 		'"I may have lost it there; you can find the maze\'s entry in a nort-west corner of our village."'
-	]).setEnd(function(){
-		this.setPhase(RPG.QUEST_GIVEN);
-		RPG.World.pc.mapMemory().updateVisible();
-	}.bind(this));
-
-	this._chats[RPG.QUEST_GIVEN] = new RPG.Misc.Chat('"My daughter\'s wedding will be ruined without that ring!"');
+	], RPG.QUEST_GIVEN);
 	
-	this._chats[RPG.QUEST_DONE] = new RPG.Misc.Chat([
-		'"So you managed to find the ring! You are a true hero indeed."',
-		'"As a reward, let me teach you a spell. What kind of magic do you prefer?"'
-	]).addOption("Defensive magic", function() {
-		this._preferredReward = 0;
-	}.bind(this)).addOption("Offensive magic", function() {
-		this._preferredReward = 1;
-	}.bind(this)).setEnd(function() {
-		this.setPhase(QUEST_REWARDED);
-	}.bind(this));
+	chat.defineState(RPG.QUEST_GIVEN, '"My daughter\'s wedding will be ruined without that necklace!"');
+	chat.defineEnd(RPG.QUEST_GIVEN);
+	chat.defineCallback(RPG.QUEST_GIVEN, function() { this.setPhase(RPG.QUEST_GIVEN); });
 	
-	this._chats[RPG.QUEST_REWARDED] = new RPG.Misc.Chat('"Time will heal every scar."');
-	this.parent(giver, being);
+	chat.defineState(RPG.QUEST_DONE, ['"I heard you managed to find the necklace! That is great news indeed."'], REWARD_TESTING);
+	chat.defineEnd(RPG.QUEST_DONE);
+	
+	chat.defineState(REWARD_TESTING, ['"Please bring the necklace to me, I will reward you!"'], RPG.QUEST_DONE);
+	chat.defineCallback(REWARD_TESTING, function() {
+		var pc = RPG.World.pc;
+		var ok = false;
+		if (pc.hasItem(this._item)) {
+			ok = true;
+		} else {
+			var i = pc.getSlot(RPG.SLOT_NECK).getItem();
+			if (i == this._item) {
+				ok = true;
+				pc.unequip(RPG.SLOT_NECK);
+			}
+		}
+		
+		if (ok) { 
+			this._chat.setState(REWARD_READY); 
+			pc.removeItem(this._item);
+		}
+	});
+	
+	chat.defineState(REWARD_READY, '"As a reward, let me teach you a spell. What kind of magic do you prefer?"');
+	chat.defineAnswer(REWARD_READY, "Offensive magic", REWARD_OFFENSIVE);
+	chat.defineAnswer(REWARD_READY, "Defensive magic", REWARD_DEFENSIVE);
+	
+	chat.defineState(REWARD_OFFENSIVE, '"I will teach you the Magic explosion spell."', RPG.QUEST_REWARDED);
+	chat.defineCallback(REWARD_OFFENSIVE, function() { this._reward = RPG.Spells.MagicExplosion; });
+	
+	chat.defineState(REWARD_DEFENSIVE, '"I will teach you the Healing spell."', RPG.QUEST_REWARDED);
+	chat.defineCallback(REWARD_DEFENSIVE, function() { this._reward = RPG.Spells.Heal; });
+	
+	chat.defineState(RPG.QUEST_REWARDED, '"Time will heal every scar."');
+	chat.defineEnd(RPG.QUEST_REWARDED);
+	chat.defineCallback(RPG.QUEST_REWARDED, function() { this.setPhase(RPG.QUEST_REWARDED); });
+	
+	this.parent(giver, item);
 }
 
-RPG.Quests.LostRing.prototype.setPhase = function(phase) {
+RPG.Quests.LostNecklace.prototype.setPhase = function(phase) {
 	this.parent(phase);
-	
-	this._giver.setChat(this._chats[phase]);
-	
 	if (phase == RPG.QUEST_GIVEN) { this._givenCallback(); }
+	if (phase == RPG.QUEST_DONE) { this._chat.setState(RPG.QUEST_DONE); }
 }
 
-RPG.Quests.LostRing.prototype.reward = function() {
-	var spell = (this._preferredReward ? RPG.Spells.MagicBolt : RPG.Spells.Heal);
+RPG.Quests.LostNecklace.prototype.reward = function() {
+	var spell = this._reward;
 	var pc = RPG.World.pc;
 	if (pc.getSpells().indexOf(spell) != -1) { return; }
 	pc.addSpell(spell);
@@ -489,11 +512,9 @@ RPG.Story.Village.prototype.init = function() {
 	
 	this._boss = null;
 	this._village = null;
-	this._ring = new RPG.Items.GiftRing();
+	this._necklace = new RPG.Items.WeddingNecklace();
 	
-	this._village = null;
 	this._digger = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
-	
 	this._maze1 = new RPG.Generators.DividedMaze(new RPG.Misc.Coords(59, 19));
 	this._maze2 = new RPG.Generators.IceyMaze(new RPG.Misc.Coords(59, 19), null, 10);
 	this._maze3 = new RPG.Generators.Maze(new RPG.Misc.Coords(59, 19));
@@ -520,7 +541,7 @@ RPG.Story.Village.prototype._villageMap = function() {
 	new RPG.Quests.ElderEnemy(elder, this._boss, this._showElderStaircase.bind(this));
 
 	var healer = map.getHealer();
-//	new RPG.Quests.LostRing(healer, this._ring, this._showMazeStaircase.bind(this));
+	new RPG.Quests.LostNecklace(healer, this._necklace, this._showMazeStaircase.bind(this));
 
 	return map;
 }
@@ -650,6 +671,7 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 		map.getFreeCell().setFeature(down);
 		down.setTarget(arguments.callee.bind(this));
 	} else {
+		map.getFreeCell().addItem(this._necklace);
 	}
 	
 	return up.getCell();

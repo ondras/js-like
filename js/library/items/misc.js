@@ -231,6 +231,17 @@ RPG.Items.Ring.prototype.init = function() {
 }
 
 /**
+ * @class Necklace
+ * @augments RPG.Items.BaseItem
+ */
+RPG.Items.Necklace = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Necklace.factory.ignore = true;
+RPG.Items.Necklace.prototype.init = function() {
+	this.parent();
+	this._char = "'";
+}
+
+/**
  * @class Brass ring
  * @augments RPG.Items.Ring
  */

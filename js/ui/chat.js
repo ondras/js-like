@@ -10,6 +10,9 @@ RPG.UI.Chat.prototype.show = function(chat, being) {
 	var cont = false;
 	do {
 		var text = chat.getText();
+		var sound = chat.getSound();
+		if (sound) { RPG.UI.sound.play(sound); }
+		
 		var answers = chat.getAnswers();
 		
 		var answerIndex = -1;

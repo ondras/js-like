@@ -322,6 +322,8 @@ RPG.Misc.Chat.prototype.init = function(owner) {
 
 RPG.Misc.Chat.prototype.setState = function(id) {
 	this._state = id;
+	var obj = this._states[this._state];
+	if (obj.callback) { obj.callback.call(this._owner); }
 }
 
 /* GETTERS */
@@ -362,13 +364,11 @@ RPG.Misc.Chat.prototype.advance = function(answerIndex) {
 	}
 	
 	if (nextId === null) { return false; } /* nowhere to advance */
-	
-	this._state = nextId;
-	obj = this._states[this._state];
-	if (obj.callback) { obj.callback.call(this._owner); }
+
+	this.setState(nextId);
 	
 	/* conversation stop */
-	return !obj.end;
+	return !this._states[this._state].end;
 }
 
 /* SETTERS */

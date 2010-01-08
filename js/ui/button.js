@@ -12,8 +12,9 @@ RPG.UI.Button._buttons = [];
  * Static keypress handler
  */
 RPG.UI.Button._keyPress = function(e) {
-	for (var i=0;i<RPG.UI.Button._buttons.length;i++) {
-		RPG.UI.Button._buttons[i][0]._keyPress(e);
+	var list = RPG.UI.Button._buttons.clone();
+	for (var i=0;i<list.length;i++) {
+		list[i][0]._keyPress(e);
 	}
 }
 
