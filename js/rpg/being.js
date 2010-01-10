@@ -80,8 +80,7 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 
 	/* base feats */
 	var misc = [RPG.FEAT_MAX_HP, RPG.FEAT_MAX_MANA, RPG.FEAT_DV, RPG.FEAT_PV, 
-				RPG.FEAT_SPEED, RPG.FEAT_HIT, RPG.FEAT_HIT_MAGIC,
-				RPG.FEAT_DAMAGE, RPG.FEAT_DAMAGE_MAGIC, 
+				RPG.FEAT_SPEED, RPG.FEAT_HIT, RPG.FEAT_DAMAGE, 
 				RPG.FEAT_REGEN_HP, RPG.FEAT_REGEN_MANA,	RPG.FEAT_SIGHT_RANGE
 				];
 	for (var i=0;i<misc.length;i++) {
@@ -767,7 +766,7 @@ RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
 	hit = RPG.Rules.isMeleeHit(this, being, slot);
 	if (hit) { 
 		/* damage? */
-		var crit = RPG.Rules.isCritical(this);
+		var crit = RPG.Rules.isLucky(this);
 		damage = RPG.Rules.getMeleeDamage(this, being, slot, crit);
 		if (damage) {
 			being.adjustStat(RPG.STAT_HP, -damage);
@@ -791,7 +790,8 @@ RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
 		var s = RPG.Misc.format("%A %is hit by %a.", being, being, projectile);
 		RPG.UI.buffer.message(s);
 
-		var dmg = RPG.Rules.getRangedDamage(this, being, projectile);
+		var crit = RPG.Rules.isLucky(this);
+		var dmg = RPG.Rules.getRangedDamage(this, being, projectile, crit);
 		being.adjustStat(RPG.STAT_HP, -dmg);
 
 		if (!being.isAlive()) {

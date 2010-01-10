@@ -110,29 +110,27 @@ RPG.FEAT_DEXTERITY		= 2;
 /** @constant */
 RPG.FEAT_MAGIC			= 3;
 /** @constant */
-RPG.FEAT_MAX_HP			= 4;
+RPG.FEAT_LUCK			= 4;
 /** @constant */
-RPG.FEAT_MAX_MANA		= 5;
+RPG.FEAT_MAX_HP			= 5;
 /** @constant */
-RPG.FEAT_DV				= 6;
+RPG.FEAT_MAX_MANA		= 6;
 /** @constant */
-RPG.FEAT_PV				= 7;
+RPG.FEAT_DV				= 7;
 /** @constant */
-RPG.FEAT_SPEED			= 8;
+RPG.FEAT_PV				= 8;
 /** @constant */
-RPG.FEAT_HIT			= 9;
+RPG.FEAT_SPEED			= 9;
 /** @constant */
-RPG.FEAT_HIT_MAGIC		= 10;
+RPG.FEAT_HIT			= 10;
 /** @constant */
 RPG.FEAT_DAMAGE			= 11;
 /** @constant */
-RPG.FEAT_DAMAGE_MAGIC	= 12;
+RPG.FEAT_REGEN_HP		= 12;
 /** @constant */
-RPG.FEAT_REGEN_HP		= 13;
+RPG.FEAT_REGEN_MANA		= 13;
 /** @constant */
-RPG.FEAT_REGEN_MANA		= 14;
-/** @constant */
-RPG.FEAT_SIGHT_RANGE	= 15;
+RPG.FEAT_SIGHT_RANGE	= 14;
 
 /** @constant */
 RPG.STAT_HP				= 0;
@@ -181,7 +179,7 @@ RPG.SLOT_PROJECTILE		= 7;
 RPG.SLOT_NECK			= 8;
 
 /** @constant */
-RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG.FEAT_MAGIC];
+RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG.FEAT_MAGIC, RPG.FEAT_LUCK];
 
 /**
  * Directional constants should not be renumbered. Current numbering offers:

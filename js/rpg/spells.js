@@ -48,20 +48,9 @@ RPG.Spells.Attack = OZ.Class()
 RPG.Spells.Attack.factory.ignore = true;
 RPG.Spells.Attack.prototype.init = function(caster) {
 	this.parent(caster);
-	this._hit = new RPG.Misc.RandomValue(5, 3);
+	this._hit = null;
 	this._damage = null;
 }
-
-RPG.Spells.Attack.prototype.getHit = function() {
-	var addedHit = new RPG.Misc.RandomValue(this._caster.getFeat(RPG.FEAT_HIT_MAGIC), 0);
-	return this._hit.add(addedHit);
-}
-
-RPG.Spells.Attack.prototype.getDamage = function() {
-	var addedDamage = new RPG.Misc.RandomValue(this._caster.getFeat(RPG.FEAT_DAMAGE_MAGIC), 0);
-	return this.constructor.damage.add(addedDamage);
-}
-
 
 /**
  * Explosion

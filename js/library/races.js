@@ -14,6 +14,7 @@ RPG.Races.Humanoid.prototype.init = function() {
 	this._defaults[RPG.FEAT_TOUGHNESS] = 11;
 	this._defaults[RPG.FEAT_DEXTERITY] = 11;
 	this._defaults[RPG.FEAT_MAGIC] = 11;
+	this._defaults[RPG.FEAT_LUCK] = 11;
 
 	this._slots[RPG.SLOT_HEAD] = new RPG.Slots.BaseSlot("Head", RPG.Items.HeadGear);
 	this._slots[RPG.SLOT_ARMOR] = new RPG.Slots.BaseSlot("Armor", RPG.Items.Armor);

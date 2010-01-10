@@ -37,8 +37,6 @@ RPG.Feats[RPG.FEAT_MAGIC].prototype.init = function(owner, baseValue) {
 	
 	this._modifiers[RPG.FEAT_MAX_MANA] = arr;
 	this._modifiers[RPG.FEAT_REGEN_MANA] = this._drd();
-	this._modifiers[RPG.FEAT_DAMAGE_MAGIC] = this._drd();
-	this._modifiers[RPG.FEAT_HIT_MAGIC] = this._drd();
 }
 
 /**
@@ -55,6 +53,12 @@ RPG.Feats[RPG.FEAT_DEXTERITY].prototype.init = function(owner, baseValue) {
 	arr[1] *= 5;
 	this._modifiers[RPG.FEAT_SPEED] = arr;
 	this._modifiers[RPG.FEAT_HIT] = this._drd();
-	this._modifiers[RPG.FEAT_HIT_MAGIC] = this._drd();
 	this._modifiers[RPG.FEAT_DV] = this._drd();
 }
+
+/**
+ * @class Luck attribute
+ * @augments RPG.Feats.BaseFeat
+ */
+RPG.Feats[RPG.FEAT_LUCK] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
+RPG.Feats[RPG.FEAT_LUCK].name = "luck";
