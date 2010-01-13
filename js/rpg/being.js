@@ -14,6 +14,7 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._race = null;
 	this._cell = null;
 	this._gender = RPG.GENDER_NEUTER;
+	this._confirm = RPG.CONFIRM_NA;
 	this._items = [];
 	this._stats = {};
 	this._feats = {};
@@ -39,6 +40,15 @@ RPG.Beings.BaseBeing.prototype.toString = function() {
 
 RPG.Beings.BaseBeing.prototype.trapMemory = function() {
 	return this._trapMemory;
+}
+
+RPG.Beings.BaseBeing.prototype.getConfirm = function() {
+	return this._confirm;
+}
+
+RPG.Beings.BaseBeing.prototype.setConfirm = function(confirm) {
+	this._confirm = confirm;
+	return this;
 }
 
 /**

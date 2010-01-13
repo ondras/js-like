@@ -107,6 +107,12 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	/* being there? */
 	var b = cell.getBeing();
 	if (b) {
+		var c = b.getConfirm();
+		if (c == RPG.CONFIRM_ASK) {
+			var result = confirm(RPG.Misc.format("Really attack %d?", b));
+			if (!result) { return; }
+			b.setConfirm(RPG.CONFIRM_DONE);
+		}
 		var hand = pc.getSlot(RPG.SLOT_WEAPON);
 		var result = RPG.World.pc.attackMelee(b, hand);
 		RPG.World.actionResult(result);

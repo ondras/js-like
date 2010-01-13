@@ -169,7 +169,8 @@ RPG.Beings.VillageHealer.factory.ignore = true;
 RPG.Beings.VillageHealer.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 
-	this._gender = RPG.GENDER_MALE;
+	this.setGender(RPG.GENDER_MALE);
+	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
 	this.setFeat(RPG.FEAT_DEXTERITY, 15);
 	this.setFeat(RPG.FEAT_MAGIC, 20);
@@ -194,7 +195,8 @@ RPG.Beings.VillageShopkeeper.factory.ignore = true;
 RPG.Beings.VillageShopkeeper.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 
-	this._gender = RPG.GENDER_FEMALE;
+	this.setGender(RPG.GENDER_FEMALE);
+	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
 	
 	this._description = "shopkeeper";
@@ -216,6 +218,7 @@ RPG.Beings.VillageWitch.factory.ignore = true;
 RPG.Beings.VillageWitch.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 
+	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setGender(RPG.GENDER_FEMALE);
 	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
 	this.setFeat(RPG.FEAT_MAGIC, 25);
@@ -244,7 +247,8 @@ RPG.Beings.VillageGuard.factory.ignore = true;
 RPG.Beings.VillageGuard.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 
-	this._gender = RPG.GENDER_MALE;
+	this.setConfirm(RPG.CONFIRM_ASK);
+	this.setGender(RPG.GENDER_MALE);
 	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
 	this.setFeat(RPG.FEAT_STRENGTH, 20);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
@@ -282,7 +286,8 @@ RPG.Beings.VillageSmith.factory.ignore = true;
 RPG.Beings.VillageSmith.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 
-	this._gender = RPG.GENDER_MALE;
+	this.setConfirm(RPG.CONFIRM_ASK);
+	this.setGender(RPG.GENDER_MALE);
 	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
 	this.setFeat(RPG.FEAT_STRENGTH, 20);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
@@ -313,7 +318,8 @@ RPG.Beings.VillageElder.factory.ignore = true;
 RPG.Beings.VillageElder.prototype.init = function() {
 	this.parent(new RPG.Races.Humanoid());
 
-	this._gender = RPG.GENDER_MALE;
+	this.setConfirm(RPG.CONFIRM_ASK);
+	this.setGender(RPG.GENDER_MALE);
 	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
 	this.setFeat(RPG.FEAT_STRENGTH, 20);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
