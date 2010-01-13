@@ -161,7 +161,7 @@ RPG.AI.prototype._attack = function(e) {
 		/* too much damage, run for your life! */
 		var str = RPG.Misc.format("%The looks frightened!", this._being);
 		RPG.UI.buffer.message(str);
-		var task = new RPG.AI.Retreat(source);
+		var task = new RPG.AI.ActDefensively(source);
 		this.addTask(task);
 	}
 

@@ -154,6 +154,8 @@ RPG.Map.Village.prototype._buildPeople = function() {
 	
     for (var i = 0; i < residents; i++) {
         var villager = new RPG.Beings.Villager();
+        //var potion = new RPG.Items.HealingPotion();
+	    //villager.addItem(potion);
 		villager.setChat(chats.random());
         c = this.getFreeCell();
         c.setBeing(villager);

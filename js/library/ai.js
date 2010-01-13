@@ -80,6 +80,79 @@ RPG.AI.Kill.prototype.getBeing = function() {
 	return this._being;
 }
 
+/** 
+ * @class Heal self task
+ * @augments RPG.AI.Task
+ */
+RPG.AI.HealSelf = OZ.Class().extend(RPG.AI.Task);
+
+RPG.AI.HealSelf.prototype.init = function(being) {
+	this.parent();
+	this._being = being;
+}
+
+RPG.AI.HealSelf.prototype.go = function() {
+	/* try potion first */
+	var potion = this._getPotion();
+	if (potion) {
+		this._being.drink(potion,this._being);
+		return RPG.AI_OK;
+	}
+
+	/* then casting */
+	var heal = new RPG.Spells.Heal(this._being);
+	if (this._being.hasSpell(heal,true)) {
+		var c = this._being.getCell();
+		this._being.cast(heal,c.dirTo(c));
+		return RPG.AI_OK;
+	}
+
+	return RPG.AI_IMPOSSIBLE;
+}
+
+RPG.AI.HealSelf.prototype._getPotion = function() {
+	var potions = this._being.getItems().filter(
+		function(x) { 
+			return (x instanceof RPG.Items.HealingPotion);
+		});
+
+	return potions.random(); 
+}
+
+/** 
+ * @class Heal other task
+ * @augments RPG.AI.Task
+ */
+RPG.AI.HealOther = OZ.Class().extend(RPG.AI.Task);
+
+RPG.AI.HealOther.prototype.init = function(being) {
+	this.parent();
+	this._being = being;
+}
+
+RPG.AI.HealOther.prototype.go = function() {
+	var being = this._ai.getBeing();
+
+	/* dunno how to heal or haven't got enough mana */
+	var heal = new RPG.Spells.Heal(this._being);
+	if (!this._being.hasSpell(heal,true)) {
+		return RPG.AI_IMPOSSIBLE;
+	}
+
+	/* check distance */
+	var c1 = being.getCell().getCoords();
+	var c2 = this._being.getCell().getCoords();
+
+	if (c1.distance(c2) > 1) { /* too distant, approach */
+		this._ai.addTask(new RPG.AI.Approach(this._being));
+		this._ai.addTask(new RPG.AI.HealOther(this._being));
+		return RPG.AI_OK;
+	} else { /* okay, cast */
+		being.cast(heal,c1.dirTo(c2)); 
+		return RPG.AI_OK;	
+	}
+}
+
 /**
  * Attack task
  * @augments RPG.AI.Task
@@ -114,7 +187,7 @@ RPG.AI.Attack.prototype.go = function() {
 		break;
 	}
 }
-	
+
 /**
  * @class Approach task - get to distance 1 to a given target
  * @augments RPG.AI.Task
@@ -159,6 +232,38 @@ RPG.AI.Approach.prototype.go = function() {
 	} else {
 		return RPG.AI_IMPOSSIBLE;
 	}
+}
+
+/**
+ * @class Act defensively
+ * @augments RPG.AI.Task
+ */
+RPG.AI.ActDefensively = OZ.Class().extend(RPG.AI.Task);
+
+RPG.AI.ActDefensively.prototype.init = function(being) {
+	this.parent();
+	this._being = being;
+}
+
+RPG.AI.ActDefensively.prototype.setAI = function(ai) {
+    this.parent(ai);
+}
+
+RPG.AI.ActDefensively.prototype.go = function() {
+	var being = this._ai.getBeing();
+
+	/* we are okay, no defense is necessary */
+	if (!RPG.Rules.isWoundedToRetreat(being)) { return RPG.AI_ALREADY_DONE; }
+
+	/* try to heal ourselves */
+    var healTask = new RPG.AI.HealSelf(being);
+    healTask.setAI(this._ai);
+	if (healTask.go() == RPG.AI_OK) { return RPG.AI_OK; }
+
+    /* run away from target */
+    var retreatTask = new RPG.AI.Retreat(this._being);
+    retreatTask.setAI(this._ai);
+    return retreatTask.go();
 }
 
 /**
