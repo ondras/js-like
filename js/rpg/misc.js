@@ -61,6 +61,7 @@ RPG.Misc.Coords.prototype.minus = function(c) {
  * @returns {int}
  */
 RPG.Misc.Coords.prototype.dirTo = function(c) {
+	if (c.x == this.x && c.y == this.y) { return RPG.CENTER; }
 	var diff = c.clone().minus(this);
 	for (var i=0;i<8;i++) {
 		var dir = RPG.DIR[i];
