@@ -250,6 +250,7 @@ String.prototype.capitalize = function() {
 }
 
 Array.prototype.random = function() {
+	if (!this.length) { return null; }
 	return this[Math.floor(Math.random() * this.length)];
 }
 
