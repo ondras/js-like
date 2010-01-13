@@ -100,6 +100,13 @@ RPG.Beings.BaseBeing.prototype.getSpells = function() {
 	return this._spells;
 }
 
+RPG.Beings.BaseBeing.prototype.hasSpell = function(spell,castable) {
+    var knows = (this._spells.indexOf(spell) != -1);
+
+    if (knows && !castable) { return true; }
+
+	return knows && (this.getStat(RPG.STAT_MANA) >= spell.getCost());
+}
 
 /**
  * @param {SMap.Misc.Coords}
