@@ -591,7 +591,7 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 	RPG.Decorators.Beings.getInstance().decorate(map, max);
 	
 	/* items */
-	var max = 2 + Math.floor(Math.random()*4);
+	var max = 1 + Math.floor(Math.random()*3);
 	RPG.Decorators.Items.getInstance().decorate(map, max);
 
 	/* traps */
@@ -652,21 +652,11 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 
 	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);
 	
-	/* enemies */
-	var max = 4 + Math.floor(Math.random()*6);
-	RPG.Decorators.Beings.getInstance().decorate(map, max);
-	
-	/* items */
-	var max = 2 + Math.floor(Math.random()*4);
-	RPG.Decorators.Items.getInstance().decorate(map, max);
-
-	/* traps */
-	var max = 1 + Math.floor(Math.random()*2);
-	RPG.Decorators.Traps.getInstance().decorate(map, max);
+	var corners = map.cellsInTwoCorners();
 
 	/* stairs up */
 	var up = new RPG.Features.Staircase.Up();
-	map.getFreeCell().setFeature(up);
+	corners[0].setFeature(up);
 	
 	/* bind to previous dungeon */
 	up.setTarget(staircase.getCell());
@@ -674,11 +664,23 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 	/* stairs down */
 	if (this._mazeDepth < this._maxMazeDepth) {
 		var down = new RPG.Features.Staircase.Down();
-		map.getFreeCell().setFeature(down);
+		corners[1].setFeature(down);
 		down.setTarget(arguments.callee.bind(this));
 	} else {
-		map.getFreeCell().addItem(this._necklace);
+		corners[1].addItem(this._necklace);
 	}
+	
+	/* enemies */
+	var max = 2 + Math.floor(Math.random()*3);
+	RPG.Decorators.Beings.getInstance().decorate(map, max);
+	
+	/* items */
+	var max = 1 + Math.floor(Math.random()*3);
+	RPG.Decorators.Items.getInstance().decorate(map, max);
+
+	/* traps */
+	var max = 1 + Math.floor(Math.random()*2);
+	RPG.Decorators.Traps.getInstance().decorate(map, max);
 	
 	return up.getCell();
 }

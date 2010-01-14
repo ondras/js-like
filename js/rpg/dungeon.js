@@ -251,6 +251,66 @@ RPG.Map.prototype.use = function() {
 	RPG.World.setMap(this);
 }
 
+/**
+ * Populates cells in this map based on an array of arrays of integers.
+ * @param {int[][]} intMap
+ * @param {RPG.Cells.BaseCell[]} cells Array of used cells
+ */
+RPG.Map.prototype.fromIntMap = function(intMap, cells) {
+	var tmpCells = [];
+	
+	var w = intMap.length;
+	var h = intMap[0].length;
+	
+	/* first, create all cells */
+	for (var i=0;i<w;i++) {
+		tmpCells.push([]);
+		for (var j=0;j<h;j++) {
+			var cell = this._cellFromNumber(intMap[i][j], cells);
+			tmpCells[i].push(cell);
+		}
+	}
+	
+	/* second, decide which should be included in this map */
+	var coords = new RPG.Misc.Coords(0, 0);
+	for (var x=0;x<w;x++) { 
+		for (var y=0;y<h;y++) {
+			coords.x = x;
+			coords.y = y;
+            var cell = tmpCells[x][y];
+
+			/* passable section */
+			if (cell.visibleThrough()) {
+				this.setCell(coords, cell);
+				continue;
+			}
+			
+			/* check neighbors; create nonpassable only if there is at least one passable neighbor */
+			var ok = false;
+			var neighbor = coords.clone();
+			var minW = Math.max(0, x-1);
+			var maxW = Math.min(w-1, x+1);
+			var minH = Math.max(0, y-1);
+			var maxH = Math.min(h-1, y+1);
+			for (var i=minW;i<=maxW;i++) {
+				for (var j=minH;j<=maxH;j++) {
+					neighbor.x = i;
+					neighbor.y = j;
+					var neighborCell = tmpCells[i][j];
+					if (neighborCell.visibleThrough()) { ok = true; }
+				}
+			}
+			
+			if (ok) {
+				this.setCell(coords, cell);
+				continue;
+			}
+		}
+	}
+
+	return this;
+}
+
 RPG.Map.prototype.setWelcome = function(text) {
 	this._welcome = text;
 	return this;
@@ -549,72 +609,51 @@ RPG.Map.prototype.cellsInArea = function(center, radius) {
 	return arr;
 }
 
+/**
+ * Returns two free cells located in opposite corners
+ * @param {RPG.Misc.Coords} center
+ * @param {int} radius
+ */
+RPG.Map.prototype.cellsInTwoCorners = function() {
+	var corners = [
+		new RPG.Misc.Coords(0, 0),
+		new RPG.Misc.Coords(this._size.x-1, 0),
+		new RPG.Misc.Coords(this._size.x-1, this._size.y-1),
+		new RPG.Misc.Coords(0, this._size.y-1)
+	];
+	
+	var i1 = Math.floor(Math.random()*corners.length);
+	var i2 = (i1+2) % corners.length;
+	var indexes = [i1, i2];
+	var result = [];
+	
+	for (var i=0;i<indexes.length;i++) {
+		var center = corners[indexes[i]];
+		var done = false;
+		var r = 0;
+		while (!done) {
+			var list = this.cellsInCircle(center, r, false);
+			var avail = [];
+			for (var j=0;j<list.length;j++) {
+				var cell = list[j];
+				if (cell.isFree()) { avail.push(cell); }
+			}
+			if (avail.length) {
+				result.push(avail.random());
+				done = true;
+			}
+			r++;
+		}
+	}
+	return result;
+}
+
 RPG.Map.prototype._assignRoom = function(corner1, corner2, room) {
 	for (var i=corner1.x;i<=corner2.x;i++) {
 		for (var j=corner1.y;j<=corner2.y;j++) {
 			this._data[i][j].setRoom(room);
 		}
 	}
-}
-
-/**
- * Populates cells in this map based on an array of arrays of integers.
- * @param {int[][]} intMap
- * @param {RPG.Cells.BaseCell[]} cells Array of used cells
- */
-RPG.Map.prototype.fromIntMap = function(intMap, cells) {
-	var tmpCells = [];
-	
-	var w = intMap.length;
-	var h = intMap[0].length;
-	
-	/* first, create all cells */
-	for (var i=0;i<w;i++) {
-		tmpCells.push([]);
-		for (var j=0;j<h;j++) {
-			var cell = this._cellFromNumber(intMap[i][j], cells);
-			tmpCells[i].push(cell);
-		}
-	}
-	
-	/* second, decide which should be included in this map */
-	var coords = new RPG.Misc.Coords(0, 0);
-	for (var x=0;x<w;x++) { 
-		for (var y=0;y<h;y++) {
-			coords.x = x;
-			coords.y = y;
-            var cell = tmpCells[x][y];
-
-			/* passable section */
-			if (cell.visibleThrough()) {
-				this.setCell(coords, cell);
-				continue;
-			}
-			
-			/* check neighbors; create nonpassable only if there is at least one passable neighbor */
-			var ok = false;
-			var neighbor = coords.clone();
-			var minW = Math.max(0, x-1);
-			var maxW = Math.min(w-1, x+1);
-			var minH = Math.max(0, y-1);
-			var maxH = Math.min(h-1, y+1);
-			for (var i=minW;i<=maxW;i++) {
-				for (var j=minH;j<=maxH;j++) {
-					neighbor.x = i;
-					neighbor.y = j;
-					var neighborCell = tmpCells[i][j];
-					if (neighborCell.visibleThrough()) { ok = true; }
-				}
-			}
-			
-			if (ok) {
-				this.setCell(coords, cell);
-				continue;
-			}
-		}
-	}
-
-	return this;
 }
 
 RPG.Map.prototype._cellFromNumber = function(celltype, cells) {
