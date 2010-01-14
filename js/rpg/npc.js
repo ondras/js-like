@@ -23,7 +23,7 @@ RPG.Beings.NPC.prototype.randomGender = function() {
 	if (Math.randomPercentage() < 34) {
 		this.setGender(RPG.GENDER_FEMALE);
 		this.adjustFeat(RPG.FEAT_STRENGTH, -2);
-		this.adjustFeat(RPG.FEAT_DEXTERITY, 2);
+		this.adjustFeat(RPG.FEAT_MAGIC, 2);
 	} else {
 		this.setGender(RPG.GENDER_MALE);
 	}

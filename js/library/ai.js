@@ -94,7 +94,7 @@ RPG.AI.HealSelf.prototype.go = function() {
 	/* then casting */
 	var heal = RPG.Spells.Heal;
 	if (being.hasSpell(heal, true)) {
-		heal = new Heal(being);
+		heal = new heal(being);
 		being.cast(heal, RPG.CENTER);
 		return RPG.AI_OK;
 	}

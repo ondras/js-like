@@ -110,12 +110,16 @@ RPG.Beings.BaseBeing.prototype.getSpells = function() {
 	return this._spells;
 }
 
-RPG.Beings.BaseBeing.prototype.hasSpell = function(spell,castable) {
+/**
+ * Does this being know a spell? Is it possible to cast it?
+ * @param {RPG.Spells.BaseSpell} spell Spell constructor
+ * @param {bool} castable Are we interested in whether this spell can be cast?
+ * @returns {bool}
+ */
+RPG.Beings.BaseBeing.prototype.hasSpell = function(spell, castable) {
     var knows = (this._spells.indexOf(spell) != -1);
-
     if (knows && !castable) { return true; }
-
-	return knows && (this.getStat(RPG.STAT_MANA) >= spell.getCost());
+	return knows && (this.getStat(RPG.STAT_MANA) >= spell.cost);
 }
 
 /**
@@ -258,7 +262,7 @@ RPG.Beings.BaseBeing.prototype.describeHim = function() {
 RPG.Beings.BaseBeing.prototype.describeHis = function() {
 	var table = {};
 	table[RPG.GENDER_MALE] = "his";
-	table[RPG.GENDER_FEMALE] = "hers";
+	table[RPG.GENDER_FEMALE] = "her";
 	table[RPG.GENDER_NEUTER] = "its";
 	
 	return table[this._gender];
@@ -575,7 +579,7 @@ RPG.Beings.BaseBeing.prototype.cast = function(spell, target) {
 	this.adjustStat(RPG.STAT_MANA, -cost);
 	
 	var verb = RPG.Misc.verb("cast", this);
-	var str = RPG.Misc.format("%D %s %D.", this, verb, spell);
+	var str = RPG.Misc.format("%A %s %D.", this, verb, spell);
 	RPG.UI.buffer.message(str);
 	
 	spell.cast(target);	
