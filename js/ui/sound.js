@@ -4,12 +4,12 @@
 RPG.UI.Sound = OZ.Class();
 
 RPG.UI.Sound.prototype.init = function() {
-	this._supported = !!window.Audio;
+	this._supported = !!(window.Audio && new Audio("").load);
 	this._muted = false;
 	if (!this._supported) { return; }
 	
 	this._cache = [];
-	this._background = new Audio();
+	this._background = new Audio("");
 	
 	OZ.Event.add(window, "unload", this.bind(this._unload));
 }

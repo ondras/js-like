@@ -64,16 +64,11 @@ RPG.AI.Kill = OZ.Class().extend(RPG.AI.Task);
 RPG.AI.Kill.prototype.init = function(being) {
 	this.parent();
 	this._being = being;
-	this._attack = new RPG.AI.Attack(being);
-}
-
-RPG.AI.Kill.prototype.setAI = function(ai) {
-	this.parent(ai);
-	this._attack.setAI(ai);
+	this._subtasks.attack = new RPG.AI.Attack(being);
 }
 
 RPG.AI.Kill.prototype.go = function() {
-	return this._attack.go();
+	return this._subtasks.attack.go();
 }
 
 RPG.AI.Kill.prototype.getBeing = function() {
@@ -86,32 +81,29 @@ RPG.AI.Kill.prototype.getBeing = function() {
  */
 RPG.AI.HealSelf = OZ.Class().extend(RPG.AI.Task);
 
-RPG.AI.HealSelf.prototype.init = function(being) {
-	this.parent();
-	this._being = being;
-}
-
 RPG.AI.HealSelf.prototype.go = function() {
+	var being = this._ai.getBeing();
+
 	/* try potion first */
-	var potion = this._getPotion();
+	var potion = this._getPotion(being);
 	if (potion) {
-		this._being.drink(potion,this._being);
+		being.drink(potion);
 		return RPG.AI_OK;
 	}
 
 	/* then casting */
-	var heal = new RPG.Spells.Heal(this._being);
-	if (this._being.hasSpell(heal,true)) {
-		var c = this._being.getCell();
-		this._being.cast(heal,c.dirTo(c));
+	var heal = RPG.Spells.Heal;
+	if (being.hasSpell(heal, true)) {
+		heal = new Heal(being);
+		being.cast(heal, RPG.CENTER);
 		return RPG.AI_OK;
 	}
 
 	return RPG.AI_IMPOSSIBLE;
 }
 
-RPG.AI.HealSelf.prototype._getPotion = function() {
-	var potions = this._being.getItems().filter(
+RPG.AI.HealSelf.prototype._getPotion = function(being) {
+	var potions = being.getItems().filter(
 		function(x) { 
 			return (x instanceof RPG.Items.HealingPotion);
 		});
@@ -134,8 +126,8 @@ RPG.AI.HealOther.prototype.go = function() {
 	var being = this._ai.getBeing();
 
 	/* dunno how to heal or haven't got enough mana */
-	var heal = new RPG.Spells.Heal(this._being);
-	if (!this._being.hasSpell(heal,true)) {
+	var heal = RPG.Spells.Heal;
+	if (!being.hasSpell(heal,true)) {
 		return RPG.AI_IMPOSSIBLE;
 	}
 
@@ -144,6 +136,7 @@ RPG.AI.HealOther.prototype.go = function() {
 	var c2 = this._being.getCell().getCoords();
 
 	if (c1.distance(c2) > 1) { /* too distant, approach */
+		/* FIXME refactor */
 		this._ai.addTask(new RPG.AI.Approach(this._being));
 		this._ai.addTask(new RPG.AI.HealOther(this._being));
 		return RPG.AI_OK;
@@ -161,17 +154,12 @@ RPG.AI.Attack = OZ.Class().extend(RPG.AI.Task);
 RPG.AI.Attack.prototype.init = function(being) {
 	this.parent();
 	this._being = being;
-	this._approach = new RPG.AI.Approach(being);
-}
-
-RPG.AI.Attack.prototype.setAI = function(ai) {
-	this.parent(ai);
-	this._approach.setAI(ai);
+	this._subtasks.approach = new RPG.AI.Approach(being);
 }
 
 RPG.AI.Attack.prototype.go = function() {
 	if (!this._being.isAlive()) { return RPG.AI_ALREADY_DONE; }
-	var result = this._approach.go();
+	var result = this._subtasks.approach.go();
 	switch (result) {
 		case RPG.AI_IMPOSSIBLE:
 			return result;
@@ -242,11 +230,8 @@ RPG.AI.ActDefensively = OZ.Class().extend(RPG.AI.Task);
 
 RPG.AI.ActDefensively.prototype.init = function(being) {
 	this.parent();
-	this._being = being;
-}
-
-RPG.AI.ActDefensively.prototype.setAI = function(ai) {
-    this.parent(ai);
+	this._subtasks.heal = new RPG.AI.HealSelf();
+	this._subtasks.retreat = new RPG.AI.Retreat(being);
 }
 
 RPG.AI.ActDefensively.prototype.go = function() {
@@ -256,14 +241,10 @@ RPG.AI.ActDefensively.prototype.go = function() {
 	if (!RPG.Rules.isWoundedToRetreat(being)) { return RPG.AI_ALREADY_DONE; }
 
 	/* try to heal ourselves */
-    var healTask = new RPG.AI.HealSelf(being);
-    healTask.setAI(this._ai);
-	if (healTask.go() == RPG.AI_OK) { return RPG.AI_OK; }
+	if (this._subtasks.heal.go() == RPG.AI_OK) { return RPG.AI_OK; }
 
     /* run away from target */
-    var retreatTask = new RPG.AI.Retreat(this._being);
-    retreatTask.setAI(this._ai);
-    return retreatTask.go();
+    return this._subtasks.retreat.go();
 }
 
 /**
@@ -299,8 +280,4 @@ RPG.AI.Retreat.prototype.go = function() {
 		/* enemy is not visible */
 		return RPG.AI_IMPOSSIBLE;
 	}
-}
-
-RPG.AI.Retreat.prototype.getBeing = function() {
-	return this._being;
 }

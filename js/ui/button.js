@@ -121,7 +121,9 @@ RPG.UI.Button.prototype._keyPress = function(e) {
 	if (this._input.disabled) { return; }
 	if (e.ctrlKey != this._ctrlKey) { return false; }
 	if (e.altKey != this._altKey) { return false; }
-	if (this._charCodes.indexOf(e.charCode) != -1 || this._keyCodes.indexOf(e.keyCode) != -1) {
+	var ch = e.charCode || e.keyCode; /* opera puts charcode in keycode on keypress .) */
+	var k = e.keyCode;
+	if (this._charCodes.indexOf(ch) != -1 || this._keyCodes.indexOf(k) != -1) {
 		OZ.Event.prevent(e);
 		this._callback(this);
 	}

@@ -137,7 +137,7 @@ RPG.AI.prototype._attack = function(e) {
 	
 	/* somebody is attacking us! */
 	var kill = false;
-	var retreat = false;
+	var defense = false;
 	
 	for (var i=0;i<this._tasks.length;i++) {
 		var task = this._tasks[i];	
@@ -145,8 +145,8 @@ RPG.AI.prototype._attack = function(e) {
 		/* we are already attacking him */
 		if (task instanceof RPG.AI.Kill && task.getBeing() == source) { kill = true; }
 
-		/* we are already retreating */
-		if (task instanceof RPG.AI.Retreat && task.getBeing() == source) { retreat = true; }
+		/* we are already acting defensively */
+		if (task instanceof RPG.AI.ActDefensively) { defense = true; }
 	}
 	
 	if (!kill) {
@@ -157,7 +157,7 @@ RPG.AI.prototype._attack = function(e) {
 		this.addTask(task);
 	}
 	
-	if (!retreat && RPG.Rules.isWoundedToRetreat(this._being)) {
+	if (!defense && RPG.Rules.isWoundedToRetreat(this._being)) {
 		/* too much damage, run for your life! */
 		var str = RPG.Misc.format("%The looks frightened!", this._being);
 		RPG.UI.buffer.message(str);
@@ -242,9 +242,11 @@ RPG.AI.cellToDistance = function(source, target, distance) {
 RPG.AI.Task = OZ.Class();
 RPG.AI.Task.prototype.init = function() {
 	this._ai = null;
+	this._subtasks = {};
 }
 RPG.AI.Task.prototype.setAI = function(ai) {
 	this._ai = ai;
+	for (var p in this._subtasks) { this._subtasks[p].setAI(ai); }
 }
 
 /**
@@ -260,9 +262,6 @@ RPG.AI.Task.prototype.go = function() {
  * @augments RPG.AI.Task
  */
 RPG.AI.Wander = OZ.Class().extend(RPG.AI.Task);
-RPG.AI.Wander.prototype.init = function() {
-	this.parent();
-}
 RPG.AI.Wander.prototype.go = function() {
 	var being = this._ai.getBeing();
 	var cell = being.getCell();
