@@ -238,7 +238,9 @@ RPG.Beings.VillageWitch.prototype.init = function() {
 	this._char = "@";
 	this._color = "blue";
 	this._image = "village-witch";
-	
+
+	this.addSpell(RPG.Spells.MagicBolt);
+
 	this.setChat(new RPG.Misc.Chat().defineState(0, '"Quidquid latine dictum sit, altum sonatur."'));
 
 	this.fullStats();
