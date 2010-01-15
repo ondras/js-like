@@ -70,9 +70,12 @@
 		
 		<script type="text/javascript" src="js/debug/test.js"></script>
 		<script type="text/javascript" src="js/debug/graph.js"></script>
+		<script type="text/javascript" src="js/debug/story.js"></script>
 		<script type="text/javascript">
 			RPG.World.init();
-			var s = new RPG.Story.Village();
+			var index = document.location.search.indexOf("testbed");
+			var story = (index == -1 ? RPG.Story.Village : RPG.Story.Testbed);
+			var s = new story();
 			s.go();
 		</script>
 	</body>

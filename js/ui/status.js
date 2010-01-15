@@ -97,7 +97,7 @@ RPG.UI.Status.prototype._build = function(container) {
 	/* rounds */
 	var td = OZ.DOM.elm("td");
 	tr.appendChild(td);
-	td.innerHTML = "Game rounds: ";
+	td.innerHTML = "Round: ";
 	var s = OZ.DOM.elm("span");
 	this._dom.misc.rounds = s;
 	td.appendChild(s);
