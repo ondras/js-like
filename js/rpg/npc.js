@@ -149,7 +149,21 @@ RPG.Beings.NPC.prototype.chat = function(being) {
 	return RPG.ACTION_TIME;
 }
 
+
 /* ------------------ PRIVATE --------------- */
+
+RPG.Beings.NPC.prototype._describeLaunch = function(projectile, target) {
+	var launcher = projectile.getLauncher();
+	var verb = (launcher ? "shoots" : "throws");
+	
+	var s = RPG.Misc.format("%A %s %a", this, verb, projectile);
+	if (target.getBeing()) {
+		s += RPG.Misc.format(" at %d", target.getBeing());
+	}
+	
+	s += ".";
+	RPG.UI.buffer.message(s);
+}
 
 RPG.Beings.NPC.prototype._describeAttack = function(hit, damage, kill, being, slot) {
 	if (!hit) {

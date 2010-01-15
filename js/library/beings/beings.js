@@ -38,12 +38,25 @@ RPG.Beings.Goblin.prototype.init = function() {
 }
 
 /**
+ * @class Goblin rockthrower: goblin armed with rocks
+ * @augments RPG.Beings.Goblin
+ */
+RPG.Beings.GoblinRockthrower = OZ.Class().extend(RPG.Beings.Goblin);
+RPG.Beings.GoblinRockthrower.prototype.init = function() {
+	this.parent();
+	this._description = "goblin rockthrower";
+
+	var rocks = new RPG.Items.Rock().setAmount(8);
+	this.equip(RPG.SLOT_PROJECTILE, rocks);
+}
+
+/**
  * @class Hoboblin
  * @augments RPG.Beings.Goblin
  */
 RPG.Beings.Hobgoblin = OZ.Class().extend(RPG.Beings.Goblin);
 RPG.Beings.Hobgoblin.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent();
 	
 	this.adjustFeat(RPG.FEAT_STRENGTH, 2);
 	this.adjustFeat(RPG.FEAT_TOUGHNESS, 2);

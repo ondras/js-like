@@ -145,7 +145,8 @@ RPG.Misc.IProjectile = OZ.Class()
 						.implement(RPG.Misc.IVisual);
 
 RPG.Misc.IProjectile.prototype._initProjectile = function() {
-	this._range = 4;
+	this._range = 5;
+	this._flying = false;
 	
 	this._flight = {
 		index: -1,
@@ -187,8 +188,8 @@ RPG.Misc.IProjectile.prototype.getRange = function() {
  * @param {?} target
  */
 RPG.Misc.IProjectile.prototype.launch = function(source, target) {
-	this._computeTrajectory(source, target);
-
+	this.computeTrajectory(source, target);
+	this._flying = true;
 	RPG.World.lock();
 	var interval = 75;
 	this._interval = setInterval(this.bind(this._step), interval);
@@ -209,7 +210,7 @@ RPG.Misc.IProjectile.prototype._fly = function() {
  * @param {?} target
  */
 RPG.Misc.IProjectile.prototype.showTrajectory = function(source, target) {
-	this._computeTrajectory(source, target);
+	this.computeTrajectory(source, target);
 	var pc = RPG.World.pc;
 	
 	RPG.UI.map.removeProjectiles();
@@ -239,6 +240,7 @@ RPG.Misc.IProjectile.prototype._step = function() {
 }
 
 RPG.Misc.IProjectile.prototype._done = function() {
+	this._flying = false;
 	RPG.UI.map.removeProjectiles();
 	RPG.World.unlock();
 }
@@ -248,7 +250,7 @@ RPG.Misc.IProjectile.prototype._done = function() {
  * @param {RPG.Cells.BaseCell} source
  * @param {RPG.Misc.Coords} target
  */
-RPG.Misc.IProjectile.prototype._computeTrajectory = function(source, target) {
+RPG.Misc.IProjectile.prototype.computeTrajectory = function(source, target) {
 	this._flight.index = -1;
 	this._flight.cells = [];
 	this._flight.chars = [];
@@ -271,6 +273,8 @@ RPG.Misc.IProjectile.prototype._computeTrajectory = function(source, target) {
 
 		if (!cell.isFree()) { break; }
 	}
+	
+	return this._flight;
 }
 
 /**

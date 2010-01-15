@@ -76,6 +76,7 @@ RPG.Slots.Shield.prototype.setItem = function(item) {
  * @class Projectile slot (rocks, arrows, ...)
  * This slot holds the whole heap of items, no subtracting is done.
  * @augments RPG.Slots.BaseSlot
+ * @augments RPG.Misc.IWeapon
  */
 RPG.Slots.Projectile = OZ.Class()
 						.extend(RPG.Slots.BaseSlot);
@@ -85,16 +86,10 @@ RPG.Slots.Projectile.prototype.init = function(name) {
 
 RPG.Slots.Projectile.prototype.setItem = function(item) {
 	if (item) { 
-		this._being.removeItem(item); 
-		item.setBeing(this._being);
-	}
-
-	if (this._item) {
-		this._item.setBeing(null);
+		if (this._being.hasItem(item)) { this._being.removeItem(item); } 
 	}
 
 	this._item = item;
 	return item;
 }
-
 

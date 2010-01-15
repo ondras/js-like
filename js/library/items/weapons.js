@@ -180,47 +180,45 @@ RPG.Items.Projectile.factory.ignore = true;
 RPG.Items.Projectile.prototype.init = function(hit, damage) {
 	this.parent(hit, damage);
 	this._initProjectile();
-	this._range = 2;
-	this._being = null;
 	this._weapon = null;
 	this._baseChar = "";
 }
 
-RPG.Items.Projectile.prototype.setBeing = function(being) {
-	this._being = being;
-	return this;
-}
-
-RPG.Items.Projectile.prototype.getWeapon = function() {
-	return this._weapon;
-}
-
 RPG.Items.Projectile.prototype.getHit = function() {
-	if (!this._being) { return this.parent(); }
-	var addedHit = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_HIT), 0);
-	if (this._weapon) {
-		var w = this._being.getSlot(RPG.SLOT_WEAPON).getItem();
-		if (w) { addedHit = addedHit.add(w.getHit()); }
-	}
+	if (!this._flying) { return this._hit; }
+	
+	var addedHit = new RPG.Misc.RandomValue(this._owner.getFeat(RPG.FEAT_HIT), 0);
+	var launcher = this.getLauncher();
+	if (launcher) { addedHit = addedHit.add(launcher.getHit()); }
+	
 	return this._hit.add(addedHit);
 }
 
 RPG.Items.Projectile.prototype.getDamage = function() {
-	if (!this._being) { return this.parent(); }
-	var addedDamage = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_DAMAGE), 0);
-	if (this._weapon) {
-		var w = this._being.getSlot(RPG.SLOT_WEAPON).getItem();
-		if (w) { addedDamage = addedDamage.add(w.getDamage()); }
-	}
+	if (!this._flying) { return this._damage; }
+	
+	var addedDamage = new RPG.Misc.RandomValue(this._owner.getFeat(RPG.FEAT_DAMAGE), 0);
+	var launcher = this.getLauncher();
+	if (launcher) { addedDamage = addedDamage.add(launcher.getDamage()); }
+
 	return this._damage.add(addedDamage);
+}
+
+RPG.Items.Projectile.prototype.isLaunchable = function() {
+	if (!this._weapon) { return true; } /* can be launched as-is */
+	var w = this._owner.getSlot(RPG.SLOT_WEAPON).getItem();
+	return (w && (w instanceof this._weapon));
+}
+
+RPG.Items.Projectile.prototype.getLauncher = function() {
+	if (!this._weapon) { return null; }
+	return this._owner.getSlot(RPG.SLOT_WEAPON).getItem();
 }
 
 RPG.Items.Projectile.prototype.getRange = function() {
 	var r = this._range;
-	if (this._weapon) {
-		var w = this._being.getSlot(RPG.SLOT_WEAPON).getItem();
-		if (w && (w instanceof this._weapon)) { r += w.getRange(); }
-	}
+	var l = this.getLauncher();
+	if (l) { r += l.getRange(); }
 	return r;
 }
 
@@ -230,8 +228,6 @@ RPG.Items.Projectile.prototype._fly = function() {
 }
 
 RPG.Items.Projectile.prototype._done = function() {
-	var recovered = RPG.Rules.isProjectileRecovered(this);
-
 	this._char = this._baseChar;
 	this._image = this._baseImage;
 
@@ -241,23 +237,20 @@ RPG.Items.Projectile.prototype._done = function() {
 	var dropPossible = false;
 	
 	if (b) {
-		if (recovered) { b.addItem(this); }
-		this._being.attackRanged(b, this);
+		this._owner.attackRanged(b, this);
 	} else {
 		if (cell.isFree()) { 
-			dropPossible = true;
+			if (RPG.Rules.isProjectileRecovered(this)) {
+				cell.addItem(this);
+				var pc = RPG.World.pc;
+				if (pc.canSee(cell.getCoords())) {
+					pc.mapMemory().updateCoords(cell.getCoords());
+				}
+			}
 		} else {
 			var f = cell.getFeature() || cell;
 			var s = RPG.Misc.format("%A hits %a.", this, f);
 			RPG.UI.buffer.message(s);
-		}
-	}
-	
-	if (recovered && dropPossible) {
-		cell.addItem(this);
-		var pc = RPG.World.pc;
-		if (pc.canSee(cell.getCoords())) {
-			pc.mapMemory().updateCoords(cell.getCoords());
 		}
 	}
 
@@ -270,7 +263,7 @@ RPG.Items.Projectile.prototype._done = function() {
  */
 RPG.Items.Rock = OZ.Class().extend(RPG.Items.Projectile);
 RPG.Items.Rock.prototype.init = function() {
-	this.parent(new RPG.Misc.RandomValue(1, 1), new RPG.Misc.RandomValue(1, 1));
+	this.parent(new RPG.Misc.RandomValue(2, 1), new RPG.Misc.RandomValue(2, 1));
 	var ch = "*";
 	this._baseImage = "rock";
 	this._baseChar = ch;
@@ -281,7 +274,6 @@ RPG.Items.Rock.prototype.init = function() {
 	}
 	this._char = ch;
 	this._description = "rock";
-	this._range = 3;
 }
 
 /**

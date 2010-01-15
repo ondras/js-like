@@ -64,107 +64,44 @@ RPG.AI.Kill = OZ.Class().extend(RPG.AI.Task);
 RPG.AI.Kill.prototype.init = function(being) {
 	this.parent();
 	this._being = being;
-	this._subtasks.attack = new RPG.AI.Attack(being);
+	this._subtasks.melee = new RPG.AI.AttackMelee(being);
+	this._subtasks.ranged = new RPG.AI.AttackRanged(being);
+	this._subtasks.magic = new RPG.AI.AttackMagic(being);
 }
 
 RPG.AI.Kill.prototype.go = function() {
-	return this._subtasks.attack.go();
+	if (!this._being.isAlive()) { return RPG.AI_ALREADY_DONE; }
+	var order = [this._subtasks.magic, this._subtasks.ranged, this._subtasks.melee];
+	for (var i=0;i<order.length;i++) {
+		var result = order[i].go();
+		if (result == RPG.AI_OK) { return result; }
+	}
+
+	return RPG.AI_IMPOSSIBLE;
 }
 
 RPG.AI.Kill.prototype.getBeing = function() {
 	return this._being;
 }
 
-/** 
- * @class Heal self task
- * @augments RPG.AI.Task
- */
-RPG.AI.HealSelf = OZ.Class().extend(RPG.AI.Task);
-
-RPG.AI.HealSelf.prototype.go = function() {
-	var being = this._ai.getBeing();
-
-	/* try potion first */
-	var potion = this._getPotion(being);
-	if (potion) {
-		being.drink(potion);
-		return RPG.AI_OK;
-	}
-
-	/* then casting */
-	var heal = RPG.Spells.Heal;
-	if (being.hasSpell(heal, true)) {
-		heal = new heal(being);
-		being.cast(heal, RPG.CENTER);
-		return RPG.AI_OK;
-	}
-
-	return RPG.AI_IMPOSSIBLE;
-}
-
-RPG.AI.HealSelf.prototype._getPotion = function(being) {
-	var potions = being.getItems().filter(
-		function(x) { 
-			return (x instanceof RPG.Items.HealingPotion);
-		});
-
-	return potions.random(); 
-}
-
-/** 
- * @class Heal other task
- * @augments RPG.AI.Task
- */
-RPG.AI.HealOther = OZ.Class().extend(RPG.AI.Task);
-
-RPG.AI.HealOther.prototype.init = function(being) {
-	this.parent();
-	this._being = being;
-}
-
-RPG.AI.HealOther.prototype.go = function() {
-	var being = this._ai.getBeing();
-
-	/* dunno how to heal or haven't got enough mana */
-	var heal = RPG.Spells.Heal;
-	if (!being.hasSpell(heal,true)) {
-		return RPG.AI_IMPOSSIBLE;
-	}
-
-	/* check distance */
-	var c1 = being.getCell().getCoords();
-	var c2 = this._being.getCell().getCoords();
-
-	if (c1.distance(c2) > 1) { /* too distant, approach */
-		/* FIXME refactor */
-		this._ai.addTask(new RPG.AI.Approach(this._being));
-		this._ai.addTask(new RPG.AI.HealOther(this._being));
-		return RPG.AI_OK;
-	} else { /* okay, cast */
-		being.cast(heal,c1.dirTo(c2)); 
-		return RPG.AI_OK;	
-	}
-}
-
 /**
- * Attack task
+ * Melee attack task. Does not check opponet's state.
  * @augments RPG.AI.Task
  */
-RPG.AI.Attack = OZ.Class().extend(RPG.AI.Task);
-RPG.AI.Attack.prototype.init = function(being) {
+RPG.AI.AttackMelee = OZ.Class().extend(RPG.AI.Task);
+RPG.AI.AttackMelee.prototype.init = function(being) {
 	this.parent();
 	this._being = being;
 	this._subtasks.approach = new RPG.AI.Approach(being);
 }
 
-RPG.AI.Attack.prototype.go = function() {
-	if (!this._being.isAlive()) { return RPG.AI_ALREADY_DONE; }
+RPG.AI.AttackMelee.prototype.go = function() {
 	var result = this._subtasks.approach.go();
 	switch (result) {
 		case RPG.AI_IMPOSSIBLE:
 			return result;
 		break;
-		case RPG.AI_ALREADY_DONE: /* approaching not valid, we can attack */
+		case RPG.AI_ALREADY_DONE: /* approaching not necessary, we can attack */
 			var being = this._ai.getBeing();
 			var slot = being.getSlot(RPG.SLOT_WEAPON);
 			this._ai.setActionResult(being.attackMelee(this._being, slot));
@@ -174,6 +111,92 @@ RPG.AI.Attack.prototype.go = function() {
 			return RPG.AI_OK;
 		break;
 	}
+}
+
+/**
+ * Ranged attack task. Does not check opponet's state.
+ * @augments RPG.AI.Task
+ */
+RPG.AI.AttackRanged = OZ.Class().extend(RPG.AI.Task);
+RPG.AI.AttackRanged.prototype.init = function(being) {
+	this.parent();
+	this._being = being;
+}
+
+RPG.AI.AttackRanged.prototype.go = function() {
+	var being = this._ai.getBeing();
+	var slot = being.getSlot(RPG.SLOT_PROJECTILE);
+	if (!slot) { return RPG.AI_IMPOSSIBLE; } /* we cannot use ranged weapons */
+	
+	var projectile = slot.getItem();
+	if (!projectile) { return RPG.AI_IMPOSSIBLE; } /* we have no projectiles ready */
+	
+	if (!projectile.isLaunchable()) { return RPG.AI_IMPOSSIBLE; } /* missing a launcher */
+
+	var targetCoords = this._being.getCell().getCoords();
+	var trajectory = projectile.computeTrajectory(being.getCell(), targetCoords);
+	var last = trajectory.cells.pop();
+	if (last != this._being.getCell()) { return RPG.AI_IMPOSSIBLE; } /* some obstacle or we are too far */
+	
+	var result = being.launch(projectile, last);
+	this._ai.setActionResult(result);
+	return RPG.AI_OK;
+}
+
+/**
+ * Magic attack task. Does not check opponet's state.
+ * @augments RPG.AI.Task
+ */
+RPG.AI.AttackMagic = OZ.Class().extend(RPG.AI.Task);
+RPG.AI.AttackMagic.prototype.init = function(being) {
+	this.parent();
+	this._being = being;
+}
+
+RPG.AI.AttackMagic.prototype.go = function() {
+	var being = this._ai.getBeing();
+	var cell = being.getCell();
+	var target = this._being.getCell();
+	
+	/* MagicBolt */
+	if (being.hasSpell(RPG.Spells.MagicBolt, true)) {
+		var spell = new RPG.Spells.MagicBolt(being);
+		for (var i=0;i<8;i++) { /* find some direction */
+			var trajectory = spell.computeTrajectory(cell, i);
+			for (var j=0;j<trajectory.cells.length;j++) { /* check if target is hit */
+				var test = trajectory.cells[j];
+				if (test == target) { /* launch! */
+					var result = being.cast(spell, i);
+					this._ai.setActionResult(result);
+					return RPG.AI_OK;
+				}
+			}
+		}
+	}
+	
+	/* MagicExplosion */
+	if (being.hasSpell(RPG.Spells.MagicExplosion, true)) {
+		var spell = new RPG.Spells.MagicExplosion(being);
+		var dist = cell.getCoords().distance(target.getCoords()); 
+		if (dist <= spell.getRadius()) {
+			var result = being.cast(spell);
+			this._ai.setActionResult(result);
+			return RPG.AI_OK;
+		}
+	}
+
+	/* Fireball */
+	if (being.hasSpell(RPG.Spells.Fireball, true)) {
+		var spell = new RPG.Spells.Fireball(being);
+		var dist = cell.getCoords().distance(target.getCoords()); 
+		if (dist > spell.getRadius() && dist <= spell.getRadius() + spell.getRange()) {
+			var result = being.cast(spell, target.getCoords());
+			this._ai.setActionResult(result);
+			return RPG.AI_OK;
+		}
+	}
+
+	return RPG.AI_IMPOSSIBLE;
 }
 
 /**
@@ -281,3 +304,75 @@ RPG.AI.Retreat.prototype.go = function() {
 		return RPG.AI_IMPOSSIBLE;
 	}
 }
+
+/** 
+ * @class Heal self task
+ * @augments RPG.AI.Task
+ */
+RPG.AI.HealSelf = OZ.Class().extend(RPG.AI.Task);
+
+RPG.AI.HealSelf.prototype.go = function() {
+	var being = this._ai.getBeing();
+
+	/* try potion first */
+	var potion = this._getPotion(being);
+	if (potion) {
+		being.drink(potion);
+		return RPG.AI_OK;
+	}
+
+	/* then casting */
+	var heal = RPG.Spells.Heal;
+	if (being.hasSpell(heal, true)) {
+		heal = new heal(being);
+		being.cast(heal, RPG.CENTER);
+		return RPG.AI_OK;
+	}
+
+	return RPG.AI_IMPOSSIBLE;
+}
+
+RPG.AI.HealSelf.prototype._getPotion = function(being) {
+	var potions = being.getItems().filter(
+		function(x) { 
+			return (x instanceof RPG.Items.HealingPotion);
+		});
+
+	return potions.random(); 
+}
+
+/** 
+ * @class Heal other task
+ * @augments RPG.AI.Task
+ */
+RPG.AI.HealOther = OZ.Class().extend(RPG.AI.Task);
+
+RPG.AI.HealOther.prototype.init = function(being) {
+	this.parent();
+	this._being = being;
+}
+
+RPG.AI.HealOther.prototype.go = function() {
+	var being = this._ai.getBeing();
+
+	/* dunno how to heal or haven't got enough mana */
+	var heal = RPG.Spells.Heal;
+	if (!being.hasSpell(heal,true)) {
+		return RPG.AI_IMPOSSIBLE;
+	}
+
+	/* check distance */
+	var c1 = being.getCell().getCoords();
+	var c2 = this._being.getCell().getCoords();
+
+	if (c1.distance(c2) > 1) { /* too distant, approach */
+		/* FIXME refactor */
+		this._ai.addTask(new RPG.AI.Approach(this._being));
+		this._ai.addTask(new RPG.AI.HealOther(this._being));
+		return RPG.AI_OK;
+	} else { /* okay, cast */
+		being.cast(heal,c1.dirTo(c2)); 
+		return RPG.AI_OK;	
+	}
+}
+

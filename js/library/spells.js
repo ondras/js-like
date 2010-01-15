@@ -92,6 +92,10 @@ RPG.Spells.MagicExplosion.prototype.init = function(caster) {
 	this._color = "yellow";
 }
 
+RPG.Spells.MagicExplosion.prototype.getRadius = function() {
+	return this._radius;
+}
+
 RPG.Spells.MagicExplosion.prototype.cast = function() {
 	this.explode(this._caster.getCell().getCoords(), this._radius, true);
 }
@@ -152,6 +156,10 @@ RPG.Spells.Fireball.prototype._fly = function(cell) {
 	if (this._flight.index+1 == this._flight.cells.length) {
 		this.explode(cell.getCoords(), this._radius, false);
 	}
+}
+
+RPG.Spells.Fireball.prototype.getRadius = function() {
+	return this._radius;
 }
 
 RPG.Spells.Fireball.prototype._done = function() {

@@ -122,11 +122,10 @@ RPG.Spells.Projectile.prototype._fly = function() {
 	}
 }
 
-RPG.Spells.Projectile.prototype._computeTrajectory = function(source, target) {
+RPG.Spells.Projectile.prototype.computeTrajectory = function(source, target) {
 	if (this._type == RPG.SPELL_TARGET) { 
 		/* same as basic projectiles */
-		RPG.Misc.IProjectile.prototype._computeTrajectory.call(this, source, target); 
-		return;
+		return RPG.Misc.IProjectile.prototype.computeTrajectory.call(this, source, target); 
 	}
 	
 	if (this._type == RPG.SPELL_DIRECTION) {
@@ -144,7 +143,7 @@ RPG.Spells.Projectile.prototype._computeTrajectory = function(source, target) {
 			dist++;
 			var prev = (this._flight.cells.length ? this._flight.cells[this._flight.cells.length-1] : source);
 			var cell = prev.neighbor(dir);
-			if (!cell) { return; }
+			if (!cell) { return this._flight; }
 			
 			if (cell.visibleThrough() || !this._bounces) {
 				/* either free space or non-bouncing end obstacle */
@@ -163,7 +162,7 @@ RPG.Spells.Projectile.prototype._computeTrajectory = function(source, target) {
 			}
 		}
 		
-		return;
+		return this._flight;
 	}
 	
 	throw new Error("Cannot compute trajectory for a non-projectile spell");

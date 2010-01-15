@@ -78,6 +78,16 @@ RPG.Items.BaseItem.prototype.init = function() {
 	this._amount = 1;
 	this._uncountable = false;
 	this._remembered = false;
+	this._owner = null; /* being having this */
+}
+
+RPG.Items.BaseItem.prototype.setOwner = function(being) {
+	this._owner = being;
+	return this;
+}
+
+RPG.Items.BaseItem.prototype.getOwner = function() {
+	return this._owner;
 }
 
 /**
@@ -320,9 +330,7 @@ RPG.Slots.BaseSlot.prototype.setItem = function(item) {
 	
 	if (it) {
 		if (it.getAmount() == 1) {
-			if (this._being.hasItem(it)) {
-				this._being.removeItem(it);
-			}
+			if (this._being.hasItem(it)) { this._being.removeItem(it); }
 		} else {
 			it = it.subtract(1);
 		}

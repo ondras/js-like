@@ -107,5 +107,5 @@ RPG.Rules.getRangedDamage = function(attacker, defender, projectile, isCritical)
  * How much damage does this spell to a being
  */
 RPG.Rules.getSpellDamage = function(being, spell) {
-	return spell.getDamage().roll();
+	return spell.constructor.damage.roll();
 }

@@ -173,7 +173,8 @@ RPG.Beings.BaseBeing.prototype.getName = function() {
 	return this._name;
 }
 
-RPG.Beings.BaseBeing.prototype.addItem = function(item) { 
+RPG.Beings.BaseBeing.prototype.addItem = function(item) {
+	item.setOwner(this);
 	item.mergeInto(this._items);
 	return this;
 }
@@ -182,10 +183,11 @@ RPG.Beings.BaseBeing.prototype.hasItem = function(item) {
 	return (this._items.indexOf(item) != -1);
 }
 
-RPG.Beings.BaseBeing.prototype.removeItem = function(item) { 
+RPG.Beings.BaseBeing.prototype.removeItem = function(item) {
 	var index = this._items.indexOf(item);
 	if (index == -1) { throw new Error("Item '"+item.describe()+"' not found!"); }
 	this._items.splice(index, 1);
+	item.setOwner(null);
 	return this;
 }
 
@@ -195,9 +197,15 @@ RPG.Beings.BaseBeing.prototype.equip = function(slotId, item) {
 	
 	var it = slot.setItem(item); /* adding to slot could have modified the item (by subtracting etc) */
 	this._addModifiers(it);
+	it.setOwner(this);
 }
 
-RPG.Beings.BaseBeing.prototype.unequip = function(slotId) {
+/**
+ * Unequip given slot, optionaly returning item back to backpack
+ * @param {int} slotId Slot constant
+ * @param {bool} doNotAdd Do not add item to inventory?
+ */
+RPG.Beings.BaseBeing.prototype.unequip = function(slotId, doNotAdd) {
 	var slot = this.getSlot(slotId);
 	if (!slot) { return this; }
 	
@@ -206,7 +214,9 @@ RPG.Beings.BaseBeing.prototype.unequip = function(slotId) {
 	
 	slot.setItem(null);
 	this._removeModifiers(item);
-	this.addItem(item);
+	item.setOwner(null);
+	
+	if (!doNotAdd) { this.addItem(item); }
 	
 	return this;
 }
@@ -746,7 +756,22 @@ RPG.Beings.BaseBeing.prototype.close = function(door) {
 }
 
 RPG.Beings.BaseBeing.prototype.launch = function(projectile, cell) {
-	projectile.launch(this._cell, cell.getCoords());
+	var p = null;
+	
+	/* remove projectile from being */
+	if (projectile.getAmount() == 1) {
+		this.unequip(RPG.SLOT_PROJECTILE, true);
+		p = projectile;
+		p.setOwner(this);
+	} else {
+		p = projectile.subtract(1);
+	}
+
+	if (RPG.World.pc.canSee(this._cell.getCoords())) {
+		this._describeLaunch(p, cell);
+	}
+	
+	p.launch(this._cell, cell.getCoords());
 	return RPG.ACTION_TIME;
 }
 
@@ -803,14 +828,20 @@ RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
 
 RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
 	var hit = RPG.Rules.isRangedHit(this, being, projectile);
+	var recovered = RPG.Rules.isProjectileRecovered(projectile);
+	
 	if (!hit) {
 		var verb = RPG.Misc.verb("evade", being);
-		var s = RPG.Misc.format("%A %s %a!", being, verb, projectile);
+		var s = RPG.Misc.format("%A %s %a.", being, verb, projectile);
 		RPG.UI.buffer.message(s);
+		
+		if (recovered) { being.getCell().addItem(projectile); }
 	} else {
-		var s = RPG.Misc.format("%A %is hit by %a.", being, being, projectile);
+		var s = RPG.Misc.format("%A %is hit.", being, being);
 		RPG.UI.buffer.message(s);
 
+		if (recovered) { being.addItem(projectile); }
+	
 		var crit = RPG.Rules.isLucky(this);
 		var dmg = RPG.Rules.getRangedDamage(this, being, projectile, crit);
 		being.adjustStat(RPG.STAT_HP, -dmg);
@@ -826,6 +857,9 @@ RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
 }
 
 /* -------------------- PRIVATE --------------- */
+
+RPG.Beings.BaseBeing.prototype._describeLaunch = function(projectile, target) {
+}
 
 RPG.Beings.BaseBeing.prototype._describeAttack = function(hit, damage, kill, being, slot) {
 }

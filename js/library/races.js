@@ -10,6 +10,7 @@ RPG.Races.Humanoid.prototype.init = function() {
 	this._defaults[RPG.FEAT_MAX_HP] = 5;
 	this._defaults[RPG.FEAT_DV] = 0;
 	this._defaults[RPG.FEAT_PV] = 0;
+	this._defaults[RPG.FEAT_HIT] = 4;
 	this._defaults[RPG.FEAT_STRENGTH] = 11;
 	this._defaults[RPG.FEAT_TOUGHNESS] = 11;
 	this._defaults[RPG.FEAT_DEXTERITY] = 11;
@@ -26,11 +27,11 @@ RPG.Races.Humanoid.prototype.init = function() {
 	
 	var weapon = new RPG.Slots.Weapon("Weapon");
 	this._slots[RPG.SLOT_WEAPON] = weapon;
-	weapon.setHit(new RPG.Misc.RandomValue(5, 4));
+	weapon.setHit(new RPG.Misc.RandomValue(3, 4));
 	weapon.setDamage(new RPG.Misc.RandomValue(2, 1));
 	
 	var feet = new RPG.Slots.Kick("Feet");
-	feet.setHit(new RPG.Misc.RandomValue(5, 3));
+	feet.setHit(new RPG.Misc.RandomValue(3, 3));
 	feet.setDamage(new RPG.Misc.RandomValue(3, 1));
 	this._slots[RPG.SLOT_FEET] = feet;
 }

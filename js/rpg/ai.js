@@ -132,6 +132,9 @@ RPG.AI.prototype._attack = function(e) {
 	/* only actions which target us */
 	if (target != this._being) { return; }
 
+	/* ignore our own actions */
+	if (source == this._being) { return; }
+
 	/* not interested if not alive */
 	if (!this._being.isAlive()) { return; }
 	

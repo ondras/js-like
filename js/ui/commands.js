@@ -1118,12 +1118,12 @@ RPG.UI.Command.Launch = OZ.Class().extend(RPG.UI.Command);
 RPG.UI.Command.Launch.prototype.init = function() {
 	this.parent("Throw/shoot");
 	this._button.setChar("t");
-	this._projectile = null;
 }
 
 RPG.UI.Command.Launch.prototype.notify = function(coords) {
+	var pc = RPG.World.pc;
 	var source = RPG.World.pc.getCell();
-	this._projectile.showTrajectory(source, coords);
+	pc.getSlot(RPG.SLOT_PROJECTILE).getItem().showTrajectory(source, coords);
 }
 
 RPG.UI.Command.Launch.prototype.exec = function(coords) {
@@ -1135,23 +1135,11 @@ RPG.UI.Command.Launch.prototype.exec = function(coords) {
 			return;
 		}
 		
-		var weaponCtor = item.getWeapon();
-		if (weaponCtor) {
-			var weapon = pc.getSlot(RPG.SLOT_WEAPON).getItem();
-			if (!weapon || !(weapon instanceof weaponCtor)) {
-				RPG.UI.buffer.message("You have no suitable weapon for this ammunition.");
-				return;
-			}
+		if (!item.isLaunchable()) {
+			RPG.UI.buffer.message("You have no suitable weapon for this ammunition.");
+			return;
 		}
-		
-		if (item.getAmount() == 1) {
-			this._projectile = item;
-			pc.unequip(RPG.SLOT_PROJECTILE);
-			pc.removeItem(item);
-		} else {
-			this._projectile = item.subtract(1);
-		}
-		
+
 		RPG.UI.setMode(RPG.UI_WAIT_TARGET, this, "Throw/shoot");
 	} else {
 		RPG.UI.refocus();
@@ -1162,12 +1150,10 @@ RPG.UI.Command.Launch.prototype.exec = function(coords) {
 		var cell = map.at(coords);
 		if (cell == pc.getCell()) {
 			RPG.UI.buffer.message("You do not want to do that, do you?");
-			this.projectile = null;
 			return;
 		}
 		
-		var result = RPG.World.pc.launch(this._projectile, cell);
-		this._projectile = null;		
+		var result = RPG.World.pc.launch(pc.getSlot(RPG.SLOT_PROJECTILE).getItem(), cell);
 		RPG.World.actionResult(result);
 	}
 }

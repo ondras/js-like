@@ -31,7 +31,6 @@ RPG.Map.Village.prototype.init = function() {
 
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 2;
 	this._sound = "tristram";
-	this._staircases = [];
 	
     var celltypes = [
         RPG.Cells.Grass,
@@ -76,9 +75,6 @@ RPG.Map.Village.prototype.getWitch = function() {
 
 RPG.Map.Village.prototype.getShopkeeper = function() {
 	return this._shopkeeper;
-}
-
-RPG.Map.Village.prototype.showStaircase = function(who) {
 }
 
 RPG.Map.Village.prototype._buildPeople = function() {
@@ -160,6 +156,14 @@ RPG.Map.Village.prototype._buildPeople = function() {
         c = this.getFreeCell();
         c.setBeing(villager);
     }
+	
+	/*
+	var thrower = new RPG.Beings.GoblinRockthrower();
+	this.at(new RPG.Misc.Coords(22,3)).setBeing(thrower);
+	thrower.setFeat(RPG.FEAT_MAGIC, 20);
+	thrower.fullStats();
+	thrower.addSpell(RPG.Spells.Fireball);
+	*/
 }
 
 /**
