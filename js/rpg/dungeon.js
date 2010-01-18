@@ -610,41 +610,67 @@ RPG.Map.prototype.cellsInArea = function(center, radius) {
 }
 
 /**
- * Returns two free cells located in opposite corners
- * @param {RPG.Misc.Coords} center
- * @param {int} radius
+ * Returns map corner coordinates
+ * @returns {RPG.Misc.Coords[]}
  */
-RPG.Map.prototype.cellsInTwoCorners = function() {
-	var corners = [
+RPG.Map.prototype.getCorners = function()
+{
+	return [
 		new RPG.Misc.Coords(0, 0),
 		new RPG.Misc.Coords(this._size.x-1, 0),
 		new RPG.Misc.Coords(this._size.x-1, this._size.y-1),
 		new RPG.Misc.Coords(0, this._size.y-1)
 	];
-	
+}
+
+/**
+ * Returns first free cell closest to a coordinate
+ * @param {RPG.Misc.Coords} center
+ * @param {int} max radius
+ */
+RPG.Map.prototype.getClosestRandomFreeCell = function(center,radius)
+{
+	var sx = this._size.x;
+	var sy = this._size.y;
+	var max = radius * radius || (sx * sx + sy * sy);
+
+	var cell = false;
+	var r = 0;
+
+	while (!cell && (r * r) < max) {
+		var candidates = this.cellsInCircle(center, r, false);
+		var avail = [];
+
+		for (var j=0;j<candidates.length;j++) {
+			var c = candidates[j];
+			if (c.isFree()) { avail.push(c); }
+		}
+
+		if (avail.length) { cell = avail.random(); }
+
+		r++;
+	}
+
+	return cell;
+}
+
+/**
+ * Returns two free cells located in opposite corners
+ */
+RPG.Map.prototype.cellsInTwoCorners = function() {
+	var corners = this.getCorners();
+
 	var i1 = Math.floor(Math.random()*corners.length);
 	var i2 = (i1+2) % corners.length;
 	var indexes = [i1, i2];
 	var result = [];
-	
+
 	for (var i=0;i<indexes.length;i++) {
 		var center = corners[indexes[i]];
-		var done = false;
-		var r = 0;
-		while (!done) {
-			var list = this.cellsInCircle(center, r, false);
-			var avail = [];
-			for (var j=0;j<list.length;j++) {
-				var cell = list[j];
-				if (cell.isFree()) { avail.push(cell); }
-			}
-			if (avail.length) {
-				result.push(avail.random());
-				done = true;
-			}
-			r++;
-		}
+		var cell = this.getClosestRandomFreeCell(center);
+		if (cell) { result.push(cell) }
 	}
+
 	return result;
 }
 

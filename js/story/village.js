@@ -240,6 +240,7 @@ RPG.Beings.VillageWitch.prototype.init = function() {
 	this._image = "village-witch";
 
 	this.addSpell(RPG.Spells.MagicBolt);
+	this.addSpell(RPG.Spells.Teleport);
 
 	this.setChat(new RPG.Misc.Chat().defineState(0, '"Quidquid latine dictum sit, altum sonatur."'));
 

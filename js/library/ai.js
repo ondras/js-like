@@ -279,6 +279,7 @@ RPG.AI.Retreat = OZ.Class().extend(RPG.AI.Task);
 RPG.AI.Retreat.prototype.init = function(being) {
 	this.parent();
 	this._being = being;
+	this._subtasks.teleport = new RPG.AI.TeleportAway();
 }
 
 RPG.AI.Retreat.prototype.go = function() {
@@ -286,12 +287,18 @@ RPG.AI.Retreat.prototype.go = function() {
 	
 	/* we are okay, no more retreating necessary */
 	if (!RPG.Rules.isWoundedToRetreat(being)) { return RPG.AI_ALREADY_DONE; }
-	
+
+	/* get away */
 	var c1 = being.getCell().getCoords();
 	var c2 = this._being.getCell().getCoords();
 
+	/* FIXME: the logic for stopping teleport spree stinks here */
+	/* we see target - we need and know how to get away */
 	if (being.canSee(c2)) {
-		/* we see the target so we know how to run away */
+		/* try to teleport away */
+		if (this._subtasks.teleport.go() == RPG.AI_OK) { return RPG.AI_OK; }
+
+		/* run away */
 		var cell = RPG.AI.cellToDistance(being.getCell(), this._being.getCell(), 1e5);
 		if (cell) {
 			this._ai.setActionResult(being.move(cell));
@@ -371,8 +378,59 @@ RPG.AI.HealOther.prototype.go = function() {
 		this._ai.addTask(new RPG.AI.HealOther(this._being));
 		return RPG.AI_OK;
 	} else { /* okay, cast */
+		heal = new heal(being);
 		being.cast(heal,c1.dirTo(c2)); 
 		return RPG.AI_OK;	
 	}
 }
 
+/**
+ * @class TeleportAway task
+ * @augments RPG.AI.Task
+ */
+RPG.AI.TeleportAway = OZ.Class().extend(RPG.AI.Task);
+
+RPG.AI.TeleportAway.prototype.go = function()
+{
+	var being = this._ai.getBeing();
+
+	/* dunno how to teleport or haven't got enough mana */
+	var teleport = RPG.Spells.Teleport;
+	if (!being.hasSpell(teleport,true)) {
+		return RPG.AI_IMPOSSIBLE;
+	}
+
+	var c = being.getCell();
+	var target = this._getFurthestFreeCell(c);
+
+	/* no free cell anywhere! */
+	if (!target) { return RPG.AI_IMPOSSIBLE; }
+
+	teleport = new teleport(being);
+	being.cast(teleport,target.getCoords());
+
+	return RPG.AI_OK;
+}
+
+/* FIXME: refactor to map? */
+RPG.AI.TeleportAway.prototype._getFurthestFreeCell = function(cell)
+{
+	var target = false;
+
+	var map = cell.getMap();
+	var corners = map.getCorners();
+
+	/* find most distant corner */
+	var max = -Infinity;
+	var c = false;
+	var c1 = cell.getCoords();
+
+	for (var i=0;i<corners.length;i++) {
+		var c2 = corners[i];
+		var d = c1.distance(c2);
+
+		if (d > max) { c = c2; max = d; }
+	}
+
+	return map.getClosestRandomFreeCell(c);
+}
