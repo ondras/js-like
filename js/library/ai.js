@@ -163,13 +163,17 @@ RPG.AI.AttackMagic.prototype.go = function() {
 		var spell = new RPG.Spells.MagicBolt(being);
 		for (var i=0;i<8;i++) { /* find some direction */
 			var trajectory = spell.computeTrajectory(cell, i);
-			for (var j=0;j<trajectory.cells.length;j++) { /* check if target is hit */
+			var selfHit = false;
+			var targetHit = false;
+			for (var j=0;j<trajectory.cells.length;j++) { /* check if target is hit and we are not */
 				var test = trajectory.cells[j];
-				if (test == target) { /* launch! */
-					var result = being.cast(spell, i);
-					this._ai.setActionResult(result);
-					return RPG.AI_OK;
-				}
+				if (test == target) { targetHit = true; }
+				if (test == cell) { selfHit = true; }
+			}
+			if (targetHit && !selfHit) { /* launch! */
+				var result = being.cast(spell, i);
+				this._ai.setActionResult(result);
+				return RPG.AI_OK;
 			}
 		}
 	}
