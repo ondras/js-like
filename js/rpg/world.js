@@ -7,6 +7,7 @@ RPG.World = {
 	_lock: 0, /* lock level */
 	_map: null,
 	_scheduler: null,
+	_story: null,
 	pc: null
 };
 
@@ -63,6 +64,15 @@ RPG.World.setMap = function(map) {
 
 RPG.World.getMap = function() {
 	return this._map;
+}
+
+RPG.World.setStory = function(story) {
+	this._story = story;
+	return this;
+}
+
+RPG.World.getStory = function() {
+	return this._story;
 }
 
 /**

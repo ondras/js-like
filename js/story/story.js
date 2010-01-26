@@ -11,6 +11,7 @@ RPG.Story.prototype.init = function() {
  * Launch this story
  */
 RPG.Story.prototype.go = function() {
+	RPG.World.setStory(this);
 	var cg = new RPG.CharGen();
 
 	var w = OZ.DOM.win()[0];
