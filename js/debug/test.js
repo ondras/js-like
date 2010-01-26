@@ -5,7 +5,7 @@ var Serializer = function() {
 }
 
 Serializer.prototype.buildTable = function(root, path) {
-	var forbidden = ["extend", "_extend", "implement", "_implement", "flags"];
+	var forbidden = ["extend", "_extend", "implement", "_implement"];
 	
 	for (var p in root) {
 		var val = root[p];
@@ -30,7 +30,7 @@ Serializer.prototype.serTable = function() {
 	this.names = [];
 	for (var p in this.map) {
 		this.names.push(p);
-		str += "<ctor name='"+p+"' ic='"+this.map[p].ic+"' />\n";
+		str += "<ctor name='"+p+"'/>\n";
 	}
 	return str;
 }
@@ -66,6 +66,7 @@ Serializer.prototype.serObjProps = function(what, clone) {
 	for (var p in what) {
 		var val = what[p];
 		if (typeof(val) == "function") { continue; }
+		if (val instanceof HTMLElement) { continue; }
 		if (val === clone[p]) { continue; }
 		str += "<p n='"+p+"'>";
 		str += this.serVal(val);
