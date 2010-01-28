@@ -242,7 +242,7 @@ RPG.Items.Projectile.prototype._done = function() {
 		if (cell.isFree()) { 
 			if (RPG.Rules.isProjectileRecovered(this)) {
 				cell.addItem(this);
-				var pc = RPG.World.pc;
+				var pc = RPG.Game.pc;
 				if (pc.canSee(cell.getCoords())) {
 					pc.mapMemory().updateCoords(cell.getCoords());
 				}

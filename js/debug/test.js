@@ -123,7 +123,7 @@ function test() {
 	var data = "";
 
 	data += ser.serTable();
-	data += ser.serObj(RPG.World);
+	data += ser.serObj(RPG.Game);
 	data += ser.serObj(s);
 
 	return data;

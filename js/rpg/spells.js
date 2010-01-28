@@ -63,7 +63,7 @@ RPG.Spells.Attack.prototype.explode = function(center, radius, ignoreCenter) {
 	this._char = "*";
 
 	RPG.UI.map.removeProjectiles();
-	RPG.World.lock();
+	RPG.Game.getEngine().lock();
 	var map = this._caster.getCell().getMap();
 	var cells = map.cellsInArea(center, radius);
 	if (ignoreCenter) { cells.shift(); }
@@ -86,7 +86,7 @@ RPG.Spells.Attack.prototype._afterExplosion = function(cells) {
 	}
 	
 	RPG.UI.map.removeProjectiles();
-	RPG.World.unlock();
+	RPG.Game.getEngine().unlock();
 }
 
 /**
@@ -116,7 +116,7 @@ RPG.Spells.Projectile.prototype._fly = function() {
 	var cell = this._flight.cells[this._flight.index];
 	var bounce = this._flight.bounces[this._flight.index];
 	
-	if (bounce && RPG.World.pc.canSee(cell.getCoords())) {
+	if (bounce && RPG.Game.pc.canSee(cell.getCoords())) {
 		var s = RPG.Misc.format("%The bounces!", this);
 		RPG.UI.buffer.message(s);
 	}

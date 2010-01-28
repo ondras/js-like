@@ -124,7 +124,7 @@ RPG.Spells.MagicBolt.prototype._fly = function(cell) {
 	if (b) {
 		this._caster.attackMagic(b, this);
 	} else if (!cell.visibleThrough()) {
-		if (RPG.World.pc.canSee(cell.getCoords())) {
+		if (RPG.Game.pc.canSee(cell.getCoords())) {
 			var s = RPG.Misc.format("%The hits %a and disappears.", this, cell.getFeature() || cell);
 			RPG.UI.buffer.message(s);
 		}
@@ -163,5 +163,5 @@ RPG.Spells.Fireball.prototype.getRadius = function() {
 }
 
 RPG.Spells.Fireball.prototype._done = function() {
-	RPG.World.unlock();
+	RPG.Game.getEngine().unlock();
 }

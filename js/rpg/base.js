@@ -388,13 +388,13 @@ RPG.Quests.BaseQuest.prototype.setPhase = function(phase) {
 	
 	switch (phase) {
 		case RPG.QUEST_GIVEN:
-			RPG.World.pc.addQuest(this);
+			RPG.Game.pc.addQuest(this);
 		break;
 		case RPG.QUEST_DONE:
 			RPG.UI.buffer.important("You have just completed a quest.");
 		break;
 		case RPG.QUEST_REWARDED:
-			RPG.World.pc.removeQuest(this);
+			RPG.Game.pc.removeQuest(this);
 			this.reward();
 		break;
 	}

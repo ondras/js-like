@@ -100,7 +100,7 @@ RPG.Beings.NPC.prototype.getChat = function() {
 }
 
 RPG.Beings.NPC.prototype.teleport = function(cell) {
-	var pc = RPG.World.pc;
+	var pc = RPG.Game.pc;
 	var sc = this._cell.getCoords();
 	var tc = cell.getCoords();
 	
@@ -134,9 +134,10 @@ RPG.Beings.NPC.prototype.move = function(targetCell) {
 	var sourceCell = this._cell;
 
 	var result = this.parent(targetCell);
+	var memory = RPG.Game.pc.mapMemory();
 
-	if (sourceCell) { RPG.World.pc.mapMemory().updateCoords(sourceCell.getCoords()); }
-	if (targetCell) { RPG.World.pc.mapMemory().updateCoords(targetCell.getCoords());  }
+	if (sourceCell) { memory.updateCoords(sourceCell.getCoords()); }
+	if (targetCell) { memory.updateCoords(targetCell.getCoords());  }
 	
 	return result;
 }
@@ -182,7 +183,7 @@ RPG.Beings.NPC.prototype._describeAttack = function(hit, damage, kill, being, sl
 	if (kill) {
 		s += RPG.Misc.format(" and kills %him.", being);
 	} else {
-		if (being == RPG.World.pc) {
+		if (being == RPG.Game.pc) {
 			s += ".";
 		} else {
 			s+= RPG.Misc.format(" and %s wounds %him.", being.woundedState(), being);

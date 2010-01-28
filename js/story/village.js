@@ -52,7 +52,7 @@ RPG.Map.Village.prototype.init = function() {
     }
 }
 
-RPG.Map.Village.prototype.use = function() {
+RPG.Map.Village.prototype.entered = function() {
 	this.parent();
 	RPG.UI.sound.preload("doom");
 }
@@ -424,7 +424,7 @@ RPG.Quests.ElderEnemy.prototype.setPhase = function(phase) {
 
 RPG.Quests.ElderEnemy.prototype.reward = function() {
 	var gold = new RPG.Items.Gold(1000);
-	RPG.World.pc.addItem(gold);
+	RPG.Game.pc.addItem(gold);
 }
 
 /**
@@ -460,7 +460,7 @@ RPG.Quests.LostNecklace.prototype.init = function(giver, item, givenCallback) {
 	
 	chat.defineState(REWARD_TESTING, ['"Please bring the necklace to me, I will reward you!"'], RPG.QUEST_DONE);
 	chat.defineCallback(REWARD_TESTING, function() {
-		var pc = RPG.World.pc;
+		var pc = RPG.Game.pc;
 		var ok = false;
 		if (pc.hasItem(this._item)) {
 			ok = true;
@@ -503,7 +503,7 @@ RPG.Quests.LostNecklace.prototype.setPhase = function(phase) {
 
 RPG.Quests.LostNecklace.prototype.reward = function() {
 	var spell = this._reward;
-	var pc = RPG.World.pc;
+	var pc = RPG.Game.pc;
 	if (pc.getSpells().indexOf(spell) != -1) { return; }
 	pc.addSpell(spell);
 }
@@ -534,20 +534,23 @@ RPG.Story.Village.prototype.init = function() {
 }
 
 RPG.Story.Village.prototype._createPC = function(race, profession, name) {
-	this.parent(race, profession, name);
+	var pc = this.parent(race, profession, name);
 	var rocks = new RPG.Items.Rock();
 	rocks.setAmount(5);
-	RPG.World.pc.addItem(rocks);
+	pc.addItem(rocks);
+	return pc;
 }
 
-RPG.Story.Village.prototype._getMap = function() {
+RPG.Story.Village.prototype._firstMap = function() {
 	this._village = this._villageMap();
 	return this._village;
 }
 
 RPG.Story.Village.prototype._villageMap = function() {
 	var map = new RPG.Map.Village();
-	this._attachGameover(map);
+	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
+	this._staircases["end"] = up;
+	this._staircaseCallbacks["end"] = this.end;
 
 	this._boss = new RPG.Beings.Troll().setName("Chleba");
 	var elder = map.getElder();
@@ -562,15 +565,17 @@ RPG.Story.Village.prototype._villageMap = function() {
 RPG.Story.Village.prototype._showElderStaircase = function() {
     var staircase = new RPG.Features.Staircase.Down();
     this._village.at(new RPG.Misc.Coords(32, 14)).setFeature(staircase);
-	staircase.setTarget(this._nextElderDungeon.bind(this));
-	RPG.World.pc.mapMemory().updateVisible();
+    this._staircases["elder"] = staircase;
+    this._staircaseCallbacks["elder"] = this._nextElderDungeon;
+	RPG.Game.pc.mapMemory().updateVisible();
 }
 
 RPG.Story.Village.prototype._showMazeStaircase = function() {
     var staircase = new RPG.Features.Staircase.Down();
     this._village.at(new RPG.Misc.Coords(1, 1)).setFeature(staircase);
-	staircase.setTarget(this._nextMazeDungeon.bind(this));
-	RPG.World.pc.mapMemory().updateVisible();
+    this._staircases["maze"] = staircase;
+    this._staircaseCallbacks["maze"] = this._nextElderDungeon;
+	RPG.Game.pc.mapMemory().updateVisible();
 }
 
 RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
@@ -623,7 +628,7 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 		arr.splice(index, 1);
 		var down = new RPG.Features.Staircase.Down();
 		map.at(roomDown.getCenter()).setFeature(down);
-		down.setTarget(arguments.callee.bind(this));
+		this._staircases["elder"] = down;
 	} else {
 		/* last level */
 		map.setSound("doom2");
@@ -672,7 +677,7 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 	if (this._mazeDepth < this._maxMazeDepth) {
 		var down = new RPG.Features.Staircase.Down();
 		corners[1].setFeature(down);
-		down.setTarget(arguments.callee.bind(this));
+		this._staircases["maze"] = down;
 	} else {
 		corners[1].addItem(this._necklace);
 	}
@@ -698,7 +703,3 @@ RPG.Story.Village.prototype._computeScore = function() {
 	return total;
 }
 
-RPG.Story.Village.prototype._attachGameover = function(map) {
-	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
-	up.setTarget(this.bind(this._endGame));
-}

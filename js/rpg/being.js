@@ -123,6 +123,7 @@ RPG.Beings.BaseBeing.prototype.hasSpell = function(spell, castable) {
 }
 
 /**
+ * This being is located on a new cell. Apply all modifiers necessary.
  * @param {SMap.Misc.Coords}
  */
 RPG.Beings.BaseBeing.prototype.setCell = function(cell) {
@@ -456,8 +457,8 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 		this._cell.addItem(corpse);
 	}
 
-	RPG.World.pc.mapMemory().updateCoords(this._cell.getCoords());
-	RPG.World.removeActor(this);
+	RPG.Game.pc.mapMemory().updateCoords(this._cell.getCoords());
+	RPG.Game.getEngine().removeActor(this);
 	
 	this.dispatch("death");
 }
@@ -524,7 +525,7 @@ RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
 
 		/* let the being know about this */
 		this._trapMemory.remember(trap);
-	} else if (RPG.World.pc.canSee(coords)) {
+	} else if (RPG.Game.pc.canSee(coords)) {
 	
 		/* already knows */
 		var verb = RPG.Misc.verb("sidestep", this);
@@ -552,15 +553,7 @@ RPG.Beings.BaseBeing.prototype.wait = function() {
  * @param {RPG.Cells.BaseCell} target
  */
 RPG.Beings.BaseBeing.prototype.move = function(target) {
-	var source = this._cell;
-	
-	if (target && target.getRoom()) {
-		if (!source || source.getRoom() != target.getRoom()) {
-			target.getRoom().entered(this);
-		}
-	}
-
-	if (source) { source.setBeing(null); }
+	if (this._cell) { this._cell.setBeing(null); }
 	if (target) { target.setBeing(this); }
 
 	return RPG.ACTION_TIME;
@@ -720,7 +713,7 @@ RPG.Beings.BaseBeing.prototype.open = function(door) {
 	var verb = RPG.Misc.verb("open", this);
 	var s = RPG.Misc.format("%A %s the door.", this, verb);
 	RPG.UI.buffer.message(s);
-	RPG.World.pc.mapMemory().updateVisible();
+	RPG.Game.pc.mapMemory().updateVisible();
 
 	return RPG.ACTION_TIME;
 }
@@ -750,7 +743,7 @@ RPG.Beings.BaseBeing.prototype.close = function(door) {
 	var verb = RPG.Misc.verb("close", this);
 	var s = RPG.Misc.format("%A %s the door.", this, verb);
 	RPG.UI.buffer.message(s);
-	RPG.World.pc.mapMemory().updateVisible();
+	RPG.Game.pc.mapMemory().updateVisible();
 
 	return RPG.ACTION_TIME;
 }
@@ -767,7 +760,7 @@ RPG.Beings.BaseBeing.prototype.launch = function(projectile, cell) {
 		p = projectile.subtract(1);
 	}
 
-	if (RPG.World.pc.canSee(this._cell.getCoords())) {
+	if (RPG.Game.pc.canSee(this._cell.getCoords())) {
 		this._describeLaunch(p, cell);
 	}
 	

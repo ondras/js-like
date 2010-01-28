@@ -190,7 +190,7 @@ RPG.Misc.IProjectile.prototype.getRange = function() {
 RPG.Misc.IProjectile.prototype.launch = function(source, target) {
 	this.computeTrajectory(source, target);
 	this._flying = true;
-	RPG.World.lock();
+	RPG.Game.getEngine().lock();
 	var interval = 75;
 	this._interval = setInterval(this.bind(this._step), interval);
 }
@@ -211,7 +211,7 @@ RPG.Misc.IProjectile.prototype._fly = function() {
  */
 RPG.Misc.IProjectile.prototype.showTrajectory = function(source, target) {
 	this.computeTrajectory(source, target);
-	var pc = RPG.World.pc;
+	var pc = RPG.Game.pc;
 	
 	RPG.UI.map.removeProjectiles();
 	for (var i=0;i<this._flight.cells.length;i++) {
@@ -242,7 +242,7 @@ RPG.Misc.IProjectile.prototype._step = function() {
 RPG.Misc.IProjectile.prototype._done = function() {
 	this._flying = false;
 	RPG.UI.map.removeProjectiles();
-	RPG.World.unlock();
+	RPG.Game.getEngine().unlock();
 }
 
 /**
@@ -256,7 +256,7 @@ RPG.Misc.IProjectile.prototype.computeTrajectory = function(source, target) {
 	this._flight.chars = [];
 	this._flight.images = [];
 
-	var map = RPG.World.getMap();
+	var map = RPG.Game.getMap();
 	var cells = map.cellsInLine(source.getCoords(), target);
 	var max = Math.min(this.getRange()+1, cells.length);
 
@@ -612,6 +612,6 @@ RPG.Misc.format = function(formatStr) {
 }
 
 RPG.Misc.verb = function(verb, who) {
-	return (who == RPG.World.pc ? verb : verb+"s");
+	return (who == RPG.Game.pc ? verb : verb+"s");
 }
 

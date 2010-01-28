@@ -28,7 +28,7 @@ RPG.UI.setMode = function(mode, command, data) {
 		break;
 		case RPG.UI_WAIT_TARGET:
 			this._pending = command;
-			this._target = RPG.World.pc.getCell().getCoords().clone();
+			this._target = RPG.Game.pc.getCell().getCoords().clone();
 			this.buffer.message(data+": select target...");
 			this._adjustButtons({commands:false, cancel:true, dir:true, pending:true});
 		break;
@@ -39,7 +39,7 @@ RPG.UI.setMode = function(mode, command, data) {
 }
 
 RPG.UI.refocus = function() {
-	this.map.setFocus(RPG.World.pc.getCell().getCoords());
+	this.map.setFocus(RPG.Game.pc.getCell().getCoords());
 }
 
 /**
@@ -73,7 +73,7 @@ RPG.UI.command = function(command) {
 		if (command instanceof RPG.UI.Command.Direction) {
 			/* adjust target */
 			var test = this._target.clone().plus(RPG.DIR[command.getDir()]);
-			var map = RPG.World.getMap();
+			var map = RPG.Game.getMap();
 			if (!map.isValid(test)) { return; }
 			this._target = test;
 			RPG.UI.map.setFocus(this._target);

@@ -160,7 +160,7 @@ RPG.Features.Trap.prototype.knowsAbout = function(being) {
 	return being.trapMemory().remembers(this);
 }
 
-RPG.Features.Trap.prototype.notify = function(being) {
+RPG.Features.Trap.prototype.entered = function(being) {
 	being.trapEncounter(this);
 }
 
@@ -207,7 +207,7 @@ RPG.Features.Trap.Pit.prototype.init = function() {
 }
 
 RPG.Features.Trap.Pit.prototype.setOff = function() {
-	var canSee = RPG.World.pc.canSee(this._cell.getCoords());
+	var canSee = RPG.Game.pc.canSee(this._cell.getCoords());
 	var being = this._cell.getBeing();
 
 	if (canSee) {
@@ -219,7 +219,7 @@ RPG.Features.Trap.Pit.prototype.setOff = function() {
 	var dmg = RPG.Rules.getTrapDamage(being, this);
 	being.adjustStat(RPG.STAT_HP, -dmg);
 	
-	if (!being.isAlive() && canSee && being != RPG.World.pc) {
+	if (!being.isAlive() && canSee && being != RPG.Game.pc) {
 		var s = RPG.Misc.format("%The suddenly collapses!", being);
 		RPG.UI.buffer.message(s);
 	}
@@ -244,10 +244,7 @@ RPG.Features.Staircase.prototype.enter = function(being) {
 	if (cell) {	
 		/* switch maps */
 		var map = cell.getMap();
-		map.use();
-		
-		RPG.World.addActor(being);
-		return being.move(cell);
+		return RPG.Game.setMap(map, cell);
 	} else {
 		return being.wait();
 	}
@@ -261,9 +258,8 @@ RPG.Features.Staircase.prototype.setTarget = function(cell) {
  * @returns {RPG.Cells.BaseCell}
  */
 RPG.Features.Staircase.prototype.getTarget = function() {
-	if (!this._target) { return null; }
-	if (typeof(this._target) == "function") {
-		this._target = this._target(this);
+	if (!this._target) { 
+		this._target = RPG.Game.getStory().generateStaircase(this);
 	}
 	return this._target;
 }

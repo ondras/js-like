@@ -89,7 +89,7 @@ RPG.AI.prototype.isHostile = function(being) {
  * We became chaotic, kill PC!
  */
 RPG.AI.prototype.syncWithAlignment = function() {
-	var pc = RPG.World.pc;
+	var pc = RPG.Game.pc;
 	var a = this._being.getAlignment();
 	if (a == RPG.ALIGNMENT_CHAOTIC && !this.isHostile(pc)) {
 		this.addTask(new RPG.AI.Kill(pc));

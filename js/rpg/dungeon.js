@@ -40,11 +40,19 @@ RPG.Cells.BaseCell.prototype.getItems = function() {
 }
 
 RPG.Cells.BaseCell.prototype.setBeing = function(being) {
-	this._being = being || null;
-	if (being) { 
-		being.setCell(this); 
-		if (this._feature) { this._feature.notify(being); }
+	this._being = being;
+	if (!being) { return; }
+
+	var oldCell = being.getCell();
+	if (this._room && (!oldCell || oldCell.getRoom() != this._room)) {
+		/* entering a new room */
+		this._room.entered(this);
 	}
+	
+	being.setCell(this); 
+	
+	/* entering a feature */
+	if (this._feature) { this._feature.entered(being); }
 }
 
 RPG.Cells.BaseCell.prototype.getBeing = function() {
@@ -162,7 +170,7 @@ RPG.Rooms.BaseRoom.prototype.getType = function(type) {
  * @param {RPG.Beings.BaseBeing} being
  */
 RPG.Rooms.BaseRoom.prototype.entered = function(being) {
-	if (this._welcome && being == RPG.World.pc) { RPG.UI.buffer.message(this._welcome); }
+	if (this._welcome && being == RPG.Game.pc) { RPG.UI.buffer.message(this._welcome); }
 }
 
 /**
@@ -195,7 +203,7 @@ RPG.Features.BaseFeature.prototype.getCell = function() {
  * Notify feature that a being came here
  * @param {RPG.Beings.BaseBeing} being
  */
-RPG.Features.BaseFeature.prototype.notify = function(being) {
+RPG.Features.BaseFeature.prototype.entered = function(being) {
 }
 
 RPG.Features.BaseFeature.prototype.getType = function() {
@@ -243,12 +251,12 @@ RPG.Map.prototype.init = function(id, size, danger) {
 	}
 }
 
-RPG.Map.prototype.use = function() {
+/**
+ * This will be used now.
+ */
+RPG.Map.prototype.entered = function() {
 	if (this._sound) { RPG.UI.sound.playBackground(this._sound); }
-	RPG.World.pc.mapMemory().setMap(this);
-	RPG.UI.status.updateMap(this._id);
 	if (this._welcome) { RPG.UI.buffer.message(this._welcome); }
-	RPG.World.setMap(this);
 }
 
 /**

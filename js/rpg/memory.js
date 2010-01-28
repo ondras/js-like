@@ -45,7 +45,7 @@ RPG.Memory.MapMemory.prototype.updateVisible = function() {
 
 RPG.Memory.MapMemory.prototype.forget = function() {
 	this._current = null;
-	var map = RPG.World.getMap();
+	var map = RPG.Game.getMap();
 	var id = map.getId();
 	delete this._maps[id];
 	this.setMap(map);
@@ -90,7 +90,7 @@ RPG.Memory.Map.prototype.updateCoords = function(coords) {
  * Visible area has changed - need to refresh whole map subset. This is the _slowest_ part.
  */
 RPG.Memory.Map.prototype.updateVisible = function() {
-	var pc = RPG.World.pc;
+	var pc = RPG.Game.pc;
 	pc.updateVisibility(); /* tell PC to update its set of visible coordinates */
 	
 	var visible = pc.getVisibleCoords();
@@ -212,7 +212,7 @@ RPG.Memory.Map.Cell.prototype.load = function() {
  * Get a stack of visible objects, typically a cell [+ something]
  */
 RPG.Memory.Map.Cell.prototype._visibleStack = function() {
-	var pc = RPG.World.pc;
+	var pc = RPG.Game.pc;
 	var arr = [];
 	/* PERF */
 //	var cell = this._owner.map._data[this._coords.x][this._coords.y];
@@ -251,7 +251,7 @@ RPG.Memory.Map.Cell.prototype._visibleStack = function() {
  * Get a stack of cloned remembered objects
  */
 RPG.Memory.Map.Cell.prototype._rememberedStack = function() {
-	var pc = RPG.World.pc;
+	var pc = RPG.Game.pc;
 	var arr = [];
 	/* PERF */
 //	var cell = this._owner.map._data[this._coords.x][this._coords.y];

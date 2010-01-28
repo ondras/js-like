@@ -3,22 +3,22 @@
  */
 RPG.CharGen = OZ.Class();
 
-RPG.CharGen.prototype.races = [
-	RPG.Races.Human, 
-	RPG.Races.Orc, 
-	RPG.Races.Elf, 
-	RPG.Races.Dwarf
-];
-
-RPG.CharGen.prototype.professions = [
-	RPG.Professions.Adventurer,
-	RPG.Professions.Warrior,
-	RPG.Professions.Archer,
-	RPG.Professions.Wizard
-];
-
 RPG.CharGen.prototype.init = function() {
 	this._list = [];
+
+	this.races = [
+		RPG.Races.Human, 
+		RPG.Races.Orc, 
+		RPG.Races.Elf, 
+		RPG.Races.Dwarf
+	];
+	
+	this.professions = [
+		RPG.Professions.Adventurer,
+		RPG.Professions.Warrior,
+		RPG.Professions.Archer,
+		RPG.Professions.Wizard
+	];
 }
 
 RPG.CharGen.prototype.build = function() {

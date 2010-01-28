@@ -328,13 +328,13 @@ RPG.Items.Scroll.prototype.read = function(being) {
 	var spells = being.getSpells();
 	if (spells.indexOf(this._spell) != -1) {
 		/* already knows this spell */
-		if (being == RPG.World.pc) { RPG.UI.buffer.message("You already know this spell."); }
+		if (being == RPG.Game.pc) { RPG.UI.buffer.message("You already know this spell."); }
 		return;
 	}
 	
 	being.addSpell(this._spell);
 	being.removeItem(this);
-	if (being == RPG.World.pc) { 
+	if (being == RPG.Game.pc) { 
 		var s = RPG.Misc.format("You learn the '%s' spell.", this._spell.name);
 		RPG.UI.buffer.message(s); 
 	}

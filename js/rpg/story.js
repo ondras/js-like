@@ -5,13 +5,15 @@ RPG.Story = OZ.Class();
 
 RPG.Story.prototype.init = function() {
 	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
+	
+	this._staircases = {};
+	this._staircaseCallbacks = {};
 }
 
 /**
- * Launch this story
+ * Generate a PC; when this is done, call RPG.Game.setPC
  */
-RPG.Story.prototype.go = function() {
-	RPG.World.setStory(this);
+RPG.Story.prototype.generatePC = function() {
 	var cg = new RPG.CharGen();
 
 	var w = OZ.DOM.win()[0];
@@ -29,81 +31,10 @@ RPG.Story.prototype.go = function() {
 }
 
 /**
- * User picked his character, create it and launch
+ * End this story
  */
-RPG.Story.prototype._charPicked = function(e) {
-	if (!this._name.value) {
-		this._name.focus();
-		return;
-	}
-	
-	RPG.UI.hideDialog();
-	var race = e.data.race;
-	var profession = e.data.profession;
-	RPG.UI.build();
-	
-	this._createPC(race, profession, this._name.value);
-	var map = this._getMap();
-	map.use();
-
-	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
-	RPG.World.addActor(RPG.World.pc);	
-	RPG.World.pc.move(cell);
-	RPG.World.run();
-}
-
-/**
- * Build the PC
- */
-RPG.Story.prototype._createPC = function(race, profession, name) {
-	RPG.World.pc = new RPG.Beings.PC(new race(), new profession());
-	RPG.World.pc.setName(name);
-	OZ.Event.add(RPG.World.pc, "death", this.bind(this._death));
-}
-
-/**
- * PC's death
- */
-RPG.Story.prototype._death = function() {
-	this._endGame();
-}
-
-/**
- * Generate a map
- */
-RPG.Story.prototype._getMap = function() {
-	return null;
-}
-
-/**
- * Compute player's score
- */
-RPG.Story.prototype._computeScore = function() {
-	var pc = RPG.World.pc;
-	var total = 0;
-	
-	total += 20 * pc.getKills();
-	
-	var items = pc.getItems();
-	for (var i=0;i<items.length;i++) {
-		var item = items[i];
-		if (item instanceof RPG.Items.Gold) { total += item.getAmount(); }
-		if (item instanceof RPG.Items.Gem) { total += 100; }
-	}
-	
-	if (pc.isAlive()) {
-		total = total * 2;
-	}
-	
-	return total;
-}
-
-/**
- * End a game
- */
-RPG.Story.prototype._endGame = function() {
-	var pc = RPG.World.pc;
-	RPG.World.lock();
+RPG.Story.prototype.end = function() {
+	var pc = RPG.Game.pc;
 	var div = OZ.DOM.elm("div");
 	var p1 = OZ.DOM.elm("p");
 	
@@ -124,4 +55,79 @@ RPG.Story.prototype._endGame = function() {
 
 	OZ.DOM.append([div, p1, p2, p3]);
 	RPG.UI.showDialog(div, "Game over");
+}
+
+/**
+ * Create endpoint for this staircase
+ */
+RPG.Story.prototype.generateStaircase = function(staircase) {
+	for (var p in this._staircases) {
+		if (this._staircases[p] == staircase) { return this._staircaseCallbacks[p].call(this, staircase); }
+	}
+	return null;
+}
+
+/**
+ * User picked his character, create it and launch
+ */
+RPG.Story.prototype._charPicked = function(e) {
+	if (!this._name.value) {
+		this._name.focus();
+		return;
+	}
+	
+	RPG.UI.hideDialog();
+	var race = e.data.race;
+	var profession = e.data.profession;
+	RPG.UI.build();
+	
+	var pc = this._createPC(race, profession, this._name.value);
+	OZ.Event.add(pc, "death", this.bind(this._death));
+
+	var map = this._firstMap();
+	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
+	RPG.Game.setPC(pc, map, cell);
+}
+
+RPG.Story.prototype._createPC = function(race, profession, name) {
+	var pc = new RPG.Beings.PC(new race(), new profession());
+	pc.setName(name);
+	return pc;
+}
+
+/**
+ * PC's death
+ */
+RPG.Story.prototype._death = function() {
+	RPG.Game.end();
+}
+
+/**
+ * Generate a map
+ */
+RPG.Story.prototype._firstMap = function() {
+	return null;
+}
+
+/**
+ * Compute player's score
+ */
+RPG.Story.prototype._computeScore = function() {
+	var pc = RPG.Game.pc;
+	var total = 0;
+	
+	total += 20 * pc.getKills();
+	
+	var items = pc.getItems();
+	for (var i=0;i<items.length;i++) {
+		var item = items[i];
+		if (item instanceof RPG.Items.Gold) { total += item.getAmount(); }
+		if (item instanceof RPG.Items.Gem) { total += 100; }
+	}
+	
+	if (pc.isAlive()) {
+		total = total * 2;
+	}
+	
+	return total;
 }
