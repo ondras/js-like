@@ -34,6 +34,63 @@ RPG.UI.BaseMap.prototype.resize = function(size) {
 	}
 }
 
+/**
+ * Redraw a game cell. If this cell is outside a visibility range, do nothing.
+ */
+RPG.UI.BaseMap.prototype.redrawCell = function(cell) {
+	if (!RPG.Game.pc.canSee(cell)) { return; }
+	cell.setMemoryState(RPG.MAP_VISIBLE);
+	this._redrawCell(cell);
+}
+
+/**
+ * Redraw the visible area.
+ */
+RPG.UI.BaseMap.prototype.redrawVisible = function() {
+	var map = RPG.Game.getMap();
+
+	var pc = RPG.Game.pc;
+	var oldVisible = pc.getVisibleCells();
+	pc.updateVisibility(); /* tell PC to update its set of visible coordinates */
+	var newVisible = pc.getVisibleCells();
+
+	/* check all cells visible before; if some is not visible now, mark it as remembered */
+	for (var i=0; i<oldVisible.length; i++) {
+		var cell = oldVisible[i];
+		if (newVisible.indexOf(cell) == -1) { /* this one is no longer visible */
+			cell.setMemoryState(RPG.MAP_REMEMBERED);
+			this._redrawCell(cell);
+		}
+	}
+
+	/* take all currently visible and mark them as visible */
+	for (var i=0;i<newVisible.length;i++) {
+		var cell = newVisible[i];
+		cell.setMemoryState(RPG.MAP_VISIBLE);
+		this._redrawCell(cell);
+	}
+}
+
+/**
+ * Redraw all cells on this map.
+ */
+RPG.UI.BaseMap.prototype.redrawAll = function() {
+	var map = RPG.Game.getMap();
+	var size = map.getSize();
+	
+	var coords = new RPG.Misc.Coords(0, 0);
+	for (var i=0;i<size.x;i++) {
+		for (var j=0;j<size.y;j++) {
+			coords.x = i;
+			coords.y = j;
+			var cell = map.at(coords);
+			if (!cell) { continue; }
+			this._redrawCell(cell);
+		}
+	}
+}
+
+/** OBSOLETE FIXME why is the projectile removed here?
 RPG.UI.BaseMap.prototype.redrawCoords = function(coords, data, remembered) {
 	var cell = this._dom.data[coords.x][coords.y];
 	var index = this._projectiles.indexOf(cell);
@@ -43,6 +100,7 @@ RPG.UI.BaseMap.prototype.redrawCoords = function(coords, data, remembered) {
 	}
 	cell.update(data, remembered);
 }
+*/
 
 RPG.UI.BaseMap.prototype.setFocus = function(coords) {
 	if (this._focus) {
@@ -73,6 +131,15 @@ RPG.UI.BaseMap.prototype.removeProjectiles = function() {
 	}
 }
 
+/**
+ * Force redraw a cell
+ */
+RPG.UI.BaseMap.prototype._redrawCell = function(cell) {
+	var c = cell.getCoords();
+	var what = this._dom.data[c.x][c.y];
+	what.update(cell.getMemory());
+}
+
 RPG.UI.BaseMap.prototype._resize = function() {
 }
 
@@ -87,10 +154,9 @@ RPG.UI.BaseCell.prototype.init = function(owner, coords) {
 
 /**
  * Update cell contents
- * @param {RPG.Misc.IVisual[]} data Array of data to be shown
- * @param {bool} remembered Is this a remembered part of a map?
+ * @param {object} memory Cell memory
  */
-RPG.UI.BaseCell.prototype.update = function(data, remembered) {
+RPG.UI.BaseCell.prototype.update = function(memory) {
 }
 
 RPG.UI.BaseCell.prototype.addFocus = function() {
@@ -161,8 +227,10 @@ RPG.UI.ImageCell.prototype.init = function(owner, coords) {
 /**
  * @see RPG.UI.BaseCell#update
  */
-RPG.UI.ImageCell.prototype.update = function(data, remembered) {
-	this._dom.container.style.opacity = (remembered ? 0.5 : 1);
+RPG.UI.ImageCell.prototype.update = function(memory) {
+	this._dom.container.style.opacity = (memory.state == RPG.MAP_REMEMBERED ? 0.5 : 1);
+	var data = memory.data;
+
 	for (var i=0;i<this._dom.nodes.length;i++) {
 		var what = (data.length > i ? data[i] : null);
 		this._updateImage(this._dom.nodes[i], what);
@@ -255,15 +323,17 @@ RPG.UI.ASCIICell.prototype.init = function(owner, coords) {
 		container.appendChild(OZ.DOM.elm("br"));
 	}
 	
-	this._currentChar = null;
+	this._dom.node.innerHTML = "&nbsp;";
+	this._currentChar = "&nbsp;";
 	this._currentColor = null;
 }
 
 /**
  * @see RPG.UI.BaseCell#update
  */
-RPG.UI.ASCIICell.prototype.update = function(data, remembered) {
-	this._dom.node.style.opacity = (remembered ? 0.5 : 1);
+RPG.UI.ASCIICell.prototype.update = function(memory) {
+	this._dom.node.style.opacity = (memory.state == RPG.MAP_REMEMBERED ? 0.5 : 1);
+	var data = memory.data;
 	
 	var item = (data.length ? data[data.length-1] : null);
 	if (!item) {

@@ -18,6 +18,43 @@ RPG.Cells.BaseCell.prototype.init = function() {
 	this._map = null;
 	this._room = null;
 	this._type = RPG.BLOCKS_NOTHING;
+	this._memory = {
+		state: RPG.MAP_UNKNOWN,
+		data: []
+	}
+}
+
+RPG.Cells.BaseCell.prototype.getMemory = function() {
+	return this._memory;
+}
+
+RPG.Cells.BaseCell.prototype.setMemoryState = function(state) {
+	this._memory.state = state;
+	if (state == RPG.MAP_UNKNOWN) { 
+		this._memory.data = [];
+		return;
+	}
+	
+	var arr = [this];
+	
+	if (this._being && state == RPG.MAP_VISIBLE) { /* being? */
+		arr.push(this._being);
+	} else if (this._items.length) {
+		arr.push(this._items[this._items.length-1]);
+	} else if (this._feature && this._feature.knowsAbout(RPG.Game.pc)) {
+		arr.push(this._feature);
+	}
+	
+	/* remembered stack uses clones */
+	if (state == RPG.MAP_REMEMBERED) {
+		for (var i=0;i<arr.length;i++) {
+			arr[i] = arr[i].clone();
+			if (!i) { arr[i].setBeing(null); }
+		}
+	}
+	
+	this._memory.data = arr;
+	
 }
 
 RPG.Cells.BaseCell.prototype.neighbor = function(dir) {
@@ -257,6 +294,21 @@ RPG.Map.prototype.init = function(id, size, danger) {
 RPG.Map.prototype.entered = function() {
 	if (this._sound) { RPG.UI.sound.playBackground(this._sound); }
 	if (this._welcome) { RPG.UI.buffer.message(this._welcome); }
+}
+
+/**
+ * This map will not be used now
+ */
+RPG.Map.prototype.leave = function() {
+	/* mark visible cells as remembered */
+	for (var i=0;i<this._size.x;i++) {
+		for (var j=0;j<this._size.y;j++) {
+			var c = this._data[i][j];
+			if (!c) { continue; }
+			var m = c.getMemory();
+			if (m.state == RPG.MAP_VISIBLE) { c.setMemoryState(RPG.MAP_REMEMBERED); }
+		}
+	}
 }
 
 /**

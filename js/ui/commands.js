@@ -620,10 +620,10 @@ RPG.UI.Command.Autowalk.prototype._step = function() {
 RPG.UI.Command.Autowalk.prototype._beingCount = function() {
 	var counter = 0;
 	var map = RPG.Game.pc.getCell().getMap();
-	var visible = RPG.Game.pc.getVisibleCoords();
+	var visible = RPG.Game.pc.getVisibleCells();
 	for (var i=0;i<visible.length;i++) {
-		var c = visible[i];
-		if (map.at(c).getBeing()) { counter++; }
+		var cell = visible[i];
+		if (cell.getBeing()) { counter++; }
 	}
 	return counter;
 }

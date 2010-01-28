@@ -63,13 +63,17 @@ RPG.Game.end = function() {
  * @param {RPG.Cells.BaseCell} cell PC's cell
  */
 RPG.Game.setMap = function(map, cell) {
+	if (this._map) { this._map.leave(); }
+
 	this._map = map; /* remember where we are */
 	map.entered(); /* welcome, songs, ... */
 
 	RPG.UI.status.updateMap(map.getId()); /* update statusbar */
-	this.pc.mapMemory().setMap(map); /* let ui know we have new map */
+	
+	RPG.UI.map.resize(map.getSize()); /* draw the map */
+	RPG.UI.map.redrawAll();
 
-	var result = this.pc.move(cell); /* move PC to the cell -> redraw */
+	var result = this.pc.move(cell); /* move PC to the cell -> redraw visible part */
 	this._engine.useMap(map); /* switch engine to new actorset */
 	return result; /* return result of move action */
 }

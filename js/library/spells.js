@@ -124,7 +124,7 @@ RPG.Spells.MagicBolt.prototype._fly = function(cell) {
 	if (b) {
 		this._caster.attackMagic(b, this);
 	} else if (!cell.visibleThrough()) {
-		if (RPG.Game.pc.canSee(cell.getCoords())) {
+		if (RPG.Game.pc.canSee(cell)) {
 			var s = RPG.Misc.format("%The hits %a and disappears.", this, cell.getFeature() || cell);
 			RPG.UI.buffer.message(s);
 		}

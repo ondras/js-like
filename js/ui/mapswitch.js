@@ -44,7 +44,11 @@ RPG.UI.Mapswitch.prototype._use = function(target) {
 	RPG.UI.map = new ctor(div);
 
 	/* adjust */
-	if (RPG.Game.getMap()) { RPG.Game.pc.mapMemory().updateComplete(); }
+	var map = RPG.Game.getMap();
+	if (map) { 
+		RPG.UI.map.resize(map.getSize());
+		RPG.UI.map.redrawAll(); 
+	}
 
 	/* add class */
 	var as = this._ul.getElementsByTagName("a");

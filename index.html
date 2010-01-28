@@ -8,17 +8,19 @@
 		<script type="text/javascript" src="js/oop.oz.js"></script>
 		<script type="text/javascript" src="js/rpg/rpg.js"></script>
 		<script type="text/javascript" src="js/rpg/ai.js"></script>
+		<script type="text/javascript" src="js/rpg/engine.js"></script>
 		<script type="text/javascript" src="js/rpg/rules.js"></script>
 		<script type="text/javascript" src="js/rpg/visual.js"></script>
 		<script type="text/javascript" src="js/rpg/misc.js"></script>
 		<script type="text/javascript" src="js/rpg/base.js"></script>
 		<script type="text/javascript" src="js/rpg/being.js"></script>
 		<script type="text/javascript" src="js/rpg/dungeon.js"></script>
-		<script type="text/javascript" src="js/rpg/memory.js"></script>
-		<script type="text/javascript" src="js/rpg/world.js"></script>
+		<script type="text/javascript" src="js/rpg/game.js"></script>
 		<script type="text/javascript" src="js/rpg/pc.js"></script>
 		<script type="text/javascript" src="js/rpg/npc.js"></script>
 		<script type="text/javascript" src="js/rpg/spells.js"></script>
+		<script type="text/javascript" src="js/rpg/chargen.js"></script>
+		<script type="text/javascript" src="js/rpg/story.js"></script>
 
 		<script type="text/javascript" src="js/library/ai.js"></script>
 		<script type="text/javascript" src="js/library/decorators.js"></script>
@@ -51,8 +53,6 @@
 		<script type="text/javascript" src="js/ui/status.js"></script>
 		<script type="text/javascript" src="js/ui/slots.js"></script>
 
-		<script type="text/javascript" src="js/story/chargen.js"></script>
-		<script type="text/javascript" src="js/story/story.js"></script>
 		<script type="text/javascript" src="js/story/village.js"></script>
 	</head>
 
@@ -72,11 +72,13 @@
 		<script type="text/javascript" src="js/debug/graph.js"></script>
 		<script type="text/javascript" src="js/debug/story.js"></script>
 		<script type="text/javascript">
-			RPG.World.init();
+			RPG.Game.init();
 			var index = document.location.search.indexOf("testbed");
 			var story = (index == -1 ? RPG.Story.Village : RPG.Story.Testbed);
 			var s = new story();
-			s.go();
+
+			RPG.Game.setStory(s);
+			RPG.Game.start();
 		</script>
 	</body>
 </html>

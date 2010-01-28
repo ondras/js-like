@@ -8,7 +8,6 @@ RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Misc.IActor);
 RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._initVisuals();
-	this._trapMemory = new RPG.Memory.TrapMemory();
 
 	this._name = "";
 	this._race = null;
@@ -23,6 +22,7 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._turnCounter = null;
 	this._modifierList = [];
 	this._spells = [];
+	this._knownTraps = [];
 
 	this._setRace(race);
 	this._initStatsAndFeats();
@@ -38,8 +38,8 @@ RPG.Beings.BaseBeing.prototype.toString = function() {
 	return this.describe();
 }
 
-RPG.Beings.BaseBeing.prototype.trapMemory = function() {
-	return this._trapMemory;
+RPG.Beings.BaseBeing.prototype.knowsTrap = function(trap) {
+	return this._knownTraps.indexOf(trap) != -1;
 }
 
 RPG.Beings.BaseBeing.prototype.getConfirm = function() {
@@ -457,45 +457,19 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 		this._cell.addItem(corpse);
 	}
 
-	RPG.Game.pc.mapMemory().updateCoords(this._cell.getCoords());
+	RPG.UI.map.redrawCell(this._cell);
 	RPG.Game.getEngine().removeActor(this);
 	
 	this.dispatch("death");
 }
 
 /**
- * Can this being see target coords?
- * @param {RPG.Misc.Coords} target
+ * Can this being see target cell?
+ * @param {RPG.Cells.BaseCell} cell
  * @returns {bool}
  */
-RPG.Beings.BaseBeing.prototype.canSee = function(target) {
+RPG.Beings.BaseBeing.prototype.canSee = function(cell) {
 	return true;
-	/*
-	var source = this._cell.getCoords();
-	var map = this._cell.getMap();
-	if (source.distance(target) <= 1) { return true; } // optimalization: can see self & surroundings
-	if (source.distance(target) > this.getFeat(RPG.FEAT_SIGHT_RANGE)) { return false; } 
-
-	// direct visibility
-	if (map.lineOfSight(source,target)) { return true; }
-
-	// test alternate starting cell for validity
-	var offsets = [
-		[1, 0],
-		[-1, 0],
-		[0, 1],
-		[0, -1]
-	];
-	var c = new RPG.Misc.Coords(0, 0);
-	for (var i=0;i<offsets.length;i++) {
-		c.x = source.x + offsets[i][0];
-		c.y = source.y + offsets[i][1];
-		if (!map.isValid(c) || !map.at(c).isFree()) { continue; }
-		if (map.lineOfSight(c, target)) { return true; }
-	}
-
-	return false;
-	* */
 }
 
 RPG.Beings.BaseBeing.prototype.woundedState = function() {
@@ -513,9 +487,9 @@ RPG.Beings.BaseBeing.prototype.woundedState = function() {
  * @param {RPG.Features.Trap} trap
  */
 RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
-	var coords = trap.getCell().getCoords();
+	var cell = trap.getCell();
 
-	var knows = this._trapMemory.remembers(trap);
+	var knows = this.knowsTrap(trap);
 	var activated = true;
 	if (knows) { activated = RPG.Rules.isTrapActivated(this, trap); }
 
@@ -524,8 +498,8 @@ RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
 		trap.setOff();
 
 		/* let the being know about this */
-		this._trapMemory.remember(trap);
-	} else if (RPG.Game.pc.canSee(coords)) {
+		this._knownTraps.push(trap);
+	} else if (RPG.Game.pc.canSee(cell)) {
 	
 		/* already knows */
 		var verb = RPG.Misc.verb("sidestep", this);
@@ -713,7 +687,7 @@ RPG.Beings.BaseBeing.prototype.open = function(door) {
 	var verb = RPG.Misc.verb("open", this);
 	var s = RPG.Misc.format("%A %s the door.", this, verb);
 	RPG.UI.buffer.message(s);
-	RPG.Game.pc.mapMemory().updateVisible();
+	RPG.UI.map.redrawVisible();
 
 	return RPG.ACTION_TIME;
 }
@@ -743,7 +717,7 @@ RPG.Beings.BaseBeing.prototype.close = function(door) {
 	var verb = RPG.Misc.verb("close", this);
 	var s = RPG.Misc.format("%A %s the door.", this, verb);
 	RPG.UI.buffer.message(s);
-	RPG.Game.pc.mapMemory().updateVisible();
+	RPG.UI.map.redrawVisible();
 
 	return RPG.ACTION_TIME;
 }
@@ -760,7 +734,7 @@ RPG.Beings.BaseBeing.prototype.launch = function(projectile, cell) {
 		p = projectile.subtract(1);
 	}
 
-	if (RPG.Game.pc.canSee(this._cell.getCoords())) {
+	if (RPG.Game.pc.canSee(this._cell)) {
 		this._describeLaunch(p, cell);
 	}
 	

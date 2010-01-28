@@ -567,7 +567,7 @@ RPG.Story.Village.prototype._showElderStaircase = function() {
     this._village.at(new RPG.Misc.Coords(32, 14)).setFeature(staircase);
     this._staircases["elder"] = staircase;
     this._staircaseCallbacks["elder"] = this._nextElderDungeon;
-	RPG.Game.pc.mapMemory().updateVisible();
+	RPG.UI.map.redrawVisible(); 
 }
 
 RPG.Story.Village.prototype._showMazeStaircase = function() {
@@ -575,7 +575,7 @@ RPG.Story.Village.prototype._showMazeStaircase = function() {
     this._village.at(new RPG.Misc.Coords(1, 1)).setFeature(staircase);
     this._staircases["maze"] = staircase;
     this._staircaseCallbacks["maze"] = this._nextElderDungeon;
-	RPG.Game.pc.mapMemory().updateVisible();
+	RPG.UI.map.redrawVisible(); 
 }
 
 RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {

@@ -217,7 +217,7 @@ RPG.Misc.IProjectile.prototype.showTrajectory = function(source, target) {
 	for (var i=0;i<this._flight.cells.length;i++) {
 		var cell = this._flight.cells[i];
 		
-		if (!pc.canSee(cell.getCoords())) { continue; }
+		if (!pc.canSee(cell)) { continue; }
 		
 		var mark = (i+1 == this._flight.cells.length ? RPG.Misc.IProjectile.endMark : RPG.Misc.IProjectile.mark);
 		RPG.UI.map.addProjectile(cell.getCoords(), mark);

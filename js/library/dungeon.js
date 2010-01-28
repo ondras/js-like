@@ -157,7 +157,7 @@ RPG.Features.Trap.prototype.init = function() {
 }
 
 RPG.Features.Trap.prototype.knowsAbout = function(being) {
-	return being.trapMemory().remembers(this);
+	return being.knowsTrap(this);
 }
 
 RPG.Features.Trap.prototype.entered = function(being) {
@@ -207,7 +207,7 @@ RPG.Features.Trap.Pit.prototype.init = function() {
 }
 
 RPG.Features.Trap.Pit.prototype.setOff = function() {
-	var canSee = RPG.Game.pc.canSee(this._cell.getCoords());
+	var canSee = RPG.Game.pc.canSee(this._cell);
 	var being = this._cell.getBeing();
 
 	if (canSee) {

@@ -222,7 +222,8 @@ RPG.AI.Approach.prototype.init = function(being) {
 RPG.AI.Approach.prototype.go = function() {
 	var being = this._ai.getBeing();
 	var c1 = being.getCell().getCoords();
-	var c2 = this._being.getCell().getCoords();
+	var cell = this._being.getCell();
+	var c2 = cell.getCoords();
 	
 	if (c1.distance(c2) == 1) { return RPG.AI_ALREADY_DONE; } /* we are happy when distance==1 */
 	
@@ -231,7 +232,7 @@ RPG.AI.Approach.prototype.go = function() {
 		this._lastCoords = null;
 	}
 	
-	if (being.canSee(c2)) { /* we can see the victim; record where is it standing */
+	if (being.canSee(cell)) { /* we can see the victim; record where is it standing */
 		this._lastCoords = c2.clone();
 	}
 	
@@ -294,11 +295,12 @@ RPG.AI.Retreat.prototype.go = function() {
 
 	/* get away */
 	var c1 = being.getCell().getCoords();
-	var c2 = this._being.getCell().getCoords();
+	var cell = this._being.getCell();
+	var c2 = cell.getCoords();
 
 	/* FIXME: the logic for stopping teleport spree stinks here */
 	/* we see target - we need and know how to get away */
-	if (being.canSee(c2)) {
+	if (being.canSee(cell)) {
 		/* try to teleport away */
 		if (this._subtasks.teleport.go() == RPG.AI_OK) { return RPG.AI_OK; }
 

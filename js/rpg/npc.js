@@ -101,16 +101,14 @@ RPG.Beings.NPC.prototype.getChat = function() {
 
 RPG.Beings.NPC.prototype.teleport = function(cell) {
 	var pc = RPG.Game.pc;
-	var sc = this._cell.getCoords();
-	var tc = cell.getCoords();
 	
-	if (pc.canSee(sc)) {
+	if (pc.canSee(this._cell)) {
 		var s = RPG.Misc.format("%A suddenly disappears!", this);
 		RPG.UI.buffer.message(s);
 	}
 	
-	if (pc.canSee(tc)) {
-		if (pc.canSee(sc)) {
+	if (pc.canSee(cell)) {
+		if (pc.canSee(this._cell)) {
 			var s = RPG.Misc.format("%The immediately reappears!", this);
 		} else {
 			var s = RPG.Misc.format("%A suddenly appears from nowhere!", this);
@@ -124,8 +122,8 @@ RPG.Beings.NPC.prototype.teleport = function(cell) {
 /**
  * NPCs just cheat. They can see everything in their sight range...
  */
-RPG.Beings.NPC.prototype.canSee = function(target) {
-	return target.distance(this._cell.getCoords()) <= this.getFeat(RPG.FEAT_SIGHT_RANGE);
+RPG.Beings.NPC.prototype.canSee = function(cell) {
+	return cell.getCoords().distance(this._cell.getCoords()) <= this.getFeat(RPG.FEAT_SIGHT_RANGE);
 }
 
 /* ------------------------- ACTIONS -----------------*/
@@ -134,10 +132,9 @@ RPG.Beings.NPC.prototype.move = function(targetCell) {
 	var sourceCell = this._cell;
 
 	var result = this.parent(targetCell);
-	var memory = RPG.Game.pc.mapMemory();
 
-	if (sourceCell) { memory.updateCoords(sourceCell.getCoords()); }
-	if (targetCell) { memory.updateCoords(targetCell.getCoords());  }
+	if (sourceCell) { RPG.UI.map.redrawCell(sourceCell); }
+	if (targetCell) { RPG.UI.map.redrawCell(targetCell); }
 	
 	return result;
 }
