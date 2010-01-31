@@ -1,10 +1,8 @@
 /**
  * @class Base abstract spell
- * @augments RPG.Misc.ISerializable
  * @augments RPG.Misc.IVisual
  */
 RPG.Spells.BaseSpell = OZ.Class()
-						.implement(RPG.Misc.ISerializable)
 						.implement(RPG.Misc.IVisual);
 RPG.Spells.BaseSpell.factory.ignore = true;
 RPG.Spells.BaseSpell.cost = null;
@@ -56,7 +54,7 @@ RPG.Spells.Attack.prototype.init = function(caster) {
  * Explosion
  * @param {RPG.Misc.Coords} center
  * @param {int} radius
- * @param {RPG.Misc.IVisual} explosion effect
+ * @param {bool} ignoreCenter
  */
 RPG.Spells.Attack.prototype.explode = function(center, radius, ignoreCenter) {
 	this._image = this._explosionImage;

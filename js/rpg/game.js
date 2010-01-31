@@ -81,3 +81,19 @@ RPG.Game.setMap = function(map, cell) {
 RPG.Game.getMap = function() {
 	return this._map;
 }
+
+/**
+ * Return a plain JSON content
+ */
+RPG.Game.serialize = function(ser) {
+	return {
+		pc: ser.serialize(this.pc)/*,
+		map: ser.serialize(this._map),
+		story: ser.serialize(this._story),
+		engine: ser.serialize(this._engine)*/
+	};
+}
+
+RPG.Game.parse = function(data, parser) {
+	parser.parse(data.pc, this, "pc");
+}

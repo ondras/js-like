@@ -1,5 +1,5 @@
 /**
- * @class Visual interface: everyting that can be visualized have this
+ * @class Visual interface: everything that can be visualized have this
  */
 RPG.Misc.IVisual = OZ.Class();
 
@@ -58,4 +58,16 @@ RPG.Misc.IVisual.prototype.describeA = function() {
  */
 RPG.Misc.IVisual.prototype.describeThe = function() {
 	return "the " + this.describe();
+}
+
+/**
+ * @class A lightweight visual representation, used for cell memory
+ * @augments RPG.Misc.IVisual
+ */
+RPG.Misc.VisualTrace = OZ.Class().implement(RPG.Misc.IVisual);
+RPG.Misc.VisualTrace.prototype.init = function(what) {
+	this._char = what.getChar();
+	this._image = what.getImage();
+	this._color = what.getColor();
+	this._description = what.describe();
 }

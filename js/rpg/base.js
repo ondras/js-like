@@ -64,12 +64,10 @@ RPG.Feats.AdvancedFeat.prototype._drd = function() {
  * @class Basic item
  * @augments RPG.Misc.IVisual
  * @augments RPG.Misc.IModifier
- * @augments RPG.Misc.ISerializable
  */
 RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Misc.IVisual)
-						.implement(RPG.Misc.IModifier)
-						.implement(RPG.Misc.ISerializable);
+						.implement(RPG.Misc.IModifier);
 RPG.Items.BaseItem.factory.ignore = true;
 RPG.Items.BaseItem.prototype.init = function() {
 	this._initVisuals();
@@ -91,7 +89,7 @@ RPG.Items.BaseItem.prototype.getOwner = function() {
 }
 
 /**
- * @see RPG.Misc.ISerializable#clone
+ * Duplicate this item.
  */
 RPG.Items.BaseItem.prototype.clone = function() {
 	var clone = new this.constructor();
@@ -279,9 +277,8 @@ RPG.Races.BaseRace.prototype.getSlot = function(type) {
 
 /**
  * @class Basic per-turn effect
- * @augments RPG.Misc.ISerializable
  */
-RPG.Effects.BaseEffect = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.Effects.BaseEffect = OZ.Class();
 RPG.Effects.BaseEffect.prototype.init = function(being) {
 	this._being = being;
 }
@@ -301,9 +298,8 @@ RPG.Effects.BaseEffect.prototype.go = function() {
 
 /**
  * @class Body part - place for an item
- * @augments RPG.Misc.ISerializable
  */
-RPG.Slots.BaseSlot = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.Slots.BaseSlot = OZ.Class();
 RPG.Slots.BaseSlot.prototype.init = function(name, allowed) {
 	this._item = null;
 	this._being = null;
@@ -350,9 +346,8 @@ RPG.Slots.BaseSlot.prototype.getName = function() {
 
 /**
  * @class Base profession
- * @augments RPG.Misc.IVisual
  */
-RPG.Professions.BaseProfession = OZ.Class().implement(RPG.Misc.IVisual);
+RPG.Professions.BaseProfession = OZ.Class();
 RPG.Professions.BaseProfession.name = "";
 RPG.Professions.BaseProfession.image = "";
 RPG.Professions.BaseProfession.init = function() {

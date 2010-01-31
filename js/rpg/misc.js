@@ -123,16 +123,23 @@ RPG.Misc.IWeapon.prototype.getDamage = function() {
  * @class Interface for objects which can be cloned and (de)serialized
  */
 RPG.Misc.ISerializable = OZ.Class();
-RPG.Misc.ISerializable.prototype.fromXML = function(node) {
-	return this;
+
+/**
+ * Return a JSON representation of this object
+ * @param {RPG.Serializer} serializer Serialization helper
+ * @returns {object}
+ */
+RPG.Misc.ISerializable.prototype.serialize = function(serializer) {
+	return {};
 }
-RPG.Misc.ISerializable.prototype.toXML = function(node) {
-	return "";
-}
-RPG.Misc.ISerializable.prototype.clone = function() {
-	var clone = new this.constructor();
-	for (var p in this) { clone[p] = this[p]; }
-	return clone;
+
+/**
+ * Create new instance based on saved JSON data.
+ * @param {object} data Serialized data
+ * @param {RPG.Parser} parser Parsing helper
+ */
+RPG.Misc.ISerializable.prototype.parse = function(data, parser) {
+	return null;
 }
 
 /**

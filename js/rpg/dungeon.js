@@ -2,12 +2,10 @@
  * @class Dungeon cell
  * @augments RPG.Misc.IModifier
  * @augments RPG.Misc.IVisual
- * @augments RPG.Misc.ISerializable
  */
 RPG.Cells.BaseCell = OZ.Class()
 						.implement(RPG.Misc.IVisual)
-						.implement(RPG.Misc.IModifier)
-						.implement(RPG.Misc.ISerializable);
+						.implement(RPG.Misc.IModifier);
 RPG.Cells.BaseCell.prototype.init = function() {
 	this._initVisuals();
 	this._items = [];
@@ -48,8 +46,7 @@ RPG.Cells.BaseCell.prototype.setMemoryState = function(state) {
 	/* remembered stack uses clones */
 	if (state == RPG.MAP_REMEMBERED) {
 		for (var i=0;i<arr.length;i++) {
-			arr[i] = arr[i].clone();
-			if (!i) { arr[i].setBeing(null); }
+			arr[i] = new RPG.Misc.VisualTrace(arr[i]);
 		}
 	}
 	
@@ -213,11 +210,9 @@ RPG.Rooms.BaseRoom.prototype.entered = function(being) {
 /**
  * @class Dungeon feature
  * @augments RPG.Misc.IVisual
- * @augments RPG.Misc.ISerializable
  */
 RPG.Features.BaseFeature = OZ.Class()
-							.implement(RPG.Misc.IVisual)
-							.implement(RPG.Misc.ISerializable);
+							.implement(RPG.Misc.IVisual);
 RPG.Features.BaseFeature.prototype.init = function() {
 	this._cell = null;
 	this._initVisuals();
@@ -266,7 +261,6 @@ RPG.Features.BaseFeature.prototype.visibleThrough = function() {
  * @augments RPG.Misc.IModifier
  */
 RPG.Map = OZ.Class()
-			.implement(RPG.Misc.ISerializable)
 			.implement(RPG.Misc.IModifier);
 
 RPG.Map.prototype.init = function(id, size, danger) {
