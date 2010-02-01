@@ -30,12 +30,16 @@ RPG.Misc.RandomValue.prototype.add = function(rv) {
  * @class Coordinates
  */
 RPG.Misc.Coords = OZ.Class();
+RPG.Misc.Coords.fromString = function(str) {
+	var parts = str.split(",");
+	return new this(parseInt(parts[0]), parseInt(parts[1]));
+}
 RPG.Misc.Coords.prototype.init = function(x, y) {
 	this.x = x;
 	this.y = y;
 }
 RPG.Misc.Coords.prototype.toString = function() {
-	return "["+this.x+", "+this.y+"]";
+	return this.x+","+this.y;
 }
 RPG.Misc.Coords.prototype.distance = function(coords) {
 	var dx = Math.abs(this.x - coords.x);
@@ -447,7 +451,7 @@ RPG.Misc.Chat.prototype.defineCallback = function(id, callback) {
  */ 
 RPG.Misc.Factory = OZ.Class();
 RPG.Misc.Factory.prototype.init = function() {
-	this._classList = [];	
+	this._classList = [];
 }
 RPG.Misc.Factory.prototype.add = function(ancestor) {
 	for (var i=0;i<OZ.Class.all.length;i++) {
@@ -510,12 +514,57 @@ RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {
 
 /**
  * @class Speed-based scheduler
+ * @augments RPG.Misc.ISerializable
  */
-RPG.Misc.Scheduler = OZ.Class();
+RPG.Misc.Scheduler = OZ.Class().implement(RPG.Misc.ISerializable);
 RPG.Misc.Scheduler.prototype.init = function() {
 	this._actors = [];
 	this._current = [];
 	this._maxSpeed = 0;
+}
+
+RPG.Misc.Scheduler.prototype.serialize = function(serializer) {
+	var result = {};
+	result.maxSpeed = this._maxSpeed;
+	result.actors = [];
+	result.current = [];
+	
+	for (var i=0;i<this._actors.length;i++) {
+		var item = this._actors[i];
+		result.actors.push({
+			actor: serializer.serialize(item.actor),
+			bucket: item.bucket,
+			speed: item.speed
+		});
+	}
+
+	for (var i=0;i<this._current.length;i++) {
+		var item = this._current[i];
+		result.current.push(this._actors.indexOf(item));
+	}
+	
+	return result;
+}
+
+RPG.Misc.Scheduler.prototype.parse = function(data, parser) {
+	this._maxSpeed = data.maxSpeed;
+	this._actors = [];
+	this._current = [];
+	
+	for (var i=0;i<data.actors.length;i++) {
+		var obj = {};
+		var item = data.actors[i];
+		parser.parse(item.actor, obj, "actor");
+		obj.bucket = item.bucket;
+		obj.speed = item.speed;
+	}
+	
+	for (var i=0;i<data.current.length;i++) {
+		var item = data.current[i];
+		this._current.push(this._actors[item]);
+	}
+	
+	return this;
 }
 
 RPG.Misc.Scheduler.prototype.addActor = function(actor) {

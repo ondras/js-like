@@ -87,13 +87,16 @@ RPG.Game.getMap = function() {
  */
 RPG.Game.serialize = function(ser) {
 	return {
-		pc: ser.serialize(this.pc)/*,
-		map: ser.serialize(this._map),
+		pc: ser.serialize(this.pc),
 		story: ser.serialize(this._story),
-		engine: ser.serialize(this._engine)*/
+		engine: ser.serialize(this._engine),
+		map: ser.serialize(this._map)
 	};
 }
 
 RPG.Game.parse = function(data, parser) {
 	parser.parse(data.pc, this, "pc");
+	parser.parse(data.story, this, "_story");
+	parser.parse(data.engine, this, "_engine");
+	parser.parse(data.map, this, "_map");
 }

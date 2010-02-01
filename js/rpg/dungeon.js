@@ -259,9 +259,11 @@ RPG.Features.BaseFeature.prototype.visibleThrough = function() {
 /**
  * @class Dungeon map
  * @augments RPG.Misc.IModifier
+ * @augments RPG.Misc.ISerializable
  */
 RPG.Map = OZ.Class()
-			.implement(RPG.Misc.IModifier);
+			.implement(RPG.Misc.IModifier)
+			.implement(RPG.Misc.ISerializable);
 
 RPG.Map.prototype.init = function(id, size, danger) {
 	this._modifiers = {};
@@ -273,14 +275,60 @@ RPG.Map.prototype.init = function(id, size, danger) {
 	this._rooms = [];
 	this._danger = danger;
 
-	for (var i=0;i<this._size.x;i++) {
-		var col = [];
-		for (var j=0;j<this._size.y;j++) {
-			col.push(null);
-		}
-		this._data.push(col);
-	}
+	this._blank();
 }
+
+RPG.Map.prototype.serialize = function(serializer) {
+	var result = {
+		modifiers: this._modifiers,
+		id: this._id,
+		welcome: this._welcome,
+		sound: this._sound,
+		size: this._size.toString(),
+		danger: this._danger
+	};
+	
+	result.rooms = [];
+	for (var i=0;i<this._rooms.length;i++) {
+		result.rooms.push(serializer.serialize(this._rooms[i]));
+	}
+	
+	result.cells = [];
+	for (var i=0;i<this._size.x;i++) {
+		for (var j=0;j<this._size.y;j++) {
+			var cell = this._data[i][j];
+			if (cell) { result.cells.push(serializer.serialize(cell)); }
+		}
+	}
+	
+	return result;
+}
+
+RPG.Map.prototype.parse = function(data, parser) {
+	this._rooms = [];
+	this._data = [];
+	this._modifiers = data.modifiers;
+	this._id = data.id;
+	this._welcome = data.welcome;
+	this._sound = data.sound;
+	this._size = RPG.Misc.Coords.fromString(data.size);
+	this._danger = data.danger;
+	
+	for (var i=0;i<data.rooms.length;i++) {
+		var room = data.rooms[i];
+		this._rooms.push(null);
+		parser.parse(room, this._rooms, this._rooms.length-1);
+	}
+	
+	for (var i=0;i<data.cells.length;i++) {
+		var cell = parser.parse(data.cells[i]);
+		var c = cell.getCoords();
+		this._data[c.x][c.y] = cell;
+	}
+	
+	return this;
+}
+
 
 /**
  * This will be used now.
@@ -726,6 +774,16 @@ RPG.Map.prototype.cellsInTwoCorners = function() {
 	}
 
 	return result;
+}
+
+RPG.Map.prototype._blank = function() {
+	for (var i=0;i<this._size.x;i++) {
+		var col = [];
+		for (var j=0;j<this._size.y;j++) {
+			col.push(null);
+		}
+		this._data.push(col);
+	}
 }
 
 RPG.Map.prototype._assignRoom = function(corner1, corner2, room) {

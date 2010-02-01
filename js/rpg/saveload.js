@@ -138,6 +138,7 @@ RPG.Serializer.Stack.prototype.add = function(instance) {
 RPG.Serializer.Stack.prototype.finalize = function() {
 	while (!this.isDone()) {
 		var instance = this._instances[this._data.length];
+		if (!instance.serialize) { throw new Error("Instance '"+instance+"' cannot serialize itself"); }
 		var data = instance.serialize(this._serializer);
 		data["#ctor"] = this._serializer.serializeClass(instance.constructor);
 		this._data.push(data);
@@ -212,7 +213,7 @@ RPG.Parser.prototype.go = function(str) {
 
 /**
  * Parse a previously serialized instance of OZ.Class(); when it becomes available, 
- * set it as a property of a given object.
+ * set it as a property of a given object. If no object+property are passed, parsing is immediate.
  * This method is called by instances during their parsing process.
  * @param {string} what serialized reference to object
  * @param {object} object where to put unserialized instance
@@ -225,8 +226,12 @@ RPG.Parser.prototype.parse = function(what, object, property) {
 	} 
 	
 	if (!(what in this._instances)) { throw new Error("Non-existent instance '"+what+"'"); }
-	var instance = this._instances[what];
 	
+	if (arguments.length == 1) { /* requested immediate parsing */
+		return this._parseInstance(what);
+	}
+	
+	var instance = this._instances[what];
 	if (!(what in this._later)) { this._later[what] = []; }
 	this._later[what].push([object, property]);
 }
@@ -265,6 +270,7 @@ RPG.Parser.prototype._parseInstance = function(id) {
 	tmp.prototype = ctor.prototype;
 	var tmpInstance = new tmp();
 	
+	if (!tmpInstance.parse) { throw new Error("Instance '"+instance+"' cannot parse itself"); }
 	var result = tmpInstance.parse(instance, this);
 	this._done[id] = result;
 	
@@ -274,11 +280,14 @@ RPG.Parser.prototype._parseInstance = function(id) {
 			var item = arr[i];
 			item[0][item[1]] = result;
 		}
+		delete this._later[id];
 	}
+	return result;
 }
 
 
 function test2() {
+/*
 	RPG.Beings.PC.prototype.serialize = function(serializer) { 
 		return {
 			name:"PC jak cyp", 
@@ -290,7 +299,7 @@ function test2() {
 		parser.parse(data.wut, obj, "wut");
 		return obj;
 	}
-
+*/
 	var ser = new RPG.Serializer();
 	var str = ser.go();
 
