@@ -11,6 +11,19 @@ RPG.Beings.NPC.prototype.init = function(race) {
 	this._alignment = RPG.ALIGNMENT_NEUTRAL;
 }
 
+RPG.Beings.NPC.prototype.serialize = function(serializer) {
+	var result = this.parent(serializer);
+	result.ai = serializer.serialize(this._ai);
+	result.alignment = this._alignment;
+	return result;
+}
+
+RPG.Beings.NPC.prototype.parse = function(data, parser) {
+	this.parent(data, parser);
+	parser.parse(data.ai, this, "_ai");
+	this._alignment = data.alignment;
+}
+
 RPG.Beings.NPC.prototype.ai = function() {
 	return this._ai;
 }

@@ -3,15 +3,26 @@
  * @augments RPG.Effects.BaseEffect
  */
 RPG.Effects.TurnCounter = OZ.Class().extend(RPG.Effects.BaseEffect);
-RPG.Effects.TurnCounter.prototype.init = function() {
-	this.parent();
+RPG.Effects.TurnCounter.prototype.init = function(being) {
+	this.parent(being);
 	this._turns = 0;
+}
+
+RPG.Effects.TurnCounter.prototype.serialize = function(serializer) {
+	var result = this.parent(serializer);
+	result.turns = this._turns;
+	return result;
+}
+
+RPG.Effects.TurnCounter.prototype.parse = function(data, parser) {
+	this._turns = data.turns;
 }
 
 RPG.Effects.TurnCounter.prototype.go = function() {
 	this._turns++;
 	RPG.UI.status.updateRounds(this._turns); 
 }
+
 
 /**
  * @class HP Regen

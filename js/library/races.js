@@ -6,6 +6,7 @@ RPG.Races.Humanoid = OZ.Class().extend(RPG.Races.BaseRace);
 RPG.Races.Humanoid.prototype.init = function() {
 	this.parent();
 	
+	this._char = "@";
 	this._defaults[RPG.FEAT_SPEED] = 100;
 	this._defaults[RPG.FEAT_MAX_HP] = 5;
 	this._defaults[RPG.FEAT_DV] = 0;

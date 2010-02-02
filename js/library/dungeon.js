@@ -62,6 +62,17 @@ RPG.Cells.Wall.Fake.prototype.init = function(cell) {
 	this._cell = cell;
 }
 
+RPG.Cells.Wall.Fake.prototype.serialize = function(serializer) {
+	var result = this.parent(serializer);
+	result.cell = serializer.serialize(this._cell);
+	return result;
+}
+
+RPG.Cells.Wall.Fake.prototype.revive = function(data, parser) {
+	var cell = parser.parse(data.cell);
+	return new this.constructor(cell);
+}
+
 RPG.Cells.Wall.Fake.prototype.getRealCell = function() {
 	return this._cell;
 }
@@ -92,6 +103,27 @@ RPG.Features.Door.prototype.init = function() {
 	this._locked = null;
 	this._color = "sienna";
 	this.open();
+}
+
+RPG.Features.Door.prototype.serialize = function(serializer) {
+	var result = this.parent(serializer);
+	result.hp = this._hp;
+	result.closed = this._closed;
+	result.locked = this._locked;
+	result.description = this._description;
+	result.image = this._image;
+	result.ch = this._char;
+	return result;
+}
+
+RPG.Features.Door.prototype.parse = function(data, parser) {
+	this.parent(data, parser);
+	this._hp = data.hp;
+	this._closed = data.closed;
+	this._locked = data.locked;
+	this._char = data.ch;
+	this._image = data.image;
+	this._description = data.description;
 }
 
 RPG.Features.Door.prototype.lock = function() {
@@ -238,6 +270,17 @@ RPG.Features.Staircase.prototype.init = function() {
 	this._target = null;
 }
 
+RPG.Features.Staircase.prototype.serialize = function(serializer) {
+	var result = this.parent(serializer);
+	result.target = (this._target ? serializer.serialize(this._target) : null);
+	return result;
+}
+
+RPG.Features.Staircase.prototype.parse = function(data, parser) {
+	this.parent(data, parser);
+	if (data.target) { parser.parse(data.target, this, "_target"); }
+}
+
 RPG.Features.Staircase.prototype.enter = function(being) {
 	var cell = this.getTarget();
 
@@ -259,7 +302,7 @@ RPG.Features.Staircase.prototype.setTarget = function(cell) {
  */
 RPG.Features.Staircase.prototype.getTarget = function() {
 	if (!this._target) { 
-		this._target = RPG.Game.getStory().generateStaircase(this);
+		this._target = RPG.Game.getStory().staircaseCallback(this);
 	}
 	return this._target;
 }

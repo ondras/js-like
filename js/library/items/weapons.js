@@ -318,4 +318,3 @@ RPG.Items.ShortBow.prototype.init = function() {
 	this._image = "short-bow"; 
 }
 
-

@@ -20,6 +20,19 @@ RPG.AI.WanderInArea.prototype.init = function(corner1, corner2) {
 	this._corner2 = corner2.clone();
 }
 
+RPG.AI.WanderInArea.prototype.serialize = function(serializer) {
+	var result = this.parent(serializer);
+	result.corner1 = this._corner1.toString();
+	result.corner2 = this._corner2.toString();
+	return result;
+}
+
+RPG.AI.WanderInArea.prototype.revive = function(data, parser) {
+	var c1 = RPG.Misc.Coords.fromString(data.corner1);
+	var c2 = RPG.Misc.Coords.fromString(data.corner2);
+	return new this.constructor(c1, c2);
+}
+
 RPG.AI.WanderInArea.prototype.go = function() {
 	var being = this._ai.getBeing();
 	var cell = being.getCell();

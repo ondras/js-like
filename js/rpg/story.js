@@ -1,13 +1,42 @@
 /**
  * @class Story class
+ * @augments RPG.Misc.ISerializable
  */
-RPG.Story = OZ.Class();
+RPG.Story = OZ.Class().implement(RPG.Misc.ISerializable);
 
 RPG.Story.prototype.init = function() {
 	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
 	
 	this._staircases = {};
 	this._staircaseCallbacks = {};
+	this._quests = {};
+	this._questCallbacks = {};
+}
+
+RPG.Story.prototype.serialize = function(serializer) {
+	var result = {
+		staircases: {},
+		quests: {}
+	};
+	
+	for (var p in this._staircases) {
+		result.staircases[p] = serializer.serialize(this._staircases[p]);
+	}
+
+	for (var p in this._quests) {
+		result.quests[p] = serializer.serialize(this._quests[p]);
+	}
+
+	return result;
+}
+
+RPG.Story.prototype.parse = function(data, parser) {
+	for (var p in data.staircases) {
+		parser.parse(data.staircases[p], this._staircases, p);
+	}
+	for (var p in data.quests) {
+		parser.parse(data.quests[p], this._quests, p);
+	}
 }
 
 /**
@@ -60,12 +89,23 @@ RPG.Story.prototype.end = function() {
 /**
  * Create endpoint for this staircase
  */
-RPG.Story.prototype.generateStaircase = function(staircase) {
+RPG.Story.prototype.staircaseCallback = function(staircase) {
 	for (var p in this._staircases) {
 		if (this._staircases[p] == staircase) { return this._staircaseCallbacks[p].call(this, staircase); }
 	}
 	return null;
 }
+
+/**
+ * Quest requires attention
+ */
+RPG.Story.prototype.questCallback = function(quest) {
+	for (var p in this._quests) {
+		if (this._quests[p] == quest) { return this._questCallbacks[p].call(this, quest); }
+	}
+	return null;
+}
+
 
 /**
  * User picked his character, create it and launch

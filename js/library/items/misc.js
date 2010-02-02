@@ -35,6 +35,25 @@ RPG.Items.Corpse.prototype.setBeing = function(being) {
 	return this;
 }
 
+RPG.Items.Corpse.prototype.serialize = function(serializer) {
+	var result = this.parent();
+	if (this._being) {
+		result.being = serializer.serialize(this._being);
+		result.color = this._color;
+		result.decription = this._description;
+	}
+	return result;
+}
+
+RPG.Items.Corpse.prototype.parse = function(data, parser) {
+	this.parent(data, parser);
+	if (data.being) {
+		this._color = data.color;
+		this._description = data.description;
+		parser.parse(data.being, this, "_being");
+	}
+}
+
 RPG.Items.Corpse.prototype.getBeing = function() {
 	return this._being;
 }
@@ -263,6 +282,7 @@ RPG.Items.RingOfAttribute.factory.method = function(danger) {
 	var amount = 1 + (danger/8);
 	return new this(att, amount);
 }
+
 RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 	this.parent();
 	
@@ -274,6 +294,17 @@ RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 	this._color = "silver";
 	this._description = "ring of " + RPG.Feats[attribute].name;
 	this._descriptionPlural = "rings of " + RPG.Feats[attribute].name;
+}
+
+RPG.Items.RingOfAttribute.prototype.serialize = function(serializer) {
+	var result = this.parent();
+	result.attribute = this._attribute;
+	return result;
+}
+
+RPG.Items.RingOfAttribute.prototype.revive = function(data, parser) {
+	var attribute = data.attribute;
+	return new this.constructor(attribute, 0);
 }
 
 RPG.Items.RingOfAttribute.prototype.clone = function() {
@@ -309,6 +340,16 @@ RPG.Items.Scroll.prototype.init = function(spell) {
 	this._color = "#fff";
 	this._image = "scroll";
 	this._description = "scroll of " + spell.name.capitalize();
+}
+
+RPG.Items.Scroll.prototype.serialize = function(serializer) {
+	var result = this.parent(serializer);
+	result.spell = serializer.serializeClass(this._spell);
+	return result;
+}
+
+RPG.Items.Scroll.prototype.revive = function(data, parser) {
+	return new this.constructor(data.spell);
 }
 
 RPG.Items.Scroll.prototype.clone = function() {

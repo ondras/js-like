@@ -65,9 +65,28 @@ RPG.Misc.IVisual.prototype.describeThe = function() {
  * @augments RPG.Misc.IVisual
  */
 RPG.Misc.VisualTrace = OZ.Class().implement(RPG.Misc.IVisual);
+RPG.Misc.VisualTrace.fromJSON = function(obj) {
+	var tmp = function(){};
+	tmp.prototype = this.prototype;
+	var inst = new tmp();
+	inst._char = obj.ch;
+	inst._image = obj.image;
+	inst._color = obj.color;
+	inst._description = obj.description;
+	return inst;
+}
 RPG.Misc.VisualTrace.prototype.init = function(what) {
 	this._char = what.getChar();
 	this._image = what.getImage();
 	this._color = what.getColor();
 	this._description = what.describe();
+}
+
+RPG.Misc.VisualTrace.prototype.toJSON = function(serializer) {
+	return {
+		ch: this._char,
+		image: this._image,
+		color: this._color,
+		description: this._description
+	}
 }

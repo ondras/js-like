@@ -138,12 +138,21 @@ RPG.Misc.ISerializable.prototype.serialize = function(serializer) {
 }
 
 /**
- * Create new instance based on saved JSON data.
+ * Create instance based on saved data. This will be further populated by calling .parse().
+ * @param {object} data Serialized data
+ * @param {RPG.Parser} parser Parsing helper
+ */
+RPG.Misc.ISerializable.prototype.revive = function(data, parser) {
+	return new this.constructor();
+}
+
+/**
+ * Parse instance data based on saved JSON.
  * @param {object} data Serialized data
  * @param {RPG.Parser} parser Parsing helper
  */
 RPG.Misc.ISerializable.prototype.parse = function(data, parser) {
-	return null;
+	return this;
 }
 
 /**
@@ -557,14 +566,13 @@ RPG.Misc.Scheduler.prototype.parse = function(data, parser) {
 		parser.parse(item.actor, obj, "actor");
 		obj.bucket = item.bucket;
 		obj.speed = item.speed;
+		this._actors.push(obj);
 	}
 	
 	for (var i=0;i<data.current.length;i++) {
 		var item = data.current[i];
 		this._current.push(this._actors[item]);
 	}
-	
-	return this;
 }
 
 RPG.Misc.Scheduler.prototype.addActor = function(actor) {

@@ -19,14 +19,11 @@ RPG.Engine.prototype.serialize = function(serializer) {
 }
 
 RPG.Engine.prototype.parse = function(data, parser) {
-	var result = new this.constructor();
-	result._actionResult = RPG.ACTION_NO_TIME;
-	result._lock = 1;
+	this._actionResult = RPG.ACTION_NO_TIME;
+	this._lock = 1;
 	
-	parser.parse(data.actor, result, "_actor");
-	parser.parse(data.scheduler, result, "_scheduler");
-	
-	return result;
+	parser.parse(data.actor, this, "_actor");
+	parser.parse(data.scheduler, this, "_scheduler");
 }
 
 /**

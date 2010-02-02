@@ -350,7 +350,7 @@ RPG.Beings.VillageElder.prototype.init = function() {
 }
 
 /**
- * @class Wedding necklace FIXME
+ * @class Wedding necklace
  * @augments RPG.Items.Necklace
  */
 RPG.Items.WeddingNecklace = OZ.Class().extend(RPG.Items.Necklace);
@@ -367,10 +367,9 @@ RPG.Items.WeddingNecklace.prototype.init = function() {
  */
 RPG.Quests.ElderEnemy = OZ.Class().extend(RPG.Quests.Kill);
 
-RPG.Quests.ElderEnemy.prototype.init = function(giver, being, givenCallback) {
+RPG.Quests.ElderEnemy.prototype.init = function(giver, being) {
 	var chat = new RPG.Misc.Chat(this);
 	giver.setChat(chat);
-	this._givenCallback = givenCallback;
 	
 	var GIVING = 0;
 	
@@ -418,8 +417,8 @@ RPG.Quests.ElderEnemy.prototype.init = function(giver, being, givenCallback) {
 
 RPG.Quests.ElderEnemy.prototype.setPhase = function(phase) {
 	this.parent(phase);
+	if (phase == RPG.QUEST_GIVEN) { RPG.Game.getStory().questCallback(this); }
 	if (phase == RPG.QUEST_DONE) { this._chat.setState(RPG.QUEST_DONE); }
-	if (phase == RPG.QUEST_GIVEN) { this._givenCallback(); }
 }
 
 RPG.Quests.ElderEnemy.prototype.reward = function() {
@@ -432,8 +431,7 @@ RPG.Quests.ElderEnemy.prototype.reward = function() {
  * @augments RPG.Quests.Retrieve
  */
 RPG.Quests.LostNecklace = OZ.Class().extend(RPG.Quests.Retrieve);
-RPG.Quests.LostNecklace.prototype.init = function(giver, item, givenCallback) {
-	this._givenCallback = givenCallback;
+RPG.Quests.LostNecklace.prototype.init = function(giver, item) {
 	this._reward = null;
 	
 	var chat = new RPG.Misc.Chat(this);
@@ -497,7 +495,7 @@ RPG.Quests.LostNecklace.prototype.init = function(giver, item, givenCallback) {
 
 RPG.Quests.LostNecklace.prototype.setPhase = function(phase) {
 	this.parent(phase);
-	if (phase == RPG.QUEST_GIVEN) { this._givenCallback(); }
+	if (phase == RPG.QUEST_GIVEN) { RPG.Game.getStory().questCallback(this); }
 	if (phase == RPG.QUEST_DONE) { this._chat.setState(RPG.QUEST_DONE); }
 }
 
@@ -520,18 +518,62 @@ RPG.Story.Village.prototype.init = function() {
 	
 	this._maxElderDepth = 5;
 	this._elderDepth = 0;
+	this._elderMaps = [];
 	this._maxMazeDepth = 3;
 	this._mazeDepth = 0;
+	this._mazeMaps = [];
 	
 	this._boss = null;
 	this._village = null;
 	this._necklace = new RPG.Items.WeddingNecklace();
 	
+	this._staircaseCallbacks["end"] = this.end;
+    this._staircaseCallbacks["elder"] = this._nextElderDungeon;
+    this._staircaseCallbacks["maze"] = this._nextElderDungeon;
+    this._questCallbacks["elder"] = this._showElderStaircase;
+    this._questCallbacks["maze"] = this._showMazeStaircase;
+
 	this._digger = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
 	this._maze1 = new RPG.Generators.DividedMaze(new RPG.Misc.Coords(59, 19));
 	this._maze2 = new RPG.Generators.IceyMaze(new RPG.Misc.Coords(59, 19), null, 10);
 	this._maze3 = new RPG.Generators.Maze(new RPG.Misc.Coords(59, 19));
 }
+
+RPG.Story.Village.prototype.serialize = function(serializer) {
+	var result = this.parent(serializer);
+	result.elderMaps = [];
+	for (var i=0;i<this._elderMaps.length;i++) {
+		result.elderMaps.push(serializer.serialize(this._elderMaps[i]));
+	}
+
+	result.mazeMaps = [];
+	for (var i=0;i<this._mazeMaps.length;i++) {
+		result.mazeMaps.push(serializer.serialize(this._mazeMaps[i]));
+	}
+	
+	if (this._boss) { result.boss = serializer.serialize(this._boss); }
+	if (this._village) { result.village = serializer.serialize(this._village); }
+	if (this._necklace) { result.necklace = serializer.serialize(this._necklace); }
+
+	return result;
+}
+
+RPG.Story.Village.prototype.parse = function(data, parser) {
+	this.parent(data, parser);
+	for (var i=0;i<data.elderMaps.length;i++) {
+		this._elderMaps.push(null);
+		parser.parse(data.elderMaps[i], this._elderMaps, this._elderMaps.length-1);
+	}
+	for (var i=0;i<data.mazeMaps.length;i++) {
+		this._mazeMaps.push(null);
+		parser.parse(data.mazeMaps[i], this._mazeMaps, this._mazeMaps.length-1);
+	}
+	
+	if (data.boss) { parser.parse(data.boss, this, "_boss"); }
+	if (data.village) { parser.parse(data.village, this, "_village"); }
+	if (data.necklace) { parser.parse(data.necklace, this, "_necklace"); }
+}
+
 
 RPG.Story.Village.prototype._createPC = function(race, profession, name) {
 	var pc = this.parent(race, profession, name);
@@ -550,14 +592,13 @@ RPG.Story.Village.prototype._villageMap = function() {
 	var map = new RPG.Map.Village();
 	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
 	this._staircases["end"] = up;
-	this._staircaseCallbacks["end"] = this.end;
 
 	this._boss = new RPG.Beings.Troll().setName("Chleba");
 	var elder = map.getElder();
-	new RPG.Quests.ElderEnemy(elder, this._boss, this._showElderStaircase.bind(this));
+	this._quests["elder"] = new RPG.Quests.ElderEnemy(elder, this._boss);
 
 	var healer = map.getHealer();
-	new RPG.Quests.LostNecklace(healer, this._necklace, this._showMazeStaircase.bind(this));
+	this._quests["maze"] = new RPG.Quests.LostNecklace(healer, this._necklace);
 
 	return map;
 }
@@ -566,7 +607,6 @@ RPG.Story.Village.prototype._showElderStaircase = function() {
     var staircase = new RPG.Features.Staircase.Down();
     this._village.at(new RPG.Misc.Coords(32, 14)).setFeature(staircase);
     this._staircases["elder"] = staircase;
-    this._staircaseCallbacks["elder"] = this._nextElderDungeon;
 	RPG.UI.map.redrawVisible(); 
 }
 
@@ -574,7 +614,6 @@ RPG.Story.Village.prototype._showMazeStaircase = function() {
     var staircase = new RPG.Features.Staircase.Down();
     this._village.at(new RPG.Misc.Coords(1, 1)).setFeature(staircase);
     this._staircases["maze"] = staircase;
-    this._staircaseCallbacks["maze"] = this._nextElderDungeon;
 	RPG.UI.map.redrawVisible(); 
 }
 
@@ -587,6 +626,7 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 		map = this._digger.generate("Dungeon #" + this._elderDepth, this._elderDepth);
 		rooms = map.getRooms();
 	} while (rooms.length < 3);
+	this._elderMaps.push(map);
 	
 	if (this._elderDepth == 1) { map.setSound("doom"); }
 
@@ -660,6 +700,7 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 
 	var generator = this["_maze" + this._mazeDepth];
 	map = generator.generate("Maze #" + this._mazeDepth, this._mazeDepth);
+	this._mazeMaps.push(map);
 	if (this._mazeDepth == 1) { map.setSound("neverhood"); } /* FIXME */
 
 	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);

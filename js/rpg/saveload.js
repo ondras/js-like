@@ -22,13 +22,11 @@ RPG.Serializer.prototype.go = function() {
 	this._stacks.push(new RPG.Serializer.Stack(this, RPG.Items.BaseItem));
 	this._stacks.push(new RPG.Serializer.Stack(this, RPG.Cells.BaseCell));
 	this._stacks.push(new RPG.Serializer.Stack(this, RPG.Map));
-	this._defaultStack = new RPG.Serializer.Stack(this);
+	this._stacks.push(new RPG.Serializer.Stack(this));
 
 	var result = {};
 	result.classes = classNames;
 	result.game = RPG.Game.serialize(this);
-	
-	this._stacks.push(this._defaultStack);
 
 	do {
 		var ok = true;
@@ -46,7 +44,7 @@ RPG.Serializer.prototype.go = function() {
 		result[stack.getId()] = stack.getData();
 	}
 
-	return JSON.stringify(result);
+	return JSON.stringify(result, null, "  ");
 }
 
 /**
@@ -65,8 +63,14 @@ RPG.Serializer.prototype.serialize = function(instance) {
 		var stack = this._stacks[i];
 		if (stack.accepts(instance)) { return stack.add(instance); }
 	}
-	
-	return this._defaultStack.add(instance);
+}
+
+RPG.Serializer.prototype.serializeArray = function(arr) {
+	var result = [];
+	for (var i=0;i<arr.length;i++) {
+		result.push(this.serialize(arr[i]));
+	}
+	return result;
 }
 
 /**
@@ -100,7 +104,7 @@ RPG.Serializer.prototype._scanClasses = function(root, path, result, resultNames
 RPG.Serializer.Stack = OZ.Class();
 RPG.Serializer.Stack.prototype.init = function(serializer, ctor) {
 	this._serializer = serializer;
-	this._ctor = ctor;
+	this._ctor = ctor || null;
 	this._data = [];
 	this._instances = [];
 	this._index = (ctor ? serializer.serializeClass(ctor) : "");
@@ -117,6 +121,7 @@ RPG.Serializer.Stack.prototype.getId = function() {
  * Does this stack accept an instance?
  */
 RPG.Serializer.Stack.prototype.accepts = function(instance) {
+	if (!this._ctor) { return true; }
 	return (instance instanceof this._ctor);
 }
 
@@ -124,6 +129,7 @@ RPG.Serializer.Stack.prototype.accepts = function(instance) {
  * Add an instance to stack
  */
 RPG.Serializer.Stack.prototype.add = function(instance) {
+	if (!instance) { debugger; }
 	var index = this._instances.indexOf(instance);
 	if (index == -1) {
 		index = this._instances.length;
@@ -140,7 +146,7 @@ RPG.Serializer.Stack.prototype.finalize = function() {
 		var instance = this._instances[this._data.length];
 		if (!instance.serialize) { throw new Error("Instance '"+instance+"' cannot serialize itself"); }
 		var data = instance.serialize(this._serializer);
-		data["#ctor"] = this._serializer.serializeClass(instance.constructor);
+		data["#c"] = this._serializer.serializeClass(instance.constructor);
 		this._data.push(data);
 	}
 }
@@ -221,10 +227,12 @@ RPG.Parser.prototype.go = function(str) {
  */
 RPG.Parser.prototype.parse = function(what, object, property) {
 	if (what in this._done) { /* already parsed */
-		object[property] = this._done[what];
+		var obj = this._done[what];
+		if (arguments.length == 1) { return obj; }
+		object[property] = obj;
 		return; 
 	} 
-	
+
 	if (!(what in this._instances)) { throw new Error("Non-existent instance '"+what+"'"); }
 	
 	if (arguments.length == 1) { /* requested immediate parsing */
@@ -263,17 +271,22 @@ RPG.Parser.prototype._nameToClass = function(str) {
  */
 RPG.Parser.prototype._parseInstance = function(id) {
 	var instance = this._instances[id];
-	var classIndex = instance["#ctor"];
+	var classIndex = instance["#c"];
 	var ctor = this.parseClass(classIndex);
 	if (!ctor) { throw new Error("No class available for '"+id+"'"); }
 	var tmp = function(){};
 	tmp.prototype = ctor.prototype;
 	var tmpInstance = new tmp();
+	tmpInstance.constructor = ctor;
 	
-	if (!tmpInstance.parse) { throw new Error("Instance '"+instance+"' cannot parse itself"); }
-	var result = tmpInstance.parse(instance, this);
+	if (!tmpInstance.revive) { throw new Error("Instance '"+instance+"' cannot revive itself"); }
+	var result = tmpInstance.revive(instance, this);
+	
 	this._done[id] = result;
-	
+
+	if (!result.parse) { throw new Error("Instance '"+instance+"' cannot parse itself"); }
+	result.parse(instance, this);
+
 	if (id in this._later) {
 		var arr = this._later[id];
 		for (var i=0;i<arr.length;i++) {
@@ -287,22 +300,14 @@ RPG.Parser.prototype._parseInstance = function(id) {
 
 
 function test2() {
-/*
-	RPG.Beings.PC.prototype.serialize = function(serializer) { 
-		return {
-			name:"PC jak cyp", 
-			wut:serializer.serialize(this)
-		}; 
-	}
-	RPG.Beings.PC.prototype.parse = function(data, parser) { 
-		var obj = {pica:"parek"};
-		parser.parse(data.wut, obj, "wut");
-		return obj;
-	}
-*/
 	var ser = new RPG.Serializer();
 	var str = ser.go();
+	return str;
+}
 
+function test3() {
+	var ser = new RPG.Serializer();
+	var str = ser.go();
 	var par = new RPG.Parser();
 	par.go(str);
 }
