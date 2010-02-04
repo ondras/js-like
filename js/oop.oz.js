@@ -1,6 +1,5 @@
 OZ.Class = function() { 
 	var c = function() {
-		this.constructor = arguments.callee;
 		var init = arguments.callee.prototype.init;
 		if (init) { init.apply(this,arguments); }
 	};
@@ -34,9 +33,10 @@ OZ.Class = function() {
 		tmp.prototype = parent.prototype;
 		this.prototype = new tmp();
 		this._extend = parent;
+		this.prototype.constructor = this;
 		for (var p in parent.prototype) {
 			var val = parent.prototype[p];
-			if (typeof(val) == "function" && !val.owner) { val.owner = parent; }
+			if (p != "constructor" && typeof(val) == "function" && !val.owner) { val.owner = parent; }
 		}
 		return this;
 	};

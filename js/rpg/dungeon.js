@@ -24,6 +24,13 @@ RPG.Cells.BaseCell.prototype.init = function() {
 	}
 }
 
+RPG.Cells.BaseCell.prototype.customSerialize = function(serializer) {
+	var options = {
+		exclude: ["_image", "_char", "_description", "_color"]
+	}
+	return serializer.serialize(this, options);
+}
+
 RPG.Cells.BaseCell.prototype.serialize = function(serializer) {
 	var result = {};
 	if (this._coords) { result.coords = this._coords.toString(); }
@@ -313,6 +320,7 @@ RPG.Features.BaseFeature.prototype.init = function() {
 	this._initVisuals();
 	this._type = RPG.BLOCKS_NOTHING;
 }
+
 
 RPG.Features.BaseFeature.prototype.serialize = function(serializer) {
 	var result = {

@@ -71,7 +71,7 @@ RPG.Feats.AdvancedFeat.prototype.getModifier = function(feat) {
 }
 
 RPG.Feats.AdvancedFeat.prototype._drd = function() {
-	return [-11*10/21, 10/21];
+	return [(-11*10/21).round(3), (10/21).round(3)];
 }
 
 /**

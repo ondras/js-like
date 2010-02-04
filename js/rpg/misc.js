@@ -34,13 +34,20 @@ RPG.Misc.Coords.fromString = function(str) {
 	var parts = str.split(",");
 	return new this(parseInt(parts[0]), parseInt(parts[1]));
 }
+
 RPG.Misc.Coords.prototype.init = function(x, y) {
 	this.x = x;
 	this.y = y;
 }
+
 RPG.Misc.Coords.prototype.toString = function() {
 	return this.x+","+this.y;
 }
+
+RPG.Misc.Coords.prototype.serializeToString = function() {
+	return this.x+","+this.y;
+}
+
 RPG.Misc.Coords.prototype.distance = function(coords) {
 	var dx = Math.abs(this.x - coords.x);
 	var dy = Math.abs(this.y - coords.y);

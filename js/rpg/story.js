@@ -122,6 +122,7 @@ RPG.Story.prototype._charPicked = function(e) {
 	RPG.UI.build();
 	
 	var pc = this._createPC(race, profession, this._name.value);
+	this._name = null;
 	OZ.Event.add(pc, "death", this.bind(this._death));
 
 	var map = this._firstMap();

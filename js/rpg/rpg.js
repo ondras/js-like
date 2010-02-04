@@ -271,3 +271,8 @@ Array.prototype.transpose = function() {
 	}
 	return arr;
 }
+
+Number.prototype.round = function(amount) {
+	var mult = Math.pow(10, amount);
+	return Math.round(this*mult)/mult;
+}
