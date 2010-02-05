@@ -1,6 +1,6 @@
 RPG.LZW = OZ.Class();
 
-RPG.LZW.test = function() {
+RPG.LZW.test = function(data) {
 	var lzw = new this();
 	var data = test2();
 
@@ -9,10 +9,16 @@ RPG.LZW.test = function() {
 	console.profileEnd("encode");
 
 	console.log("Encoded to "+arr.length+" bytes");
+	window.arr = arr;
 
 	console.profile("decode");
-	lzw.decode(arr);
+	var result = lzw.decode(arr);
 	console.profileEnd("decode");
+	return result;
+}
+
+RPG.LZW.prototype.init = function() {
+	this._maxBits = 16;
 }
 
 /**
@@ -23,11 +29,12 @@ RPG.LZW.prototype.encode = function(data) {
 	if (data.charCodeAt(0) > 255) { throw new Error("Code @ 0 > 255"); }
 	
 	var output = new this.constructor.Stream();
-	output.setBitsPerCode(8);
+	var bpc = 8;
+	output.setBitsPerCode(bpc);
 	
 	var dict = {};
-	var code = 256;
-	var codeLimit = code;
+	var code = (1 << bpc)-1;
+	var codeLimit = 1 << bpc;
 	
 	var phrase = data.charAt(0);
 	
@@ -42,14 +49,15 @@ RPG.LZW.prototype.encode = function(data) {
 		}
 		
 		output.addCode(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
-		dict[phrase+ch] = code;
-		
-		if (code == codeLimit) {
-			codeLimit *= 2;
-			output.setBitsPerCode(output.getBitsPerCode() + 1);
-		}
 		
 		code++;
+		if (code == codeLimit) {
+			codeLimit *= 2;
+			bpc++;
+			if (bpc <= this._maxBits) { output.setBitsPerCode(bpc); }
+		}
+
+		if (bpc <= this._maxBits) { dict[phrase+ch] = code; }
 		phrase = ch;
 	}
 	
@@ -64,17 +72,16 @@ RPG.LZW.prototype.encode = function(data) {
 RPG.LZW.prototype.decode = function(data) {
 	if (!data.length) { return ""; }
 	var dict = {};
-	var code = 256;
+	var bpc = 8;
+	var code = 1 << bpc;
 	var codeLimit = code;
 
 	var input = new this.constructor.Stream(data);
-	input.setBitsPerCode(8);
+	input.setBitsPerCode(bpc);
 
 	var currChar = String.fromCharCode(input.getCode());
-//	input.setBitsPerCode(9);
 	var oldPhrase = currChar;
 	var out = [currChar];
-	
 	
 	var phrase;
 	var currCode;
@@ -82,7 +89,8 @@ RPG.LZW.prototype.decode = function(data) {
 	while (1) {
 		if (code == codeLimit) {
 			codeLimit *= 2;
-			input.setBitsPerCode(input.getBitsPerCode() + 1);
+			bpc++;
+			if (bpc <= this._maxBits) { input.setBitsPerCode(bpc); }
 		}
 
 		currCode = input.getCode();
@@ -94,10 +102,12 @@ RPG.LZW.prototype.decode = function(data) {
 		}
 		out.push(phrase);
 		currChar = phrase.charAt(0);
-		dict[code] = oldPhrase + currChar;
 		
-		
-		code++;
+		if (bpc <= this._maxBits) { 
+			dict[code] = oldPhrase + currChar; 
+			code++;
+		}
+	
 		oldPhrase = phrase;
 	}
 
