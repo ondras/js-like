@@ -23,14 +23,14 @@ RPG.Cells.BaseCell.prototype.init = function() {
 		data: []
 	}
 }
-
+/*
 RPG.Cells.BaseCell.prototype.customSerialize = function(serializer) {
 	var options = {
 		exclude: ["_image", "_char", "_description", "_color"]
 	}
 	return serializer.serialize(this, options);
 }
-
+*/
 RPG.Cells.BaseCell.prototype.serialize = function(serializer) {
 	var result = {};
 	if (this._coords) { result.coords = this._coords.toString(); }

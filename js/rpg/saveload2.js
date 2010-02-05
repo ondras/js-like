@@ -112,8 +112,8 @@ RPG.Serializer.prototype._serializeObject = function(obj, options) {
 		if (typeof(value) == "undefined") { continue; }
 		if (typeof(value) == "function" && !value.extend) {
 			if (obj.hasOwnProperty(p)) {
-				console.warn("Unknown function (property '"+p+"') encountered - we cannot serialize this");
-				console.log(value);
+//				console.warn("Unknown function (property '"+p+"') encountered - we cannot serialize this");
+//				console.log(value);
 			}
 			continue;
 		} 
