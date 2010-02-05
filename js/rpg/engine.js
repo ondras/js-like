@@ -1,29 +1,13 @@
 /**
  * @class Game engine
- * @augments RPG.Misc.ISerializable
  */
-RPG.Engine = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.Engine = OZ.Class();
 
 RPG.Engine.prototype.init = function() {
 	this._actor = null; /* current actor */
 	this._actionResult = RPG.ACTION_TIME; /* result of current action */
 	this._lock = 1; /* lock level */
 	this._scheduler = new RPG.Misc.Scheduler();
-}
-
-RPG.Engine.prototype.serialize = function(serializer) {
-	var result = {};
-	result.actor = serializer.serialize(this._actor);
-	result.scheduler = serializer.serialize(this._scheduler);
-	return result;
-}
-
-RPG.Engine.prototype.parse = function(data, parser) {
-	this._actionResult = RPG.ACTION_NO_TIME;
-	this._lock = 1;
-	
-	parser.parse(data.actor, this, "_actor");
-	parser.parse(data.scheduler, this, "_scheduler");
 }
 
 /**

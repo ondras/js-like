@@ -2,7 +2,10 @@ RPG.LZW = OZ.Class();
 
 RPG.LZW.test = function(data) {
 	var lzw = new this();
+
+	console.profile("serialize");
 	var data = test2();
+	console.profileEnd("serialize");
 
 	console.profile("encode");
 	var arr = lzw.encode(data);
@@ -154,7 +157,6 @@ RPG.LZW.Stream.prototype.getBitsPerCode = function() {
 
 RPG.LZW.Stream.prototype.setBitsPerCode = function(bpc) {
 	this._bpc = bpc;
-	console.log("BPC: "+bpc);
 	return this;
 }
 

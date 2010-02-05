@@ -518,10 +518,8 @@ RPG.Story.Village.prototype.init = function() {
 	
 	this._maxElderDepth = 5;
 	this._elderDepth = 0;
-	this._elderMaps = [];
 	this._maxMazeDepth = 3;
 	this._mazeDepth = 0;
-	this._mazeMaps = [];
 	
 	this._boss = null;
 	this._village = null;
@@ -538,42 +536,6 @@ RPG.Story.Village.prototype.init = function() {
 	this._maze2 = new RPG.Generators.IceyMaze(new RPG.Misc.Coords(59, 19), null, 10);
 	this._maze3 = new RPG.Generators.Maze(new RPG.Misc.Coords(59, 19));
 }
-
-RPG.Story.Village.prototype.serialize = function(serializer) {
-	var result = this.parent(serializer);
-	result.elderMaps = [];
-	for (var i=0;i<this._elderMaps.length;i++) {
-		result.elderMaps.push(serializer.serialize(this._elderMaps[i]));
-	}
-
-	result.mazeMaps = [];
-	for (var i=0;i<this._mazeMaps.length;i++) {
-		result.mazeMaps.push(serializer.serialize(this._mazeMaps[i]));
-	}
-	
-	if (this._boss) { result.boss = serializer.serialize(this._boss); }
-	if (this._village) { result.village = serializer.serialize(this._village); }
-	if (this._necklace) { result.necklace = serializer.serialize(this._necklace); }
-
-	return result;
-}
-
-RPG.Story.Village.prototype.parse = function(data, parser) {
-	this.parent(data, parser);
-	for (var i=0;i<data.elderMaps.length;i++) {
-		this._elderMaps.push(null);
-		parser.parse(data.elderMaps[i], this._elderMaps, this._elderMaps.length-1);
-	}
-	for (var i=0;i<data.mazeMaps.length;i++) {
-		this._mazeMaps.push(null);
-		parser.parse(data.mazeMaps[i], this._mazeMaps, this._mazeMaps.length-1);
-	}
-	
-	if (data.boss) { parser.parse(data.boss, this, "_boss"); }
-	if (data.village) { parser.parse(data.village, this, "_village"); }
-	if (data.necklace) { parser.parse(data.necklace, this, "_necklace"); }
-}
-
 
 RPG.Story.Village.prototype._createPC = function(race, profession, name) {
 	var pc = this.parent(race, profession, name);
@@ -626,7 +588,6 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 		map = this._digger.generate("Dungeon #" + this._elderDepth, this._elderDepth);
 		rooms = map.getRooms();
 	} while (rooms.length < 3);
-	this._elderMaps.push(map);
 	
 	if (this._elderDepth == 1) { map.setSound("doom"); }
 
@@ -700,7 +661,6 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 
 	var generator = this["_maze" + this._mazeDepth];
 	map = generator.generate("Maze #" + this._mazeDepth, this._mazeDepth);
-	this._mazeMaps.push(map);
 	if (this._mazeDepth == 1) { map.setSound("neverhood"); } /* FIXME */
 
 	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);

@@ -41,11 +41,7 @@ RPG.Misc.Coords.prototype.init = function(x, y) {
 }
 
 RPG.Misc.Coords.prototype.toString = function() {
-	return this.x+","+this.y;
-}
-
-RPG.Misc.Coords.prototype.serializeToString = function() {
-	return this.x+","+this.y;
+	return this.x+", "+this.y;
 }
 
 RPG.Misc.Coords.prototype.distance = function(coords) {
@@ -53,19 +49,23 @@ RPG.Misc.Coords.prototype.distance = function(coords) {
 	var dy = Math.abs(this.y - coords.y);
 	return Math.max(dx, dy);
 }
+
 RPG.Misc.Coords.prototype.clone = function() {
 	return new this.constructor(this.x, this.y);
 }
+
 RPG.Misc.Coords.prototype.plus = function(c) {
 	this.x += c.x;
 	this.y += c.y;
 	return this;
 }
+
 RPG.Misc.Coords.prototype.minus = function(c) {
 	this.x -= c.x;
 	this.y -= c.y;
 	return this;
 }
+
 /**
  * Direction to another coords
  * @param {RPG.Misc.Coords} c
@@ -128,38 +128,6 @@ RPG.Misc.IWeapon.prototype.getHit = function() {
 }
 RPG.Misc.IWeapon.prototype.getDamage = function() {
 	return this._damage;
-}
-
-/**
- * @class Interface for objects which can be cloned and (de)serialized
- */
-RPG.Misc.ISerializable = OZ.Class();
-
-/**
- * Return a JSON representation of this object
- * @param {RPG.Serializer} serializer Serialization helper
- * @returns {object}
- */
-RPG.Misc.ISerializable.prototype.serialize = function(serializer) {
-	return {};
-}
-
-/**
- * Create instance based on saved data. This will be further populated by calling .parse().
- * @param {object} data Serialized data
- * @param {RPG.Parser} parser Parsing helper
- */
-RPG.Misc.ISerializable.prototype.revive = function(data, parser) {
-	return new this.constructor();
-}
-
-/**
- * Parse instance data based on saved JSON.
- * @param {object} data Serialized data
- * @param {RPG.Parser} parser Parsing helper
- */
-RPG.Misc.ISerializable.prototype.parse = function(data, parser) {
-	return this;
 }
 
 /**
@@ -530,56 +498,12 @@ RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {
 
 /**
  * @class Speed-based scheduler
- * @augments RPG.Misc.ISerializable
  */
-RPG.Misc.Scheduler = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.Misc.Scheduler = OZ.Class();
 RPG.Misc.Scheduler.prototype.init = function() {
 	this._actors = [];
 	this._current = [];
 	this._maxSpeed = 0;
-}
-
-RPG.Misc.Scheduler.prototype.serialize = function(serializer) {
-	var result = {};
-	result.maxSpeed = this._maxSpeed;
-	result.actors = [];
-	result.current = [];
-	
-	for (var i=0;i<this._actors.length;i++) {
-		var item = this._actors[i];
-		result.actors.push({
-			actor: serializer.serialize(item.actor),
-			bucket: item.bucket,
-			speed: item.speed
-		});
-	}
-
-	for (var i=0;i<this._current.length;i++) {
-		var item = this._current[i];
-		result.current.push(this._actors.indexOf(item));
-	}
-	
-	return result;
-}
-
-RPG.Misc.Scheduler.prototype.parse = function(data, parser) {
-	this._maxSpeed = data.maxSpeed;
-	this._actors = [];
-	this._current = [];
-	
-	for (var i=0;i<data.actors.length;i++) {
-		var obj = {};
-		var item = data.actors[i];
-		parser.parse(item.actor, obj, "actor");
-		obj.bucket = item.bucket;
-		obj.speed = item.speed;
-		this._actors.push(obj);
-	}
-	
-	for (var i=0;i<data.current.length;i++) {
-		var item = data.current[i];
-		this._current.push(this._actors[item]);
-	}
 }
 
 RPG.Misc.Scheduler.prototype.addActor = function(actor) {
@@ -599,19 +523,16 @@ RPG.Misc.Scheduler.prototype.clearActors = function() {
 }
 
 RPG.Misc.Scheduler.prototype.removeActor = function(actor) {
+	var index = -1;
 	for (var i=0;i<this._actors.length;i++) {
 		if (this._actors[i].actor == actor) { 
 			this._actors.splice(i, 1); 
+			index = i;
 			break;
 		}
 	}
 	
-	for (var i=0;i<this._current.length;i++) {
-		if (this._current[i].actor == actor) { 
-			this._current.splice(i, 1); 
-			break;
-		}
-	}
+	if (index != -1) { this._current.splice(index, 1); }
 
 	return this;
 }
@@ -621,7 +542,8 @@ RPG.Misc.Scheduler.prototype.scheduleActor = function() {
 
 	/* if there is a set of pre-scheduled actors */
 	if (this._current.length) {
-		var o = this._current.shift();
+		var index = this._current.shift();
+		var o = this._actors[index];
 		o.bucket -= this._maxSpeed;
 		return o.actor;
 	}
@@ -640,14 +562,15 @@ RPG.Misc.Scheduler.prototype.scheduleActor = function() {
 		for (var i=0;i<this._actors.length;i++) {
 			var obj = this._actors[i];
 			obj.bucket += obj.speed;
-			if (obj.bucket >= this._maxSpeed) { this._current.push(obj); }
+			if (obj.bucket >= this._maxSpeed) { this._current.push(i); }
 		}
 	
 	}  while (!this._current.length);
 	
 	/* sort eligible actors by their buckets */
+	var actors = this._actors;
 	this._current.sort(function(a,b) {
-		return b.bucket - a.bucket;
+		return actors[b].bucket - actors[a].bucket;
 	});
 	
 	/* recurse */

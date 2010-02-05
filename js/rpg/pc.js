@@ -26,36 +26,6 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this.fullStats();
 }
 
-RPG.Beings.PC.prototype.serialize = function(serializer) {
-	var result = this.parent(serializer);
-	result.visibleCells = serializer.serializeArray(this._visibleCells);
-	result.quests = serializer.serializeArray(this._quests);
-	result.kills = this._kills;
-	result.profession = serializer.serializeClass(this._profession.constructor);
-	return result;
-}
-
-RPG.Beings.PC.prototype.revive = function(data, parser) {
-	var race = parser.parseClass(data.race);
-	var profession = parser.parseClass(data.profession);
-	return new this.constructor(new race(), new profession());
-}
-
-RPG.Beings.PC.prototype.parse = function(data, parser) {
-	this.parent(data, parser);
-	for (var i=0;i<data.visibleCells.length;i++) {
-		var cell = parser.parse(data.visibleCells[i]);
-		this._visibleCells.push(cell);
-	}
-	
-	this._kills = data.kills;
-	
-	for (var i=0;i<data.quests.length;i++) {
-		var quest = parser.parse(data.quests[i]);
-		this._quests.push(quest);
-	}
-}
-
 RPG.Beings.PC.prototype.getQuests = function() {
 	return this._quests;
 }

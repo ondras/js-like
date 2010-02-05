@@ -1,29 +1,13 @@
 /**
  * @class Basic feat, can be modified.
- * @augments RPG.Misc.ISerializable
  */
-RPG.Feats.BaseFeat = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.Feats.BaseFeat = OZ.Class();
 RPG.Feats.BaseFeat.prototype.init = function(baseValue) {
 	this._value = null;
 	this._base = 0;
 	this._modified = 0;
 	
 	this.setBase(baseValue);
-}
-
-RPG.Feats.BaseFeat.prototype.serialize = function(serializer) {
-	var result = {
-		value: this._value,
-		base: this._base,
-		modified: this._modified
-	}
-	return result;
-}
-
-RPG.Feats.BaseFeat.prototype.parse = function(data, parser) {
-	this._value = data.value;
-	this._base = data.base;
-	this._modified = data.modified;
 }
 
 RPG.Feats.BaseFeat.prototype.getValue = function() {
@@ -77,12 +61,10 @@ RPG.Feats.AdvancedFeat.prototype._drd = function() {
 /**
  * @class Basic item
  * @augments RPG.Misc.IVisual
- * @augments RPG.Misc.ISerializable
  * @augments RPG.Misc.IModifier
  */
 RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Misc.IVisual)
-						.implement(RPG.Misc.ISerializable)
 						.implement(RPG.Misc.IModifier);
 RPG.Items.BaseItem.factory.ignore = true;
 RPG.Items.BaseItem.prototype.init = function() {
@@ -93,21 +75,6 @@ RPG.Items.BaseItem.prototype.init = function() {
 	this._uncountable = false;
 	this._remembered = false;
 	this._owner = null; /* being having this */
-}
-
-RPG.Items.BaseItem.prototype.serialize = function(serializer) {
-	var result = {
-		remembered: this._remembered,
-		amount: this._amount	
-	};
-	if (this._owner) { result.owner = serializer.serialize(this._owner); }
-	return result;
-}
-
-RPG.Items.BaseItem.prototype.parse = function(data, parser) {
-	this._remembered = data.remembered;
-	this._amount = data.amount;
-	if (data.owner) { parser.parse(data.owner, this, "_owner"); }
 }
 
 RPG.Items.BaseItem.prototype.setOwner = function(being) {
@@ -308,24 +275,11 @@ RPG.Races.BaseRace.prototype.getSlot = function(type) {
 
 /**
  * @class Basic per-turn effect
- * @augments RPG.Misc.ISerializable
  */
-RPG.Effects.BaseEffect = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.Effects.BaseEffect = OZ.Class();
 RPG.Effects.BaseEffect.prototype.init = function(being) {
 	this._being = being;
 }
-
-RPG.Effects.BaseEffect.prototype.serialize = function(serializer) {
-	return {
-		being:serializer.serialize(this._being)
-	};
-}
-
-RPG.Effects.BaseEffect.prototype.revive = function(data, parser) {
-	var being = parser.parse(data.being);
-	return new this.constructor(being);
-}
-
 
 RPG.Effects.BaseEffect.prototype.go = function() {
 }
@@ -414,9 +368,8 @@ RPG.Professions.BaseProfession.prototype.getImage = function() {
 
 /**
  * @class Quest
- * @augments RPG.Misc.ISerializable
  */
-RPG.Quests.BaseQuest = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.Quests.BaseQuest = OZ.Class();
 RPG.Quests.BaseQuest.prototype.init = function(giver) {
 	this._phase = null;
 	this._giver = giver;
@@ -424,26 +377,6 @@ RPG.Quests.BaseQuest.prototype.init = function(giver) {
 	
 	this.setPhase(RPG.QUEST_NEW);
 }
-
-RPG.Quests.BaseQuest.prototype.serialize = function(serializer) {
-	var result = {
-		phase: this._phase,
-		giver: serializer.serialize(this._giver),
-		task: this._task
-	}
-	return result;
-}
-
-RPG.Quests.BaseQuest.prototype.revive = function(data, parser) {
-	var giver = parser.parse(data.giver);
-	return new this.constructor(giver);
-}
-
-RPG.Quests.BaseQuest.prototype.parse = function(data, parser) {
-	this._task = data.task;
-	this._phase = data.phase;
-}
-
 
 RPG.Quests.BaseQuest.prototype.setPhase = function(phase) {
 	this._phase = phase;

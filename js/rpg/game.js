@@ -5,7 +5,8 @@ RPG.Game = {
 	pc: null,
 	_story: null,
 	_engine: null,
-	_map: null
+	_map: null,
+	_events: []
 }
 
 RPG.Game.init = function() {
@@ -27,6 +28,23 @@ RPG.Game.init = function() {
 	RPG.Spells.getClass = f.bind(f.getClass);
 
 	this._engine = new RPG.Engine();
+}
+
+/**
+ * Event listeners managed by game are created separately.
+ * This is because during game load, all relevant event handlers must be removed.
+ */
+RPG.Game.addEvent = function(who, event, callback) {
+	var id = OZ.Event.add(who, event, callback);
+	this._events.push(id);
+	return id;
+}
+
+RPG.Game.removeEvent = function(id) {
+	OZ.Event.remove(id);
+	var index = this._events.indexOf(id);
+	if (index != -1) { this._events.splice(index, 1); }
+	return this;
 }
 
 RPG.Game.setStory = function(story) {
@@ -92,11 +110,4 @@ RPG.Game.serialize = function(ser) {
 		engine: ser.serialize(this._engine),
 		map: ser.serialize(this._map)
 	};
-}
-
-RPG.Game.parse = function(data, parser) {
-	parser.parse(data.pc, this, "pc");
-	parser.parse(data.story, this, "_story");
-	parser.parse(data.engine, this, "_engine");
-	parser.parse(data.map, this, "_map");
 }

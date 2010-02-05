@@ -1,12 +1,10 @@
 /**
  * @class Dungeon cell
  * @augments RPG.Misc.IModifier
- * @augments RPG.Misc.ISerializable
  * @augments RPG.Misc.IVisual
  */
 RPG.Cells.BaseCell = OZ.Class()
 						.implement(RPG.Misc.IVisual)
-						.implement(RPG.Misc.ISerializable)
 						.implement(RPG.Misc.IModifier);
 RPG.Cells.BaseCell.prototype.init = function() {
 	this._initVisuals();
@@ -23,90 +21,21 @@ RPG.Cells.BaseCell.prototype.init = function() {
 		data: []
 	}
 }
-/*
-RPG.Cells.BaseCell.prototype.customSerialize = function(serializer) {
-	var options = {
-		exclude: ["_image", "_char", "_description", "_color"]
-	}
-	return serializer.serialize(this, options);
-}
-*/
+
 RPG.Cells.BaseCell.prototype.serialize = function(serializer) {
-	var result = {};
-	if (this._coords) { result.coords = this._coords.toString(); }
-
-	if (this._items.length) {
-		result.items = [];
-		for (var i=0;i<this._items.length;i++) {
-			result.items.push(serializer.serialize(this._items[i]));
-		}
-	}
-	
-	if (this._being) {
-		result.being = serializer.serialize(this._being);
-	}
-	
-	if (this._feature) {
-		result.feature = serializer.serialize(this._feature);
-	}
-	
-	if (this._room) {
-		result.room = serializer.serialize(this._room);
-	}
-	
-	result.memory = {
-		state: this._memory.state,
-		data: []
-	};
-	for (var i=0;i<this._memory.data.length;i++) {
-		var item = this._memory.data[i];
-		var tmp;
-		if (item instanceof RPG.Misc.VisualTrace) {
-			tmp = item.toJSON();
-		} else {
-			tmp = serializer.serialize(item);
-		}
-		result.memory.data.push(tmp);
-	}
-	
-	return result;
+	var c = (this._coords ? this._coords.x + "," + this._coords.y : null);
+	return serializer.serialize(this, {
+		exclude:["_coords"], 
+		include:{"_coords": c}
+	});
 }
 
-RPG.Cells.BaseCell.prototype.parse = function(data, parser) {
-	if (data.coords) {
-		this._coords = RPG.Misc.Coords.fromString(data.coords);
-	}
-
-	if (data.items) {
-		for (var i=0;i<data.items.length;i++) {
-			var item = data.items[i];
-			this._items.push(null);
-			parser.parse(item, this._items, this._items.length-1);
-		}
-	}
-	
-	if (data.being) {
-		parser.parse(data.being, this, "_being");
-	}
-	
-	if (data.feature) {
-		parser.parse(data.feature, this, "_feature");
-	}
-	
-	if (data.room) {
-		parser.parse(data.room, this, "_room");
-	}
-	
-	var m = data.memory;
-	this._memory.state = m.state;
-	for (var i=0;i<m.data.length;i++) {
-		var tmp = m.data[i];
-		if (tmp instanceof Object) {
-			this._memory.data.push(RPG.Misc.VisualTrace.fromJSON(tmp));
-		} else {
-			this._memory.data.push(null);
-			parser.parse(tmp, this._memory.data, this._memory.data.length-1);
-		}
+RPG.Cells.BaseCell.prototype.revive = function() {
+	if (this._coords) {
+		var parts = this._coords.split(",");
+		var x = parseInt(parts[0]);
+		var y = parseInt(parts[1]);
+		this._coords = new RPG.Misc.Coords(x, y);
 	}
 }
 
@@ -241,14 +170,12 @@ RPG.Cells.BaseCell.prototype.visibleThrough = function() {
 /**
  * @class Room, a logical group of cells
  * @augments RPG.Misc.IModifier
- * @augments RPG.Misc.ISerializable
  * @param {RPG.Map} map
  * @param {RPG.Misc.Coords} corner1 top-left corner
  * @param {RPG.Misc.Coords} corner2 bottom-right corner
  */
 RPG.Rooms.BaseRoom = OZ.Class()
-						.implement(RPG.Misc.IModifier)
-						.implement(RPG.Misc.ISerializable);
+						.implement(RPG.Misc.IModifier);
 
 RPG.Rooms.BaseRoom.prototype.init = function(corner1, corner2) {
 	this._modifiers = {};
@@ -256,24 +183,6 @@ RPG.Rooms.BaseRoom.prototype.init = function(corner1, corner2) {
 	this._corner1 = corner1.clone();
 	this._corner2 = corner2.clone();
 	this._type = null;
-}
-
-RPG.Rooms.BaseRoom.prototype.serialize = function(serializer) {
-	return {
-		welcome: this._welcome,
-		corner1: this._corner1.toString(),
-		corner2: this._corner2.toString()
-	};
-}
-
-RPG.Rooms.BaseRoom.prototype.revive = function(data, parser) {
-	var c1 = RPG.Misc.Coords.fromString(data.corner1);
-	var c2 = RPG.Misc.Coords.fromString(data.corner2);
-	return new this.constructor(c1, c2);
-}
-
-RPG.Rooms.BaseRoom.prototype.parse = function(data, parser) {
-	this._welcome = data.welcome;
 }
 
 RPG.Rooms.BaseRoom.prototype.setWelcome = function(text) {
@@ -310,28 +219,15 @@ RPG.Rooms.BaseRoom.prototype.entered = function(being) {
 /**
  * @class Dungeon feature
  * @augments RPG.Misc.IVisual
- * @augments RPG.Misc.ISerializable
  */
 RPG.Features.BaseFeature = OZ.Class()
-							.implement(RPG.Misc.IVisual)
-							.implement(RPG.Misc.ISerializable);
+							.implement(RPG.Misc.IVisual);
 RPG.Features.BaseFeature.prototype.init = function() {
 	this._cell = null;
 	this._initVisuals();
 	this._type = RPG.BLOCKS_NOTHING;
 }
 
-
-RPG.Features.BaseFeature.prototype.serialize = function(serializer) {
-	var result = {
-		cell: serializer.serialize(this._cell)
-	};
-	return result;
-}
-
-RPG.Features.BaseFeature.prototype.parse = function(data, parser) {
-	parser.parse(data.cell, this, "_cell");
-}
 
 RPG.Features.BaseFeature.prototype.knowsAbout = function(being) {
 	return true;
@@ -373,11 +269,8 @@ RPG.Features.BaseFeature.prototype.visibleThrough = function() {
 /**
  * @class Dungeon map
  * @augments RPG.Misc.IModifier
- * @augments RPG.Misc.ISerializable
  */
-RPG.Map = OZ.Class()
-			.implement(RPG.Misc.IModifier)
-			.implement(RPG.Misc.ISerializable);
+RPG.Map = OZ.Class().implement(RPG.Misc.IModifier);
 
 RPG.Map.prototype.init = function(id, size, danger) {
 	this._modifiers = {};
@@ -391,59 +284,6 @@ RPG.Map.prototype.init = function(id, size, danger) {
 
 	this._blank();
 }
-
-RPG.Map.prototype.serialize = function(serializer) {
-	var result = {
-		modifiers: this._modifiers,
-		id: this._id,
-		welcome: this._welcome,
-		sound: this._sound,
-		size: this._size.toString(),
-		danger: this._danger
-	};
-	
-	result.rooms = [];
-	for (var i=0;i<this._rooms.length;i++) {
-		result.rooms.push(serializer.serialize(this._rooms[i]));
-	}
-	
-	result.cells = [];
-	for (var i=0;i<this._size.x;i++) {
-		for (var j=0;j<this._size.y;j++) {
-			var cell = this._data[i][j];
-			if (cell) { result.cells.push(serializer.serialize(cell)); }
-		}
-	}
-	
-	return result;
-}
-
-RPG.Map.prototype.revive = function(data, parser) {
-	var size = RPG.Misc.Coords.fromString(data.size);
-	return new this.constructor(data.id, size, data.danger);
-}
-
-RPG.Map.prototype.parse = function(data, parser) {
-	this._rooms = [];
-	this._data = [];
-	this._welcome = data.welcome;
-	this._sound = data.sound;
-	
-	for (var i=0;i<data.rooms.length;i++) {
-		var room = data.rooms[i];
-		this._rooms.push(null);
-		parser.parse(room, this._rooms, this._rooms.length-1);
-	}
-	
-	this._blank();
-	for (var i=0;i<data.cells.length;i++) {
-		var cell = parser.parse(data.cells[i]);
-		cell.setMap(this);
-		var c = cell.getCoords();
-		this._data[c.x][c.y] = cell;
-	}
-}
-
 
 /**
  * This will be used now.

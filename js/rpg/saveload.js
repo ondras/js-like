@@ -6,13 +6,17 @@ RPG.Serializer = OZ.Class();
 RPG.Serializer.prototype.init = function() {
 	this._classes = [];
 	this._stacks = [];
+	this._cache = [];
 	this._defaultStack = null;
+	this._phase = 0;
 }
 
 /**
  * Go!
  */
 RPG.Serializer.prototype.go = function() {
+	this._cache = [];
+
 	this._stacks = [];
 	this._classes = [];
 	var classNames = [];
@@ -26,8 +30,8 @@ RPG.Serializer.prototype.go = function() {
 
 	var result = {};
 	result.classes = classNames;
-	result.game = RPG.Game.serialize(this);
-
+	result.game = this.serialize(RPG.Game);
+	
 	do {
 		var ok = true;
 		for (var i=0; i<this._stacks.length; i++) {
@@ -44,33 +48,135 @@ RPG.Serializer.prototype.go = function() {
 		result[stack.getId()] = stack.getData();
 	}
 
-	return JSON.stringify(result, null, "  ");
+	return JSON.stringify(result/*, null, "  "*/);
 }
 
 /**
- * Get an index for a given constructor
+ * Return index for a given class
  */
-RPG.Serializer.prototype.serializeClass = function(cl) {
-	return this._classes.indexOf(cl);
+RPG.Serializer.prototype.classIndex = function(what) {
+	return this._classes.indexOf(what);
 }
 
 /**
- * Serialize an instance of OZ.Class(). Return the serialized value.
- * This method is called by instances during their serialization process.
+ * Convert instance to JSON representation
  */
-RPG.Serializer.prototype.serialize = function(instance) {
+RPG.Serializer.prototype.finalizeInstance = function(instance) {
+	if (instance.serialize) {
+		return instance.serialize(this);
+	} else {
+		return this._doSerializeInstance(instance);
+	}
+}
+
+/**
+ * Called from an instance that wants a specific serialization
+ */
+RPG.Serializer.prototype.serialize = function(what, options) {
+	return this._doSerializeInstance(what, options);
+}
+
+
+RPG.Serializer.prototype._doSerializeInstance = function(what, options) {
+	var result = this._serializeObject(what, options);
+	result["#c"] = this.classIndex(what.constructor);
+	return result;
+}
+
+/**
+ * Serialize instance by adding it to stack and returning a placeholder
+ */
+RPG.Serializer.prototype._serializeInstance = function(what) {
 	for (var i=0;i<this._stacks.length;i++) {
 		var stack = this._stacks[i];
-		if (stack.accepts(instance)) { return stack.add(instance); }
+		if (stack.accepts(what)) { return stack.add(what); }
 	}
+	
+	console.warn("No stack accepted an instance");
+	console.log(what);
 }
 
-RPG.Serializer.prototype.serializeArray = function(arr) {
-	var result = [];
-	for (var i=0;i<arr.length;i++) {
-		result.push(this.serialize(arr[i]));
+/**
+ * Serialize a class by converting it to string with index
+ */
+RPG.Serializer.prototype._serializeClass = function(cl) {
+	return "#c"+this.classIndex(cl);
+}
+
+RPG.Serializer.prototype._serializeObject = function(obj, options) {
+/*
+	var index = this._cache.indexOf(obj);
+	if (index == -1) {
+		this._cache.push(obj);
+	} else {
+		console.warn("This non-instance object was already encountered!");
+		console.log(obj);
 	}
+*/
+
+	var result = {};
+	var ignore = ["constructor"];
+	
+	for (var p in obj) {
+		if (ignore.indexOf(p) != -1) { continue; } /* globally forbidden name */
+		if (options && options.exclude.indexOf(p) != -1) { continue; } /* locally forbidden name */
+
+		var value = obj[p];
+		if (typeof(value) == "undefined") { continue; }
+		if (typeof(value) == "function" && !value.extend) {
+			if (obj.hasOwnProperty(p)) {
+//				console.warn("Unknown function (property '"+p+"') encountered - we cannot serialize this");
+//				console.log(value);
+			}
+			continue;
+		} 
+
+		result[p] = this._serializeValue(obj[p]);
+	}
+	
+	if (options && options.include) {
+		for (var p in options.include) {
+			var value = options.include[p];
+			result[p] = this._serializeValue(value);
+		}
+	}
+	
 	return result;
+}
+
+RPG.Serializer.prototype._serializeValue = function(value) {
+	if (value === null) { return value; }
+	switch (typeof(value)) {
+		case "number":
+		case "string":
+		case "undefined":
+		case "boolean":
+			return value;
+		break;
+		
+		case "function":
+			return this._serializeClass(value);
+		break;
+	}
+	
+	if (value instanceof Array) { /* regular array */
+		var arr = [];
+		for (var i=0;i<value.length;i++) {
+			arr.push(this._serializeValue(value[i]));
+		}
+		return arr;
+	}
+	
+	if (this._classes.indexOf(value.constructor) != -1) { /* instance */
+		if (value.serializeToString) {
+			return value.serializeToString();
+		} else {
+			return this._serializeInstance(value);
+		}
+	}
+	
+	/* object */
+	return this._serializeObject(value);
 }
 
 /**
@@ -78,7 +184,6 @@ RPG.Serializer.prototype.serializeArray = function(arr) {
  */
 RPG.Serializer.prototype._scanClasses = function(root, path, result, resultNames) {
 	var forbidden = ["extend", "_extend", "implement", "_implement"];
-	
 	for (var p in root) {
 		var val = root[p];
 		if (!val) { continue; }
@@ -107,7 +212,7 @@ RPG.Serializer.Stack.prototype.init = function(serializer, ctor) {
 	this._ctor = ctor || null;
 	this._data = [];
 	this._instances = [];
-	this._index = (ctor ? serializer.serializeClass(ctor) : "");
+	this._index = (ctor ? serializer.classIndex(ctor) : "");
 }
 
 /**
@@ -129,7 +234,6 @@ RPG.Serializer.Stack.prototype.accepts = function(instance) {
  * Add an instance to stack
  */
 RPG.Serializer.Stack.prototype.add = function(instance) {
-	if (!instance) { debugger; }
 	var index = this._instances.indexOf(instance);
 	if (index == -1) {
 		index = this._instances.length;
@@ -144,9 +248,7 @@ RPG.Serializer.Stack.prototype.add = function(instance) {
 RPG.Serializer.Stack.prototype.finalize = function() {
 	while (!this.isDone()) {
 		var instance = this._instances[this._data.length];
-		if (!instance.serialize) { throw new Error("Instance '"+instance+"' cannot serialize itself"); }
-		var data = instance.serialize(this._serializer);
-		data["#c"] = this._serializer.serializeClass(instance.constructor);
+		var data = this._serializer.finalizeInstance(instance);
 		this._data.push(data);
 	}
 }
@@ -165,149 +267,7 @@ RPG.Serializer.Stack.prototype.getData = function() {
 	return this._data;
 }
 
-/**
- * @class Saved data parser
- */
-RPG.Parser = OZ.Class();
-
-RPG.Parser.prototype.init = function() {
-	this._classes = [];
-	this._instances = {};
-	this._done = {};
-	this._later = {};
-}
-
-RPG.Parser.prototype.go = function(str) {
-	/* contains:
-		- classes
-		- game
-		- stacks
-	*/
-	var data = JSON.parse(str);
-
-	/* retrieve classes */
-	if (!data.classes) { throw new Error("No classes in saved data"); }
-	for (var i=0;i<data.classes.length;i++) {
-		var cl = this._nameToClass(data.classes[i]);
-		this._classes.push(cl);
-	}
-	
-	/* merge all instances from stacks */
-	this._instances = {};
-	this._done = {};
-	for (var p in data) {
-		if (p.charAt(0) != "#") { continue; }
-		var stack = data[p];
-		for (var i=0;i<stack.length;i++) {
-			var id = p + "#" + i;
-			this._instances[id] = stack[i];
-		}
-	}
-	
-	/* deserialize game */
-	if (!data.game) { throw new Error("No game in saved data"); }
-	RPG.Game.parse(data.game, this);
-	
-	/* deserialize instances */
-	for (var p in this._instances) {
-		if (p in this._done) { continue; } /* already done */
-		this._parseInstance(p);
-		
-	}
-	
-}
-
-/**
- * Parse a previously serialized instance of OZ.Class(); when it becomes available, 
- * set it as a property of a given object. If no object+property are passed, parsing is immediate.
- * This method is called by instances during their parsing process.
- * @param {string} what serialized reference to object
- * @param {object} object where to put unserialized instance
- * @param {string} property which property name to use
- */
-RPG.Parser.prototype.parse = function(what, object, property) {
-	if (what in this._done) { /* already parsed */
-		var obj = this._done[what];
-		if (arguments.length == 1) { return obj; }
-		object[property] = obj;
-		return; 
-	} 
-
-	if (!(what in this._instances)) { throw new Error("Non-existent instance '"+what+"'"); }
-	
-	if (arguments.length == 1) { /* requested immediate parsing */
-		return this._parseInstance(what);
-	}
-	
-	var instance = this._instances[what];
-	if (!(what in this._later)) { this._later[what] = []; }
-	this._later[what].push([object, property]);
-}
-
-/**
- * Parse a previously serialized class (constructor)
- * @param {number} Class index (created by serializer.serializeClass)
- */
-RPG.Parser.prototype.parseClass = function(index) {
-	if (index < 0 || index >= this._classes.length) { throw new Error("Non-existent class index "+index); }
-	return this._classes[index];
-}
-
-/**
- * Convert a dotted string to JS value
- */
-RPG.Parser.prototype._nameToClass = function(str) {
-	var arr = str.split(".");
-	var curr = window;
-	while (arr.length) {
-		curr = curr[arr.shift()];
-		if (!curr) { throw new Error("Class '"+str+"' does not exist"); }
-	}
-	return curr;
-}
-
-/**
- * Parse one instance
- */
-RPG.Parser.prototype._parseInstance = function(id) {
-	var instance = this._instances[id];
-	var classIndex = instance["#c"];
-	var ctor = this.parseClass(classIndex);
-	if (!ctor) { throw new Error("No class available for '"+id+"'"); }
-	var tmp = function(){};
-	tmp.prototype = ctor.prototype;
-	var tmpInstance = new tmp();
-	tmpInstance.constructor = ctor;
-	
-	if (!tmpInstance.revive) { throw new Error("Instance '"+instance+"' cannot revive itself"); }
-	var result = tmpInstance.revive(instance, this);
-	
-	this._done[id] = result;
-
-	if (!result.parse) { throw new Error("Instance '"+instance+"' cannot parse itself"); }
-	result.parse(instance, this);
-
-	if (id in this._later) {
-		var arr = this._later[id];
-		for (var i=0;i<arr.length;i++) {
-			var item = arr[i];
-			item[0][item[1]] = result;
-		}
-		delete this._later[id];
-	}
-	return result;
-}
-
-
-function test2() {
-	var ser = new RPG.Serializer();
-	var str = ser.go();
-	return str;
-}
-
-function test3() {
-	var ser = new RPG.Serializer();
-	var str = ser.go();
-	var par = new RPG.Parser();
-	par.go(str);
+var test2 = function() {
+	var s = new RPG.Serializer();
+	return s.go();
 }

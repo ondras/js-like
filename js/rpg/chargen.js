@@ -4,6 +4,7 @@
 RPG.CharGen = OZ.Class();
 
 RPG.CharGen.prototype.init = function() {
+	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
 	this._list = [];
 
 	this.races = [
@@ -22,6 +23,16 @@ RPG.CharGen.prototype.init = function() {
 }
 
 RPG.CharGen.prototype.build = function() {
+	var w = OZ.DOM.win()[0];
+	var d = OZ.DOM.elm("div", {width:Math.round(w/2) + "px"});
+	var p1 = OZ.DOM.elm("p");
+	p1.innerHTML = "Who do you want to play in this game?";
+	var p2 = OZ.DOM.elm("p", {className: "name"});
+	p2.innerHTML = "Your name: ";
+	p2.appendChild(this._name);
+
+
+
 	var t = OZ.DOM.elm("table", {className:"chargen"});
 	var tb = OZ.DOM.elm("tbody");
 	t.appendChild(tb);
@@ -31,7 +42,8 @@ RPG.CharGen.prototype.build = function() {
 	
 	OZ.Event.add(t, "click", this.bind(this._click));
 	
-	return t;
+	OZ.DOM.append([d, p1, p2, t]);
+	return d;
 }
 
 RPG.CharGen.prototype._buildMatrix = function(tb) {
@@ -75,12 +87,17 @@ RPG.CharGen.prototype._buildMatrix = function(tb) {
 }
 
 RPG.CharGen.prototype._click = function(e) {
+	if (!this._name.value) {
+		this._name.focus();
+		return;
+	}
+
 	var t = OZ.Event.target(e);
 	if (t.nodeName.toLowerCase() != "img") { return; }
 	for (var i=0;i<this._list.length;i++) {
 		var item = this._list[i];
 		if (item[0] == t) {
-			this.dispatch("chargen", {race: item[1], profession: item[2]});
+			this.dispatch("chargen", {race: item[1], profession: item[2], name:this._name.value});
 		}
 	}
 }

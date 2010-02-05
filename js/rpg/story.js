@@ -1,42 +1,18 @@
 /**
  * @class Story class
- * @augments RPG.Misc.ISerializable
  */
-RPG.Story = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.Story = OZ.Class();
 
 RPG.Story.prototype.init = function() {
-	this._name = OZ.DOM.elm("input", {type:"text", size:"15", font:"inherit", value: "Hero"});
-	
 	this._staircases = {};
 	this._staircaseCallbacks = {};
 	this._quests = {};
 	this._questCallbacks = {};
+	this._pc = null;
 }
 
-RPG.Story.prototype.serialize = function(serializer) {
-	var result = {
-		staircases: {},
-		quests: {}
-	};
-	
-	for (var p in this._staircases) {
-		result.staircases[p] = serializer.serialize(this._staircases[p]);
-	}
-
-	for (var p in this._quests) {
-		result.quests[p] = serializer.serialize(this._quests[p]);
-	}
-
-	return result;
-}
-
-RPG.Story.prototype.parse = function(data, parser) {
-	for (var p in data.staircases) {
-		parser.parse(data.staircases[p], this._staircases, p);
-	}
-	for (var p in data.quests) {
-		parser.parse(data.quests[p], this._quests, p);
-	}
+RPG.Story.prototype.revive = function() {
+	this._addDeathEvent();
 }
 
 /**
@@ -44,18 +20,7 @@ RPG.Story.prototype.parse = function(data, parser) {
  */
 RPG.Story.prototype.generatePC = function() {
 	var cg = new RPG.CharGen();
-
-	var w = OZ.DOM.win()[0];
-	var d = OZ.DOM.elm("div", {width:Math.round(w/2) + "px"});
-	var p1 = OZ.DOM.elm("p");
-	p1.innerHTML = "Who do you want to play in this game?";
-	var p2 = OZ.DOM.elm("p", {className: "name"});
-	p2.innerHTML = "Your name: ";
-	p2.appendChild(this._name);
-
-	OZ.DOM.append([d, p1, p2, cg.build()]);
-	RPG.UI.showDialog(d, "Welcome, adventurer!");
-	
+	RPG.UI.showDialog(cg.build(), "Welcome, adventurer!");
 	OZ.Event.add(cg, "chargen", this.bind(this._charPicked));
 }
 
@@ -63,7 +28,7 @@ RPG.Story.prototype.generatePC = function() {
  * End this story
  */
 RPG.Story.prototype.end = function() {
-	var pc = RPG.Game.pc;
+	var pc = this._pc;
 	var div = OZ.DOM.elm("div");
 	var p1 = OZ.DOM.elm("p");
 	
@@ -111,23 +76,18 @@ RPG.Story.prototype.questCallback = function(quest) {
  * User picked his character, create it and launch
  */
 RPG.Story.prototype._charPicked = function(e) {
-	if (!this._name.value) {
-		this._name.focus();
-		return;
-	}
-	
 	RPG.UI.hideDialog();
 	var race = e.data.race;
 	var profession = e.data.profession;
+	var name = e.data.name;
 	RPG.UI.build();
 	
-	var pc = this._createPC(race, profession, this._name.value);
-	this._name = null;
-	OZ.Event.add(pc, "death", this.bind(this._death));
+	this._pc = this._createPC(race, profession, name);
+	this._addDeathEvent();
 
 	var map = this._firstMap();
 	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
-	RPG.Game.setPC(pc, map, cell);
+	RPG.Game.setPC(this._pc, map, cell);
 }
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
@@ -136,6 +96,10 @@ RPG.Story.prototype._createPC = function(race, profession, name) {
 	return pc;
 }
 
+RPG.Story.prototype._addDeathEvent = function() {
+	RPG.Game.addEvent(this._pc, "death", this.bind(this._death));
+}
+	
 /**
  * PC's death
  */

@@ -1,6 +1,5 @@
 /**
  * @class AI
- * @augments RPG.Misc.ISerializable
  * Every AI maintains a priority queue of "tasks" (typical tasks: kill PC; run&heal; pick items). 
  * This queue always contains at least of default/fallback task; this ensures that 
  * every AI is able to do at least *something*.
@@ -9,7 +8,7 @@
  * b) task cannot be done - repeat
  * c) task was executed, finish.
  */
-RPG.AI = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.AI = OZ.Class();
 
 RPG.AI.prototype.init = function(being) {
 	this._being = being;
@@ -18,33 +17,12 @@ RPG.AI.prototype.init = function(being) {
 	this._actionResult = null; /* action result to return */
 	this._ec = [];
 
-	this._ec.push(OZ.Event.add(null, "attack-melee", this.bind(this._attack)));
-	this._ec.push(OZ.Event.add(null, "attack-ranged", this.bind(this._attack)));
-	this._ec.push(OZ.Event.add(null, "attack-magic", this.bind(this._attack)));
-	
+	this._addEvents();
 	this.setDefaultTask(new RPG.AI.Wander());
 }
 
-RPG.AI.prototype.serialize = function(serializer) {
-	var result = {};
-	result.being = serializer.serialize(this._being);
-	result.defaultTask = serializer.serialize(this._defaultTask);
-	result.tasks = serializer.serializeArray(this._tasks);
-	return result;
-}
-
-RPG.AI.prototype.revive = function(data, parser) {
-	var being = parser.parse(data.being);
-	return new this.constructor(being);
-}
-
-RPG.AI.prototype.parse = function(data, parser) {
-	this._defaultTask = parser.parse(data.defaultTask);
-	this._tasks = [];
-	for (var i=0;i<data.tasks.length;i++) {
-		var task = data.tasks[i];
-		this._tasks.push(parser.parse(task));
-	}
+RPG.AI.prototype.revive = function() {
+	this._addEvents();
 }
 
 RPG.AI.prototype.getBeing = function() {
@@ -145,6 +123,13 @@ RPG.AI.prototype.yourTurn = function() {
 	return this._actionResult;
 }
 
+RPG.AI.prototype._addEvents = function() {
+	this._ec = [];
+	this._ec.push(RPG.Game.addEvent(null, "attack-melee", this.bind(this._attack)));
+	this._ec.push(RPG.Game.addEvent(null, "attack-ranged", this.bind(this._attack)));
+	this._ec.push(RPG.Game.addEvent(null, "attack-magic", this.bind(this._attack)));
+}
+
 /**
  * Some attack action happened; does this influence our tasks?
  */
@@ -197,7 +182,7 @@ RPG.AI.prototype._attack = function(e) {
  * We just died, destroy the AI
  */
 RPG.AI.prototype.die = function(e) {
-	this._ec.forEach(OZ.Event.remove);
+	this._ec.forEach(RPG.Game.removeEvent);
 }
 
 /**
@@ -264,24 +249,11 @@ RPG.AI.cellToDistance = function(source, target, distance) {
 
 /**
  * @class Base Task
- * @augments RPG.Misc.ISerializable
  */
-RPG.AI.Task = OZ.Class().implement(RPG.Misc.ISerializable);
+RPG.AI.Task = OZ.Class();
 RPG.AI.Task.prototype.init = function() {
 	this._ai = null;
 	this._subtasks = {};
-}
-
-RPG.AI.Task.prototype.serialize = function(serializer) {
-	var result = {}
-	if (this._ai) { result.ai = serializer.serialize(this._ai); }
-	if (this._being) { result.being = serializer.serialize(this._being); } /* FIXME HACK! Lazy to serialize _being at correct place... */
-	return result;
-}
-
-RPG.AI.Task.prototype.parse = function(data, parser) {
-	if (data.ai) { parser.parse(data.ai, this, "_ai"); }
-	if (data.being) { parser.parse(data.being, this, "_being"); }
 }
 
 RPG.AI.Task.prototype.setAI = function(ai) {
