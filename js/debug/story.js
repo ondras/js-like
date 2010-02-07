@@ -18,7 +18,7 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 }
 
 RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
-	var pc = new RPG.Beings.God(new race(), new profession());
+	var pc = new RPG.Beings.God(race, profession);
 	pc.setName(name);
 	return pc;
 }

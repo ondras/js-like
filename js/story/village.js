@@ -173,7 +173,7 @@ RPG.Map.Village.prototype._buildPeople = function() {
 RPG.Beings.VillageHealer = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageHealer.factory.ignore = true;
 RPG.Beings.VillageHealer.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 
 	this.setGender(RPG.GENDER_MALE);
 	this.setConfirm(RPG.CONFIRM_ASK);
@@ -199,7 +199,7 @@ RPG.Beings.VillageHealer.prototype.init = function() {
 RPG.Beings.VillageShopkeeper = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageShopkeeper.factory.ignore = true;
 RPG.Beings.VillageShopkeeper.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 
 	this.setGender(RPG.GENDER_FEMALE);
 	this.setConfirm(RPG.CONFIRM_ASK);
@@ -222,7 +222,7 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
 RPG.Beings.VillageWitch = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageWitch.factory.ignore = true;
 RPG.Beings.VillageWitch.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 
 	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setGender(RPG.GENDER_FEMALE);
@@ -254,7 +254,7 @@ RPG.Beings.VillageWitch.prototype.init = function() {
 RPG.Beings.VillageGuard = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageGuard.factory.ignore = true;
 RPG.Beings.VillageGuard.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 
 	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setGender(RPG.GENDER_MALE);
@@ -293,7 +293,7 @@ RPG.Beings.VillageGuard.prototype.init = function() {
 RPG.Beings.VillageSmith = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageSmith.factory.ignore = true;
 RPG.Beings.VillageSmith.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 
 	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setGender(RPG.GENDER_MALE);
@@ -325,7 +325,7 @@ RPG.Beings.VillageSmith.prototype.init = function() {
 RPG.Beings.VillageElder = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageElder.factory.ignore = true;
 RPG.Beings.VillageElder.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 
 	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setGender(RPG.GENDER_MALE);
@@ -368,8 +368,29 @@ RPG.Items.WeddingNecklace.prototype.init = function() {
 RPG.Quests.ElderEnemy = OZ.Class().extend(RPG.Quests.Kill);
 
 RPG.Quests.ElderEnemy.prototype.init = function(giver, being) {
+	this._chat = null;
+	this.parent(giver, being);
+	this._buildChat();
+}
+
+RPG.Quests.ElderEnemy.prototype.revive = function() {
+	this._buildChat();
+}
+
+RPG.Quests.ElderEnemy.prototype.setPhase = function(phase) {
+	this.parent(phase);
+	if (phase == RPG.QUEST_GIVEN) { RPG.Game.getStory().questCallback(this); }
+	if (phase == RPG.QUEST_DONE) { this._chat.setState(RPG.QUEST_DONE); }
+}
+
+RPG.Quests.ElderEnemy.prototype.reward = function() {
+	var gold = new RPG.Items.Gold(1000);
+	RPG.Game.pc.addItem(gold);
+}
+
+RPG.Quests.ElderEnemy.prototype._buildChat = function() {
 	var chat = new RPG.Misc.Chat(this);
-	giver.setChat(chat);
+	this._giver.setChat(chat);
 	
 	var GIVING = 0;
 	
@@ -412,18 +433,6 @@ RPG.Quests.ElderEnemy.prototype.init = function(giver, being) {
 	chat.defineCallback(RPG.QUEST_REWARDED, function() { this.setPhase(RPG.QUEST_REWARDED); });
 
 	this._chat = chat;
-	this.parent(giver, being);
-}
-
-RPG.Quests.ElderEnemy.prototype.setPhase = function(phase) {
-	this.parent(phase);
-	if (phase == RPG.QUEST_GIVEN) { RPG.Game.getStory().questCallback(this); }
-	if (phase == RPG.QUEST_DONE) { this._chat.setState(RPG.QUEST_DONE); }
-}
-
-RPG.Quests.ElderEnemy.prototype.reward = function() {
-	var gold = new RPG.Items.Gold(1000);
-	RPG.Game.pc.addItem(gold);
 }
 
 /**
@@ -433,10 +442,33 @@ RPG.Quests.ElderEnemy.prototype.reward = function() {
 RPG.Quests.LostNecklace = OZ.Class().extend(RPG.Quests.Retrieve);
 RPG.Quests.LostNecklace.prototype.init = function(giver, item) {
 	this._reward = null;
-	
+	this._chat = null;
+
+	this.parent(giver, item);
+	this._buildChat();
+}
+
+RPG.Quests.LostNecklace.prototype.revive = function() {
+	this._buildChat();
+}
+
+RPG.Quests.LostNecklace.prototype.setPhase = function(phase) {
+	this.parent(phase);
+	if (phase == RPG.QUEST_GIVEN) { RPG.Game.getStory().questCallback(this); }
+	if (phase == RPG.QUEST_DONE) { this._chat.setState(RPG.QUEST_DONE); }
+}
+
+RPG.Quests.LostNecklace.prototype.reward = function() {
+	var spell = this._reward;
+	var pc = RPG.Game.pc;
+	if (pc.getSpells().indexOf(spell) != -1) { return; }
+	pc.addSpell(spell);
+}
+
+RPG.Quests.LostNecklace.prototype._buildChat = function() {
 	var chat = new RPG.Misc.Chat(this);
-	giver.setChat(chat);
-	this._chat = chat;
+	this._giver.setChat(chat);
+
 	var REWARD_DEFENSIVE = 0;
 	var REWARD_OFFENSIVE = 1;
 	var REWARD_TESTING = 2;
@@ -489,21 +521,8 @@ RPG.Quests.LostNecklace.prototype.init = function(giver, item) {
 	chat.defineState(RPG.QUEST_REWARDED, '"Time will heal every scar."');
 	chat.defineEnd(RPG.QUEST_REWARDED);
 	chat.defineCallback(RPG.QUEST_REWARDED, function() { this.setPhase(RPG.QUEST_REWARDED); });
-	
-	this.parent(giver, item);
-}
 
-RPG.Quests.LostNecklace.prototype.setPhase = function(phase) {
-	this.parent(phase);
-	if (phase == RPG.QUEST_GIVEN) { RPG.Game.getStory().questCallback(this); }
-	if (phase == RPG.QUEST_DONE) { this._chat.setState(RPG.QUEST_DONE); }
-}
-
-RPG.Quests.LostNecklace.prototype.reward = function() {
-	var spell = this._reward;
-	var pc = RPG.Game.pc;
-	if (pc.getSpells().indexOf(spell) != -1) { return; }
-	pc.addSpell(spell);
+	this._chat = chat;
 }
 
 /**
@@ -521,20 +540,28 @@ RPG.Story.Village.prototype.init = function() {
 	this._maxMazeDepth = 3;
 	this._mazeDepth = 0;
 	
+	this._addCallbacks();
 	this._boss = null;
 	this._village = null;
 	this._necklace = new RPG.Items.WeddingNecklace();
 	
+	this._digger = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
+	this._maze1 = new RPG.Generators.DividedMaze(new RPG.Misc.Coords(59, 19));
+	this._maze2 = new RPG.Generators.IceyMaze(new RPG.Misc.Coords(59, 19), null, 10);
+	this._maze3 = new RPG.Generators.Maze(new RPG.Misc.Coords(59, 19));
+}
+
+RPG.Story.Village.prototype.revive = function() {
+	this.parent();
+	this._addCallbacks();
+}
+
+RPG.Story.Village.prototype._addCallbacks = function() {
 	this._staircaseCallbacks["end"] = this.end;
     this._staircaseCallbacks["elder"] = this._nextElderDungeon;
     this._staircaseCallbacks["maze"] = this._nextElderDungeon;
     this._questCallbacks["elder"] = this._showElderStaircase;
     this._questCallbacks["maze"] = this._showMazeStaircase;
-
-	this._digger = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
-	this._maze1 = new RPG.Generators.DividedMaze(new RPG.Misc.Coords(59, 19));
-	this._maze2 = new RPG.Generators.IceyMaze(new RPG.Misc.Coords(59, 19), null, 10);
-	this._maze3 = new RPG.Generators.Maze(new RPG.Misc.Coords(59, 19));
 }
 
 RPG.Story.Village.prototype._createPC = function(race, profession, name) {

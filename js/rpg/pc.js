@@ -6,19 +6,20 @@
 RPG.Beings.PC = OZ.Class().extend(RPG.Beings.BaseBeing);
 RPG.Beings.PC.prototype.init = function(race, profession) {
 	this.parent(race);
-	this._image += "-" + profession.getImage();
+	var prof = new profession();
+	this._image += "-" + prof.getImage();
 	
 	this._visibleCells = [];
 	
 	this._description = "you";
 	this._kills = 0;
 	this._quests = [];
-	this._profession = profession;
 	
 	this.setFeat(RPG.FEAT_DV, 5);
 	this.setFeat(RPG.FEAT_MAX_HP, 10);
 	this.setFeat(RPG.FEAT_MAX_MANA, 5);
-	profession.setup(this);
+	
+	prof.setup(this);
 	
 	var tc = new RPG.Effects.TurnCounter(this);
 	this.addEffect(tc);

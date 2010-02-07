@@ -269,10 +269,6 @@ RPG.Races.BaseRace.prototype.getSlots = function() {
 	return this._slots;
 }
 
-RPG.Races.BaseRace.prototype.getSlot = function(type) {
-	return this._slots[type] || null;
-}
-
 /**
  * @class Basic per-turn effect
  */

@@ -91,7 +91,7 @@ RPG.Story.prototype._charPicked = function(e) {
 }
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
-	var pc = new RPG.Beings.PC(new race(), new profession());
+	var pc = new RPG.Beings.PC(race, profession);
 	pc.setName(name);
 	return pc;
 }

@@ -10,7 +10,7 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._initVisuals();
 
 	this._name = "";
-	this._race = null;
+	this._slots = {};
 	this._cell = null;
 	this._gender = RPG.GENDER_NEUTER;
 	this._confirm = RPG.CONFIRM_NA;
@@ -23,8 +23,9 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._spells = [];
 	this._knownTraps = [];
 
-	this._setRace(race);
-	this._initStatsAndFeats();
+	var r = new race();
+	this._setRace(r);
+	this._initStatsAndFeats(r);
 
 	var regen = new RPG.Effects.Regeneration(this);
 	this.addEffect(regen);
@@ -54,23 +55,21 @@ RPG.Beings.BaseBeing.prototype.setConfirm = function(confirm) {
  * Prepare the being-race binding
  */
 RPG.Beings.BaseBeing.prototype._setRace = function(race) {
-	this._race = race;
-
 	/* inherit color+char+image from race */
 	this._color = race.getColor();
 	this._char = race.getChar();
 	this._image = race.getImage();
 	
 	/* bind all slots to a particular being */
-	var slots = race.getSlots();
-	for (var p in slots) { slots[p].setBeing(this); }
+	this._slots = race.getSlots();
+	for (var p in this._slots) { this._slots[p].setBeing(this); }
 }
 
 /**
  * Initialize stats (HP, ...) and feats (Max HP, DV, PV, ...)
  */
-RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
-	var defaults = this._race.getDefaults();
+RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function(race) {
+	var defaults = race.getDefaults();
 	
 	this._stats = {};
 	this._stats[RPG.STAT_HP] = 0;
@@ -229,14 +228,14 @@ RPG.Beings.BaseBeing.prototype.getItems = function() {
  * Return all available slots
  */
 RPG.Beings.BaseBeing.prototype.getSlots = function() {
-	return this._race.getSlots();
+	return this._slots;
 }
 
 /**
  * Return slot by its type constant
  */
 RPG.Beings.BaseBeing.prototype.getSlot = function(type) {
-	return this._race.getSlot(type);
+	return this._slots[type] || null;
 }
 
 /**
@@ -431,11 +430,10 @@ RPG.Beings.BaseBeing.prototype.fullStats = function() {
  * This being drops everything it holds.
  */
 RPG.Beings.BaseBeing.prototype.dropAll = function() {
-	var slots = this._race.getSlots();
-	for (var p in slots) { this.unequip(p); }
+	for (var p in this._slots) { this.unequip(p); }
 
 	for (var i=0;i<this._items.length;i++) { /* drop items */
-		if (Math.randomPercentage() < 81) {
+		if (Math.randomPercentage() < 81) { /* FIXME */
 			this._cell.addItem(this._items[i]);
 		}
 	}

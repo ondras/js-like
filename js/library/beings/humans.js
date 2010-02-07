@@ -5,7 +5,7 @@
 RPG.Beings.Villager = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Villager.factory.ignore = true;
 RPG.Beings.Villager.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 	this.randomGender();
 	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
 	

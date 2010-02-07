@@ -16,7 +16,7 @@ RPG.Beings.Undead.prototype.init = function(race) {
 RPG.Beings.Skeleton = OZ.Class().extend(RPG.Beings.Undead);
 RPG.Beings.Skeleton.factory.frequency = 25;
 RPG.Beings.Skeleton.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 	
 	this._description = "skeleton";
 	this._char = "z";
@@ -38,7 +38,7 @@ RPG.Beings.Skeleton.prototype.init = function() {
 RPG.Beings.Zombie = OZ.Class().extend(RPG.Beings.Undead);
 RPG.Beings.Zombie.factory.frequency = 25;
 RPG.Beings.Zombie.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 	this.randomGender();
 
 	this.adjustFeat(RPG.FEAT_STRENGTH, 3);

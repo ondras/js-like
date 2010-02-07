@@ -9,6 +9,7 @@ RPG.Beings.NPC.prototype.init = function(race) {
 	this.parent(race);
 	this._ai = new RPG.AI(this);
 	this._alignment = RPG.ALIGNMENT_NEUTRAL;
+	this._chat = null;
 }
 
 RPG.Beings.NPC.prototype.ai = function() {

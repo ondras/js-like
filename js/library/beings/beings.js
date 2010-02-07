@@ -5,7 +5,7 @@
 RPG.Beings.Goblin = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Goblin.prototype.init = function() {
 	/* goblins are below-average humanoids */
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 	this.randomGender();
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
@@ -95,7 +95,7 @@ RPG.Beings.Troll = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Troll.factory.frequency = 10;
 RPG.Beings.Troll.prototype.init = function() {
 	/* trolls are above-average humanoids */
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 	this.randomGender();
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
@@ -151,7 +151,7 @@ RPG.Beings.God.prototype.canSee = function(cell) {
 RPG.Beings.Rat = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Rat.factory.frequency = 110;
 RPG.Beings.Rat.prototype.init = function() {
-	this.parent(new RPG.Races.Animal());
+	this.parent(RPG.Races.Animal);
 	
 	this.setFeat(RPG.FEAT_TOUGHNESS, 7);
 	this.setFeat(RPG.FEAT_DEXTERITY, 14);
@@ -190,7 +190,7 @@ RPG.Beings.GiantRat.prototype.init = function() {
 RPG.Beings.Bat = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Bat.factory.frequency = 100;
 RPG.Beings.Bat.prototype.init = function() {
-	this.parent(new RPG.Races.Animal());
+	this.parent(RPG.Races.Animal);
 	
 	this.setFeat(RPG.FEAT_TOUGHNESS, 7);
 	this.setFeat(RPG.FEAT_DEXTERITY, 14);
@@ -231,7 +231,7 @@ RPG.Beings.GiantBat.prototype.init = function() {
 RPG.Beings.Wolf = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Wolf.factory.frequency = 10;
 RPG.Beings.Wolf.prototype.init = function() {
-	this.parent(new RPG.Races.Animal());
+	this.parent(RPG.Races.Animal);
 	
 	this.setFeat(RPG.FEAT_STRENGTH, 10);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 10);
@@ -293,7 +293,7 @@ RPG.Beings.Jackal.prototype.init = function() {
 RPG.Beings.Bear = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Bear.factory.frequency = 50;
 RPG.Beings.Bear.prototype.init = function() {
-	this.parent(new RPG.Races.Animal());
+	this.parent(RPG.Races.Animal);
 	
 	this.setFeat(RPG.FEAT_STRENGTH, 14);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 14);
@@ -317,7 +317,7 @@ RPG.Beings.Bear.prototype.init = function() {
 RPG.Beings.Snake = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Snake.factory.frequency = 20;
 RPG.Beings.Snake.prototype.init = function() {
-	this.parent(new RPG.Races.Animal());
+	this.parent(RPG.Races.Animal);
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
 	this.setFeat(RPG.FEAT_STRENGTH, 7);
@@ -340,7 +340,7 @@ RPG.Beings.Snake.prototype.init = function() {
 RPG.Beings.Orc = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Orc.factory.frequency = 100;
 RPG.Beings.Orc.prototype.init = function() {
-	this.parent(new RPG.Races.Orc());
+	this.parent(RPG.Races.Humanoid);
 	this.randomGender();
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
@@ -436,7 +436,7 @@ RPG.Beings.OrcChieftain.prototype.init = function() {
 RPG.Beings.Ogre = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Ogre.factory.frequency = 20;
 RPG.Beings.Ogre.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 	this.randomGender();
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
@@ -460,7 +460,7 @@ RPG.Beings.Ogre.prototype.init = function() {
 RPG.Beings.Gnoll = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Gnoll.factory.frequency = 60;
 RPG.Beings.Gnoll.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 	this.randomGender();
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
@@ -489,7 +489,7 @@ RPG.Beings.Gnoll.prototype.init = function() {
 RPG.Beings.Kobold = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Kobold.factory.frequency = 50;
 RPG.Beings.Kobold.prototype.init = function() {
-	this.parent(new RPG.Races.Humanoid());
+	this.parent(RPG.Races.Humanoid);
 	this.randomGender();
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
