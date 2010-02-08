@@ -101,6 +101,55 @@ RPG.Game.getMap = function() {
 }
 
 /**
+ * Start creating save data
+ * @param {function} readyStateChange Called when progress is made
+ */
+RPG.Game.save = function(readyStateChange) {
+	var stack = [];
+	var serializer = new RPG.Serializer();
+	var lzw = new RPG.LZW();
+	var data = "";
+	
+	var VERSION = 1;
+	var HEADER = String.fromCharCode(VERSION, 0);
+	
+	stack.push(function() {
+		readyStateChange(RPG.SAVELOAD_PROCESS, "JSONifying...");
+		try {
+			data = serializer.go();
+		} catch (e) {
+			stack = [];
+			readyStateChange(RPG.SAVELOAD_FAILURE, e);
+		}
+	});
+	
+	stack.push(function() {
+		readyStateChange(RPG.SAVELOAD_PROCESS, "Compressing...");
+		try {
+			data = lzw.encode(data);
+		} catch (e) {
+			stack = [];
+			readyStateChange(RPG.SAVELOAD_FAILURE, e);
+		}
+	});
+
+	stack.push(function() {
+		readyStateChange(RPG.SAVELOAD_PROCESS, "Finalizing...");
+		for (var i=0;i<data.length;i++) { data[i] = String.fromCharCode(data[i]); }
+		data.unshift(HEADER);
+		readyStateChange(RPG.SAVELOAD_DONE, data.join(""));
+	});
+
+	var step = function() {
+		var todo = stack.shift();
+		todo();
+		if (stack.length) { setTimeout(arguments.callee, 100); }
+	}
+	
+	step();
+}
+
+/**
  * Return a plain JSON content
  */
 RPG.Game.serialize = function(ser) {

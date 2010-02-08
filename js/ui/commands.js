@@ -23,6 +23,7 @@ RPG.UI.Command.prototype.cancel = function() {
 }
 
 RPG.UI.Command.prototype.exec = function() {
+	alert("Not implemented .)");
 }
 
 RPG.UI.Command.prototype._click = function(e) {
@@ -1162,3 +1163,35 @@ RPG.UI.Command.Launch.prototype.cancel = function() {
 	RPG.UI.map.removeProjectiles();
 	RPG.UI.refocus();
 }
+
+/**
+ * @class Save
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Save = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.Save.prototype.init = function() {
+	this.parent("Save");
+	this._button.setChar("S");
+}
+
+RPG.UI.Command.Save.prototype.exec = function() {
+	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
+	new RPG.UI.SaveLoad(this._done.bind(this));
+}
+
+RPG.UI.Command.Save.prototype._done = function() {
+	RPG.UI.setMode(RPG.UI_NORMAL);
+}
+
+/**
+ * @class Load
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Load = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.Load.prototype.init = function() {
+	this.parent("Load");
+	this._button.setChar("L");
+}
+

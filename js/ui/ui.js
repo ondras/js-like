@@ -147,11 +147,13 @@ RPG.UI.build = function() {
 	d.appendChild(new RPG.UI.Command.KillStats().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Quests().getButton().getInput());
 
+	var d = OZ.DOM.elm("div", {innerHTML:"Miscellaneous: "});
+	c.appendChild(d);
 	if (this.sound.isSupported()) {
-		var d = OZ.DOM.elm("div", {innerHTML:"Miscellaneous: "});
-		c.appendChild(d);
 		d.appendChild(new RPG.UI.Command.Mute().getButton().getInput());
 	}
+	d.appendChild(new RPG.UI.Command.Save().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Load().getButton().getInput());
 }
 
 RPG.UI.showDialog = function(data, title) {
