@@ -6,7 +6,8 @@ RPG.Game = {
 	_story: null,
 	_engine: null,
 	_map: null,
-	_events: []
+	_events: [],
+	_version: 1
 }
 
 RPG.Game.init = function() {
@@ -42,9 +43,9 @@ RPG.Game.addEvent = function(who, event, callback) {
 
 RPG.Game.removeEvent = function(id) {
 	OZ.Event.remove(id);
-	var index = this._events.indexOf(id);
-	if (index != -1) { this._events.splice(index, 1); }
-	return this;
+	var index = RPG.Game._events.indexOf(id);
+	if (index != -1) { RPG.Game._events.splice(index, 1); }
+	return RPG.Game;
 }
 
 RPG.Game.setStory = function(story) {
@@ -107,11 +108,9 @@ RPG.Game.getMap = function() {
 RPG.Game.save = function(readyStateChange) {
 	var stack = [];
 	var serializer = new RPG.Serializer();
-	var lzw = new RPG.LZW();
 	var data = "";
 	
-	var VERSION = 1;
-	var HEADER = String.fromCharCode(VERSION, 0);
+	var header = [this._version, 0];
 	
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "JSONifying...");
@@ -126,7 +125,8 @@ RPG.Game.save = function(readyStateChange) {
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "Compressing...");
 		try {
-			data = lzw.encode(data);
+			data = Compress.stringToBytes(data);
+			data = Compress.LZW(data);
 		} catch (e) {
 			stack = [];
 			readyStateChange(RPG.SAVELOAD_FAILURE, e);
@@ -135,9 +135,9 @@ RPG.Game.save = function(readyStateChange) {
 
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "Finalizing...");
-		for (var i=0;i<data.length;i++) { data[i] = String.fromCharCode(data[i]); }
-		data.unshift(HEADER);
-		readyStateChange(RPG.SAVELOAD_DONE, data.join(""));
+		while (header.length) { data.unshift(header.pop()); }
+		data = Compress.bytesToString(data);
+		readyStateChange(RPG.SAVELOAD_DONE, data);
 	});
 
 	var step = function() {
@@ -152,11 +152,13 @@ RPG.Game.save = function(readyStateChange) {
 /**
  * Return a plain JSON content
  */
-RPG.Game.serialize = function(ser) {
-	return {
-		pc: ser.serialize(this.pc),
-		story: ser.serialize(this._story),
-		engine: ser.serialize(this._engine),
-		map: ser.serialize(this._map)
-	};
+RPG.Game.toJSON = function(handler) {
+	return handler.toJSON({
+		pc: this.pc,
+		story: this._story,
+		engine: this._engine,
+		map: this._map,
+		sound: RPG.UI.sound.getBackground(),
+		status: RPG.UI.status.toJSON()
+	});
 }

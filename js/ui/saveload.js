@@ -92,10 +92,17 @@ RPG.UI.SaveLoad.prototype._build = function() {
 RPG.UI.SaveLoad.prototype._testMethods = function() {
 	if (!window.localStorage) { this._methods[this.LOCAL].enabled = false; }
 	
-	OZ.Request("ajax/?action=test", function(data, status, headers) {
+	var response = function(data, status, headers) {
 		if (status != 200) { this._methods[this.REMOTE].enabled = false; }
 		this._build();
-	}.bind(this));
+	}
+	
+	try {
+		OZ.Request("ajax/?action=test", response.bind(this));
+	} catch (e) {
+		response.call(this, "", 500, {});
+	}
+
 }
 
 /**

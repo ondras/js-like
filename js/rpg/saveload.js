@@ -30,7 +30,7 @@ RPG.Serializer.prototype.go = function() {
 
 	var result = {};
 	result.classes = classNames;
-	result.game = this.serialize(RPG.Game);
+	result.game = RPG.Game.toJSON(this);
 	
 	do {
 		var ok = true;
@@ -60,26 +60,25 @@ RPG.Serializer.prototype.classIndex = function(what) {
 }
 
 /**
+ * Called from an instance that wants a specific serialization
+ */
+RPG.Serializer.prototype.toJSON = function(what, options) {
+	return this._serializeObject(what, options);
+}
+
+/**
  * Convert instance to JSON representation
  */
 RPG.Serializer.prototype.finalizeInstance = function(instance) {
-	if (instance.serialize) {
-		return instance.serialize(this);
+	if (instance.toJSON) {
+		return instance.toJSON(this);
 	} else {
 		return this._doSerializeInstance(instance);
 	}
 }
 
-/**
- * Called from an instance that wants a specific serialization
- */
-RPG.Serializer.prototype.serialize = function(what, options) {
-	return this._doSerializeInstance(what, options);
-}
-
-
-RPG.Serializer.prototype._doSerializeInstance = function(what, options) {
-	var result = this._serializeObject(what, options);
+RPG.Serializer.prototype._doSerializeInstance = function(what) {
+	var result = this._serializeObject(what);
 	result["#c"] = this.classIndex(what.constructor);
 	return result;
 }

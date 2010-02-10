@@ -13,6 +13,26 @@ RPG.UI.Status.prototype.init = function(container) {
 	this._build(container);
 }
 
+RPG.UI.Status.prototype.toJSON = function(handler) {
+	var data = {
+		feats:{},
+		stats:{},
+		misc:{}
+	};
+	
+	for (var p in this._dom.feats) { data.feats[p] = this._dom.feats[p].innerHTML; }
+	for (var p in this._dom.stats) { data.stats[p] = this._dom.stats[p].innerHTML; }
+	for (var p in this._dom.misc) { data.misc[p] = this._dom.misc[p].innerHTML; }
+
+	return data;
+}
+
+RPG.UI.Status.prototype.fromJSON = function(data) {
+	for (var p in data.feats) { this._dom.feats[p].innerHTML = data.feats[p]; }
+	for (var p in data.stats) { this._dom.stats[p].innerHTML = data.stats[p]; }
+	for (var p in data.misc) { this._dom.misc[p].innerHTML = data.misc[p]; }
+}
+
 RPG.UI.Status.prototype.updateMap = function(str) {
 	this._dom.misc.map.innerHTML = str;
 }

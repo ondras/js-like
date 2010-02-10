@@ -81,12 +81,3 @@ RPG.Misc.VisualTrace.prototype.init = function(what) {
 	this._color = what.getColor();
 	this._description = what.describe();
 }
-
-RPG.Misc.VisualTrace.prototype.toJSON = function(serializer) {
-	return {
-		ch: this._char,
-		image: this._image,
-		color: this._color,
-		description: this._description
-	}
-}

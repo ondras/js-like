@@ -22,9 +22,9 @@ RPG.Cells.BaseCell.prototype.init = function() {
 	}
 }
 
-RPG.Cells.BaseCell.prototype.serialize = function(serializer) {
+RPG.Cells.BaseCell.prototype.toJSON = function(handler) {
 	var c = (this._coords ? this._coords.x + "," + this._coords.y : null);
-	return serializer.serialize(this, {
+	return handler.toJSON(this, {
 		exclude:["_coords"], 
 		include:{"_coords": c}
 	});

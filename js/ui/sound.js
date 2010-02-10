@@ -8,8 +8,12 @@ RPG.UI.Sound.prototype.init = function() {
 	this._muted = false;
 	if (!this._supported) { return; }
 	
-	this._cache = [];
-	this._background = new Audio("");
+	this._cache = {};
+	this._bg = {
+		audio: null,
+		name: "",
+		event: null
+	}
 	
 	OZ.Event.add(window, "unload", this.bind(this._unload));
 }
@@ -67,9 +71,22 @@ RPG.UI.Sound.prototype.preload = function(name) {
  */
 RPG.UI.Sound.prototype.playBackground = function(name) {
 	if (!this._supported) { return; }
-	this._background.pause();
-	this._background = this.play(name);
-	OZ.Event.add(this._background, "ended", this.bind(this._ended));
+	if (name == this._bg.name) { return; }
+	
+	if (this._bg.name) {
+		this._bg.audio.pause();
+		OZ.Event.remove(this._bg.event);
+	}
+	
+	this._bg.name = name;
+	if (name) { 
+		this._bg.audio = this.play(name);
+		this._bg.event = OZ.Event.add(this._bg.audio, "ended", this._ended.bind(this));
+	}
+}
+
+RPG.UI.Sound.prototype.getBackground = function() {
+	return this._bg.name;
 }
 
 RPG.UI.Sound.prototype.getMuted = function() {
@@ -87,7 +104,7 @@ RPG.UI.Sound.prototype._unload = function() {
 }
 
 RPG.UI.Sound.prototype._ended = function() {
-	this._background.play();
+	this._bg.audio.play();
 }
 
 RPG.UI.Sound.prototype._resolve = function(name) {
