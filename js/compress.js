@@ -3,19 +3,45 @@ var Compress = {};
 Compress.stringToBytes = function(str) {
 	var result = [];
 	for (var i=0;i<str.length;i++) {
-		var num = str.charCodeAt(i);
-		if (num > 255) { throw new Error("Bad character code ("+num+") at position "+i); }
-		result.push(num);
+		var c = str.charCodeAt(i);
+		if (c < 128) {
+			result.push(c);
+		} else if ((c > 127) && (c < 2048)) {
+			result.push((c >> 6) | 192);
+			result.push((c & 63) | 128);
+		} else {
+			result.push((c >> 12) | 224);
+			result.push(((c >> 6) & 63) | 128);
+			result.push((c & 63) | 128);
+		}
 	}
 	return result;
 }
 
 Compress.bytesToString = function(bytes) {
-	var arr = [];
-	for (var i=0;i<bytes.length;i++) {
-		arr.push(String.fromCharCode(bytes[i]));
+	var result = [];
+	
+	var i = 0;
+	var c = c1 = c2 = 0;
+	
+	while (i < bytes.length) {
+		c = bytes[i];
+		if (c < 128) {
+			result.push(String.fromCharCode(c));
+			i += 1;
+		} else if ((c > 191) && (c < 224)) {
+			c1 = bytes[i+1];
+			result.push(String.fromCharCode(((c & 31) << 6) | (c1 & 63)));
+			i += 2;
+		} else {
+			c1 = bytes[i+1];
+			c2 = bytes[i+2];
+			result.push(String.fromCharCode(((c & 15) << 12) | ((c1 & 63) << 6) | (c2 & 63)));
+			i += 3;
+		}
 	}
-	return arr.join("");
+
+	return result.join("");
 }
 
 Compress.LZW = function(input, options) {
@@ -304,6 +330,61 @@ Compress.iMTF = function(input, options) {
 		dict.unshift(val);
 	}
 	
+	return output;
+}
+
+Compress.base64 = function(input) {
+	var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+	var output = [];
+	var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+	var i = 0;
+
+	do {
+		chr1 = input[i++];
+		chr2 = input[i++];
+		chr3 = input[i++];
+
+		enc1 = chr1 >> 2;
+		enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+		enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+		enc4 = chr3 & 63;
+
+		if (isNaN(chr2)) { 
+				enc3 = enc4 = 64;
+		} else if (isNaN(chr3)) {
+				enc4 = 64;
+		}
+
+		output.push(keyStr.charAt(enc1));
+		output.push(keyStr.charAt(enc2));
+		output.push(keyStr.charAt(enc3));
+		output.push(keyStr.charAt(enc4));
+	} while (i < input.length);
+	return output.join("");
+}
+
+Compress.ibase64 = function(input) {
+	var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+	var output = [];
+	var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+	var i = 0;
+
+	do {
+		enc1 = keyStr.indexOf(input[i++]);
+		enc2 = keyStr.indexOf(input[i++]);
+		enc3 = keyStr.indexOf(input[i++]);
+		enc4 = keyStr.indexOf(input[i++]);
+
+		chr1 = (enc1 << 2) | (enc2 >> 4);
+		chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+		chr3 = ((enc3 & 3) << 6) | enc4;
+
+		output.push(chr1);
+
+		if (enc3 != 64) { output.push(chr2); }
+		if (enc4 != 64) { output.push(chr3); }
+	} while (i < input.length);
+
 	return output;
 }
 

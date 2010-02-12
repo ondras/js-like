@@ -3,36 +3,43 @@
  */
 RPG.UI.SaveLoad = OZ.Class();
 
-RPG.UI.SaveLoad.prototype.init = function(callback) {
+RPG.UI.SaveLoad.prototype.init = function(mode, callback) {
 	this._dom = {
 		select: OZ.DOM.elm("select"),
 		status: OZ.DOM.elm("textarea", {width:"80%", rows:"5", readOnly:true}),
-		ta: OZ.DOM.elm("textarea", {width:"80%", rows:"5", readOnly:true, display:"none"})
+		ta: OZ.DOM.elm("textarea", {width:"80%", rows:"5"})
 	};
+	
+	this._mode = mode;
+	if (mode == RPG.SAVELOAD_SAVE) { this._dom.ta.readOnly = true; }
 	
 	this.CLIPBOARD	= "0";
 	this.LOCAL		= "1";
 	this.REMOTE		= "2";
 	
-	this._mode = -1;
+	this._method = -1;
 	this._methods = {};
 	this._methods[this.CLIPBOARD] = {
 		short: "Clipboard",
-		long: "Use clipboard to (manually) transfer saved game data to a file of your choice. " +
-			"Game state will be stored on user's computer. "
+		long: "Use clipboard to (manually) transfer saved game data to/from a file of your choice. " +
+			"Game state is stored on user's computer. "
 	};
 		
 	this._methods[this.LOCAL] = {
 		short: "Local storage",
 		long: "Saved game data is stored inside a browser. Your browser must support the HTML5 'localStorage' feature. " +
-			"Game state will be stored on user's computer. "
+			"Game state is stored on user's computer. "
 	};
 
 	this._methods[this.REMOTE] = {
 		short: "Remote database",
-		long: "Saved game data is transferred to a remote database server via AJAX. " +
-			"Game state will be stored on remote machine. "
+		long: "Saved game data is transferred to/from a remote database server via AJAX. " +
+			"Game state is stored on remote machine. "
 	};
+	
+	this._titles = {};
+	this._titles[RPG.SAVELOAD_SAVE] = "Save a game";
+	this._titles[RPG.SAVELOAD_LOAD] = "Load a saved game";
 	
 	for (var p in this._methods) {
 		var o = OZ.DOM.elm("option");
@@ -47,7 +54,6 @@ RPG.UI.SaveLoad.prototype.init = function(callback) {
 	this._buttons = [];
 	this._ec = [];
 	this._ec.push(OZ.Event.add(this._dom.select, "change", this._change.bind(this)));
-
 	this._testMethods();
 }
 
@@ -83,7 +89,7 @@ RPG.UI.SaveLoad.prototype._build = function() {
 		this._dom.select.appendChild(item.option);
 	}
 	this._change();
-	RPG.UI.showDialog(this._dom.container, "Save a game");
+	RPG.UI.showDialog(this._dom.container, this._titles[this._mode]);
 }
 
 /**
@@ -109,9 +115,14 @@ RPG.UI.SaveLoad.prototype._testMethods = function() {
  * User clicked the button, do what we must
  */
 RPG.UI.SaveLoad.prototype._go = function() {
-	this._mode = this._dom.select.value;
+	this._method = this._dom.select.value;
 	this._dom.status.value = "";
-	RPG.Game.save(this._readyStateChange.bind(this));
+	
+	if (this._mode == RPG.SAVELOAD_SAVE) {
+		RPG.Game.save(this._readyStateChange.bind(this));
+	} else {
+		this._retrieveData();
+	}
 }
 
 /**
@@ -128,7 +139,11 @@ RPG.UI.SaveLoad.prototype._readyStateChange = function(state, data) {
 			this._log("FAILURE: " + data);
 		break;
 		case RPG.SAVELOAD_DONE:
-			this._dataAvailable(data);
+			if (this._mode == RPG.SAVELOAD_SAVE) {
+				this._dataAvailable(data);
+			} else {
+				this._close();
+			}
 		break;
 	}
 }
@@ -137,24 +152,22 @@ RPG.UI.SaveLoad.prototype._readyStateChange = function(state, data) {
  * Data for saving/loading available
  */
 RPG.UI.SaveLoad.prototype._dataAvailable = function(data) {
-	switch (this._mode) {
+	switch (this._method) {
 		case this.CLIPBOARD:
 			this._dom.ta.style.display = "";
-			this._dom.ta.value = btoa(data);
+			this._dom.ta.value = data;
 			this._log("SAVED, now copy the data from the textarea below and save it to a file.");
 		break;
 		
 		case this.LOCAL:
-			var name = "";
+			var name = prompt("Please name your save game");
+			if (!name) { return; }
+
 			var key = "";
 			while (!key) {
-				while (!name) { name = prompt("Please name your save game"); }
 				key = "js-like-" + name;
 				if (localStorage.getItem(key)) {
-					if (!confirm("This name already exists, overwrite?")) { 
-						key = ""; 
-						name = "";
-					}
+					if (!confirm("This name already exists, overwrite?")) { key = "";  }
 				}
 			}
 			try {
@@ -163,6 +176,40 @@ RPG.UI.SaveLoad.prototype._dataAvailable = function(data) {
 			} catch(e) {
 				this._log("FAILURE: "+e);
 			}
+		break;
+		
+		case this.REMOTE:
+			this._log("Remote storage not yet implemented");
+		break;
+	}
+}
+
+/**
+ * Get saved data and feed them to the Game
+ */
+RPG.UI.SaveLoad.prototype._retrieveData = function() {
+	var done = function(data) { RPG.Game.load(data, this._readyStateChange.bind(this)); };
+	done = done.bind(this);
+
+	switch (this._method) {
+		case this.CLIPBOARD:
+			if (!this._dom.ta.value) {
+				this._log("Please paste saved game data into a textarea below and try again :)");
+				return;
+			}
+			done(this._dom.ta.value);
+		break;
+		
+		case this.LOCAL:
+			var name = prompt("What is the name of your saved game?");
+			if (!name) { return; }
+			var key = "js-like-" + name;
+			var data = localStorage.getItem(key);
+			if (data == null) {
+				this._log("There is no such saved game.");
+				return;
+			}
+			done(data);
 		break;
 		
 		case this.REMOTE:
@@ -184,6 +231,7 @@ RPG.UI.SaveLoad.prototype._log = function(text) {
 RPG.UI.SaveLoad.prototype._change = function(e) {
 	var index = this._dom.select.value;
 	this._dom.status.value = this._methods[index].long;
+	this._dom.ta.style.display = (index == this.CLIPBOARD ? "" : "none");
 }
 
 /**

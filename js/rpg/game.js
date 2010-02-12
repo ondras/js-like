@@ -107,45 +107,84 @@ RPG.Game.getMap = function() {
  */
 RPG.Game.save = function(readyStateChange) {
 	var stack = [];
-	var serializer = new RPG.Serializer();
 	var data = "";
-	
 	var header = [this._version, 0];
 	
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "JSONifying...");
-		try {
-			data = serializer.go();
-		} catch (e) {
-			stack = [];
-			readyStateChange(RPG.SAVELOAD_FAILURE, e);
-		}
+		data = new RPG.Serializer().go();
 	});
 	
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "Compressing...");
-		try {
-			data = Compress.stringToBytes(data);
-			data = Compress.LZW(data);
-		} catch (e) {
-			stack = [];
-			readyStateChange(RPG.SAVELOAD_FAILURE, e);
-		}
+		data = Compress.stringToBytes(data);
+		data = Compress.LZW(data);
 	});
 
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "Finalizing...");
 		while (header.length) { data.unshift(header.pop()); }
-		data = Compress.bytesToString(data);
+		data = Compress.base64(data);
 		readyStateChange(RPG.SAVELOAD_DONE, data);
 	});
 
+	this._runStack(stack, readyStateChange);
+}
+
+/**
+ * Restore saved game state
+ * @param {string} data Saved data
+ * @param {function} readyStateChange Called when progress is made
+ */
+RPG.Game.load = function(data, readyStateChange) {
+	var stack = [];
+	
+	stack.push(function() {
+		readyStateChange(RPG.SAVELOAD_PROCESS, "Uncompressing...");
+		data = Compress.ibase64(data);
+		var header = [data.shift(), data.shift()];
+		/* FIXME header check */
+		data = Compress.iLZW(data);
+	});
+	
+	stack.push(function() {
+		readyStateChange(RPG.SAVELOAD_PROCESS, "DeJSONifying...");
+		data = Compress.bytesToString(data);
+		data = new RPG.Parser().go(data);
+	});
+
+	stack.push(function() {
+		readyStateChange(RPG.SAVELOAD_PROCESS, "Finalizing...");
+		
+		/* backup old event ids */
+		var events = this._events;
+		this._events = [];
+		
+		try {
+			this.fromJSON(data); /* restore + attach new events */
+			events.forEach(this.removeEvent); /* remove old events */
+			readyStateChange(RPG.SAVELOAD_DONE); /* done */
+		} catch (e) {
+			this._events.forEach(this.removeEvent); /* remove all partially attached events */
+			this._events = events; /* put back old events */
+			throw e; /* rethrow */
+		}
+
+	}.bind(this));
+
+	this._runStack(stack, readyStateChange);
+}
+
+RPG.Game._runStack = function(stack, readyStateChange) {
 	var step = function() {
 		var todo = stack.shift();
-		todo();
-		if (stack.length) { setTimeout(arguments.callee, 100); }
+		try {
+			todo();
+			if (stack.length) { setTimeout(arguments.callee, 100); }
+		} catch (e) {
+			readyStateChange(RPG.SAVELOAD_FAILURE, e);
+		}
 	}
-	
 	step();
 }
 
@@ -161,4 +200,19 @@ RPG.Game.toJSON = function(handler) {
 		sound: RPG.UI.sound.getBackground(),
 		status: RPG.UI.status.toJSON()
 	});
+}
+
+/**
+ * Restore game state from a JSON object
+ */
+RPG.Game.fromJSON = function(data) {
+	this.pc = data.pc;
+	this._story = data.story;
+	this._engine = data.engine;
+	this._map = data.map;
+	RPG.UI.sound.playBackground(data.sound);
+	RPG.UI.status.fromJSON(data.status);
+	
+	RPG.UI.map.resize(this._map.getSize());
+	RPG.UI.map.redrawAll(); 
 }

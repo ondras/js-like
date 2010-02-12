@@ -73,14 +73,8 @@ RPG.Serializer.prototype.finalizeInstance = function(instance) {
 	if (instance.toJSON) {
 		return instance.toJSON(this);
 	} else {
-		return this._doSerializeInstance(instance);
+		return this.toJSON(instance);
 	}
-}
-
-RPG.Serializer.prototype._doSerializeInstance = function(what) {
-	var result = this._serializeObject(what);
-	result["#c"] = this.classIndex(what.constructor);
-	return result;
 }
 
 /**
@@ -115,6 +109,11 @@ RPG.Serializer.prototype._serializeObject = function(obj, options) {
 */
 
 	var result = {};
+
+	if (obj.constructor.extend) {
+		result["#c"] = this.classIndex(obj.constructor);
+	}
+
 	var ignore = ["constructor"];
 	
 	for (var p in obj) {
@@ -167,12 +166,8 @@ RPG.Serializer.prototype._serializeValue = function(value) {
 		return arr;
 	}
 	
-	if (this._classes.indexOf(value.constructor) != -1) { /* instance */
-		if (value.serializeToString) {
-			return value.serializeToString();
-		} else {
-			return this._serializeInstance(value);
-		}
+	if (value.constructor.extend) { /* instance */
+		return this._serializeInstance(value);
 	}
 	
 	/* object */
@@ -278,6 +273,7 @@ RPG.Parser.prototype.init = function() {
 	this._instances = {}; /* by id, deserialized json */
 	this._done = {}; /* by id, completed instances */
 	this._later = {}; /* object and properties waiting for delayed deserialization */
+	this._revives = [];
 }
 
 RPG.Parser.prototype.go = function(str) {
@@ -286,6 +282,7 @@ RPG.Parser.prototype.go = function(str) {
 		- game
 		- stacks
 	*/
+	this._revives = [];
 	var data = JSON.parse(str);
 
 	/* retrieve classes */
@@ -316,8 +313,14 @@ RPG.Parser.prototype.go = function(str) {
 		if (p in this._done) { continue; } /* already done */
 		this._parseInstance(p);
 	}
-	debugger;
+	
+	/* revive all who know how to do it */
+	for (var i=0;i<this._revives.length;i++) {
+		this._revives[i].revive();
+	}
+
 	this._instances = {};
+	this._revives = [];
 	this._done = {};
 	this._later = {};
 	return data.game;
@@ -402,7 +405,7 @@ RPG.Parser.prototype._parseInstance = function(id) {
 	this._parse(result);
 	
 	/* revive */
-	if (result.revive) { result.revive(); }
+	if (result.revive) { this._revives.push(result); }
 }
 
 /**
