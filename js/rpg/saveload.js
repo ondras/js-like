@@ -314,16 +314,19 @@ RPG.Parser.prototype.go = function(str) {
 		this._parseInstance(p);
 	}
 	
-	/* revive all who know how to do it */
-	for (var i=0;i<this._revives.length;i++) {
-		this._revives[i].revive();
-	}
 
 	this._instances = {};
-	this._revives = [];
 	this._done = {};
 	this._later = {};
 	return data.game;
+}
+
+/* revive all who know how to do it */
+RPG.Parser.prototype.revive = function() {
+	for (var i=0;i<this._revives.length;i++) {
+		this._revives[i].revive();
+	}
+	this._revives = [];
 }
 
 /**

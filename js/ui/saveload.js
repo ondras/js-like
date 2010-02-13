@@ -64,7 +64,11 @@ RPG.UI.SaveLoad.prototype._build = function() {
 	this._dom.container = OZ.DOM.elm("div");
 
 	var go = new RPG.UI.Button("Go", this._go.bind(this));
-	go.setChar("S");
+	if (this._mode == RPG.SAVELOAD_SAVE) {
+		go.setChar("S");
+	} else {
+		go.setChar("L");
+	}
 	this._buttons.push(go);
 	
 	var close = new RPG.UI.Button("Close", this._close.bind(this));

@@ -138,6 +138,7 @@ RPG.Game.save = function(readyStateChange) {
  */
 RPG.Game.load = function(data, readyStateChange) {
 	var stack = [];
+	var p = new RPG.Parser();
 	
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "Uncompressing...");
@@ -150,23 +151,24 @@ RPG.Game.load = function(data, readyStateChange) {
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "DeJSONifying...");
 		data = Compress.bytesToString(data);
-		data = new RPG.Parser().go(data);
+		data = p.go(data);
 	});
 
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "Finalizing...");
 		
 		/* backup old event ids */
-		var events = this._events;
+		var oldEvents = this._events;
 		this._events = [];
 		
 		try {
+			p.revive(); /* re-attach */
 			this.fromJSON(data); /* restore + attach new events */
-			events.forEach(this.removeEvent); /* remove old events */
+			oldEvents.forEach(this.removeEvent); /* remove old events */
 			readyStateChange(RPG.SAVELOAD_DONE); /* done */
 		} catch (e) {
 			this._events.forEach(this.removeEvent); /* remove all partially attached events */
-			this._events = events; /* put back old events */
+			this._events = oldEvents; /* put back old events */
 			throw e; /* rethrow */
 		}
 
