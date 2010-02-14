@@ -104,6 +104,7 @@ RPG.UI.Button.prototype.addCharCode = function(charCode) {
 
 RPG.UI.Button.prototype.setChar = function(ch) {
 	this._char = ch;
+	this._charCodes = [];
 	this.addCharCode(ch.charCodeAt(0));
 	this._setLabel();
 	return this;

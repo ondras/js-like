@@ -3,22 +3,30 @@
  */
 RPG.UI.SaveLoad = OZ.Class();
 
-RPG.UI.SaveLoad.prototype.init = function(mode, callback) {
-	this._dom = {
-		select: OZ.DOM.elm("select"),
-		status: OZ.DOM.elm("textarea", {width:"80%", rows:"5", readOnly:true}),
-		ta: OZ.DOM.elm("textarea", {width:"80%", rows:"5"})
-	};
-	
-	this._mode = mode;
-	if (mode == RPG.SAVELOAD_SAVE) { this._dom.ta.readOnly = true; }
-	
+RPG.UI.SaveLoad.prototype.init = function() {
 	this.CLIPBOARD	= "0";
 	this.LOCAL		= "1";
 	this.REMOTE		= "2";
-	
-	this._method = -1;
+	this._method = this.CLIPBOARD;
 	this._methods = {};
+	this._prefix = "js-like-";
+	this._savedNames = {};
+	this._titles = {};
+	this._callback = null;
+	this._buttons = [];
+	this._mode = null;
+
+	this._dom = {
+		select: OZ.DOM.elm("select"),
+		status: OZ.DOM.elm("textarea", {width:"80%", rows:"5", readOnly:true}),
+		ta: OZ.DOM.elm("textarea", {width:"80%", rows:"5"}),
+		savedSelect: OZ.DOM.elm("select"),
+		saved: OZ.DOM.elm("div")
+	};
+	
+	this._savedNames[this.LOCAL] = [];
+	this._savedNames[this.REMOTE] = [];
+
 	this._methods[this.CLIPBOARD] = {
 		short: "Clipboard",
 		long: "Use clipboard to (manually) transfer saved game data to/from a file of your choice. " +
@@ -37,7 +45,6 @@ RPG.UI.SaveLoad.prototype.init = function(mode, callback) {
 			"Game state is stored on remote machine. "
 	};
 	
-	this._titles = {};
 	this._titles[RPG.SAVELOAD_SAVE] = "Save a game";
 	this._titles[RPG.SAVELOAD_LOAD] = "Load a saved game";
 	
@@ -50,10 +57,19 @@ RPG.UI.SaveLoad.prototype.init = function(mode, callback) {
 		item.enabled = true;
 	}
 	
+	OZ.Event.add(this._dom.select, "change", this._change.bind(this));
+	this._build();
+}
+
+RPG.UI.SaveLoad.prototype.show = function(mode, callback) {
+	this._mode = mode;
 	this._callback = callback;
-	this._buttons = [];
-	this._ec = [];
-	this._ec.push(OZ.Event.add(this._dom.select, "change", this._change.bind(this)));
+	for (var i=0;i<this._buttons.length;i++) { this._buttons[i].enable(); }
+	
+	this._dom.ta.readOnly = (mode == RPG.SAVELOAD_SAVE);
+	
+	this._savedNames[this.LOCAL] = [];
+	this._savedNames[this.REMOTE] = [];
 	this._testMethods();
 }
 
@@ -64,11 +80,6 @@ RPG.UI.SaveLoad.prototype._build = function() {
 	this._dom.container = OZ.DOM.elm("div");
 
 	var go = new RPG.UI.Button("Go", this._go.bind(this));
-	if (this._mode == RPG.SAVELOAD_SAVE) {
-		go.setChar("S");
-	} else {
-		go.setChar("L");
-	}
 	this._buttons.push(go);
 	
 	var close = new RPG.UI.Button("Close", this._close.bind(this));
@@ -80,6 +91,10 @@ RPG.UI.SaveLoad.prototype._build = function() {
 	d.appendChild(go.getInput());
 	this._dom.container.appendChild(d);
 	
+	this._dom.saved.innerHTML = "<strong>Saved game: </strong>";
+	this._dom.saved.appendChild(this._dom.savedSelect);
+	d.appendChild(this._dom.saved);
+
 	var d = OZ.DOM.elm("div");
 	d.appendChild(this._dom.status);
 	d.appendChild(this._dom.ta);
@@ -89,22 +104,53 @@ RPG.UI.SaveLoad.prototype._build = function() {
 	
 	for (var p in this._methods) {
 		var item = this._methods[p];
-		item.option.disabled = !item.enabled;
 		this._dom.select.appendChild(item.option);
 	}
+}
+
+RPG.UI.SaveLoad.prototype._syncDOM = function() {
+	var go = this._buttons[0];
+	if (this._mode == RPG.SAVELOAD_SAVE) {
+		go.setChar("S");
+	} else {
+		go.setChar("L");
+	}
+	
+	for (var p in this._methods) {
+		var item = this._methods[p];
+		item.option.disabled = !item.enabled;
+	}
 	this._change();
-	RPG.UI.showDialog(this._dom.container, this._titles[this._mode]);
 }
 
 /**
  * Check individual I/O method availability
  **/
 RPG.UI.SaveLoad.prototype._testMethods = function() {
-	if (!window.localStorage) { this._methods[this.LOCAL].enabled = false; }
+	this._methods[this.CLIPBOARD].enabled = true;
+	this._methods[this.LOCAL].enabled = true;
+	this._methods[this.REMOTE].enabled = true;
+	
+	if (!window.localStorage) { 
+		this._methods[this.LOCAL].enabled = false; 
+	} else if (this._mode == RPG.SAVELOAD_LOAD) { /* check saved names */
+		this._savedNames[this.LOCAL] = [];
+	
+		for (var i=0;i<localStorage.length;i++) {
+			var key = localStorage.key(i);
+			if (key.indexOf(this._prefix) == 0) {
+				var name = key.substr(this._prefix.length);
+				this._savedNames[this.LOCAL].push(name);
+			}
+		}
+		if (!this._savedNames[this.LOCAL].length) { this._methods[this.LOCAL].enabled = false; }
+	}
 	
 	var response = function(data, status, headers) {
 		if (status != 200) { this._methods[this.REMOTE].enabled = false; }
-		this._build();
+
+		this._syncDOM();
+		RPG.UI.showDialog(this._dom.container, this._titles[this._mode]);
 	}
 	
 	try {
@@ -169,7 +215,7 @@ RPG.UI.SaveLoad.prototype._dataAvailable = function(data) {
 
 			var key = "";
 			while (!key) {
-				key = "js-like-" + name;
+				key = this._prefix + name;
 				if (localStorage.getItem(key)) {
 					if (!confirm("This name already exists, overwrite?")) { key = "";  }
 				}
@@ -205,9 +251,7 @@ RPG.UI.SaveLoad.prototype._retrieveData = function() {
 		break;
 		
 		case this.LOCAL:
-			var name = prompt("What is the name of your saved game?");
-			if (!name) { return; }
-			var key = "js-like-" + name;
+			var key = this._prefix + this._dom.savedSelect.value;
 			var data = localStorage.getItem(key);
 			if (data == null) {
 				this._log("There is no such saved game.");
@@ -236,15 +280,30 @@ RPG.UI.SaveLoad.prototype._change = function(e) {
 	var index = this._dom.select.value;
 	this._dom.status.value = this._methods[index].long;
 	this._dom.ta.style.display = (index == this.CLIPBOARD ? "" : "none");
+	
+	if (this._mode == RPG.SAVELOAD_LOAD && index != this.CLIPBOARD) {
+		this._dom.saved.style.display = "";
+		var s = this._dom.savedSelect;
+		OZ.DOM.clear(s);
+		var opts = this._savedNames[index];
+		for (var i=0;i<opts.length;i++) {
+			var o = OZ.DOM.elm("option");
+			o.value = opts[i];
+			o.innerHTML = opts[i];
+			s.appendChild(o);
+		}
+	} else {
+		this._dom.saved.style.display = "none";
+	}
 }
 
 /**
  * Cancel the dialog
  */
 RPG.UI.SaveLoad.prototype._close = function() {
-	this._ec.forEach(OZ.Event.remove);
-	for (var i=0;i<this._buttons.length;i++) { this._buttons[i].destroy(); }
-	this._buttons = [];
+	for (var i=0;i<this._buttons.length;i++) { this._buttons[i].disable(); }
 	RPG.UI.hideDialog();
 	this._callback();
 }
+
+RPG.UI.saveload = new RPG.UI.SaveLoad();

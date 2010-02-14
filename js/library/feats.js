@@ -32,8 +32,8 @@ RPG.Feats[RPG.FEAT_MAGIC].name = "magic";
 RPG.Feats[RPG.FEAT_MAGIC].prototype.init = function(baseValue) {
 	this.parent(baseValue);
 	var arr = this._drd();
-	arr[0] *= 3;
-	arr[1] *= 3;
+	arr[0] = (arr[0]*3).round(3);
+	arr[1] = (arr[1]*3).round(3);
 	
 	this._modifiers[RPG.FEAT_MAX_MANA] = arr;
 	this._modifiers[RPG.FEAT_REGEN_MANA] = this._drd();

@@ -3,6 +3,15 @@
  */
 RPG.Serializer = OZ.Class();
 
+RPG.Serializer.TRANSLATION = {
+	"_coords": "#c",
+	"_description": "#d",
+	"_modifiers": "#m",
+	"_items": "#i",
+	"_feature": "#f",
+	"_being": "#b"
+}
+
 RPG.Serializer.prototype.init = function() {
 	this._classes = [];
 	this._stacks = [];
@@ -111,7 +120,7 @@ RPG.Serializer.prototype._serializeObject = function(obj, options) {
 	var result = {};
 
 	if (obj.constructor.extend) {
-		result["#c"] = this.classIndex(obj.constructor);
+		result["#"] = this.classIndex(obj.constructor);
 	}
 
 	var ignore = ["constructor"];
@@ -123,19 +132,28 @@ RPG.Serializer.prototype._serializeObject = function(obj, options) {
 		var value = obj[p];
 		if (typeof(value) == "undefined") { continue; }
 		if (typeof(value) == "function" && !value.extend) {
+/*
 			if (obj.hasOwnProperty(p)) {
-//				console.warn("Unknown function (property '"+p+"') encountered - we cannot serialize this");
-//				console.log(value);
+				console.warn("Unknown function (property '"+p+"') encountered - we cannot serialize this");
+				console.log(value);
 			}
+*/
 			continue;
 		} 
+	
+		/* forward prop translation */
+		if (p in RPG.Serializer.TRANSLATION) { p = RPG.Serializer.TRANSLATION[p]; }
 
-		result[p] = this._serializeValue(obj[p]);
+		result[p] = this._serializeValue(value);
 	}
 	
 	if (options && options.include) {
 		for (var p in options.include) {
 			var value = options.include[p];
+
+			/* forward prop translation */
+			if (p in RPG.Serializer.TRANSLATION) { p = RPG.Serializer.TRANSLATION[p]; }
+
 			result[p] = this._serializeValue(value);
 		}
 	}
@@ -268,12 +286,20 @@ RPG.Serializer.Stack.prototype.getData = function() {
  */
 RPG.Parser = OZ.Class();
 
+RPG.Parser.TRANSLATION = {};
+
 RPG.Parser.prototype.init = function() {
 	this._classes = [];
 	this._instances = {}; /* by id, deserialized json */
 	this._done = {}; /* by id, completed instances */
 	this._later = {}; /* object and properties waiting for delayed deserialization */
 	this._revives = [];
+	
+	/* inverse translation table */
+	for (var p in RPG.Serializer.TRANSLATION) {
+		var v = RPG.Serializer.TRANSLATION[p];
+		RPG.Parser.TRANSLATION[v] = p;
+	}
 }
 
 RPG.Parser.prototype.go = function(str) {
@@ -335,6 +361,14 @@ RPG.Parser.prototype.revive = function() {
 RPG.Parser.prototype._parse = function(obj) {
 	for (var p in obj) {
 		var v = obj[p];
+		
+		/* inverse prop translation */
+		if (p in RPG.Parser.TRANSLATION) {
+			delete obj[p];
+			p = RPG.Parser.TRANSLATION[p];
+			obj[p] = v;
+		}
+		
 		if (v === null) { continue; }
 
 		switch (typeof(v)) {
@@ -376,7 +410,7 @@ RPG.Parser.prototype._parseString = function(string, object, property) {
  */
 RPG.Parser.prototype._parseInstance = function(id) {
 	var instance = this._instances[id];
-	var classIndex = instance["#c"];
+	var classIndex = instance["#"];
 	var ctor = this._parseClass(classIndex);
 	if (!ctor) { throw new Error("No class available for '"+id+"'"); }
 	
@@ -387,7 +421,7 @@ RPG.Parser.prototype._parseInstance = function(id) {
 	
 	/* copy all values */
 	for (var p in instance) {
-		if (p == "#c") { continue; }
+		if (p == "#") { continue; }
 		result[p] = instance[p];
 	}
 	
@@ -435,13 +469,17 @@ RPG.Parser.prototype._nameToClass = function(str) {
 
 var test2 = function() {
 	var s = new RPG.Serializer();
-	return s.go();
+	s = s.go();
+	var words = s.split(/\W+/);
+	var obj = {};
+	for (var i=0;i<words.length;i++) {
+		var w = words[i];
+		if (!(w in obj)) { obj[w] = 0; }
+		obj[w]++;
+	}
+	
+	var arr = [];
+	for (var p in obj) { arr.push([p, obj[p]]); }
+	arr.sort(function(a,b){return b[1]-a[1];});
+	return arr;
 }
-
-var test3 = function() {
-	var s = new RPG.Serializer();
-	var data = s.go();
-	var p = new RPG.Parser();
-	return p.go(data);
-}
-

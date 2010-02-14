@@ -506,6 +506,25 @@ RPG.Misc.Scheduler.prototype.init = function() {
 	this._maxSpeed = 0;
 }
 
+RPG.Misc.Scheduler.prototype.toJSON = function(handler) {
+	var current = [];
+	for (var i=0;i<this._current.length;i++) {
+		current.push(this._actors.indexOf(this._current[i]));
+	}
+	
+	return handler.toJSON(this, {
+		exclude:["_current"], 
+		include:{"_current": current}
+	});
+}
+
+RPG.Misc.Scheduler.prototype.revive = function() {
+	for (var i=0;i<this._current.length;i++) {
+		this._current[i] = this._actors[this._current[i]];
+	}
+}
+
+
 RPG.Misc.Scheduler.prototype.addActor = function(actor) {
 	var o = {
 		actor: actor,
@@ -523,15 +542,16 @@ RPG.Misc.Scheduler.prototype.clearActors = function() {
 }
 
 RPG.Misc.Scheduler.prototype.removeActor = function(actor) {
-	var index = -1;
+	var a = null;
 	for (var i=0;i<this._actors.length;i++) {
-		if (this._actors[i].actor == actor) { 
+		a = this._actors[i];
+		if (a.actor == actor) { 
 			this._actors.splice(i, 1); 
-			index = i;
 			break;
 		}
 	}
 	
+	var index = this._current.indexOf(a);
 	if (index != -1) { this._current.splice(index, 1); }
 
 	return this;
@@ -542,10 +562,9 @@ RPG.Misc.Scheduler.prototype.scheduleActor = function() {
 
 	/* if there is a set of pre-scheduled actors */
 	if (this._current.length) {
-		var index = this._current.shift();
-		var o = this._actors[index];
-		o.bucket -= this._maxSpeed;
-		return o.actor;
+		var a = this._current.shift();
+		a.bucket -= this._maxSpeed;
+		return a.actor;
 	}
 	
 	/* update speeds */
@@ -558,19 +577,17 @@ RPG.Misc.Scheduler.prototype.scheduleActor = function() {
 	
 	/* increase buckets and determine those eligible for a turn */
 	do {
-		
 		for (var i=0;i<this._actors.length;i++) {
 			var obj = this._actors[i];
 			obj.bucket += obj.speed;
-			if (obj.bucket >= this._maxSpeed) { this._current.push(i); }
+			if (obj.bucket >= this._maxSpeed) { this._current.push(obj); }
 		}
-	
 	}  while (!this._current.length);
 	
 	/* sort eligible actors by their buckets */
 	var actors = this._actors;
 	this._current.sort(function(a,b) {
-		return actors[b].bucket - actors[a].bucket;
+		return b.bucket - a.bucket;
 	});
 	
 	/* recurse */

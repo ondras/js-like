@@ -1177,7 +1177,7 @@ RPG.UI.Command.Save.prototype.init = function() {
 
 RPG.UI.Command.Save.prototype.exec = function() {
 	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
-	new RPG.UI.SaveLoad(RPG.SAVELOAD_SAVE, this._done.bind(this));
+	RPG.UI.saveload.show(RPG.SAVELOAD_SAVE, this._done.bind(this));
 }
 
 RPG.UI.Command.Save.prototype._done = function() {
@@ -1197,7 +1197,7 @@ RPG.UI.Command.Load.prototype.init = function() {
 
 RPG.UI.Command.Load.prototype.exec = function() {
 	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
-	new RPG.UI.SaveLoad(RPG.SAVELOAD_LOAD, this._done.bind(this));
+	RPG.UI.saveload.show(RPG.SAVELOAD_LOAD, this._done.bind(this));
 }
 
 RPG.UI.Command.Load.prototype._done = function() {
