@@ -298,6 +298,7 @@ RPG.Items.Arrow.prototype.init = function(amount) {
 
 /**
  * @class Bow
+ * @augments RPG.Items.Weapon
  */
 RPG.Items.Bow = OZ.Class().extend(RPG.Items.Weapon);
 RPG.Items.Bow.factory.ignore = true;
@@ -310,6 +311,10 @@ RPG.Items.Bow.prototype.getRange = function() {
 	return this._range;
 }
 
+/**
+ * @class Short bow
+ * @augments RPG.Items.Bow
+ */
 RPG.Items.ShortBow = OZ.Class().extend(RPG.Items.Bow);
 RPG.Items.ShortBow.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(3, 1), new RPG.Misc.RandomValue(3, 1));
