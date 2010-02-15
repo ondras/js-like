@@ -1,0 +1,5 @@
+<?php
+	mysql_connect("server", "user", "password");
+	mysql_select_db("js-like");
+	define("SECRET", "42");
+?>

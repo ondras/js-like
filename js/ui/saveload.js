@@ -24,8 +24,8 @@ RPG.UI.SaveLoad.prototype.init = function() {
 		saved: OZ.DOM.elm("div")
 	};
 	
-	this._savedNames[this.LOCAL] = [];
-	this._savedNames[this.REMOTE] = [];
+	this._savedNames[this.LOCAL] = {};
+	this._savedNames[this.REMOTE] = {};
 
 	this._methods[this.CLIPBOARD] = {
 		short: "Clipboard",
@@ -68,8 +68,8 @@ RPG.UI.SaveLoad.prototype.show = function(mode, callback) {
 	
 	this._dom.ta.readOnly = (mode == RPG.SAVELOAD_SAVE);
 	
-	this._savedNames[this.LOCAL] = [];
-	this._savedNames[this.REMOTE] = [];
+	this._savedNames[this.LOCAL] = {};
+	this._savedNames[this.REMOTE] = {};
 	this._testMethods();
 }
 
@@ -134,20 +134,37 @@ RPG.UI.SaveLoad.prototype._testMethods = function() {
 	if (!window.localStorage) { 
 		this._methods[this.LOCAL].enabled = false; 
 	} else if (this._mode == RPG.SAVELOAD_LOAD) { /* check saved names */
-		this._savedNames[this.LOCAL] = [];
-	
+		this._savedNames[this.LOCAL] = {};
+		var cnt = 0;
 		for (var i=0;i<localStorage.length;i++) {
 			var key = localStorage.key(i);
 			if (key.indexOf(this._prefix) == 0) {
+				cnt++;
 				var name = key.substr(this._prefix.length);
-				this._savedNames[this.LOCAL].push(name);
+				this._savedNames[this.LOCAL][name] = name;
 			}
 		}
-		if (!this._savedNames[this.LOCAL].length) { this._methods[this.LOCAL].enabled = false; }
+		if (!cnt) { this._methods[this.LOCAL].enabled = false; }
 	}
 	
 	var response = function(data, status, headers) {
-		if (status != 200) { this._methods[this.REMOTE].enabled = false; }
+		if (status != 200) { 
+			this._methods[this.REMOTE].enabled = false; 
+		} else {
+			this._savedNames[this.REMOTE] = {};
+			var parts = document.cookie.split(/; */);
+			var cnt = 0;
+			for (var i=0;i<parts.length;i++) {
+				var item = parts[i].split("=");
+				if (item[0].indexOf(this._prefix) == 0) {
+					cnt++;
+					var name = item[0].substr(this._prefix.length);
+					this._savedNames[this.REMOTE][name] = item[1];
+				}
+			}
+
+			if (!cnt) { this._methods[this.REMOTE].enabled = false; }
+		}
 
 		this._syncDOM();
 		RPG.UI.showDialog(this._dom.container, this._titles[this._mode]);
@@ -229,8 +246,29 @@ RPG.UI.SaveLoad.prototype._dataAvailable = function(data) {
 		break;
 		
 		case this.REMOTE:
-			this._log("Remote storage not yet implemented");
+			var name = prompt("Please name your save game");
+			if (!name) { return; }
+			var key = this._prefix + name;
+			this._log("Sending...");
+			OZ.Request("ajax/?action=save&name="+encodeURIComponent(key), this._response.bind(this), {
+				method:"post", 
+				data:Compress.arrayToString(data, Compress.BASE64),
+				headers:{"Content-type":"text/plain"}
+			});
 		break;
+	}
+}
+
+RPG.UI.SaveLoad.prototype._response = function(data, status, headers) {
+	if (status == 200) {
+		if (this._mode == RPG.SAVELOAD_SAVE) {
+			this._log("Successfully saved.");
+		} else {
+			var d = Compress.stringToArray(data, Compress.BASE64);
+			RPG.Game.load(d, this._readyStateChange.bind(this));
+		}
+	} else {
+		this._log("FAILURE: "+data);
 	}
 }
 
@@ -263,7 +301,9 @@ RPG.UI.SaveLoad.prototype._retrieveData = function() {
 		break;
 		
 		case this.REMOTE:
-			this._log("Remote storage not yet implemented");
+			this._log("Retrieving...");
+			var hash = this._dom.savedSelect.value;
+			OZ.Request("ajax/?action=load&hash="+encodeURIComponent(hash), this._response.bind(this));
 		break;
 	}
 }
@@ -288,10 +328,10 @@ RPG.UI.SaveLoad.prototype._change = function(e) {
 		var s = this._dom.savedSelect;
 		OZ.DOM.clear(s);
 		var opts = this._savedNames[index];
-		for (var i=0;i<opts.length;i++) {
+		for (var name in opts) {
 			var o = OZ.DOM.elm("option");
-			o.value = opts[i];
-			o.innerHTML = opts[i];
+			o.value = opts[name];
+			o.innerHTML = name;
 			s.appendChild(o);
 		}
 	} else {
