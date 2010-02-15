@@ -117,14 +117,13 @@ RPG.Game.save = function(readyStateChange) {
 	
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "Compressing...");
-		data = Compress.stringToBytes(data);
+		data = Compress.stringToArray(data, Compress.UTF8);
 		data = Compress.LZW(data);
 	});
 
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "Finalizing...");
 		while (header.length) { data.unshift(header.pop()); }
-		data = Compress.base64(data);
 		readyStateChange(RPG.SAVELOAD_DONE, data);
 	});
 
@@ -142,7 +141,6 @@ RPG.Game.load = function(data, readyStateChange) {
 	
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "Uncompressing...");
-		data = Compress.ibase64(data);
 		var header = [data.shift(), data.shift()];
 		/* FIXME header check */
 		data = Compress.iLZW(data);
@@ -150,7 +148,7 @@ RPG.Game.load = function(data, readyStateChange) {
 	
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "DeJSONifying...");
-		data = Compress.bytesToString(data);
+		data = Compress.arrayToString(data, Compress.UTF8);
 		data = p.go(data);
 	});
 

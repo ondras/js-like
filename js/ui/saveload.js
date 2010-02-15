@@ -205,7 +205,7 @@ RPG.UI.SaveLoad.prototype._dataAvailable = function(data) {
 	switch (this._method) {
 		case this.CLIPBOARD:
 			this._dom.ta.style.display = "";
-			this._dom.ta.value = data;
+			this._dom.ta.value = Compress.arrayToString(data, Compress.BASE64);
 			this._log("SAVED, now copy the data from the textarea below and save it to a file.");
 		break;
 		
@@ -221,7 +221,7 @@ RPG.UI.SaveLoad.prototype._dataAvailable = function(data) {
 				}
 			}
 			try {
-				localStorage.setItem(key, data);
+				localStorage.setItem(key, Compress.arrayToString(data, Compress.UNICODE));
 				this._log("SAVED to local storage as '" + name + "'.");
 			} catch(e) {
 				this._log("FAILURE: "+e);
@@ -247,7 +247,8 @@ RPG.UI.SaveLoad.prototype._retrieveData = function() {
 				this._log("Please paste saved game data into a textarea below and try again :)");
 				return;
 			}
-			done(this._dom.ta.value);
+			var data = Compress.stringToArray(this._dom.ta.value, Compress.BASE64);
+			done(data);
 		break;
 		
 		case this.LOCAL:
@@ -257,6 +258,7 @@ RPG.UI.SaveLoad.prototype._retrieveData = function() {
 				this._log("There is no such saved game.");
 				return;
 			}
+			data = Compress.stringToArray(data, Compress.UNICODE)
 			done(data);
 		break;
 		
