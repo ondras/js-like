@@ -59,6 +59,7 @@ RPG.UI.SaveLoad.prototype.init = function() {
 	
 	OZ.Event.add(this._dom.select, "change", this._change.bind(this));
 	this._build();
+	for (var i=0;i<this._buttons.length;i++) { this._buttons[i].disable(); }
 }
 
 RPG.UI.SaveLoad.prototype.show = function(mode, callback) {

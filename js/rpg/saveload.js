@@ -386,7 +386,7 @@ RPG.Parser.prototype._parse = function(obj) {
  * Resolve string reference to constructor/instance
  */
 RPG.Parser.prototype._parseString = function(string, object, property) {
-	var r = string.match(/^#(c|[0-9]*)#([0-9]+)$/);
+	var r = string.match(/^#(c|[0-9]*#)([0-9]+)$/);
 	if (!r) { return; }
 
 	if (r[1] == "c") {
