@@ -56,8 +56,7 @@ RPG.Game.getStory = function() {
 	return this._story;
 }
 
-RPG.Game.setPC = function(pc, map, cell) {
-	this.pc = pc;
+RPG.Game.startMap = function(map, cell) {
 	this.setMap(map, cell);
 	this._engine.unlock();
 }

@@ -16,7 +16,7 @@ RPG.Story.prototype.revive = function() {
 }
 
 /**
- * Generate a PC; when this is done, call RPG.Game.setPC
+ * Generate a PC; when this is done, call RPG.Game.startMap
  */
 RPG.Story.prototype.generatePC = function() {
 	var cg = new RPG.CharGen();
@@ -84,10 +84,11 @@ RPG.Story.prototype._charPicked = function(e) {
 	
 	this._pc = this._createPC(race, profession, name);
 	this._addDeathEvent();
+	RPG.Game.pc = this._pc;
 
 	var map = this._firstMap();
 	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
-	RPG.Game.setPC(this._pc, map, cell);
+	RPG.Game.startMap(map, cell);
 }
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
