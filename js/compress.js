@@ -174,8 +174,8 @@ Compress.iLZW = function(input, options) {
 
 	var data;
 	if (o.fixedWidth) {
-		data = new Array(input.length);
-		for (var i=0;i<input.length;i++) { data[i] = input[i]; }
+		data = [];
+		for (var i=0;i<input.length;i++) { data.push(input[i]); }
 	} else {
 		data = new Compress.Stream(input);
 	}
@@ -287,7 +287,7 @@ Compress.BWT = function(input, options) {
 	indexes.sort(sortFunc);
 	
 	/* convert back to array of chars */
-	var result = new Array(input.length);
+	var result = [];
 	var I = -1;
 	
 	/* find the last column */
@@ -299,7 +299,7 @@ Compress.BWT = function(input, options) {
 		} else {
 			index--; /* take the last character of a rotation */
 		}
-		result[i] = input[index];
+		result.push(input[index]);
 	}
 	
 	result.splice(I, 0, o.mark); /* insert mark at correct position */
@@ -327,7 +327,7 @@ Compress.iBWT = function(input, options) {
 	if (I == -1) { throw new Error("Marker not detected in input"); }
 	var length = numbers.length;
 	
-	var P = new Array(length);
+	var P = []
 	var C = [];
 	for (var i=0;i<256;i++) { C.push(0); }
 	
@@ -337,7 +337,7 @@ Compress.iBWT = function(input, options) {
 	 */
 	for (var i=0;i<length;i++) {
 		var num = numbers[i];
-		P[i] = (C[num]);
+		P.push(C[num]);
 		C[num]++;
 	}
 	
@@ -348,10 +348,10 @@ Compress.iBWT = function(input, options) {
 	}
 
 	var i = I;
-	var output = new Array(length);
+	var output = [];
 	for (var j=length-1; j>=0; j--) {
 		var num = numbers[i];
-		output[j] = num;
+		output.unshift(num);
 		i = P[i] + C[num];
 	}
 
@@ -367,7 +367,7 @@ Compress.MTF = function(input, options) {
 	var dict = [];
 	for (var i=0;i<256;i++) { dict.push(i); }
 	
-	var output = (o.inPlace ? input : new Array(input.length));
+	var output = (o.inPlace ? input : []);
 
 	for (var i=0;i<input.length;i++) {
 		var code = input[i];
@@ -389,7 +389,7 @@ Compress.iMTF = function(input, options) {
 	var dict = [];
 	for (var i=0;i<256;i++) { dict.push(i); }
 
-	var output = (o.inPlace ? input : new Array(input.length));
+	var output = (o.inPlace ? input : []);
 
 	for (var i=0;i<input.length;i++) {
 		var code = input[i];
