@@ -195,7 +195,7 @@ RPG.UI._adjustButtons = function(data) {
 	for (var i=0;i<this._commands.length;i++) {
 		var c = this._commands[i];
 		var b = c.getButton().getInput();
-		
+		b.blur();
 		if (c instanceof RPG.UI.Command.Direction) {
 			/* directional */
 			b.disabled = !data.dir;

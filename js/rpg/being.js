@@ -449,7 +449,7 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 
 	this.dropAll();
 	
-	if (Math.randomPercentage() < 34) {
+	if (RPG.Rules.isCorpseGenerated(this)) {
 		var corpse = new RPG.Items.Corpse().setBeing(this);
 		this._cell.addItem(corpse);
 	}

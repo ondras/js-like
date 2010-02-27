@@ -61,6 +61,54 @@ RPG.Misc.IVisual.prototype.describeThe = function() {
 }
 
 /**
+ * @class Visual representation fly-weight
+ * @augments RPG.Misc.IVisual
+ */
+RPG.Misc.Visual = OZ.Class().implement(RPG.Misc.IVisual);
+
+RPG.Misc.Visual._storage = {};
+RPG.Misc.Visual.get = function(data) {
+	var obj = {
+		char: "",
+		color: "",
+		desc: "",
+		image: ""
+	}
+	for (var p in data) {
+		if (p in obj) { obj[p] = data[p]; }
+	}
+	
+	/* compute hash */
+	var id = obj.char+"-"+obj.color+"-"+obj.desc+"-"+obj.image;
+	
+	if (!(id in this._storage)) { 
+		this._storage[id] = new this(obj);
+	}
+	
+	return this._storage[id];
+}
+
+RPG.Misc.Visual.prototype.init = function(data) {
+	this._data = data;
+}
+
+RPG.Misc.Visual.prototype.getChar = function() {
+	return this._data.char;
+}
+
+RPG.Misc.Visual.prototype.getColor = function() {
+	return this._data.color;
+}
+
+RPG.Misc.Visual.prototype.getImage = function() {
+	return this._data.image;
+}
+
+RPG.Misc.Visual.prototype.getDescription = function() {
+	return this._data.desc;
+}
+
+/**
  * @class A lightweight visual representation, used for cell memory
  * @augments RPG.Misc.IVisual
  */

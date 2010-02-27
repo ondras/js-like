@@ -539,7 +539,7 @@ RPG.Story.Village.prototype.init = function() {
 	
 	this._maxElderDepth = 5;
 	this._elderDepth = 0;
-	this._maxMazeDepth = 1;
+	this._maxMazeDepth = 3;
 	this._mazeDepth = 0;
 	
 	this._addCallbacks();
@@ -548,7 +548,7 @@ RPG.Story.Village.prototype.init = function() {
 	this._necklace = new RPG.Items.WeddingNecklace();
 	
 	this._digger = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
-	this._maze1 = new RPG.Generators.DividedMaze(new RPG.Misc.Coords(19, 19));
+	this._maze1 = new RPG.Generators.DividedMaze(new RPG.Misc.Coords(59, 19));
 	this._maze2 = new RPG.Generators.IceyMaze(new RPG.Misc.Coords(59, 19), null, 10);
 	this._maze3 = new RPG.Generators.Maze(new RPG.Misc.Coords(59, 19));
 }

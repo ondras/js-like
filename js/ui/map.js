@@ -90,18 +90,6 @@ RPG.UI.BaseMap.prototype.redrawAll = function() {
 	}
 }
 
-/** OBSOLETE FIXME why is the projectile removed here?
-RPG.UI.BaseMap.prototype.redrawCoords = function(coords, data, remembered) {
-	var cell = this._dom.data[coords.x][coords.y];
-	var index = this._projectiles.indexOf(cell);
-	if (index != -1) {
-		this._projectiles.splice(index, 1);
-		cell.removeProjectile();
-	}
-	cell.update(data, remembered);
-}
-*/
-
 RPG.UI.BaseMap.prototype.setFocus = function(coords) {
 	if (this._focus) {
 		var c = this._focus;
@@ -137,6 +125,13 @@ RPG.UI.BaseMap.prototype.removeProjectiles = function() {
 RPG.UI.BaseMap.prototype._redrawCell = function(cell) {
 	var c = cell.getCoords();
 	var what = this._dom.data[c.x][c.y];
+
+	var index = this._projectiles.indexOf(what);
+	if (index != -1) {
+		this._projectiles.splice(index, 1);
+		what.removeProjectile();
+	}
+
 	what.update(cell.getMemory());
 }
 

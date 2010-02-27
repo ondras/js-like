@@ -21,7 +21,12 @@ RPG.Rules.isTrapActivated = function(being, trap) {
 	return false;
 }
 
+RPG.Rules.isCorpseGenerated = function(being) {
+	return Math.randomPercentage() < 34;
+}
+
 /**
+
  * Luck check
  */
 RPG.Rules.isLucky = function(being) {
