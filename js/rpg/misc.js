@@ -132,12 +132,12 @@ RPG.Misc.IWeapon.prototype.getDamage = function() {
 
 /**
  * @class Interface for flying objects
- * @augments RPG.Misc.IVisual
+ * @augments RPG.Visual.IVisual
  * @augments RPG.Misc.IWeapon
  */
 RPG.Misc.IProjectile = OZ.Class()
 						.implement(RPG.Misc.IWeapon)
-						.implement(RPG.Misc.IVisual);
+						.implement(RPG.Visual.IVisual);
 
 RPG.Misc.IProjectile.prototype._initProjectile = function() {
 	this._range = 5;
@@ -274,9 +274,9 @@ RPG.Misc.IProjectile.prototype.computeTrajectory = function(source, target) {
 
 /**
  * @class Projectile mark
- * @augments RPG.Misc.IVisual
+ * @augments RPG.Visual.IVisual
  */
-RPG.Misc.IProjectile.Mark = OZ.Class().implement(RPG.Misc.IVisual);
+RPG.Misc.IProjectile.Mark = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Misc.IProjectile.Mark.prototype.init = function() {
 	this._char = "*";
 	this._color = "white";
@@ -285,9 +285,9 @@ RPG.Misc.IProjectile.Mark.prototype.init = function() {
 
 /**
  * @class Projectile end mark
- * @augments RPG.Misc.IVisual
+ * @augments RPG.Visual.IVisual
  */
-RPG.Misc.IProjectile.EndMark = OZ.Class().implement(RPG.Misc.IVisual);
+RPG.Misc.IProjectile.EndMark = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Misc.IProjectile.EndMark.prototype.init = function() {
 	this._char = "X";
 	this._color = "white";

@@ -254,8 +254,14 @@ RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 	node.style.visibility = "visible";
 	var src = what.getImage();
 	var text = what.describe();
-
 	var type = "";
+	
+	if (what instanceof RPG.Visual.Trace) {
+		var f = function(){};
+		f.prototype = what.getClass().prototype;
+		what = new f();;
+	}
+
 	if (what instanceof RPG.Beings.PC) {
 		type = "pc";
 	} else if (what instanceof RPG.Beings.NPC) {

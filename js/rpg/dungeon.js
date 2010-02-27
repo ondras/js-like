@@ -1,10 +1,10 @@
 /**
  * @class Dungeon cell
  * @augments RPG.Misc.IModifier
- * @augments RPG.Misc.IVisual
+ * @augments RPG.Visual.IVisual
  */
 RPG.Cells.BaseCell = OZ.Class()
-						.implement(RPG.Misc.IVisual)
+						.implement(RPG.Visual.IVisual)
 						.implement(RPG.Misc.IModifier);
 RPG.Cells.BaseCell.prototype.init = function() {
 	this._initVisuals();
@@ -63,7 +63,7 @@ RPG.Cells.BaseCell.prototype.setMemoryState = function(state) {
 	/* remembered stack uses clones */
 	if (state == RPG.MAP_REMEMBERED) {
 		for (var i=0;i<arr.length;i++) {
-			arr[i] = new RPG.Misc.VisualTrace(arr[i]);
+			arr[i] = new RPG.Visual.Trace(arr[i]);
 		}
 	}
 	
@@ -218,10 +218,10 @@ RPG.Rooms.BaseRoom.prototype.entered = function(being) {
 
 /**
  * @class Dungeon feature
- * @augments RPG.Misc.IVisual
+ * @augments RPG.Visual.IVisual
  */
 RPG.Features.BaseFeature = OZ.Class()
-							.implement(RPG.Misc.IVisual);
+							.implement(RPG.Visual.IVisual);
 RPG.Features.BaseFeature.prototype.init = function() {
 	this._cell = null;
 	this._initVisuals();

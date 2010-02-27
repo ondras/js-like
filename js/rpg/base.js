@@ -60,11 +60,11 @@ RPG.Feats.AdvancedFeat.prototype._drd = function() {
 
 /**
  * @class Basic item
- * @augments RPG.Misc.IVisual
+ * @augments RPG.Visual.IVisual
  * @augments RPG.Misc.IModifier
  */
 RPG.Items.BaseItem = OZ.Class()
-						.implement(RPG.Misc.IVisual)
+						.implement(RPG.Visual.IVisual)
 						.implement(RPG.Misc.IModifier);
 RPG.Items.BaseItem.factory.ignore = true;
 RPG.Items.BaseItem.prototype.init = function() {
@@ -135,7 +135,7 @@ RPG.Items.BaseItem.prototype.remember = function() {
 
 /**
  * Items are described with respect to their "remembered" state
- * @see RPG.Misc.IVisual#describe
+ * @see RPG.Visual.IVisual#describe
  */
 RPG.Items.BaseItem.prototype.describe = function() {
 	var s = "";
@@ -168,7 +168,7 @@ RPG.Items.BaseItem.prototype.describeA = function() {
 	if (this._uncountable) {
 		return this.describe();
 	} else {
-		return RPG.Misc.IVisual.prototype.describeA.call(this);
+		return RPG.Visual.IVisual.prototype.describeA.call(this);
 	}
 }
 
@@ -243,9 +243,9 @@ RPG.Items.BaseItem.prototype.mergeInto = function(listOfItems) {
 
 /**
  * @class Basic race
- * @augments RPG.Misc.IVisual
+ * @augments RPG.Visual.IVisual
  */
-RPG.Races.BaseRace = OZ.Class().implement(RPG.Misc.IVisual);
+RPG.Races.BaseRace = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Races.BaseRace.name = "";
 RPG.Races.BaseRace.image = "";
 RPG.Races.BaseRace.prototype.init = function() {

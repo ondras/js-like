@@ -7,7 +7,7 @@ RPG.Game = {
 	_engine: null,
 	_map: null,
 	_events: [],
-	_version: 1
+	_version: 2
 }
 
 RPG.Game.init = function() {
@@ -141,7 +141,7 @@ RPG.Game.load = function(data, readyStateChange) {
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "Uncompressing...");
 		var header = [data.shift(), data.shift()];
-		/* FIXME header check */
+		if (header[0] != this._version) { throw new Error("Incompatible save data"); }
 		data = Compress.iLZW(data);
 	});
 	
@@ -169,16 +169,17 @@ RPG.Game.load = function(data, readyStateChange) {
 			throw e; /* rethrow */
 		}
 
-	}.bind(this));
+	});
 
 	this._runStack(stack, readyStateChange);
 }
 
 RPG.Game._runStack = function(stack, readyStateChange) {
+	var context = this;
 	var step = function() {
 		var todo = stack.shift();
 		try {
-			todo();
+			todo.call(context);
 			if (stack.length) { setTimeout(arguments.callee, 100); }
 		} catch (e) {
 			readyStateChange(RPG.SAVELOAD_FAILURE, e);

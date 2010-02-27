@@ -86,14 +86,14 @@ RPG.Beings.PC.prototype.setCell = function(cell) {
 }
 
 /**
- * @see RPG.Misc.IVisual#describeA
+ * @see RPG.Visual.IVisual#describeA
  */
 RPG.Beings.PC.prototype.describeA = function() {
 	return this.describe();
 }
 
 /**
- * @see RPG.Misc.IVisual#describeThe
+ * @see RPG.Visual.IVisual#describeThe
  */
 RPG.Beings.PC.prototype.describeThe = function() {
 	return this.describe();
@@ -122,7 +122,7 @@ RPG.Beings.PC.prototype.describeHis = function() {
 
 
 /**
- * @see RPG.Misc.IVisual#describeIs
+ * @see RPG.Visual.IVisual#describeIs
  */
 RPG.Beings.PC.prototype.describeIs = function() {
 	return "are";

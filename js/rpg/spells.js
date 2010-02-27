@@ -1,9 +1,9 @@
 /**
  * @class Base abstract spell
- * @augments RPG.Misc.IVisual
+ * @augments RPG.Visual.IVisual
  */
 RPG.Spells.BaseSpell = OZ.Class()
-						.implement(RPG.Misc.IVisual);
+						.implement(RPG.Visual.IVisual);
 RPG.Spells.BaseSpell.factory.ignore = true;
 RPG.Spells.BaseSpell.cost = null;
 RPG.Spells.BaseSpell.name = "";

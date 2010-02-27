@@ -1,10 +1,10 @@
 /**
  * @class Basic being
- * @augments RPG.Misc.IVisual
+ * @augments RPG.Visual.IVisual
  * @augments RPG.Misc.IActor
  */
 RPG.Beings.BaseBeing = OZ.Class()
-						.implement(RPG.Misc.IVisual)
+						.implement(RPG.Visual.IVisual)
 						.implement(RPG.Misc.IActor);
 RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._initVisuals();
