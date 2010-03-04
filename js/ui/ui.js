@@ -2,6 +2,8 @@ RPG.UI.buffer = null; /* text message display */
 RPG.UI.map = null; /* map instance */
 RPG.UI.status = null; /* statusbar */
 RPG.UI.sound = null; /* soundmanager */
+RPG.UI.chat = null;
+RPG.UI.complexChat = null;
 
 RPG.UI._commands = []; /* avail commands */
 RPG.UI._pending = null; /* command awaiting specification */
@@ -107,6 +109,7 @@ RPG.UI.build = function() {
 	this.status = new RPG.UI.Status(status);
 	
 	this.chat = new RPG.UI.Chat();
+	this.complexChat = new RPG.UI.ComplexChat();
 	
 	var c = OZ.$("commands");
 	

@@ -144,8 +144,8 @@ RPG.Map.Village.prototype._buildPeople = function() {
 
 	var residents = 5;
 	var chats = [
-		new RPG.Misc.Chat().defineState(0, '"Work, work."').defineSound(0, "villager-work"),
-		new RPG.Misc.Chat().defineState(0, '"Ask our elder."')
+		new RPG.Misc.Chat('"Work, work."', "villager-work"),
+		new RPG.Misc.Chat('"Ask our elder."')
 	];
 	
     for (var i = 0; i < residents; i++) {
@@ -210,7 +210,7 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
 	this._color = "red";
 	this._image = "village-shopkeeper";
 
-	this.setChat(new RPG.Misc.Chat().defineState(0, '"Be careful and don\'t break anything!"'));
+	this.setChat(new RPG.Misc.Chat('"Be careful and don\'t break anything!"'));
 	
 	this.fullStats();
 }
@@ -242,7 +242,7 @@ RPG.Beings.VillageWitch.prototype.init = function() {
 	this.addSpell(RPG.Spells.MagicBolt);
 	this.addSpell(RPG.Spells.Teleport);
 
-	this.setChat(new RPG.Misc.Chat().defineState(0, '"Quidquid latine dictum sit, altum sonatur."'));
+	this.setChat(new RPG.Misc.Chat('"Quidquid latine dictum sit, altum sonatur."'));
 
 	this.fullStats();
 }
@@ -281,7 +281,7 @@ RPG.Beings.VillageGuard.prototype.init = function() {
 	this._color = "red";
 	this._image = "village-guard";
 	
-	this.setChat(new RPG.Misc.Chat().defineState(0, '"Hey there! Friend or foe?"'));
+	this.setChat(new RPG.Misc.Chat('"Hey there! Friend or foe?"'));
 
 	this.fullStats();
 }
@@ -314,7 +314,7 @@ RPG.Beings.VillageSmith.prototype.init = function() {
 	this._color = "darkgray";
 	this._image = "village-smith";
 	
-	this.setChat(new RPG.Misc.Chat().defineState(0, '"Aye! Need some steel?"'));
+	this.setChat(new RPG.Misc.Chat('"Aye! Need some steel?"'));
 	this.fullStats();
 }
 
@@ -389,7 +389,7 @@ RPG.Quests.ElderEnemy.prototype.reward = function() {
 }
 
 RPG.Quests.ElderEnemy.prototype._buildChat = function(state) {
-	var chat = new RPG.Misc.Chat(this);
+	var chat = new RPG.Misc.ComplexChat(this);
 	if (arguments.length > 0) { chat._state = state; }
 	this._giver.setChat(chat);
 	
@@ -467,7 +467,7 @@ RPG.Quests.LostNecklace.prototype.reward = function() {
 }
 
 RPG.Quests.LostNecklace.prototype._buildChat = function(state) {
-	var chat = new RPG.Misc.Chat(this);
+	var chat = new RPG.Misc.ComplexChat(this);
 	if (arguments.length > 0) { chat._state = state; }
 	this._giver.setChat(chat);
 

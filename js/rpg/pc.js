@@ -421,8 +421,6 @@ RPG.Beings.PC.prototype._search = function(cell) {
 }
 
 RPG.Beings.PC.prototype.chat = function(being) {
-	var result = this.parent(being);
-	
 	if (being.isHostile(this)) {
 		var s = RPG.Misc.format("%The is not in the mood for talking!", being);
 		RPG.UI.buffer.message(s);
@@ -433,13 +431,12 @@ RPG.Beings.PC.prototype.chat = function(being) {
 	RPG.UI.buffer.message(s);
 
 	if (being.getChat()) {
-		being.chat(this);
+		return being.chat(this);
 	} else {
 		var s = RPG.Misc.format("%He does not reply.", being);
 		RPG.UI.buffer.message(s);
+		return RPG.ACTION_TIME;
 	}
-	
-	return result;
 }
 
 /**

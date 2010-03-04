@@ -136,6 +136,7 @@ body {
 	padding-top: 0.5em;
 	border-bottom: 1px solid black;
 }
+
 .dialog input {
 	vertical-align: middle;
 	font: menu;
@@ -170,4 +171,23 @@ body {
 
 .dialog .quests .active {
 	font-style: italic;
+}
+
+.dialog .chat div {
+	border: 1px solid brown;
+	overflow-y: scroll;
+	height: 200px;
+}
+
+.dialog .chat ul {
+	padding: 0px;
+	padding-left: 5px;
+}
+
+.dialog .chat li {
+	list-style-type: none;
+}
+
+.dialog .chat li a:focus {
+	text-shadow: 0 0 2px #00a;
 }

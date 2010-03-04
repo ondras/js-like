@@ -610,7 +610,6 @@ RPG.Beings.BaseBeing.prototype.drink = function(item, owner) {
  * @param {RPG.Beings.BaseBeing} being
  */
 RPG.Beings.BaseBeing.prototype.chat = function(being) {
-	return RPG.ACTION_TIME;
 }
 
 
