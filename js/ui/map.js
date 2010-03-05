@@ -314,6 +314,13 @@ RPG.UI.ASCIIMap.prototype._resize = function() {
  * @augments RPG.UI.BaseCell
  */
 RPG.UI.ASCIICell = OZ.Class().extend(RPG.UI.BaseCell);
+
+RPG.UI.ASCIICell.prototype.entities = {
+	"<": "&lt;",
+	">": "&gt;",
+	"&": "&amp;"
+}
+
 RPG.UI.ASCIICell.prototype.init = function(owner, coords) {
 	this.parent(owner);
 
@@ -346,6 +353,8 @@ RPG.UI.ASCIICell.prototype.update = function(memory) {
 	}
 
 	var ch = item.getChar();
+	if (ch in this.entities) { ch = this.entities[ch]; }
+
 	var color = item.getColor();
 	var title = item.describe();
 	
@@ -378,3 +387,95 @@ RPG.UI.ASCIICell.prototype.removeProjectile = function() {
 	this._dom.node.style.color = this._currentColor;
 }
 
+/**
+ * @class Canvas-based map
+ * @augments RPG.UI.BaseMap
+ */
+RPG.UI.CanvasMap = OZ.Class().extend(RPG.UI.BaseMap);
+RPG.UI.CanvasMap.prototype.init = function(container) {
+	this.parent(container);	
+	this._font = "16px monospace";
+	
+	/* create canvas + context */
+	var canvas = OZ.DOM.elm("canvas");
+	container.appendChild(canvas);
+	this._dom.canvas = canvas;
+	this._ctx = canvas.getContext("2d");
+	this._ctx.fillStyle = "black";
+	
+	/* create testing char to measure its dimensions */
+	var tmp = OZ.DOM.elm("span", {font:this._font});
+	tmp.innerHTML = "x";
+	this._dom.container.appendChild(tmp);
+	this._charWidth = tmp.offsetWidth;
+	this._charHeight = tmp.offsetHeight;
+	tmp.parentNode.removeChild(tmp);
+}
+
+RPG.UI.CanvasMap.prototype.resize = function(size) {
+	this._focus = null;
+	var w = size.x * this._charWidth;
+	var h = size.y * this._charHeight;
+	this._dom.canvas.width = w;
+	this._dom.canvas.height = h;
+	this._dom.container.style.width = w+"px";
+	this._dom.container.style.height = h+"px";
+	this._ctx.clearRect(0, 0, w, h);
+	this._ctx.font = this._font;
+	this._ctx.textBaseline = "bottom";
+}
+
+RPG.UI.CanvasMap.prototype.addProjectile = function(coords, projectile) {
+	this._projectiles.push(coords.clone());
+	this._redrawCoords(coords, projectile);
+}
+
+RPG.UI.CanvasMap.prototype.removeProjectiles = function() {
+	for (var i=0;i<this._projectiles.length;i++) {
+		var coords = this._projectiles[i];
+		this._redrawCoords(coords);
+	}
+	this._projectiles = [];
+}
+
+RPG.UI.CanvasMap.prototype.setFocus = function(coords) {
+	if (this._focus) { this._redrawCoords(this._focus); }
+	this._focus = coords.clone();
+	
+	var x = coords.x * this._charWidth;
+	var y = (coords.y+1) * this._charHeight - 1;
+	this._ctx.strokeStyle = "white";
+	this._ctx.beginPath();
+	this._ctx.moveTo(x, y);
+	this._ctx.lineTo(x+this._charWidth-1, y);
+	this._ctx.closePath();
+	this._ctx.stroke();
+}
+
+RPG.UI.CanvasMap.prototype._redrawCell = function(cell) {
+	this._redrawCoords(cell.getCoords())
+}
+
+RPG.UI.CanvasMap.prototype._redrawCoords = function(coords, what) {
+	var x = coords.x * this._charWidth;
+	var y = coords.y * this._charHeight;
+	this._ctx.clearRect(x, y, this._charWidth, this._charHeight);
+	
+	var todo = what;
+	if (!todo) {
+		var cell = RPG.Game.getMap().at(coords);
+		if (cell) {
+			var memory = cell.getMemory();
+			if (memory.state == RPG.MAP_REMEMBERED) { this._ctx.globalAlpha = 0.5; }
+			if (memory.data.length) { todo = memory.data[memory.data.length-1]; }
+		}
+	}
+	
+	if (todo) {
+		var ch = todo.getChar();
+		var color = todo.getColor();
+		this._ctx.fillStyle = color;
+		this._ctx.fillText(ch, x, y + this._charHeight);
+		this._ctx.globalAlpha = 1;
+	}
+}

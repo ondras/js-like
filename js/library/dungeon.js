@@ -271,7 +271,7 @@ RPG.Features.Staircase.prototype.getTarget = function() {
 RPG.Features.Staircase.Down = OZ.Class().extend(RPG.Features.Staircase);
 RPG.Features.Staircase.Down.prototype.init = function() {
 	this.parent();
-	this._char = "&gt;";
+	this._char = ">";
 	this._description = "staircase leading down";
 	this._image = "staircase-down";
 }
@@ -283,7 +283,7 @@ RPG.Features.Staircase.Down.prototype.init = function() {
 RPG.Features.Staircase.Up = OZ.Class().extend(RPG.Features.Staircase);
 RPG.Features.Staircase.Up.prototype.init = function() {
 	this.parent();
-	this._char = "&lt;";
+	this._char = "<";
 	this._description = "staircase leading up";
 	this._image = "staircase-up";
 }

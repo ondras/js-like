@@ -7,7 +7,8 @@ RPG.UI.Mapswitch.prototype.init = function(ul) {
 	this._ul = ul;
 	this._map = {
 		"ASCII": RPG.UI.ASCIIMap,
-		"Graphics": RPG.UI.ImageMap
+		"Graphics": RPG.UI.ImageMap,
+		"Canvas": RPG.UI.CanvasMap
 	}
 	
 	var def = false;
