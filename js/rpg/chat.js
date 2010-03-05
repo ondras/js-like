@@ -25,6 +25,13 @@ RPG.Misc.ComplexChat.prototype.init = function(owner) {
 }
 
 RPG.Misc.ComplexChat.prototype.perform = function(being) {
+	var text = this.getText();
+	var answers = this.getAnswers();
+	if (!(text instanceof Array) && !answers.length) {
+		RPG.UI.buffer.message('"' + text + '"');
+		return;
+	}
+	
 	RPG.UI.complexChat.show(this, being);
 	return RPG.ACTION_DEFER;
 }
@@ -40,7 +47,7 @@ RPG.Misc.ComplexChat.prototype.setState = function(id) {
 /**
  * Return what should be said right now
  */
-RPG.Misc.ComplexChat.prototype.getText = function(text) {
+RPG.Misc.ComplexChat.prototype.getText = function() {
 	return this._states[this._state].text;
 }
 

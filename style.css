@@ -177,11 +177,16 @@ body {
 	border: 1px solid brown;
 	overflow-y: scroll;
 	height: 200px;
+	padding: 3px;
+}
+
+.dialog .chat div p {
+	margin-top: 0px;
 }
 
 .dialog .chat ul {
 	padding: 0px;
-	padding-left: 5px;
+	padding-left: 2px;
 }
 
 .dialog .chat li {

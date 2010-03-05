@@ -397,14 +397,16 @@ RPG.Quests.ElderEnemy.prototype._buildChat = function(state) {
 	
 	/* first encounter */
 	chat.defineState(RPG.QUEST_NEW, [
-		'"Our village was attacked by some evil being recently."',
-		'"Maybe you would like to help us?"'
+		"Welcome, adventurer. You come to our village in desperate times, as we were attacked by some evil being recently. \
+		Even our bravest men failed to defend it!",
+		"Maybe you would like to help us?"
 	]);
 	chat.defineAnswer(RPG.QUEST_NEW, "Yes, I would be happy to help!", GIVING);
 	chat.defineAnswer(RPG.QUEST_NEW, "No, I am not interested.", RPG.QUEST_TALKED);
 	
 	/* second encounter, if not given yet */
-	chat.defineState(RPG.QUEST_TALKED, '"So, you changed your mind regarding that little quest I offered you?"');
+	chat.defineState(RPG.QUEST_TALKED, "So, you changed your mind regarding that little quest I offered you? \
+		Such service will surely be rewarded...");
 	chat.defineEnd(RPG.QUEST_TALKED);
 	chat.defineAnswer(RPG.QUEST_TALKED, "Yes, I am now ready to help!", GIVING);
 	chat.defineAnswer(RPG.QUEST_TALKED, "No, I am still not interested.", RPG.QUEST_TALKED);
@@ -412,24 +414,25 @@ RPG.Quests.ElderEnemy.prototype._buildChat = function(state) {
 	
 	/* giving the quest */
 	chat.defineState(GIVING, [
-		'"The evil being lives in a dungeon close to south-east part of our village."',
-		'"If you reach its lair, make sure you retrieve some of the treasure you find there."',
-		'"Good luck!"'
+		"The evil being lives in a dungeon close to south-east part of our village. \
+		You might encounter strange creatures down there, so take care and arm yourself for the voyage.",
+		"If you reach the lair at the bottom of a cave system, make sure you retrieve some of the treasure you find there. \
+		Good luck!"
 	], RPG.QUEST_GIVEN);
 	
 	/* given the quest */
-	chat.defineState(RPG.QUEST_GIVEN, '"That critter is still alive. Find it and kill it!"'); 
+	chat.defineState(RPG.QUEST_GIVEN, "That critter is still alive. Find it and kill it!"); 
 	chat.defineEnd(RPG.QUEST_GIVEN);
 	chat.defineCallback(RPG.QUEST_GIVEN, function() { this.setPhase(RPG.QUEST_GIVEN); });
 	
 	/* giving the reward */
 	chat.defineState(RPG.QUEST_DONE, [
-		'"Thank you for your help! We won\'t forget what you did for our village!"',
-		'"Take this gold as our gratitude."'
+		"Thank you for your help! We won't forget what you did for our village!",
+		"Take this gold as our gratitude."
 	], RPG.QUEST_REWARDED);
 	
 	/* already rewarded */
-	chat.defineState(RPG.QUEST_REWARDED, '"No problems in our village..."');
+	chat.defineState(RPG.QUEST_REWARDED, "No problems in our village...");
 	chat.defineEnd(RPG.QUEST_REWARDED);
 	chat.defineCallback(RPG.QUEST_REWARDED, function() { this.setPhase(RPG.QUEST_REWARDED); });
 
@@ -477,20 +480,20 @@ RPG.Quests.LostNecklace.prototype._buildChat = function(state) {
 	var REWARD_READY = 3;
 	
 	chat.defineState(RPG.QUEST_NEW, [
-		'"Aye, times are bad."',
-		'"My daughter\'s wedding is coming, but I lost my present for her."',
-		'"It is a precious little necklace - I believe I had it in my pocket when I ventured to that old maze nearby."',
-		'"I may have lost it there; you can find the maze\'s entry in a nort-west corner of our village."'
+		"Aye, times are bad. \
+		My daughter's wedding is coming, but I lost my present for her.",
+		"It is a precious little necklace - I believe I had it in my pocket when I ventured to that old maze nearby. \
+		I may have lost it there; you can find the maze's entry in a nort-west corner of our village."
 	], RPG.QUEST_GIVEN);
 	
-	chat.defineState(RPG.QUEST_GIVEN, '"My daughter\'s wedding will be ruined without that necklace!"');
+	chat.defineState(RPG.QUEST_GIVEN, "My daughter's wedding will be ruined without that necklace!");
 	chat.defineEnd(RPG.QUEST_GIVEN);
 	chat.defineCallback(RPG.QUEST_GIVEN, function() { this.setPhase(RPG.QUEST_GIVEN); });
 	
-	chat.defineState(RPG.QUEST_DONE, ['"I heard you managed to find the necklace! That is great news indeed."'], REWARD_TESTING);
+	chat.defineState(RPG.QUEST_DONE, "I heard you managed to find the necklace! That is great news indeed.", REWARD_TESTING);
 	chat.defineEnd(RPG.QUEST_DONE);
 	
-	chat.defineState(REWARD_TESTING, ['"Please bring the necklace to me, I will reward you!"'], RPG.QUEST_DONE);
+	chat.defineState(REWARD_TESTING, "Please bring the necklace to me, I will reward you!", RPG.QUEST_DONE);
 	chat.defineCallback(REWARD_TESTING, function() {
 		var pc = RPG.Game.pc;
 		var ok = false;
@@ -510,17 +513,17 @@ RPG.Quests.LostNecklace.prototype._buildChat = function(state) {
 		}
 	});
 	
-	chat.defineState(REWARD_READY, '"As a reward, let me teach you a spell. What kind of magic do you prefer?"');
+	chat.defineState(REWARD_READY, "As a reward, let me teach you a spell. What kind of magic do you prefer?");
 	chat.defineAnswer(REWARD_READY, "Offensive magic", REWARD_OFFENSIVE);
 	chat.defineAnswer(REWARD_READY, "Defensive magic", REWARD_DEFENSIVE);
 	
-	chat.defineState(REWARD_OFFENSIVE, '"I will teach you the Magic explosion spell."', RPG.QUEST_REWARDED);
+	chat.defineState(REWARD_OFFENSIVE, "I will teach you the Magic explosion spell.", RPG.QUEST_REWARDED);
 	chat.defineCallback(REWARD_OFFENSIVE, function() { this._reward = RPG.Spells.MagicExplosion; });
 	
-	chat.defineState(REWARD_DEFENSIVE, '"I will teach you the Healing spell."', RPG.QUEST_REWARDED);
+	chat.defineState(REWARD_DEFENSIVE, "I will teach you the Healing spell.", RPG.QUEST_REWARDED);
 	chat.defineCallback(REWARD_DEFENSIVE, function() { this._reward = RPG.Spells.Heal; });
 	
-	chat.defineState(RPG.QUEST_REWARDED, '"Time will heal every scar."');
+	chat.defineState(RPG.QUEST_REWARDED, "Time will heal every scar.");
 	chat.defineEnd(RPG.QUEST_REWARDED);
 	chat.defineCallback(RPG.QUEST_REWARDED, function() { this.setPhase(RPG.QUEST_REWARDED); });
 
