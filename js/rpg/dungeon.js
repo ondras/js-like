@@ -170,7 +170,6 @@ RPG.Cells.BaseCell.prototype.visibleThrough = function() {
 /**
  * @class Room, a logical group of cells
  * @augments RPG.Misc.IModifier
- * @param {RPG.Map} map
  * @param {RPG.Misc.Coords} corner1 top-left corner
  * @param {RPG.Misc.Coords} corner2 bottom-right corner
  */
@@ -178,11 +177,20 @@ RPG.Rooms.BaseRoom = OZ.Class()
 						.implement(RPG.Misc.IModifier);
 
 RPG.Rooms.BaseRoom.prototype.init = function(corner1, corner2) {
+	this._map = null;
 	this._modifiers = {};
 	this._welcome = null;
 	this._corner1 = corner1.clone();
 	this._corner2 = corner2.clone();
-	this._type = null;
+}
+
+RPG.Rooms.BaseRoom.prototype.setMap = function(map) {
+	this._map = map;
+	return this;
+}
+
+RPG.Rooms.BaseRoom.prototype.getMap = function() {
+	return this._map;
 }
 
 RPG.Rooms.BaseRoom.prototype.setWelcome = function(text) {
@@ -227,7 +235,6 @@ RPG.Features.BaseFeature.prototype.init = function() {
 	this._initVisuals();
 	this._type = RPG.BLOCKS_NOTHING;
 }
-
 
 RPG.Features.BaseFeature.prototype.knowsAbout = function(being) {
 	return true;
@@ -458,6 +465,7 @@ RPG.Map.prototype.getFeatures = function(ctor) {
  * @param {RPG.Misc.Coords} corner2
  */
 RPG.Map.prototype.addRoom = function(room) {
+	room.setMap(this);
 	this._rooms.push(room);
 	this._assignRoom(room.getCorner1(), room.getCorner2(), room);
 	return room;
@@ -469,7 +477,9 @@ RPG.Map.prototype.addRoom = function(room) {
 RPG.Map.prototype.replaceRoom = function(oldRoom, newRoom) {
 	var index = this._rooms.indexOf(oldRoom);
 	if (index == -1) { throw new Error("Cannot find room"); }
+	oldRoom.setMap(null);
 	this._rooms[index] = newRoom;
+	newRoom.setMap(this);
 	this._assignRoom(newRoom.getCorner1(), newRoom.getCorner2(), newRoom);
 	
 }
@@ -477,6 +487,7 @@ RPG.Map.prototype.replaceRoom = function(oldRoom, newRoom) {
 RPG.Map.prototype.removeRoom = function(room) {
 	var index = this._rooms.indexOf(room);
 	if (index == -1) { throw new Error("Cannot find room"); }
+	room.setMap(null);
 	this._rooms.splice(index, 1);
 	this._assignRoom(room.getCorner1(), room.getCorner2(), null);
 }

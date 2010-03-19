@@ -77,8 +77,8 @@ RPG.UI.command = function(command) {
 			var map = RPG.Game.getMap();
 			if (!map.isValid(test)) { return; }
 			this._target = test;
-			RPG.UI.map.setFocus(this._target);
 			this._pending.notify(this._target);
+			RPG.UI.map.setFocus(this._target);
 		} else if (command == this._pending) {
 			/* targetting finished, launch */
 			this._pending.exec(this._target);

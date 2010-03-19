@@ -87,6 +87,13 @@ RPG.AI.prototype.isHostile = function(being) {
 }
 
 /**
+ * Are we willing to swap position with a given being?
+ */
+RPG.AI.prototype.isSwappable = function(being) {
+	return !this.isHostile(being);
+}
+
+/**
  * We became chaotic, kill PC!
  */
 RPG.AI.prototype.syncWithAlignment = function() {
@@ -183,10 +190,14 @@ RPG.AI.prototype._attack = function(e) {
  */
 RPG.AI.prototype.die = function(e) {
 	this._ec.forEach(RPG.Game.removeEvent);
+	this._ec = [];
 }
 
 /**
  * Static pathfinder method 
+ * @param {RPG.Cells.BaseCell} source Where are we now
+ * @param {RPG.Cells.BaseCell} target Target cell
+ * @param {int} target Target cell
  */
 RPG.AI.cellToDistance = function(source, target, distance) {
 	var targetCoords = target.getCoords();
@@ -194,6 +205,8 @@ RPG.AI.cellToDistance = function(source, target, distance) {
 	var currentDistance = source.getCoords().distance(targetCoords); /* we have this distance now */
 	var bestDistance = currentDistance; /* best distance found so far */
 	var bestCell = null; /* neighbor cell with best resulting distance */
+	
+	if (currentDistance == distance) { return null; } /* we are already there! */
 	
 	var radius = 3; /* max radius to try */
 	var todo = [source]; /* stack */

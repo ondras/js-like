@@ -44,12 +44,13 @@ RPG.Map.Village.prototype.init = function() {
 
 	this._buildPeople();
 
-    var trees = 5;
-    for (var i=0;i<trees;i++) {
-        var tree = new RPG.Features.Tree();
-        c = this.getFreeCell();
-        c.setFeature(tree);
-    }
+    var trees = 8;
+	while (trees) {
+		var cell = this.getFreeCell();
+		if (cell.getRoom()) { continue; }
+		cell.setFeature(new RPG.Features.Tree());
+		trees--;
+	}
 }
 
 RPG.Map.Village.prototype.entered = function() {
@@ -88,6 +89,11 @@ RPG.Map.Village.prototype._buildPeople = function() {
     doors_shop.open();
     doors_townhall.close();
 
+	var shop1 = new RPG.Misc.Coords(18, 11);
+	var shop2 = new RPG.Misc.Coords(20, 13);
+	var shop = new RPG.Rooms.Shop(shop1, shop2);
+	this.addRoom(shop);
+	
     var c = null;
 
     c = this.at(new RPG.Misc.Coords(12,3));
@@ -98,10 +104,10 @@ RPG.Map.Village.prototype._buildPeople = function() {
 
     c = this.at(new RPG.Misc.Coords(28,7));
     c.setFeature(doors_townhall);
-
+	/*
     c = this.at(new RPG.Misc.Coords(20,10));
     c.setFeature(doors_shop);
-
+	*/
     c = this.at(new RPG.Misc.Coords(20,2));
     c.setFeature(stairs_up);
 
@@ -110,37 +116,38 @@ RPG.Map.Village.prototype._buildPeople = function() {
 	this._elder = new RPG.Beings.VillageElder();
 	this.at(new RPG.Misc.Coords(30, 5)).setBeing(this._elder);
     task = new RPG.AI.Wait();
-	this._elder.ai().setDefaultTask(task);
+	this._elder.getAI().setDefaultTask(task);
 
     this._witch = new RPG.Beings.VillageWitch();
     this.at(new RPG.Misc.Coords(2,7)).setBeing(this._witch);
     task = new RPG.AI.Wait();
-	this._witch.ai().setDefaultTask(task);
+	this._witch.getAI().setDefaultTask(task);
 
     this._healer = new RPG.Beings.VillageHealer();
     this.at(new RPG.Misc.Coords(11,3)).setBeing(this._healer);
     task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(10, 2), new RPG.Misc.Coords(11, 4));
-	this._healer.ai().setDefaultTask(task);
+	this._healer.getAI().setDefaultTask(task);
 
     this._smith = new RPG.Beings.VillageSmith();
     this.at(new RPG.Misc.Coords(20,6)).setBeing(this._smith);
     task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(19, 5), new RPG.Misc.Coords(21, 6));
-	this._smith.ai().setDefaultTask(task);
+	this._smith.getAI().setDefaultTask(task);
 
     this._shopkeeper = new RPG.Beings.VillageShopkeeper();
-    this.at(new RPG.Misc.Coords(19,11)).setBeing(this._shopkeeper);
-    task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(19, 11), new RPG.Misc.Coords(21, 13));
-	this._shopkeeper.ai().setDefaultTask(task);
+	shop.setShopkeeper(this._shopkeeper);
+//    this.at(new RPG.Misc.Coords(19,11)).setBeing(this._shopkeeper);
+ //   task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(19, 11), new RPG.Misc.Coords(21, 13));
+//	this._shopkeeper.getAI().setDefaultTask(task);
 
     this._guard_one = new RPG.Beings.VillageGuard();
     this.at(new RPG.Misc.Coords(27,6)).setBeing(this._guard_one);
     task = new RPG.AI.Wait();
-	this._guard_one.ai().setDefaultTask(task);
+	this._guard_one.getAI().setDefaultTask(task);
 
     this._guard_two = new RPG.Beings.VillageGuard();
     this.at(new RPG.Misc.Coords(27,8)).setBeing(this._guard_two);
     task = new RPG.AI.Wait();
-	this._guard_two.ai().setDefaultTask(task);
+	this._guard_two.getAI().setDefaultTask(task);
 
 	var residents = 5;
 	var chats = [
@@ -204,6 +211,11 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
 	this.setGender(RPG.GENDER_FEMALE);
 	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	this.setFeat(RPG.FEAT_SPEED, 200);
+	this.setFeat(RPG.FEAT_DV, 10);
+	this.setFeat(RPG.FEAT_PV, 10);
+	this.setFeat(RPG.FEAT_STRENGTH, 20);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
 	
 	this._description = "shopkeeper";
 	this._char = "@";
@@ -354,6 +366,7 @@ RPG.Beings.VillageElder.prototype.init = function() {
  * @augments RPG.Items.Necklace
  */
 RPG.Items.WeddingNecklace = OZ.Class().extend(RPG.Items.Necklace);
+RPG.Items.WeddingNecklace.factory.ignore = true;
 RPG.Items.WeddingNecklace.prototype.init = function() {
 	this.parent();
 	this._image = "wedding-necklace"; /* FIXME */

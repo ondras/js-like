@@ -13,7 +13,6 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._slots = {};
 	this._cell = null;
 	this._gender = RPG.GENDER_NEUTER;
-	this._confirm = RPG.CONFIRM_NA;
 	this._items = [];
 	this._stats = {};
 	this._feats = {};
@@ -40,15 +39,6 @@ RPG.Beings.BaseBeing.prototype.toString = function() {
 
 RPG.Beings.BaseBeing.prototype.knowsTrap = function(trap) {
 	return this._knownTraps.indexOf(trap) != -1;
-}
-
-RPG.Beings.BaseBeing.prototype.getConfirm = function() {
-	return this._confirm;
-}
-
-RPG.Beings.BaseBeing.prototype.setConfirm = function(confirm) {
-	this._confirm = confirm;
-	return this;
 }
 
 /**
@@ -97,6 +87,13 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function(race) {
 	}
 	
 	for (var p in this._feats) { this._updateFeat(p); }
+}
+
+RPG.Beings.BaseBeing.prototype.hasDebts = function() {
+	for (var i=0;i<this._items.length;i++) {
+		if (this._items[i].isUnpaid()) { return true; }
+	}
+	return false;
 }
 
 RPG.Beings.BaseBeing.prototype.addSpell = function(spell) {
@@ -631,6 +628,7 @@ RPG.Beings.BaseBeing.prototype.drop = function(items) {
 			item = item.subtract(amount);
 		}
 		this._cell.addItem(item);
+		this.dispatch("drop", {item:item});
 		
 		var verb = RPG.Misc.verb("drop", this);
 		var s = RPG.Misc.format("%A %s %a.", this, verb, item);
@@ -658,8 +656,8 @@ RPG.Beings.BaseBeing.prototype.pick = function(items) {
 			item = item.subtract(amount);
 		}
 		
-		this.dispatch("pick", {item:item});
 		this.addItem(item);
+		this.dispatch("pick", {item:item});
 		
 		var verb = RPG.Misc.verb("pick", this);
 		var s = RPG.Misc.format("%A %s up %a.", this, verb, item);

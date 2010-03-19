@@ -177,7 +177,8 @@ RPG.Decorators.Treasure.prototype.decorate = function(map, room, options) {
 	for (var i=c1.x;i<=c2.x;i++) {
 		for (var j=c1.y;j<=c2.y;j++) {
 			var cell = map.at(new RPG.Misc.Coords(i, j));
-			
+			if (!cell.isFree()) { continue; }
+
 			if (Math.random() < o.treasure) {
 				var treasure = this._generateTreasure(danger);
 				cell.addItem(treasure);

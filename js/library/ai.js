@@ -396,8 +396,7 @@ RPG.AI.HealOther.prototype.go = function() {
  */
 RPG.AI.TeleportAway = OZ.Class().extend(RPG.AI.Task);
 
-RPG.AI.TeleportAway.prototype.go = function()
-{
+RPG.AI.TeleportAway.prototype.go = function() {
 	var being = this._ai.getBeing();
 
 	/* dunno how to teleport or haven't got enough mana */
@@ -419,8 +418,7 @@ RPG.AI.TeleportAway.prototype.go = function()
 }
 
 /* FIXME: refactor to map? */
-RPG.AI.TeleportAway.prototype._getFurthestFreeCell = function(cell)
-{
+RPG.AI.TeleportAway.prototype._getFurthestFreeCell = function(cell) {
 	var target = false;
 
 	var map = cell.getMap();
@@ -440,3 +438,116 @@ RPG.AI.TeleportAway.prototype._getFurthestFreeCell = function(cell)
 
 	return map.getClosestRandomFreeCell(c);
 }
+
+
+/**
+ * @class Specialized shopkeeper AI
+ */
+RPG.AI.Shopkeeper = OZ.Class().extend(RPG.AI);
+RPG.AI.Shopkeeper.prototype.init = function(being, shop) {
+	this.parent(being);
+	this._shop = shop;
+	this._guarding = null;
+	this._items = [];
+
+	var c = shop.getDoor().getCoords();
+	var corner1 = shop.getCorner1();
+	var corner2 = shop.getCorner2();
+	var c1 = new RPG.Misc.Coords(c.x-1, c.y-1);
+	var c2 = new RPG.Misc.Coords(c.x+1, c.y+1);
+	
+	if (c1.x == corner2.x) { c1.x++; }
+	if (c2.x == corner1.x) { c2.x--; }
+	if (c1.y == corner2.y) { c1.y++; }
+	if (c2.y == corner1.y) { c2.y--; }
+	
+	var task = new RPG.AI.WanderInArea(c1, c2);
+	this.setDefaultTask(task);
+	
+	/* fill with items */
+	var map = shop.getMap();
+	var danger = map.getDanger();
+	var c = new RPG.Misc.Coords(0, 0);
+	for (var i=corner1.x; i<=corner2.x; i++) {
+		for (var j=corner1.y; j<=corner2.y; j++) {
+			c.x = i;
+			c.y = j;
+			var cell = map.at(c);
+			if (!cell.isFree()) { continue; }
+			
+			var item = RPG.Items.getInstance(danger);
+			item.setPrice(10 + Math.round(Math.random() * danger * 100));
+			this._items.push(item);
+			cell.addItem(item);
+		}
+	}
+
+}
+
+RPG.AI.Shopkeeper.prototype.die = function() {
+	while (this._items.length) {
+		var item = this._items.shift();
+		item.setPrice(0);
+	}
+	this.parent();
+}
+
+RPG.AI.Shopkeeper.prototype.isSwappable = function(being) {
+	if (!this.parent(being)) { return false; }
+	return (!this._guarding);
+}
+
+RPG.AI.Shopkeeper.prototype._addEvents = function() {
+	this.parent();
+	this._ec.push(RPG.Game.addEvent(null, "pick", this.bind(this._pick)));
+	this._ec.push(RPG.Game.addEvent(null, "drop", this.bind(this._drop)));
+}
+
+RPG.AI.Shopkeeper.prototype._pick = function(e) {
+	if (this._guarding) { return; } /* not interested */
+	if (this._items.indexOf(e.data.item) == -1) { return; } /* not our */
+
+	/* step into door to block exit */
+	var guard = new RPG.AI.HoldPosition(this._shop.getDoor());
+	this._guarding = guard;
+	this.addTask(guard);
+}
+
+RPG.AI.Shopkeeper.prototype._drop = function(e) {
+	if (!this._guarding) { return; }
+	
+	/* are there any our items in target's inventory? */
+	var items = e.target.getItems();
+	var ok = true;
+	for (var i=0;i<items.length;i++) {
+		var item = items[i];
+		if (this._items.indexOf(item) != -1) { ok = false; }
+	}
+	
+	if (ok) {
+		this.removeTask(this._guarding);
+		this._guarding = null;
+	}
+}
+
+/**
+ * @class Task to hold position on a specific place
+ * @augments RPG.AI.Task
+ */
+RPG.AI.HoldPosition = OZ.Class().extend(RPG.AI.Task);
+RPG.AI.HoldPosition.prototype.init = function(cell) {
+	this.parent();
+	this._cell = cell;
+}
+
+RPG.AI.HoldPosition.prototype.go = function() {
+	var being = this._ai.getBeing();
+	var cell = RPG.AI.cellToDistance(being.getCell(), this._cell, 0);
+	if (cell) {
+		this._ai.setActionResult(being.move(cell));
+	} else {
+		this._ai.setActionResult(being.wait());
+	}
+	return RPG.AI_OK;
+}
+

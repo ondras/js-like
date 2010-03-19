@@ -287,3 +287,46 @@ RPG.Features.Staircase.Up.prototype.init = function() {
 	this._description = "staircase leading up";
 	this._image = "staircase-up";
 }
+
+/**
+ * @class Shop room
+ * @augments RPG.Rooms.BaseRoom
+ */
+RPG.Rooms.Shop = OZ.Class().extend(RPG.Rooms.BaseRoom);
+RPG.Rooms.Shop.prototype.init = function(corner1, corner2) {
+	this.parent(corner1, corner2);
+	this._door = null;
+	this._welcome = "You entered a shop.";
+}
+
+RPG.Rooms.Shop.prototype.setMap = function(map) {
+	this.parent(map);
+
+	var c = new RPG.Misc.Coords(0, 0);
+	for (var i=this._corner1.x-1; i<=this._corner2.x+1; i++) {
+		for (var j=this._corner1.y-1; j<=this._corner2.y+1; j++) {
+			if (i >= this._corner1.x && i <= this._corner2.x && j >= this._corner1.y && j <= this._corner2.y) { continue; }
+			c.x = i;
+			c.y = j;
+			var cell = map.at(c);
+			if (!cell.isFree()) { continue; }
+			
+			if (this._door) { throw new Error("Shop cannot have >1 doors"); }
+			this._door = cell;
+		}
+	}
+	
+	if (!this._door) { throw new Error("Shop without doors"); }
+}
+
+RPG.Rooms.Shop.prototype.getDoor = function() {
+	return this._door;
+}
+
+RPG.Rooms.Shop.prototype.setShopkeeper = function(being) {
+	if (being.getCell()) { being.getCell().setBeing(null); }
+	this._door.setBeing(being);
+	
+	var ai = new RPG.AI.Shopkeeper(being, this);
+	being.setAI(ai);
+}

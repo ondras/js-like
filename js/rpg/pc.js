@@ -311,7 +311,7 @@ RPG.Beings.PC.prototype.switchPosition = function(cell) {
 		return RPG.ACTION_TIME;
 	}
 	
-	if (being.isHostile(this)) {
+	if (!being.getAI().isSwappable(this)) {
 		/* impossible */
 		var s = RPG.Misc.format("%The resists!", being);
 		RPG.UI.buffer.message(s);
@@ -421,7 +421,7 @@ RPG.Beings.PC.prototype._search = function(cell) {
 }
 
 RPG.Beings.PC.prototype.chat = function(being) {
-	if (being.isHostile(this)) {
+	if (being.getAI().isHostile(this)) {
 		var s = RPG.Misc.format("%The is not in the mood for talking!", being);
 		RPG.UI.buffer.message(s);
 		return RPG.ACTION_TIME;
@@ -453,8 +453,7 @@ RPG.Beings.PC.prototype.kick = function(cell) {
 		return RPG.ACTION_NO_TIME;
 	}
 	
-	if (feature && feature instanceof RPG.Features.Door && feature.isClosed()) {
-		/* kick door */
+	if (feature && feature instanceof RPG.Features.Door && feature.isClosed()) { /* kick door */
 		var feet = this.getSlot(RPG.SLOT_FEET);
 		var dmg = feet.getDamage().roll();
 		var result = feature.damage(dmg);
@@ -467,8 +466,8 @@ RPG.Beings.PC.prototype.kick = function(cell) {
 		return RPG.ACTION_TIME;
 	}
 	
-	if (being) {
-		/* kick being */
+	if (being) { /* kick being */
+		if (!being.confirmAttack()) { return RPG.ACTION_NO_TIME;  }
 		this.attackMelee(being, this.getSlot(RPG.SLOT_FEET));
 		return RPG.ACTION_TIME;
 	}
@@ -478,13 +477,11 @@ RPG.Beings.PC.prototype.kick = function(cell) {
 		return RPG.ACTION_TIME;
 	}
 	
-	if (items.length) {
-		/* try kicking items */
+	if (items.length) { /* try kicking items */
 		var dir = this._cell.getCoords().dirTo(cell.getCoords());
 		var target = cell.neighbor(dir);
 		
-		if (target && target.isFree()) {
-			/* kick topmost item */
+		if (target && target.isFree()) { /* kick topmost item */
 			var item = items[items.length-1];
 			cell.removeItem(item);
 			target.addItem(item);
@@ -647,7 +644,7 @@ RPG.Beings.PC.prototype._describeBeing = function(b) {
 	RPG.UI.buffer.message(s);
 	
 	/* hostility */
-	if (b.isHostile(this)) {
+	if (b.getAI().isHostile(this)) {
 		s = RPG.Misc.format("%The is hostile.", b);
 	} else {
 		s = RPG.Misc.format("%The does not seem to be hostile.", b);

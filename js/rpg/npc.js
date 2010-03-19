@@ -7,15 +7,25 @@ RPG.Beings.NPC.factory.ignore = true;
 
 RPG.Beings.NPC.prototype.init = function(race) {
 	this.parent(race);
+	this._confirm = RPG.CONFIRM_NA;
 	this._ai = new RPG.AI(this);
 	this._alignment = RPG.ALIGNMENT_NEUTRAL;
 	this._chat = null;
 }
 
-RPG.Beings.NPC.prototype.ai = function() {
+RPG.Beings.NPC.prototype.getAI = function() {
 	return this._ai;
 }
 
+RPG.Beings.NPC.prototype.setAI = function(ai) {
+	if (this._ai) { this._ai.die(); }
+	this._ai = ai;
+	return this;
+}
+
+/**
+ * NPC delegates decisions to its AI
+ */
 RPG.Beings.NPC.prototype.yourTurn = function() {
 	return this._ai.yourTurn();
 }
@@ -28,10 +38,6 @@ RPG.Beings.NPC.prototype.randomGender = function() {
 	} else {
 		this.setGender(RPG.GENDER_MALE);
 	}
-}
-
-RPG.Beings.NPC.prototype.isHostile = function(being) {
-	return this._ai.isHostile(being);
 }
 
 RPG.Beings.NPC.prototype.setAlignment = function(a) {
@@ -48,6 +54,30 @@ RPG.Beings.NPC.prototype.die = function() {
 	this._ai.die();
 	this.parent();
 }
+
+RPG.Beings.NPC.prototype.getConfirm = function() {
+	return this._confirm;
+}
+
+RPG.Beings.NPC.prototype.setConfirm = function(confirm) {
+	this._confirm = confirm;
+	return this;
+}
+
+
+/**
+ * Display a prompt asking for confirmation
+ * @returns {bool} Whether we can continue
+ */
+RPG.Beings.NPC.prototype.confirmAttack = function() {
+	if (this._confirm == RPG.CONFIRM_ASK) {
+		var result = confirm(RPG.Misc.format("Really attack %d?", this));
+		if (!result) { return false; }
+		this.setConfirm(RPG.CONFIRM_DONE);
+	}
+	return true;
+}
+
 
 /**
  * Takes gender and name into account

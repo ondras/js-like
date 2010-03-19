@@ -108,12 +108,7 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	/* being there? */
 	var b = cell.getBeing();
 	if (b) {
-		var c = b.getConfirm();
-		if (c == RPG.CONFIRM_ASK) {
-			var result = confirm(RPG.Misc.format("Really attack %d?", b));
-			if (!result) { return; }
-			b.setConfirm(RPG.CONFIRM_DONE);
-		}
+		if (!b.confirmAttack()) { return; }
 		var hand = pc.getSlot(RPG.SLOT_WEAPON);
 		var result = RPG.Game.pc.attackMelee(b, hand);
 		RPG.Game.getEngine().actionResult(result);
@@ -842,7 +837,7 @@ RPG.UI.Command.Consume.prototype._filter = function(items, itemCtor) {
 	var arr = [];
 	for (var i=0;i<items.length;i++) {
 		var item = items[i];
-		if (item instanceof itemCtor) { arr.push(item); }
+		if (item instanceof itemCtor && !item.isUnpaid()) { arr.push(item); }
 	}
 	return arr;
 }
@@ -1071,7 +1066,7 @@ RPG.UI.Command.Read.prototype.exec = function() {
 	var items = pc.getItems();
 	for (var i=0;i<items.length;i++) {
 		var item = items[i];
-		if (item instanceof RPG.Items.Readable) { all.push(item); }
+		if (item instanceof RPG.Items.Readable && !item.isUnpaid()) { all.push(item); }
 	}
 	
 	if (!all.length) { 

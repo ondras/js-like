@@ -74,6 +74,7 @@ RPG.Items.BaseItem.prototype.init = function() {
 	this._amount = 1;
 	this._uncountable = false;
 	this._remembered = false;
+	this._price = 0;
 	this._owner = null; /* being having this */
 }
 
@@ -133,6 +134,19 @@ RPG.Items.BaseItem.prototype.remember = function() {
 	this._remembered = true;
 }
 
+RPG.Items.BaseItem.prototype.isUnpaid = function() {
+	return this._price > 0;
+}
+
+RPG.Items.BaseItem.prototype.setPrice = function(price) {
+	this._price = price;
+	return this;
+}
+
+RPG.Items.BaseItem.prototype.getPrice = function() {
+	return this._price;
+}
+
 /**
  * Items are described with respect to their "remembered" state
  * @see RPG.Visual.IVisual#describe
@@ -149,6 +163,10 @@ RPG.Items.BaseItem.prototype.describe = function() {
 	if (this._remembered) { /* known items show modifiers, if any */
 		var mods = this._describeModifiers();
 		if (mods) { s += " " + mods; }
+	}
+	
+	if (this._price > 0) {
+		s += " (unpaid, " + this._price + " gold)";
 	}
 
 	return s;
@@ -208,6 +226,8 @@ RPG.Items.BaseItem.prototype._describeModifiers = function() {
  */
 RPG.Items.BaseItem.prototype.isSameAs = function(item) {
 	if (item.constructor != this.constructor) { return false; }
+	if (item.isUnpaid() != this.isUnpaid()) { return false; }
+	if (item.getPrice() != this.getPrice()) { return false; }
 	
 	for (var p in this._modifiers) {
 		if (item._modifiers[p] != this._modifiers[p]) { return false; }
@@ -311,7 +331,7 @@ RPG.Slots.BaseSlot.prototype.filterAllowed = function(itemList) {
 	var arr = [];
 	for (var i=0;i<itemList.length;i++) {
 		var item = itemList[i];
-		if (item instanceof this._allowed) { arr.push(item); }
+		if (item instanceof this._allowed && !item.isUnpaid()) { arr.push(item); }
 	}
 	return arr;
 }

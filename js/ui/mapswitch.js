@@ -4,6 +4,7 @@
 RPG.UI.Mapswitch = OZ.Class();
 
 RPG.UI.Mapswitch.prototype.init = function(ul) {
+	var def = (OZ.ie ? RPG.UI.ASCIIMap : RPG.UI.CanvasMap);
 	this._ul = ul;
 	this._map = {
 		"ASCII": RPG.UI.ASCIIMap,
@@ -11,19 +12,18 @@ RPG.UI.Mapswitch.prototype.init = function(ul) {
 		"Canvas": RPG.UI.CanvasMap
 	}
 	
-	var def = false;
+	var link = false;
 	for (var p in this._map) {
 		var li = OZ.DOM.elm("li");
 		var a = OZ.DOM.elm("a", {href:"#"});
 		OZ.DOM.append([ul, li], [li, a]);
 		a.innerHTML = p;
 		
-		if (this._map[p] == RPG.UI.ASCIIMap) { def = a; }
+		if (this._map[p] == def) { link = a; }
 	}
 	
 	OZ.Event.add(ul, "click", this.bind(this._click));
-	
-	this._use(def);
+	this._use(link);
 }
 
 RPG.UI.Mapswitch.prototype._click = function(e) { 

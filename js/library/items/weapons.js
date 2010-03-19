@@ -285,10 +285,9 @@ RPG.Items.Arrow.factory.method = function(danger) {
 }
 RPG.Items.Arrow.prototype.init = function(amount) {
 	this.parent(new RPG.Misc.RandomValue(2, 1), new RPG.Misc.RandomValue(2, 1));
-	var ch = "*";
 	this._baseImage = "arrow";
 	this._baseChar = "/";
-	this._char = ch;
+	this._char = this._baseChar;
 	this._color = "brown";
 	this._description = "arrow";
 	this._amount = amount;
