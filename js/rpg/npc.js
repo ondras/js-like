@@ -10,7 +10,6 @@ RPG.Beings.NPC.prototype.init = function(race) {
 	this._confirm = RPG.CONFIRM_NA;
 	this._ai = new RPG.AI(this);
 	this._alignment = RPG.ALIGNMENT_NEUTRAL;
-	this._chat = null;
 }
 
 RPG.Beings.NPC.prototype.getAI = function() {
@@ -121,15 +120,6 @@ RPG.Beings.NPC.prototype.describeIs = function() {
 	return "is";
 }
 
-RPG.Beings.NPC.prototype.setChat = function(chat) {
-	this._chat = chat;
-	return this;
-}
-
-RPG.Beings.NPC.prototype.getChat = function() {
-	return this._chat;
-}
-
 RPG.Beings.NPC.prototype.teleport = function(cell) {
 	var pc = RPG.Game.pc;
 	
@@ -174,9 +164,8 @@ RPG.Beings.NPC.prototype.move = function(targetCell) {
  * Initiate chat with target being
  */
 RPG.Beings.NPC.prototype.chat = function(being) {
-	return this._chat.perform(this);
+	return RPG.UI.dialog.show(this.getAI(), being);
 }
-
 
 /* ------------------ PRIVATE --------------- */
 

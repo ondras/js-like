@@ -430,7 +430,7 @@ RPG.Beings.PC.prototype.chat = function(being) {
 	var s = RPG.Misc.format("You talk to %a.", being);
 	RPG.UI.buffer.message(s);
 
-	if (being.getChat()) {
+	if (being.getAI().getDialogText(this)) {
 		return being.chat(this);
 	} else {
 		var s = RPG.Misc.format("%He does not reply.", being);

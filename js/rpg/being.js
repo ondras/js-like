@@ -604,7 +604,7 @@ RPG.Beings.BaseBeing.prototype.drink = function(item, owner) {
 
 /**
  * Initiate chat
- * @param {RPG.Beings.BaseBeing} being
+ * @param {RPG.Beings.BaseBeing} being Other being to chat with
  */
 RPG.Beings.BaseBeing.prototype.chat = function(being) {
 }

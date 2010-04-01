@@ -151,15 +151,18 @@ RPG.Map.Village.prototype._buildPeople = function() {
 
 	var residents = 5;
 	var chats = [
-		new RPG.Misc.Chat('"Work, work."', "villager-work"),
-		new RPG.Misc.Chat('"Ask our elder."')
+		["Work, work.", "villager-work"],
+		["Ask our elder.", null]
 	];
 	
     for (var i = 0; i < residents; i++) {
         var villager = new RPG.Beings.Villager();
         //var potion = new RPG.Items.HealingPotion();
 	    //villager.addItem(potion);
-		villager.setChat(chats.random());
+	    var chat = chats.random();
+		villager.getAI().setDialogText(chat[0]);
+		villager.getAI().setDialogSound(chat[1]);
+
         c = this.getFreeCell();
         c.setBeing(villager);
     }
@@ -222,7 +225,7 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
 	this._color = "red";
 	this._image = "village-shopkeeper";
 
-	this.setChat(new RPG.Misc.Chat('"Be careful and don\'t break anything!"'));
+	this._ai.setDialogText("Be careful and don't break anything!");
 	
 	this.fullStats();
 }
@@ -254,7 +257,7 @@ RPG.Beings.VillageWitch.prototype.init = function() {
 	this.addSpell(RPG.Spells.MagicBolt);
 	this.addSpell(RPG.Spells.Teleport);
 
-	this.setChat(new RPG.Misc.Chat('"Quidquid latine dictum sit, altum sonatur."'));
+	this._ai.setDialogText("Quidquid latine dictum sit, altum sonatur.");
 
 	this.fullStats();
 }
@@ -293,7 +296,7 @@ RPG.Beings.VillageGuard.prototype.init = function() {
 	this._color = "red";
 	this._image = "village-guard";
 	
-	this.setChat(new RPG.Misc.Chat('"Hey there! Friend or foe?"'));
+	this._ai.setDialogText("Hey there! Friend or foe?");
 
 	this.fullStats();
 }
@@ -326,7 +329,7 @@ RPG.Beings.VillageSmith.prototype.init = function() {
 	this._color = "darkgray";
 	this._image = "village-smith";
 	
-	this.setChat(new RPG.Misc.Chat('"Aye! Need some steel?"'));
+	this._ai.setDialogText("Aye! Need some steel?");
 	this.fullStats();
 }
 
@@ -376,24 +379,22 @@ RPG.Items.WeddingNecklace.prototype.init = function() {
 
 /**
  * @class Elder's enemy quest
+ * @augments RPG.IDialog
  * @augments RPG.Quests.Kill
  */
-RPG.Quests.ElderEnemy = OZ.Class().extend(RPG.Quests.Kill);
+RPG.Quests.ElderEnemy = OZ.Class()
+							.extend(RPG.Quests.Kill)
+							.implement(RPG.IDialog);
 
 RPG.Quests.ElderEnemy.prototype.init = function(giver, being) {
-	this._chat = null;
+	this._GIVING = 1;
 	this.parent(giver, being);
-	this._buildChat();
-}
-
-RPG.Quests.ElderEnemy.prototype.revive = function() {
-	this._buildChat(this._phase);
+	giver.getAI().setDialogQuest(this);
 }
 
 RPG.Quests.ElderEnemy.prototype.setPhase = function(phase) {
 	this.parent(phase);
 	if (phase == RPG.QUEST_GIVEN) { RPG.Game.getStory().questCallback(this); }
-	if (phase == RPG.QUEST_DONE) { this._chat.setState(RPG.QUEST_DONE); }
 }
 
 RPG.Quests.ElderEnemy.prototype.reward = function() {
@@ -401,78 +402,125 @@ RPG.Quests.ElderEnemy.prototype.reward = function() {
 	RPG.Game.pc.addItem(gold);
 }
 
-RPG.Quests.ElderEnemy.prototype._buildChat = function(state) {
-	var chat = new RPG.Misc.ComplexChat(this);
-	if (arguments.length > 0) { chat._state = state; }
-	this._giver.setChat(chat);
-	
-	var GIVING = 0;
-	
-	/* first encounter */
-	chat.defineState(RPG.QUEST_NEW, [
-		"Welcome, adventurer. You come to our village in desperate times, as we were attacked by some evil being recently. \
-		Even our bravest men failed to defend it!",
-		"Maybe you would like to help us?"
-	]);
-	chat.defineAnswer(RPG.QUEST_NEW, "Yes, I would be happy to help!", GIVING);
-	chat.defineAnswer(RPG.QUEST_NEW, "No, I am not interested.", RPG.QUEST_TALKED);
-	
-	/* second encounter, if not given yet */
-	chat.defineState(RPG.QUEST_TALKED, "So, you changed your mind regarding that little quest I offered you? \
-		Such service will surely be rewarded...");
-	chat.defineEnd(RPG.QUEST_TALKED);
-	chat.defineAnswer(RPG.QUEST_TALKED, "Yes, I am now ready to help!", GIVING);
-	chat.defineAnswer(RPG.QUEST_TALKED, "No, I am still not interested.", RPG.QUEST_TALKED);
-	chat.defineCallback(RPG.QUEST_TALKED, function() { this.setPhase(RPG.QUEST_TALKED); });
-	
-	/* giving the quest */
-	chat.defineState(GIVING, [
-		"The evil being lives in a dungeon close to south-east part of our village. \
-		You might encounter strange creatures down there, so take care and arm yourself for the voyage.",
-		"If you reach the lair at the bottom of a cave system, make sure you retrieve some of the treasure you find there. \
-		Good luck!"
-	], RPG.QUEST_GIVEN);
-	
-	/* given the quest */
-	chat.defineState(RPG.QUEST_GIVEN, "That critter is still alive. Find it and kill it!"); 
-	chat.defineEnd(RPG.QUEST_GIVEN);
-	chat.defineCallback(RPG.QUEST_GIVEN, function() { this.setPhase(RPG.QUEST_GIVEN); });
-	
-	/* giving the reward */
-	chat.defineState(RPG.QUEST_DONE, [
-		"Thank you for your help! We won't forget what you did for our village!",
-		"Take this gold as our gratitude."
-	], RPG.QUEST_REWARDED);
-	
-	/* already rewarded */
-	chat.defineState(RPG.QUEST_REWARDED, "No problems in our village...");
-	chat.defineEnd(RPG.QUEST_REWARDED);
-	chat.defineCallback(RPG.QUEST_REWARDED, function() { this.setPhase(RPG.QUEST_REWARDED); });
+RPG.Quests.ElderEnemy.prototype.getDialogText = function(being) {
+	switch (this._phase) {
+		case RPG.QUEST_NEW: 
+			return [
+				"Welcome, adventurer. You come to our village in desperate times, as we were attacked by some evil being recently. \
+				Even our bravest men failed to defend it!",
+				"Maybe you would like to help us?"
+			];
+		break;
+		
+		case RPG.QUEST_TALKED:
+			return "So, you changed your mind regarding that little quest I offered you? \
+				Such service will surely be rewarded...";
+		break;
+		
+		case this._GIVING:
+			return [
+				"The evil being lives in a dungeon close to south-east part of our village. \
+				You might encounter strange creatures down there, so take care and arm yourself for the voyage.",
+				"If you reach the lair at the bottom of a cave system, make sure you retrieve some of the treasure you find there. \
+				Good luck!"
+			];
+		break;
+		
+		case RPG.QUEST_GIVEN:
+			return "That critter is still alive. Find it and kill it!";
+		break;
+		
+		case RPG.QUEST_DONE:
+			return [
+				"Thank you for your help! We won't forget what you did for our village!",
+				"Take this gold as our gratitude."
+			];
+		break;
 
-	this._chat = chat;
+		case RPG.QUEST_REWARDED:
+			return "No problems in our village...";
+		break;
+	}
+}
+
+RPG.Quests.ElderEnemy.prototype.getDialogOptions = function(being) {
+	switch (this._phase) {
+		case RPG.QUEST_NEW:
+			return ["Yes, I would be happy to help!", "No, I am not interested."];
+		break;
+		
+		case RPG.QUEST_TALKED:
+			return ["Yes, I am now ready to help!", "No, I am still not interested."];
+		break;
+		
+		default:
+			return [];
+		break;
+	}
+}
+
+RPG.Quests.ElderEnemy.prototype.advanceDialog = function(optionIndex) {
+	switch (this._phase) {
+		case RPG.QUEST_NEW:
+			if (optionIndex == 0) { /* yes */
+				this.setPhase(this._GIVING);
+				return true;
+			} else { /* no */
+				this.setPhase(RPG.QUEST_TALKED);
+				return false;
+			}
+		break;
+		
+		case RPG.QUEST_TALKED: 
+			if (optionIndex == 0) { /* yes */
+				this.setPhase(this._GIVING);
+				return true;
+			} else { /* no */
+				return false;
+			}
+		break;
+		
+		case this._GIVING: 
+			this.setPhase(RPG.QUEST_GIVEN);
+			return false;
+		break;
+		
+		case RPG.QUEST_GIVEN: 
+			return false;
+		break;
+		
+		case RPG.QUEST_DONE: 
+			this.setPhase(RPG.QUEST_REWARDED);
+			return false;
+		break;
+
+		case RPG.QUEST_REWARDED:
+			return false;
+		break;
+	}
 }
 
 /**
  * @class Lost necklace quest
  * @augments RPG.Quests.Retrieve
+ * @augments RPG.IDialog
  */
-RPG.Quests.LostNecklace = OZ.Class().extend(RPG.Quests.Retrieve);
+RPG.Quests.LostNecklace = OZ.Class()
+							.extend(RPG.Quests.Retrieve)
+							.implement(RPG.IDialog);
 RPG.Quests.LostNecklace.prototype.init = function(giver, item) {
+	this._REWARD_DEFENSIVE = 0;
+	this._REWARD_OFFENSIVE = 1;
+	
 	this._reward = null;
-	this._chat = null;
-
+	this._hasItem = false;
 	this.parent(giver, item);
-	this._buildChat();
-}
-
-RPG.Quests.LostNecklace.prototype.revive = function() {
-	this._buildChat(this._phase);
+	giver.getAI().setDialogQuest(this);
 }
 
 RPG.Quests.LostNecklace.prototype.setPhase = function(phase) {
 	this.parent(phase);
 	if (phase == RPG.QUEST_GIVEN) { RPG.Game.getStory().questCallback(this); }
-	if (phase == RPG.QUEST_DONE) { this._chat.setState(RPG.QUEST_DONE); }
 }
 
 RPG.Quests.LostNecklace.prototype.reward = function() {
@@ -482,65 +530,115 @@ RPG.Quests.LostNecklace.prototype.reward = function() {
 	pc.addSpell(spell);
 }
 
-RPG.Quests.LostNecklace.prototype._buildChat = function(state) {
-	var chat = new RPG.Misc.ComplexChat(this);
-	if (arguments.length > 0) { chat._state = state; }
-	this._giver.setChat(chat);
-
-	var REWARD_DEFENSIVE = 0;
-	var REWARD_OFFENSIVE = 1;
-	var REWARD_TESTING = 2;
-	var REWARD_READY = 3;
-	
-	chat.defineState(RPG.QUEST_NEW, [
-		"Aye, times are bad. \
-		My daughter's wedding is coming, but I lost my present for her.",
-		"It is a precious little necklace - I believe I had it in my pocket when I ventured to that old maze nearby. \
-		I may have lost it there; you can find the maze's entry in a nort-west corner of our village."
-	], RPG.QUEST_GIVEN);
-	
-	chat.defineState(RPG.QUEST_GIVEN, "My daughter's wedding will be ruined without that necklace!");
-	chat.defineEnd(RPG.QUEST_GIVEN);
-	chat.defineCallback(RPG.QUEST_GIVEN, function() { this.setPhase(RPG.QUEST_GIVEN); });
-	
-	chat.defineState(RPG.QUEST_DONE, "I heard you managed to find the necklace! That is great news indeed.", REWARD_TESTING);
-	chat.defineEnd(RPG.QUEST_DONE);
-	
-	chat.defineState(REWARD_TESTING, "Please bring the necklace to me, I will reward you!", RPG.QUEST_DONE);
-	chat.defineCallback(REWARD_TESTING, function() {
-		var pc = RPG.Game.pc;
-		var ok = false;
-		if (pc.hasItem(this._item)) {
-			ok = true;
-		} else {
-			var i = pc.getSlot(RPG.SLOT_NECK).getItem();
-			if (i == this._item) {
-				ok = true;
-				pc.unequip(RPG.SLOT_NECK);
-			}
-		}
+RPG.Quests.LostNecklace.prototype.getDialogText = function(being) {
+	switch (this._phase) {
+		case RPG.QUEST_NEW: 
+			return [
+				"Aye, times are bad. \
+				My daughter's wedding is coming, but I lost my present for her.",
+				"It is a precious little necklace - I believe I had it in my pocket when I ventured to that old maze nearby. \
+				I may have lost it there; you can find the maze's entry in a nort-west corner of our village."
+			];
+		break;
 		
-		if (ok) { 
-			this._chat.setState(REWARD_READY); 
-			pc.removeItem(this._item);
-		}
-	});
-	
-	chat.defineState(REWARD_READY, "As a reward, let me teach you a spell. What kind of magic do you prefer?");
-	chat.defineAnswer(REWARD_READY, "Offensive magic", REWARD_OFFENSIVE);
-	chat.defineAnswer(REWARD_READY, "Defensive magic", REWARD_DEFENSIVE);
-	
-	chat.defineState(REWARD_OFFENSIVE, "I will teach you the Magic explosion spell.", RPG.QUEST_REWARDED);
-	chat.defineCallback(REWARD_OFFENSIVE, function() { this._reward = RPG.Spells.MagicExplosion; });
-	
-	chat.defineState(REWARD_DEFENSIVE, "I will teach you the Healing spell.", RPG.QUEST_REWARDED);
-	chat.defineCallback(REWARD_DEFENSIVE, function() { this._reward = RPG.Spells.Heal; });
-	
-	chat.defineState(RPG.QUEST_REWARDED, "Time will heal every scar.");
-	chat.defineEnd(RPG.QUEST_REWARDED);
-	chat.defineCallback(RPG.QUEST_REWARDED, function() { this.setPhase(RPG.QUEST_REWARDED); });
+		case RPG.QUEST_GIVEN:
+			return "My daughter's wedding will be ruined without that necklace!";
+		break;
+		
+		case RPG.QUEST_DONE:
+			var text = ["I heard you managed to find the necklace! That is great news indeed."];
+			
+			if (being.hasItem(this._item)) {
+				this._hasItem = true;
+			} else {
+				var i = being.getSlot(RPG.SLOT_NECK).getItem();
+				if (i == this._item) { this._hasItem = true; }
+			}
+			
+			if (this._hasItem) { 
+				text.push("As a reward, let me teach you a spell. What kind of magic do you prefer?");
+			} else {
+				text.push("Please bring the necklace to me, I will reward you!");
+			}
+			return text;
+		break;
+		
+		case this._REWARD_OFFENSIVE:
+			return "I will teach you the Magic explosion spell.";
+		break;
 
-	this._chat = chat;
+		case this._REWARD_DEFENSIVE:
+			return "I will teach you the Healing spell.";
+		break;
+
+		case RPG.QUEST_REWARDED:
+			return "Time will heal every scar.";
+		break;
+	}
+}
+
+RPG.Quests.LostNecklace.prototype.getDialogOptions = function(being) {
+	switch (this._phase) {
+		case RPG.QUEST_DONE:
+			if (this._hasItem) {
+				return ["Offensive magic", "Defensive magic"];
+			} else {
+				return [];
+			}
+		break;
+
+		default:
+			return [];
+		break;
+	}
+}
+
+RPG.Quests.LostNecklace.prototype.advanceDialog = function(optionIndex) {
+	switch (this._phase) {
+		case RPG.QUEST_NEW:
+			this.setPhase(RPG.QUEST_GIVEN);
+			return false;
+		break;
+		
+		case RPG.QUEST_GIVEN: 
+			return false;
+		break;
+		
+		case RPG.QUEST_DONE:
+			if (this._hasItem) {
+				var pc = RPG.Game.pc;
+				var i = pc.getSlot(RPG.SLOT_NECK).getItem();
+				if (i == this._item) { pc.unequip(RPG.SLOT_NECK); }
+				pc.removeItem(this._item);
+				
+				if (optionIndex == 0) { /* offensive */
+					this._reward = RPG.Spells.MagicExplosion;
+					this.setPhase(this._REWARD_OFFENSIVE);
+				} else { /* defensive */
+					this._reward = RPG.Spells.Heal;
+					this.setPhase(this._REWARD_DEFENSIVE);
+				}
+				
+				return true;
+			} else {
+				return false;
+			}
+		break;
+
+		case this._REWARD_OFFENSIVE:
+			this.setPhase(RPG.QUEST_REWARDED);
+			return false;
+		break;
+
+		case this._REWARD_DEFENSIVE:
+			this.setPhase(RPG.QUEST_REWARDED);
+			return false;
+		break;
+
+		case RPG.QUEST_REWARDED:
+			return false;
+		break;
+	}
 }
 
 /**

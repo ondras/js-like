@@ -7,8 +7,9 @@
  * a) task is already done - remove it from queue, repeat
  * b) task cannot be done - repeat
  * c) task was executed, finish.
+ * @augments RPG.IDialog
  */
-RPG.AI = OZ.Class();
+RPG.AI = OZ.Class().implement(RPG.IDialog);
 
 RPG.AI.prototype.init = function(being) {
 	this._being = being;
@@ -16,6 +17,12 @@ RPG.AI.prototype.init = function(being) {
 	this._defaultTask = null; /* fallback task */
 	this._actionResult = null; /* action result to return */
 	this._ec = [];
+	
+	this._dialog = {
+		text: null,
+		sound: null,
+		quest: null
+	};
 
 	this._addEvents();
 	this.setDefaultTask(new RPG.AI.Wander());
@@ -23,6 +30,14 @@ RPG.AI.prototype.init = function(being) {
 
 RPG.AI.prototype.revive = function() {
 	this._addEvents();
+}
+
+/**
+ * We just died, destroy the AI
+ */
+RPG.AI.prototype.die = function(e) {
+	this._ec.forEach(RPG.Game.removeEvent);
+	this._ec = [];
 }
 
 RPG.AI.prototype.getBeing = function() {
@@ -130,6 +145,37 @@ RPG.AI.prototype.yourTurn = function() {
 	return this._actionResult;
 }
 
+RPG.AI.prototype.setDialogQuest = function(quest) {
+	this._dialog.quest = quest;
+	return this;
+}
+
+RPG.AI.prototype.setDialogText = function(text) {
+	this._dialog.text = text;
+	return this;
+}
+
+RPG.AI.prototype.setDialogSound = function(sound) {
+	this._dialog.sound = sound;
+	return this;
+}
+
+RPG.AI.prototype.getDialogText = function(being) {
+	return (this._dialog.quest ? this._dialog.quest.getDialogText(being) : this._dialog.text);
+}
+
+RPG.AI.prototype.getDialogSound = function(being) {
+	return (this._dialog.quest ? this._dialog.quest.getDialogSound(being) : this._dialog.sound);
+}
+
+RPG.AI.prototype.getDialogOptions = function(being) {
+	return (this._dialog.quest ? this._dialog.quest.getDialogOptions(being) : []);
+}
+
+RPG.AI.prototype.advanceDialog = function(optionIndex) {
+	return (this._dialog.quest ? this._dialog.quest.advanceDialog(optionIndex) : false);
+}
+
 RPG.AI.prototype._addEvents = function() {
 	this._ec = [];
 	this._ec.push(RPG.Game.addEvent(null, "attack-melee", this.bind(this._attack)));
@@ -185,13 +231,6 @@ RPG.AI.prototype._attack = function(e) {
 
 }
 
-/**
- * We just died, destroy the AI
- */
-RPG.AI.prototype.die = function(e) {
-	this._ec.forEach(RPG.Game.removeEvent);
-	this._ec = [];
-}
 
 /**
  * Static pathfinder method 
