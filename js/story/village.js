@@ -224,9 +224,6 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
 	this._char = "@";
 	this._color = "red";
 	this._image = "village-shopkeeper";
-
-	this._ai.setDialogText("Be careful and don't break anything!");
-	
 	this.fullStats();
 }
 
@@ -379,12 +376,12 @@ RPG.Items.WeddingNecklace.prototype.init = function() {
 
 /**
  * @class Elder's enemy quest
- * @augments RPG.IDialog
+ * @augments RPG.Misc.IDialog
  * @augments RPG.Quests.Kill
  */
 RPG.Quests.ElderEnemy = OZ.Class()
 							.extend(RPG.Quests.Kill)
-							.implement(RPG.IDialog);
+							.implement(RPG.Misc.IDialog);
 
 RPG.Quests.ElderEnemy.prototype.init = function(giver, being) {
 	this._GIVING = 1;
@@ -459,7 +456,7 @@ RPG.Quests.ElderEnemy.prototype.getDialogOptions = function(being) {
 	}
 }
 
-RPG.Quests.ElderEnemy.prototype.advanceDialog = function(optionIndex) {
+RPG.Quests.ElderEnemy.prototype.advanceDialog = function(optionIndex, being) {
 	switch (this._phase) {
 		case RPG.QUEST_NEW:
 			if (optionIndex == 0) { /* yes */
@@ -503,11 +500,11 @@ RPG.Quests.ElderEnemy.prototype.advanceDialog = function(optionIndex) {
 /**
  * @class Lost necklace quest
  * @augments RPG.Quests.Retrieve
- * @augments RPG.IDialog
+ * @augments RPG.Misc.IDialog
  */
 RPG.Quests.LostNecklace = OZ.Class()
 							.extend(RPG.Quests.Retrieve)
-							.implement(RPG.IDialog);
+							.implement(RPG.Misc.IDialog);
 RPG.Quests.LostNecklace.prototype.init = function(giver, item) {
 	this._REWARD_DEFENSIVE = 0;
 	this._REWARD_OFFENSIVE = 1;
@@ -593,7 +590,7 @@ RPG.Quests.LostNecklace.prototype.getDialogOptions = function(being) {
 	}
 }
 
-RPG.Quests.LostNecklace.prototype.advanceDialog = function(optionIndex) {
+RPG.Quests.LostNecklace.prototype.advanceDialog = function(optionIndex, being) {
 	switch (this._phase) {
 		case RPG.QUEST_NEW:
 			this.setPhase(RPG.QUEST_GIVEN);
@@ -606,10 +603,9 @@ RPG.Quests.LostNecklace.prototype.advanceDialog = function(optionIndex) {
 		
 		case RPG.QUEST_DONE:
 			if (this._hasItem) {
-				var pc = RPG.Game.pc;
-				var i = pc.getSlot(RPG.SLOT_NECK).getItem();
-				if (i == this._item) { pc.unequip(RPG.SLOT_NECK); }
-				pc.removeItem(this._item);
+				var i = being.getSlot(RPG.SLOT_NECK).getItem();
+				if (i == this._item) { being.unequip(RPG.SLOT_NECK); }
+				being.removeItem(this._item);
 				
 				if (optionIndex == 0) { /* offensive */
 					this._reward = RPG.Spells.MagicExplosion;

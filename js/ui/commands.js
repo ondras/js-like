@@ -1198,3 +1198,21 @@ RPG.UI.Command.Load.prototype.exec = function() {
 RPG.UI.Command.Load.prototype._done = function() {
 	RPG.UI.setMode(RPG.UI_NORMAL);
 }
+
+/**
+ * @class Debts
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Debts = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.Debts.prototype.init = function() {
+	this.parent("Show debts");
+	this._button.setChar("P");
+}
+
+RPG.UI.Command.Debts.prototype.exec = function() {
+	var debts = RPG.Game.pc.getDebts();
+	var str = "You currently owe " + (debts || "no") + " gold pieces.";
+	alert(str);
+}
+

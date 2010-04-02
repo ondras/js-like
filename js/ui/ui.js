@@ -147,6 +147,7 @@ RPG.UI.build = function() {
 	d.appendChild(new RPG.UI.Command.KickStats().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.KillStats().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Quests().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Debts().getButton().getInput());
 
 	var d = OZ.DOM.elm("div", {innerHTML:"Miscellaneous: "});
 	c.appendChild(d);

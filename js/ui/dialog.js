@@ -66,7 +66,7 @@ RPG.UI.Dialog.prototype._click = function(e) {
 	if (this._buffer.length) { /* continue */
 		this._redraw();
 	} else { /* answer picked */
-		var cont = this._dialog.advanceDialog(index);
+		var cont = this._dialog.advanceDialog(index, this._being);
 		if (cont) { this._redraw(); }
 	}
 }
@@ -93,7 +93,7 @@ RPG.UI.Dialog.prototype._redraw = function() {
 		if (answers.length) { 
 			this._buildOptions(answers); 
 		} else {
-			this._dialog.advanceDialog();
+			this._dialog.advanceDialog(-1, this._being);
 		}
 	}
 

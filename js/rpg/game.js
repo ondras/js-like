@@ -7,7 +7,7 @@ RPG.Game = {
 	_engine: null,
 	_map: null,
 	_events: [],
-	_version: 4
+	_version: 5
 }
 
 RPG.Game.init = function() {

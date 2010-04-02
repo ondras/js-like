@@ -175,6 +175,7 @@ RPG.Beings.BaseBeing.prototype.addItem = function(item) {
 	return this;
 }
 
+
 RPG.Beings.BaseBeing.prototype.hasItem = function(item) {
 	return (this._items.indexOf(item) != -1);
 }
@@ -234,6 +235,39 @@ RPG.Beings.BaseBeing.prototype.getSlots = function() {
 RPG.Beings.BaseBeing.prototype.getSlot = function(type) {
 	return this._slots[type] || null;
 }
+
+/**
+ * Shortcut to wallet ;)
+ */
+RPG.Beings.BaseBeing.prototype.getGold = function() {
+	for (var i=0;i<this._items.length;i++) {
+		var it = this._items[i];
+		if (it instanceof RPG.Items.Gold) { return it; }
+	}
+	return null;
+}
+
+/**
+ * Compute debts; either total or specific to one shopkeeper
+ */
+RPG.Beings.BaseBeing.prototype.getDebts = function(shopkeeper) {
+	var total = 0;
+	var sitems = (shopkeeper ? shopkeeper.getAI().getItems() : null);
+	
+	for (var i=0;i<this._items.length;i++) {
+		var item =  this._items[i];
+		if (!item.getPrice()) { continue; }
+		
+		if (!shopkeeper) {
+			total += item.getPrice();
+		} else {
+			var index = sitems.indexOf(item);
+			if (index != -1) { total += item.getPrice(); }
+		}
+	}
+	return total;
+}
+
 
 /**
  * Return he/she/it string for this being

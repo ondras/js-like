@@ -497,6 +497,64 @@ RPG.AI.Shopkeeper.prototype.isSwappable = function(being) {
 	return (!this._guarding);
 }
 
+RPG.AI.Shopkeeper.prototype.getDialogText = function(being) {
+	var debt = being.getDebts(this._being);
+	if (!debt) { return "Be careful and don't break anything!"; }
+
+	var text = ["You owe me " + debt + " gold pieces."];
+	
+	var avail = being.getGold();
+	avail = avail ? avail.getAmount() : 0;
+	
+	if (avail >= debt) {
+		text.push("Do you want to pay for everything?");
+	} else {
+		text.push("You do not have enough money to pay; drop some items...");
+	}
+	
+	return text;
+}
+
+RPG.AI.Shopkeeper.prototype.getDialogOptions = function(being) {
+	var debt = being.getDebts(this._being);
+	if (!debt) { return []; }
+
+	var avail = being.getGold();
+	avail = avail ? avail.getAmount() : 0;
+	if (debt > avail) { return []; }
+	return ["Yes", "No"];
+}
+
+RPG.AI.Shopkeeper.prototype.advanceDialog = function(optionIndex, being) {
+	if (optionIndex == -1) { return false; }
+	
+	if (optionIndex == 0) { /* yes */
+		var amount = being.getDebts(this._being);
+		being.getGold().subtract(amount);
+		
+		var items = being.getItems(); /* mark all items as paid */
+		for (var i=0;i<items.length;i++) {
+			var item = items[i];
+			var index = this._items.indexOf(item);
+			if (index == -1) { continue; }
+			
+			this._items.splice(index, 1);
+			item.setPrice(0);
+		}
+		
+		this.removeTask(this._guarding);
+		this._guarding = null;
+
+	} else { /* no */
+	}
+	
+	return false;
+}
+
+RPG.AI.Shopkeeper.prototype.getItems = function() {
+	return this._items;
+}
+
 RPG.AI.Shopkeeper.prototype._addEvents = function() {
 	this.parent();
 	this._ec.push(RPG.Game.addEvent(null, "pick", this.bind(this._pick)));

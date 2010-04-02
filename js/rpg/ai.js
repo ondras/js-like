@@ -7,9 +7,9 @@
  * a) task is already done - remove it from queue, repeat
  * b) task cannot be done - repeat
  * c) task was executed, finish.
- * @augments RPG.IDialog
+ * @augments RPG.Misc.IDialog
  */
-RPG.AI = OZ.Class().implement(RPG.IDialog);
+RPG.AI = OZ.Class().implement(RPG.Misc.IDialog);
 
 RPG.AI.prototype.init = function(being) {
 	this._being = being;
@@ -172,8 +172,8 @@ RPG.AI.prototype.getDialogOptions = function(being) {
 	return (this._dialog.quest ? this._dialog.quest.getDialogOptions(being) : []);
 }
 
-RPG.AI.prototype.advanceDialog = function(optionIndex) {
-	return (this._dialog.quest ? this._dialog.quest.advanceDialog(optionIndex) : false);
+RPG.AI.prototype.advanceDialog = function(optionIndex, being) {
+	return (this._dialog.quest ? this._dialog.quest.advanceDialog(optionIndex, being) : false);
 }
 
 RPG.AI.prototype._addEvents = function() {
