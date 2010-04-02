@@ -40,7 +40,8 @@ RPG.Items.BaseItem.prototype.clone = function() {
 	for (var feat in this._modifiers) {
 		clone._modifiers[feat] = this._modifiers[feat];
 	}
-
+	
+	this.dispatch("clone", {clone:clone});
 	return clone;
 }
 
@@ -107,7 +108,7 @@ RPG.Items.BaseItem.prototype.describe = function() {
 	}
 	
 	if (this._price > 0) {
-		s += " (unpaid, " + this._price + " gold)";
+		s += " (unpaid, " + (this._price * this._amount) + " gold)";
 	}
 
 	return s;

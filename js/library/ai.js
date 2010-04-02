@@ -475,7 +475,10 @@ RPG.AI.Shopkeeper.prototype.init = function(being, shop) {
 			var cell = map.at(c);
 			if (!cell.isFree()) { continue; }
 			
-			var item = RPG.Items.getInstance(danger);
+			do {
+				var item = RPG.Items.getInstance(danger);
+			} while (item instanceof RPG.Items.Gold);
+			
 			item.setPrice(10 + Math.round(Math.random() * danger * 100));
 			this._items.push(item);
 			cell.addItem(item);
@@ -559,6 +562,7 @@ RPG.AI.Shopkeeper.prototype._addEvents = function() {
 	this.parent();
 	this._ec.push(RPG.Game.addEvent(null, "pick", this.bind(this._pick)));
 	this._ec.push(RPG.Game.addEvent(null, "drop", this.bind(this._drop)));
+	this._ec.push(RPG.Game.addEvent(null, "clone", this.bind(this._clone)));
 }
 
 RPG.AI.Shopkeeper.prototype._pick = function(e) {
@@ -569,6 +573,12 @@ RPG.AI.Shopkeeper.prototype._pick = function(e) {
 	var guard = new RPG.AI.HoldPosition(this._shop.getDoor());
 	this._guarding = guard;
 	this.addTask(guard);
+}
+
+RPG.AI.Shopkeeper.prototype._clone = function(e) {
+	var item = e.target;
+	if (this._items.indexOf(item) == -1) { return; }
+	this._items.push(e.data.clone);
 }
 
 RPG.AI.Shopkeeper.prototype._drop = function(e) {

@@ -257,12 +257,13 @@ RPG.Beings.BaseBeing.prototype.getDebts = function(shopkeeper) {
 	for (var i=0;i<this._items.length;i++) {
 		var item =  this._items[i];
 		if (!item.getPrice()) { continue; }
+		var price = item.getPrice() * item.getAmount();
 		
 		if (!shopkeeper) {
-			total += item.getPrice();
+			total += price;
 		} else {
 			var index = sitems.indexOf(item);
-			if (index != -1) { total += item.getPrice(); }
+			if (index != -1) { total += price; }
 		}
 	}
 	return total;
