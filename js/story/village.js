@@ -837,7 +837,7 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 	return up.getCell();
 }
 
-RPG.Story.Village.prototype._computeScore = function() {
+RPG.Story.Village.prototype.computeScore = function() {
 	var total = this.parent();
 	total += 150 * this._elderDepth;
 	return total;

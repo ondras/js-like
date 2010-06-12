@@ -126,7 +126,7 @@ RPG.UI.SaveLoad.prototype._syncDOM = function() {
 
 /**
  * Check individual I/O method availability
- **/
+ */
 RPG.UI.SaveLoad.prototype._testMethods = function() {
 	this._methods[this.CLIPBOARD].enabled = true;
 	this._methods[this.LOCAL].enabled = true;
@@ -220,6 +220,7 @@ RPG.UI.SaveLoad.prototype._readyStateChange = function(state, data) {
  * Data for saving/loading available
  */
 RPG.UI.SaveLoad.prototype._dataAvailable = function(data) {
+	RPG.Stats.send(RPG.Stats.SAVE);
 	switch (this._method) {
 		case this.CLIPBOARD:
 			this._dom.ta.style.display = "";

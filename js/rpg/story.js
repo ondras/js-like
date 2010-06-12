@@ -35,12 +35,14 @@ RPG.Story.prototype.end = function() {
 	var str = pc.getName();
 	if (pc.isAlive()) {
 		str += " managed to finish the game alive!";
+		RPG.Stats.send(RPG.Stats.END);
 	} else {
 		str += " was unable to surive in the dangerous dungeon.";
+		RPG.Stats.send(RPG.Stats.DEATH);
 	}
 	p1.innerHTML = str;
 	
-	var score = this._computeScore();
+	var score = this.computeScore();
 	var p2 = OZ.DOM.elm("p");
 	p2.innerHTML = "He managed to kill <strong>" + pc.getKills() + "</strong> monsters with a total score: <strong>" + score + "</strong>";
 	
@@ -85,7 +87,8 @@ RPG.Story.prototype._charPicked = function(e) {
 	this._pc = this._createPC(race, profession, name);
 	this._addDeathEvent();
 	RPG.Game.pc = this._pc;
-
+	
+	RPG.Stats.send(RPG.Stats.NEW);
 	var map = this._firstMap();
 	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
 	RPG.Game.startMap(map, cell);
@@ -118,7 +121,7 @@ RPG.Story.prototype._firstMap = function() {
 /**
  * Compute player's score
  */
-RPG.Story.prototype._computeScore = function() {
+RPG.Story.prototype.computeScore = function() {
 	var pc = RPG.Game.pc;
 	var total = 0;
 	
