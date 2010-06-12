@@ -10,6 +10,7 @@ RPG.Stats.send = function(event) {
 	if (!this.server) { return; }
 	
 	var data = {
+		a: "save",
 		score: RPG.Game.getStory().computeScore(),
 		name: RPG.Game.pc.getName(),
 		event: event
@@ -17,7 +18,7 @@ RPG.Stats.send = function(event) {
 	
 	var arr = [];
 	for (var p in data) { arr.push(encodeURIComponent(p)+"="+encodeURIComponent(data[p])); }
-	var url = "http://" + this.server + "/?" + arr.join("&");
+	var url = this.server + "?" + arr.join("&");
 	var img = OZ.DOM.elm("img", {src:url});
 	document.body.appendChild(img);
 }
