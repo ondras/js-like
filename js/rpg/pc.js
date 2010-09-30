@@ -265,8 +265,8 @@ RPG.Beings.PC.prototype.activateTrap = function(trap) {
 	return RPG.ACTION_TIME;
 }
 
-RPG.Beings.PC.prototype.move = function(targetCell) {
-	var result = this.parent(targetCell);
+RPG.Beings.PC.prototype.move = function(targetCell, ignoreOldCell) {
+	var result = this.parent(targetCell, ignoreOldCell);
 	
 	if (targetCell) {
 		this._describeLocal();
@@ -323,13 +323,9 @@ RPG.Beings.PC.prototype.switchPosition = function(cell) {
 			RPG.UI.buffer.message(s);
 		}
 */		
-		/* fake pre-position */
-		var source = this._cell;
-		this.setCell(cell);
-		being.setCell(source);
 		
-		this.move(cell);
-		being.move(source);
+		this.move(cell, true);
+		being.move(source, true);
 	}
 
 	return RPG.ACTION_TIME;
@@ -410,7 +406,7 @@ RPG.Beings.PC.prototype._search = function(cell) {
 	}
 	
 	var f = cell.getFeature();
-	if (f && f instanceof RPG.Features.Trap && !f.knowsAbout(this) && RPG.Rules.isTrapDetected(this, f)) {
+	if (f && f instanceof RPG.Features.Trap && !this.knowsFeature(f) && RPG.Rules.isTrapDetected(this, f)) {
 		this._knownTraps.push(f);
 		var s = RPG.Misc.format("You discover %a!", f);
 		RPG.UI.buffer.message(s);
@@ -563,7 +559,7 @@ RPG.Beings.PC.prototype._describeAttack = function(hit, damage, kill, being, slo
 
 RPG.Beings.PC.prototype._describeLocal = function() {
 	var f = this._cell.getFeature();
-	if (f && f.knowsAbout(this)) {
+	if (f && this.knowsFeature(f)) {
 		var s = RPG.Misc.format("%A.", f);
 		RPG.UI.buffer.message(s);
 	}
@@ -600,7 +596,7 @@ RPG.Beings.PC.prototype._describeRemote = function(cell) {
 	RPG.UI.buffer.message(s);
 
 	var f = cell.getFeature();
-	if (f && f.knowsAbout(this)) {
+	if (f && this.knowsFeature(f)) {
 		var s = RPG.Misc.format("%A.", f);
 		RPG.UI.buffer.message(s);
 	}

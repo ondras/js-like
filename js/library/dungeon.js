@@ -156,11 +156,8 @@ RPG.Features.Trap.prototype.init = function() {
 	this._damage = null;
 }
 
-RPG.Features.Trap.prototype.knowsAbout = function(being) {
-	return being.knowsTrap(this);
-}
-
-RPG.Features.Trap.prototype.entered = function(being) {
+RPG.Features.Trap.prototype.entering = function(being, from) {
+	this.parent(being, from);
 	being.trapEncounter(this);
 }
 
@@ -324,8 +321,7 @@ RPG.Rooms.Shop.prototype.getDoor = function() {
 }
 
 RPG.Rooms.Shop.prototype.setShopkeeper = function(being) {
-	if (being.getCell()) { being.getCell().setBeing(null); }
-	this._door.setBeing(being);
+	being.setCell(this._door);
 	
 	var ai = new RPG.AI.Shopkeeper(being, this);
 	being.setAI(ai);

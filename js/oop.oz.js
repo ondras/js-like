@@ -80,3 +80,14 @@ OZ.Class = function() {
 }
 
 OZ.Class.all = [];
+
+OZ.Singleton = function() {
+	var c = OZ.Class();
+	c.getInstance = arguments.callee.getInstance;
+	return c;
+}
+
+OZ.Singleton.getInstance = function() {
+	if (!this._instance) { this._instance = new this(); }
+	return this._instance;
+}

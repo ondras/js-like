@@ -1,11 +1,11 @@
 /**
  * @class Dungeon cell
- * @augments RPG.Misc.IModifier
+ * @augments RPG.Misc.IEnterable
  * @augments RPG.Visual.IVisual
  */
 RPG.Cells.BaseCell = OZ.Class()
 						.implement(RPG.Visual.IVisual)
-						.implement(RPG.Misc.IModifier);
+						.implement(RPG.Misc.IEnterable);
 RPG.Cells.BaseCell.prototype.init = function() {
 	this._initVisuals();
 	this._items = [];
@@ -56,7 +56,7 @@ RPG.Cells.BaseCell.prototype.setMemoryState = function(state) {
 		arr.push(this._being);
 	} else if (this._items.length) {
 		arr.push(this._items[this._items.length-1]);
-	} else if (this._feature && this._feature.knowsAbout(RPG.Game.pc)) {
+	} else if (this._feature && RPG.Game.pc.knowsFeature(this._feature)) {
 		arr.push(this._feature);
 	}
 	
@@ -90,20 +90,14 @@ RPG.Cells.BaseCell.prototype.getItems = function() {
 	return this._items;
 }
 
+/**
+ * Set a being for this cell.
+ * Nothing is executed from here; if you wish to apply modifiers etc,
+ * make sure you initialize the process by calling Being::setCell.
+ */
 RPG.Cells.BaseCell.prototype.setBeing = function(being) {
 	this._being = being;
-	if (!being) { return; }
-
-	var oldCell = being.getCell();
-	if (this._room && (!oldCell || oldCell.getRoom() != this._room)) {
-		/* entering a new room */
-		this._room.entered(this);
-	}
-	
-	being.setCell(this); 
-	
-	/* entering a feature */
-	if (this._feature) { this._feature.entered(being); }
+	return this;
 }
 
 RPG.Cells.BaseCell.prototype.getBeing = function() {
@@ -169,12 +163,12 @@ RPG.Cells.BaseCell.prototype.visibleThrough = function() {
 
 /**
  * @class Room, a logical group of cells
- * @augments RPG.Misc.IModifier
+ * @augments RPG.Misc.IEnterable
  * @param {RPG.Misc.Coords} corner1 top-left corner
  * @param {RPG.Misc.Coords} corner2 bottom-right corner
  */
 RPG.Rooms.BaseRoom = OZ.Class()
-						.implement(RPG.Misc.IModifier);
+						.implement(RPG.Misc.IEnterable);
 
 RPG.Rooms.BaseRoom.prototype.init = function(corner1, corner2) {
 	this._map = null;
@@ -198,10 +192,6 @@ RPG.Rooms.BaseRoom.prototype.setWelcome = function(text) {
 	return this;
 }
 
-RPG.Rooms.BaseRoom.prototype.getWelcome = function() {
-	return this._welcome;
-}
-
 RPG.Rooms.BaseRoom.prototype.getCorner1 = function() {
 	return this._corner1;
 }
@@ -217,10 +207,10 @@ RPG.Rooms.BaseRoom.prototype.getCenter = function() {
 }
 
 /**
- * A being entered this room
- * @param {RPG.Beings.BaseBeing} being
+ * @see RPG.Misc.IEnterable#entering
  */
-RPG.Rooms.BaseRoom.prototype.entered = function(being) {
+RPG.Rooms.BaseRoom.prototype.entering = function(being, from) {
+	RPG.Misc.IEnterable.prototype.entering.apply(this, arguments);
 	if (this._welcome && being == RPG.Game.pc) { RPG.UI.buffer.message(this._welcome); }
 }
 
@@ -229,15 +219,13 @@ RPG.Rooms.BaseRoom.prototype.entered = function(being) {
  * @augments RPG.Visual.IVisual
  */
 RPG.Features.BaseFeature = OZ.Class()
-							.implement(RPG.Visual.IVisual);
+							.implement(RPG.Visual.IVisual)
+							.implement(RPG.Misc.IEnterable);
 RPG.Features.BaseFeature.prototype.init = function() {
 	this._cell = null;
 	this._initVisuals();
+	this._modifiers = {};
 	this._type = RPG.BLOCKS_NOTHING;
-}
-
-RPG.Features.BaseFeature.prototype.knowsAbout = function(being) {
-	return true;
 }
 
 RPG.Features.BaseFeature.prototype.setCell = function(cell) {
@@ -246,13 +234,6 @@ RPG.Features.BaseFeature.prototype.setCell = function(cell) {
 
 RPG.Features.BaseFeature.prototype.getCell = function() {
 	return this._cell;
-}
-
-/**
- * Notify feature that a being came here
- * @param {RPG.Beings.BaseBeing} being
- */
-RPG.Features.BaseFeature.prototype.entered = function(being) {
 }
 
 RPG.Features.BaseFeature.prototype.getType = function() {
@@ -275,9 +256,9 @@ RPG.Features.BaseFeature.prototype.visibleThrough = function() {
 
 /**
  * @class Dungeon map
- * @augments RPG.Misc.IModifier
+ * @augments RPG.Misc.IEnterable
  */
-RPG.Map = OZ.Class().implement(RPG.Misc.IModifier);
+RPG.Map = OZ.Class().implement(RPG.Misc.IEnterable);
 
 RPG.Map.prototype.init = function(id, size, danger) {
 	this._modifiers = {};
@@ -293,17 +274,23 @@ RPG.Map.prototype.init = function(id, size, danger) {
 }
 
 /**
- * This will be used now.
+ * @see RPG.Misc.IEnterable#entering
  */
-RPG.Map.prototype.entered = function() {
+RPG.Map.prototype.entering = function(being, from) {
+	RPG.Misc.IEnterable.prototype.entering.apply(this, arguments);
+	if (being != RPG.Game.pc) { return; }
+	
 	if (this._sound) { RPG.UI.sound.playBackground(this._sound); }
 	if (this._welcome) { RPG.UI.buffer.message(this._welcome); }
 }
 
 /**
- * This map will not be used now
+ * @see RPG.Misc.IEnterable#leaving
  */
-RPG.Map.prototype.leave = function() {
+RPG.Map.prototype.leave = function(being, to) {
+	RPG.Misc.IEnterable.prototype.leaving.apply(this, arguments);
+	if (being != RPG.Game.pc) { return; }
+
 	/* mark visible cells as remembered */
 	for (var i=0;i<this._size.x;i++) {
 		for (var j=0;j<this._size.y;j++) {
@@ -378,10 +365,6 @@ RPG.Map.prototype.fromIntMap = function(intMap, cells) {
 RPG.Map.prototype.setWelcome = function(text) {
 	this._welcome = text;
 	return this;
-}
-
-RPG.Map.prototype.getWelcome = function() {
-	return this._welcome;
 }
 
 RPG.Map.prototype.setSound = function(sound) {
@@ -768,12 +751,8 @@ RPG.Map.prototype._cellFromNumber = function(celltype, cells) {
 /**
  * @class Map decorator
  */
-RPG.Decorators.BaseDecorator = OZ.Class();
+RPG.Decorators.BaseDecorator = OZ.Singleton();
 
-RPG.Decorators.BaseDecorator.getInstance = function() {
-	if (!this._instance) { this._instance = new this(); }
-	return this._instance;
-}
 RPG.Decorators.BaseDecorator.prototype.decorate = function(map) {
 	return this;
 }

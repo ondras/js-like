@@ -76,6 +76,10 @@ RPG.Visual.Trace.prototype.init = function(what) {
 	this._class = what.constructor;
 }
 
+/**
+ * Class needed to find correct path to image
+ * FIXME this probably sucks.
+ */
 RPG.Visual.Trace.prototype.getClass = function() {
 	return this._class;
 }

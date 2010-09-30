@@ -81,13 +81,9 @@ RPG.Game.end = function() {
  * @param {RPG.Cells.BaseCell} cell PC's cell
  */
 RPG.Game.setMap = function(map, cell) {
-	if (this._map) { this._map.leave(); }
-
 	this._map = map; /* remember where we are */
-	map.entered(); /* welcome, songs, ... */
 
-	RPG.UI.status.updateMap(map.getId()); /* update statusbar */
-	
+	RPG.UI.status.updateMap(map.getId()); /* update statusbar */	
 	RPG.UI.map.resize(map.getSize()); /* draw the map */
 	RPG.UI.map.redrawAll();
 

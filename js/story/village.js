@@ -53,8 +53,10 @@ RPG.Map.Village.prototype.init = function() {
 	}
 }
 
-RPG.Map.Village.prototype.entered = function() {
-	this.parent();
+RPG.Map.Village.prototype.entering = function(being, from) {
+	this.parent(being, from);
+	if (being != RPG.Game.pc) { return; }
+
 	RPG.UI.sound.preload("doom");
 }
 
@@ -114,38 +116,35 @@ RPG.Map.Village.prototype._buildPeople = function() {
     var task = null;
 
 	this._elder = new RPG.Beings.VillageElder();
-	this.at(new RPG.Misc.Coords(30, 5)).setBeing(this._elder);
+	this._elder.setCell(this.at(new RPG.Misc.Coords(30, 5)));
     task = new RPG.AI.Wait();
 	this._elder.getAI().setDefaultTask(task);
 
     this._witch = new RPG.Beings.VillageWitch();
-    this.at(new RPG.Misc.Coords(2,7)).setBeing(this._witch);
+    this._witch.setCell(this.at(new RPG.Misc.Coords(2,7)));
     task = new RPG.AI.Wait();
 	this._witch.getAI().setDefaultTask(task);
 
     this._healer = new RPG.Beings.VillageHealer();
-    this.at(new RPG.Misc.Coords(11,3)).setBeing(this._healer);
+    this._healer.setCell(this.at(new RPG.Misc.Coords(11,3)));
     task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(10, 2), new RPG.Misc.Coords(11, 4));
 	this._healer.getAI().setDefaultTask(task);
 
     this._smith = new RPG.Beings.VillageSmith();
-    this.at(new RPG.Misc.Coords(20,6)).setBeing(this._smith);
+    this._smith.setCell(this.at(new RPG.Misc.Coords(20,6)));
     task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(19, 5), new RPG.Misc.Coords(21, 6));
 	this._smith.getAI().setDefaultTask(task);
 
     this._shopkeeper = new RPG.Beings.VillageShopkeeper();
 	shop.setShopkeeper(this._shopkeeper);
-//    this.at(new RPG.Misc.Coords(19,11)).setBeing(this._shopkeeper);
- //   task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(19, 11), new RPG.Misc.Coords(21, 13));
-//	this._shopkeeper.getAI().setDefaultTask(task);
 
     this._guard_one = new RPG.Beings.VillageGuard();
-    this.at(new RPG.Misc.Coords(27,6)).setBeing(this._guard_one);
+    this._guard_one.setCell(this.at(new RPG.Misc.Coords(27,6)));
     task = new RPG.AI.Wait();
 	this._guard_one.getAI().setDefaultTask(task);
 
     this._guard_two = new RPG.Beings.VillageGuard();
-    this.at(new RPG.Misc.Coords(27,8)).setBeing(this._guard_two);
+    this._guard_two.setCell(this.at(new RPG.Misc.Coords(27,8)));
     task = new RPG.AI.Wait();
 	this._guard_two.getAI().setDefaultTask(task);
 
@@ -164,12 +163,12 @@ RPG.Map.Village.prototype._buildPeople = function() {
 		villager.getAI().setDialogSound(chat[1]);
 
         c = this.getFreeCell();
-        c.setBeing(villager);
+        villager.setCell(c);
     }
 	
 	/*
 	var thrower = new RPG.Beings.GoblinRockthrower();
-	this.at(new RPG.Misc.Coords(22,3)).setBeing(thrower);
+	throwser.setCell(this.at(new RPG.Misc.Coords(22,3)));
 	thrower.setFeat(RPG.FEAT_MAGIC, 20);
 	thrower.fullStats();
 	thrower.addSpell(RPG.Spells.Fireball);
@@ -780,7 +779,7 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 		RPG.Decorators.Doors.getInstance().decorate(map, roomTreasure, {locked: 1});
 		RPG.Decorators.Treasure.getInstance().decorate(map, roomTreasure, {treasure: 1});
 
-		map.at(roomTreasure.getCenter()).setBeing(this._boss);
+		this._boss.setCell(map.at(roomTreasure.getCenter()));
 	}
 	
 	/* artifact */

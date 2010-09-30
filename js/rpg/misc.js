@@ -334,6 +334,31 @@ RPG.Misc.IDialog.prototype.advanceDialog = function(optionIndex, being) {
 }
 
 /**
+ * @class Interface for enterable objects (cells, rooms, maps)
+ * @augments RPG.Misc.IModifier
+ */
+RPG.Misc.IEnterable = OZ.Class()
+						.extend(RPG.Misc.IModifier);
+
+/**
+ * Called only when from != this
+ * @param {RPG.Beings.BaseBeing} being Someone who just came here
+ * @param {RPG.Misc.IEnterable || null} from
+ */
+RPG.Misc.IEnterable.prototype.entering = function(being, from) {
+	being.addModifiers(this);
+};
+
+/**
+ * Called only when to != this
+ * @param {RPG.Beings.BaseBeing} being Someone who is just leaving
+ * @param {RPG.Misc.IEnterable || null} to
+ */
+RPG.Misc.IEnterable.prototype.leaving = function(being, to) {
+	being.removeModifiers(this);
+};
+
+/**
  * @class Generic object factory
  */ 
 RPG.Misc.Factory = OZ.Class();

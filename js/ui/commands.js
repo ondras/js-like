@@ -571,16 +571,16 @@ RPG.UI.Command.Autowalk.prototype._check = function() {
 	if (aheadCell.getBeing()) { return false; } 
 	
 	/* standing close to a feature */
-	if (cell.getFeature() && cell.getFeature().knowsAbout(pc)) { return false; } 
-	if (leftCell && leftCell.getFeature() && leftCell.getFeature().knowsAbout(pc)) { return false; } 
-	if (rightCell && rightCell.getFeature() && rightCell.getFeature().knowsAbout(pc)) { return false; } 
+	if (cell.getFeature() && pc.knowsFeature(cell.getFeature())) { return false; } 
+	if (leftCell && leftCell.getFeature() && pc.knowsFeature(leftCell.getFeature())) { return false; } 
+	if (rightCell && rightCell.getFeature() && pc.knowsFeature(rightCell.getFeature())) { return false; } 
 
 	if (ahead) {
 		/* we can - in theory - continue; just check if we are not standing on a crossroads */
 		if ((!this._left && left) || (!this._right && right)) { return false; }
 	} else {
 		/* feature blocks way - stop */
-		if (aheadCell.getFeature() && aheadCell.getFeature().knowsAbout(pc)) { return false; }
+		if (aheadCell.getFeature() && pc.knowsFeature(aheadCell.getFeature())) { return false; }
 		
 		/* try to change direction, because it is not possible to continue */
 		var freecount = 0;
@@ -707,7 +707,7 @@ RPG.UI.Command.Trap.prototype.init = function() {
 RPG.UI.Command.Trap.prototype.exec = function() {
 	var pc = RPG.Game.pc;
 	var f = pc.getCell().getFeature();
-	if (f && f instanceof RPG.Features.Trap && f.knowsAbout(pc)) {
+	if (f && f instanceof RPG.Features.Trap && pc.knowsFeature(f)) {
 		var result = pc.activateTrap(f);
 		RPG.Game.getEngine().actionResult(result);
 	} else {

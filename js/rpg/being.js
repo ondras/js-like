@@ -20,7 +20,7 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._effects = [];
 	this._modifierList = [];
 	this._spells = [];
-	this._knownTraps = [];
+	this._knownFeatures = [];
 
 	var r = new race();
 	this._setRace(r);
@@ -37,8 +37,9 @@ RPG.Beings.BaseBeing.prototype.toString = function() {
 	return this.describe();
 }
 
-RPG.Beings.BaseBeing.prototype.knowsTrap = function(trap) {
-	return this._knownTraps.indexOf(trap) != -1;
+RPG.Beings.BaseBeing.prototype.knowsFeature = function(feature) {
+	if (!(feature instanceof RPG.Features.Trap)) { return true; }
+	return this._knownFeatures.indexOf(feature) != -1;
 }
 
 /**
@@ -118,38 +119,21 @@ RPG.Beings.BaseBeing.prototype.hasSpell = function(spell, castable) {
 }
 
 /**
- * This being is located on a new cell. Apply all modifiers necessary.
- * @param {SMap.Misc.Coords}
+ * This being is located on a new cell. 
+ * @param {RPG.Cells.BaseCell} cell
+ * @param {bool} [ignoreOldCell]
  */
-RPG.Beings.BaseBeing.prototype.setCell = function(cell) {
-	var oldRoom = null;
-	var newRoom = null;
-	var oldMap = null;
-	var newMap = null;
-	
-	if (this._cell) { 
-		this._removeModifiers(this._cell); 
-		oldRoom = this._cell.getRoom();
-		oldMap = this._cell.getMap();
-	}
-	
-	if (cell) {
-		this._addModifiers(cell);
-		newRoom = cell.getRoom();
-		newMap = cell.getMap();
-	}
-	
-	if (oldRoom != newRoom) {
-		if (oldRoom) { this._removeModifiers(oldRoom); }
-		if (newRoom) { this._addModifiers(newRoom); }
-	}
-	
-	if (oldMap != newMap) {
-		if (oldMap) { this._removeModifiers(oldMap); }
-		if (newMap) { this._addModifiers(newMap); }
-	}
+RPG.Beings.BaseBeing.prototype.setCell = function(cell, ignoreOldCell) {
+	this._notifyEnterables(this._cell, cell);
 
+	/* update old cell */
+	if (this._cell && !ignoreOldCell) { this._cell.setBeing(null); }
+	
 	this._cell = cell;
+
+	/* set new cell */
+	if (this._cell) { this._cell.setBeing(this); }
+
 	return this;
 }
 
@@ -193,7 +177,7 @@ RPG.Beings.BaseBeing.prototype.equip = function(slotId, item) {
 	if (slot.getItem()) { this.unequip(slotId); }
 	
 	var it = slot.setItem(item); /* adding to slot could have modified the item (by subtracting etc) */
-	this._addModifiers(it);
+	this.addModifiers(it);
 	it.setOwner(this);
 }
 
@@ -210,7 +194,7 @@ RPG.Beings.BaseBeing.prototype.unequip = function(slotId, doNotAdd) {
 	if (!item) { return this; }
 	
 	slot.setItem(null);
-	this._removeModifiers(item);
+	this.removeModifiers(item);
 	item.setOwner(null);
 	
 	if (!doNotAdd) { this.addItem(item); }
@@ -518,7 +502,7 @@ RPG.Beings.BaseBeing.prototype.woundedState = function() {
 RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
 	var cell = trap.getCell();
 
-	var knows = this.knowsTrap(trap);
+	var knows = this.knowsFeature(trap);
 	var activated = true;
 	if (knows) { activated = RPG.Rules.isTrapActivated(this, trap); }
 
@@ -527,7 +511,7 @@ RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
 		trap.setOff();
 
 		/* let the being know about this */
-		this._knownTraps.push(trap);
+		this._knownFeatures.push(trap);
 	} else if (RPG.Game.pc.canSee(cell)) {
 	
 		/* already knows */
@@ -554,11 +538,10 @@ RPG.Beings.BaseBeing.prototype.wait = function() {
 /**
  * Moving being to a given cell
  * @param {RPG.Cells.BaseCell} target
+ * @param {bool} [ignoreOldCell]
  */
-RPG.Beings.BaseBeing.prototype.move = function(target) {
-	if (this._cell) { this._cell.setBeing(null); }
-	if (target) { target.setBeing(this); }
-
+RPG.Beings.BaseBeing.prototype.move = function(target, ignoreOldCell) {
+	this.setCell(target, ignoreOldCell);
 	return RPG.ACTION_TIME;
 }
 
@@ -854,18 +837,57 @@ RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
 
 /* -------------------- PRIVATE --------------- */
 
+/**
+ * Notify all interested parties about cell change.
+ * This might be refactored to some other component.
+ */
+RPG.Beings.BaseBeing.prototype._notifyEnterables = function(oldCell, newCell) {
+	var oldEnterables = [];
+	var newEnterables = [];
+	
+	/* 1st enterable - cell */
+	oldEnterables.push(oldCell);
+	newEnterables.push(newCell);
+	
+	/* 2nd enterable - feature */
+	oldEnterables.push(oldCell && oldCell.getFeature());
+	newEnterables.push(newCell && newCell.getFeature());
+	
+	/* 3rd enterable - room */
+	var oldRoom = oldCell && oldCell.getRoom();
+	var newRoom = newCell && newCell.getRoom();
+	if (oldRoom != newRoom) {
+		oldEnterables.push(oldRoom);
+		newEnterables.push(newRoom);
+	}
+
+	/* 4th enterable - map */
+	var oldMap = oldCell && oldCell.getMap();
+	var newMap = newCell && newCell.getMap();
+	if (oldMap != newMap) {
+		oldEnterables.push(oldMap);
+		newEnterables.push(newMap);
+	}
+
+	var count = oldEnterables.length;
+	for (var i=0;i<count;i++) {
+		if (oldEnterables[i]) { oldEnterables[i].leaving(this, newEnterables[i]); }
+		if (newEnterables[i]) { newEnterables[i].entering(this, oldEnterables[i]); }
+	}
+}
+
 RPG.Beings.BaseBeing.prototype._describeLaunch = function(projectile, target) {
 }
 
 RPG.Beings.BaseBeing.prototype._describeAttack = function(hit, damage, kill, being, slot) {
 }
 
-RPG.Beings.BaseBeing.prototype._addModifiers = function(imodifier) {
+RPG.Beings.BaseBeing.prototype.addModifiers = function(imodifier) {
 	this._modifierList.push(imodifier);
 	this._updateFeatsByModifier(imodifier);
 }
 
-RPG.Beings.BaseBeing.prototype._removeModifiers = function(imodifier) {
+RPG.Beings.BaseBeing.prototype.removeModifiers = function(imodifier) {
 	var index = this._modifierList.indexOf(imodifier);
 	if (index == -1) { throw new Error("Cannot find imodifier '"+imodifier+"'"); }
 	this._modifierList.splice(index, 1);

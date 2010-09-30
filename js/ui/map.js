@@ -259,7 +259,7 @@ RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 	if (what instanceof RPG.Visual.Trace) {
 		var f = function(){};
 		f.prototype = what.getClass().prototype;
-		what = new f();;
+		what = new f();
 	}
 
 	if (what instanceof RPG.Beings.PC) {

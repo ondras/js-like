@@ -2,8 +2,7 @@
  * @class Hidden walls decorator
  * @augments RPG.Decorators.BaseDecorator
  */
-RPG.Decorators.Hidden = OZ.Class().extend(RPG.Decorators.BaseDecorator);
-RPG.Decorators.Hidden.getInstance = RPG.Decorators.BaseDecorator.getInstance;
+RPG.Decorators.Hidden = OZ.Singleton().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Hidden.prototype.decorate = function(map, percentage) {
 	var c = new RPG.Misc.Coords(0, 0);
 	var size = map.getSize();
@@ -27,15 +26,14 @@ RPG.Decorators.Hidden.prototype.decorate = function(map, percentage) {
  * @class Beings decorator
  * @augments RPG.Decorators.BaseDecorator
  */
-RPG.Decorators.Beings = OZ.Class().extend(RPG.Decorators.BaseDecorator);
-RPG.Decorators.Beings.getInstance = RPG.Decorators.BaseDecorator.getInstance;
+RPG.Decorators.Beings = OZ.Singleton().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Beings.prototype.decorate = function(map, count) {
 	var danger = map.getDanger();
 	for (var i=0;i<count;i++) {
 		var b = RPG.Beings.NPC.getInstance(danger);
 		var c = map.getFreeCell(true);
 		if (!c) { return this; }
-		c.setBeing(b);
+		b.setCell(c);
 	}
 	return this;
 }
@@ -44,8 +42,7 @@ RPG.Decorators.Beings.prototype.decorate = function(map, count) {
  * @class Items decorator
  * @augments RPG.Decorators.BaseDecorator
  */
-RPG.Decorators.Items = OZ.Class().extend(RPG.Decorators.BaseDecorator);
-RPG.Decorators.Items.getInstance = RPG.Decorators.BaseDecorator.getInstance;
+RPG.Decorators.Items = OZ.Singleton().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Items.prototype.decorate = function(map, count) {
 	var danger = map.getDanger();
 	for (var i=0;i<count;i++) {
@@ -60,8 +57,7 @@ RPG.Decorators.Items.prototype.decorate = function(map, count) {
  * @class Traps decorator
  * @augments RPG.Decorators.BaseDecorator
  */
-RPG.Decorators.Traps = OZ.Class().extend(RPG.Decorators.BaseDecorator);
-RPG.Decorators.Traps.getInstance = RPG.Decorators.BaseDecorator.getInstance;
+RPG.Decorators.Traps = OZ.Singleton().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Traps.prototype.addTraps = function(map, count) {
 	var danger = map.getDanger();
 	for (var i=0;i<count;i++) {
@@ -76,8 +72,7 @@ RPG.Decorators.Traps.prototype.addTraps = function(map, count) {
  * @class Map decorator
  * @augments RPG.Decorators.BaseDecorator
  */
-RPG.Decorators.Doors = OZ.Class().extend(RPG.Decorators.BaseDecorator);
-RPG.Decorators.Doors.getInstance = RPG.Decorators.BaseDecorator.getInstance;
+RPG.Decorators.Doors = OZ.Singleton().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Doors.prototype.decorate = function(map, room, options) {
 	var o = {
 		corridor: RPG.Cells.Corridor,
@@ -163,8 +158,7 @@ RPG.Decorators.Doors.prototype.decorate = function(map, room, options) {
  * @class Treasure decorator
  * @augments RPG.Decorators.BaseDecorator
  */
-RPG.Decorators.Treasure = OZ.Class().extend(RPG.Decorators.BaseDecorator);
-RPG.Decorators.Treasure.getInstance = RPG.Decorators.BaseDecorator.getInstance;
+RPG.Decorators.Treasure = OZ.Singleton().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Treasure.prototype.decorate = function(map, room, options) {
 	var o = {
 		treasure: 0

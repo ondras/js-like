@@ -149,10 +149,10 @@ RPG.Beings.NPC.prototype.canSee = function(cell) {
 
 /* ------------------------- ACTIONS -----------------*/
 
-RPG.Beings.NPC.prototype.move = function(targetCell) {
+RPG.Beings.NPC.prototype.move = function(targetCell, ignoreOldCell) {
 	var sourceCell = this._cell;
 
-	var result = this.parent(targetCell);
+	var result = this.parent(targetCell, ignoreOldCell);
 
 	if (sourceCell) { RPG.UI.map.redrawCell(sourceCell); }
 	if (targetCell) { RPG.UI.map.redrawCell(targetCell); }

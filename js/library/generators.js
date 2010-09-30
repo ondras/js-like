@@ -17,6 +17,7 @@ RPG.Generators.Arena.prototype.generate = function(id, danger) {
 /**
  * @class Random map generator, tries to fill the space evenly
  * @augments RPG.Generators.BaseGenerator
+ * FIXME this is not {finished,working}
  */ 
 RPG.Generators.Uniform = OZ.Class().extend(RPG.Generators.BaseGenerator);
 
@@ -660,7 +661,7 @@ RPG.Generators.DividedMaze.prototype.generate = function(id, danger) {
 RPG.Generators.DividedMaze.prototype._process = function() {
 	while (this._stack.length) {
 		var room = this._stack.shift(); /* [left, top, right, bottom] */
-		this._partitionRoom(room);		
+		this._partitionRoom(room);
 	}
 }
 

@@ -575,6 +575,10 @@ RPG.AI.Shopkeeper.prototype._pick = function(e) {
 	this.addTask(guard);
 }
 
+/**
+ * An item got cloned.
+ * If the original item was owned by this shopkeeper, the clone must be as well.
+ */
 RPG.AI.Shopkeeper.prototype._clone = function(e) {
 	var item = e.target;
 	if (this._items.indexOf(item) == -1) { return; }

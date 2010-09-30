@@ -1,4 +1,3 @@
-
 /**
  * @class Basic item
  * @augments RPG.Visual.IVisual
@@ -22,10 +21,6 @@ RPG.Items.BaseItem.prototype.init = function() {
 RPG.Items.BaseItem.prototype.setOwner = function(being) {
 	this._owner = being;
 	return this;
-}
-
-RPG.Items.BaseItem.prototype.getOwner = function() {
-	return this._owner;
 }
 
 /**
