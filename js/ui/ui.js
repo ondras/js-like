@@ -8,7 +8,7 @@ RPG.UI._commands = []; /* avail commands */
 RPG.UI._pending = null; /* command awaiting specification */
 RPG.UI._dimmer = null; /* dimmer element */
 RPG.UI._dialog = null; /* current dialog */
-RPG.UI._mode = -1; /* current UI mode */	
+RPG.UI._mode = -1; /* current UI mode */
 RPG.UI._target = null; /* targetting coords */
 
 RPG.UI.setMode = function(mode, command, data) {

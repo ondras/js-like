@@ -2,18 +2,20 @@
  * @class Random value - generalized throwing dice
  */
 RPG.Misc.RandomValue = OZ.Class();
-RPG.Misc.RandomValue.prototype.init = function(mean, variance) {
+RPG.Misc.RandomValue.prototype.init = function(mean, twosigma) {
 	this.mean = mean;
-	this.variance = variance;
+	this.twosigma = twosigma;
 }
+
 RPG.Misc.RandomValue.prototype.toString = function() {
-	return this.mean + "±" + this.variance;
+	return this.mean + "±" + this.twosigma;
 }
+
 /**
  * Roll the dice.
  */
 RPG.Misc.RandomValue.prototype.roll = function() {
-	var value = Math.round(this.mean + Math.randomNormal(this.variance/2));
+	var value = Math.round(this.mean + Math.randomNormal(this.twosigma/2));
 	return Math.max(0, value);
 }
 
@@ -22,8 +24,8 @@ RPG.Misc.RandomValue.prototype.roll = function() {
  */
 RPG.Misc.RandomValue.prototype.add = function(rv) {
 	var m = this.mean + rv.mean;
-	var v = Math.max(this.variance, rv.variance);
-	return new this.constructor(m, v);
+	var ts = Math.sqrt(this.twosigma*this.twosigma + rv.twosigma*rv.twosigma);
+	return new this.constructor(m, ts);
 }
 
 /**

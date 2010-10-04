@@ -323,7 +323,7 @@ RPG.Beings.PC.prototype.switchPosition = function(cell) {
 			RPG.UI.buffer.message(s);
 		}
 */		
-		
+		var source = this._cell;
 		this.move(cell, true);
 		being.move(source, true);
 	}
