@@ -156,8 +156,8 @@ RPG.Features.Trap.prototype.init = function() {
 	this._damage = null;
 }
 
-RPG.Features.Trap.prototype.entering = function(being, from) {
-	this.parent(being, from);
+RPG.Features.Trap.prototype.entering = function(being) {
+	this.parent(being);
 	being.trapEncounter(this);
 }
 

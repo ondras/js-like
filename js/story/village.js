@@ -53,8 +53,8 @@ RPG.Map.Village.prototype.init = function() {
 	}
 }
 
-RPG.Map.Village.prototype.entering = function(being, from) {
-	this.parent(being, from);
+RPG.Map.Village.prototype.entering = function(being) {
+	this.parent(being);
 	if (being != RPG.Game.pc) { return; }
 
 	RPG.UI.sound.preload("doom");

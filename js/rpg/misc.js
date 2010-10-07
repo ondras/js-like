@@ -345,18 +345,16 @@ RPG.Misc.IEnterable = OZ.Class()
 /**
  * Called only when from != this
  * @param {RPG.Beings.BaseBeing} being Someone who just came here
- * @param {RPG.Misc.IEnterable || null} from
  */
-RPG.Misc.IEnterable.prototype.entering = function(being, from) {
+RPG.Misc.IEnterable.prototype.entering = function(being) {
 	being.addModifiers(this);
 };
 
 /**
  * Called only when to != this
  * @param {RPG.Beings.BaseBeing} being Someone who is just leaving
- * @param {RPG.Misc.IEnterable || null} to
  */
-RPG.Misc.IEnterable.prototype.leaving = function(being, to) {
+RPG.Misc.IEnterable.prototype.leaving = function(being) {
 	being.removeModifiers(this);
 };
 

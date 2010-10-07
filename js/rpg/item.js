@@ -1,11 +1,11 @@
 /**
- * @class Basic item
+ * @class Basic item.
  * @augments RPG.Visual.IVisual
- * @augments RPG.Misc.IModifier
+ * @augments RPG.Misc.IEnterable
  */
 RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Visual.IVisual)
-						.implement(RPG.Misc.IModifier);
+						.implement(RPG.Misc.IEnterable); /* "entering" an item means equipping it */
 RPG.Items.BaseItem.factory.ignore = true;
 RPG.Items.BaseItem.prototype.init = function() {
 	this._initVisuals();

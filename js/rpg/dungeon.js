@@ -209,7 +209,7 @@ RPG.Rooms.BaseRoom.prototype.getCenter = function() {
 /**
  * @see RPG.Misc.IEnterable#entering
  */
-RPG.Rooms.BaseRoom.prototype.entering = function(being, from) {
+RPG.Rooms.BaseRoom.prototype.entering = function(being) {
 	RPG.Misc.IEnterable.prototype.entering.apply(this, arguments);
 	if (this._welcome && being == RPG.Game.pc) { RPG.UI.buffer.message(this._welcome); }
 }
@@ -287,7 +287,7 @@ RPG.Map.prototype.entering = function(being, from) {
 /**
  * @see RPG.Misc.IEnterable#leaving
  */
-RPG.Map.prototype.leave = function(being, to) {
+RPG.Map.prototype.leave = function(being) {
 	RPG.Misc.IEnterable.prototype.leaving.apply(this, arguments);
 	if (being != RPG.Game.pc) { return; }
 

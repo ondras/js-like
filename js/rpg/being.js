@@ -177,8 +177,8 @@ RPG.Beings.BaseBeing.prototype.equip = function(slotId, item) {
 	if (slot.getItem()) { this.unequip(slotId); }
 	
 	var it = slot.setItem(item); /* adding to slot could have modified the item (by subtracting etc) */
-	this.addModifiers(it);
-	it.setOwner(this);
+	it.entering(this);
+	it.setOwner(this); /* if the item is not coming from our backpack... */
 }
 
 /**
@@ -193,12 +193,11 @@ RPG.Beings.BaseBeing.prototype.unequip = function(slotId, doNotAdd) {
 	var item = slot.getItem();
 	if (!item) { return this; }
 	
-	slot.setItem(null);
-	this.removeModifiers(item);
-	item.setOwner(null);
+	item.setOwner(null);	/* nobody owns this now */
+	slot.setItem(null);		/* slot is empty */
+	item.leaving(this);		/* let item know we are not holding it */
 	
 	if (!doNotAdd) { this.addItem(item); }
-	
 	return this;
 }
 
