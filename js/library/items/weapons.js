@@ -270,6 +270,7 @@ RPG.Items.Rock.prototype.init = function() {
 		this._chars[dir] = ch; 
 		this._suffixes[dir] = ""; 
 	}
+	this._image = this._baseImage;
 	this._char = ch;
 	this._description = "rock";
 }
@@ -288,6 +289,7 @@ RPG.Items.Arrow.prototype.init = function(amount) {
 	this._baseImage = "arrow";
 	this._baseChar = "/";
 	this._char = this._baseChar;
+	this._image = this._baseImage;
 	this._color = "brown";
 	this._description = "arrow";
 	this._amount = amount;
