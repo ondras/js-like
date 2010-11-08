@@ -11,10 +11,9 @@ RPG.Spells.Heal.prototype.init = function(caster) {
 }
 
 RPG.Spells.Heal.prototype.cast = function(dir) {
-	var map = this._caster.getCell().getMap();
-	var target = this._caster.getCell().getCoords().clone().plus(RPG.DIR[dir]);
-	var cell = map.at(target);
-	var being = cell.getBeing();
+	var map = this._caster.getMap();
+	var target = this._caster.getCoords().clone().plus(RPG.DIR[dir]);
+	var being = map.getBeing(target);
 
 	if (!being) {
 		RPG.UI.buffer.message("Nothing happens.");
@@ -33,19 +32,18 @@ RPG.Spells.Teleport.name = "teleport";
 RPG.Spells.Teleport.cost = 7;
 RPG.Spells.Teleport.prototype.init = function(caster) {
 	this.parent(caster);
-	this._type = RPG.SPELL_TARGET;
+	this._type = RPG.SPELL_REMOTE;
 }
 
 RPG.Spells.Teleport.prototype.cast = function(coords) {
-	var map = this._caster.getCell().getMap();
-	var target = map.at(coords);
+	var map = this._caster.getMap();
 	
-	if (!target || !target.isFree()) {
+	if (map.blocks(RPG.BLOCKS_MOVEMENT, coords)) {
 		RPG.UI.buffer.message("You cannot teleport to that place.");
 		return;
 	}
 
-	this._caster.teleport(target);
+	this._caster.teleport(coords);
 }
 
 /**
@@ -61,10 +59,9 @@ RPG.Spells.Knock.prototype.init = function(caster) {
 }
 
 RPG.Spells.Knock.prototype.cast = function(dir) {
-	var map = this._caster.getCell().getMap();
-	var target = this._caster.getCell().getCoords().clone().plus(RPG.DIR[dir]);
-	var cell = map.at(target);
-	var feature = cell.getFeature();
+	var map = this._caster.getMap();
+	var target = this._caster.getCoords().clone().plus(RPG.DIR[dir]);
+	var feature = map.getFeature(target);
 
 	if (feature && feature instanceof RPG.Features.Door && feature.isLocked()) {
 		feature.unlock();
@@ -89,7 +86,7 @@ RPG.Spells.MagicExplosion.prototype.init = function(caster) {
 	this._radius = 2;
 
 	this._explosionImage = "magic-explosion";
-	this._color = "yellow";
+	this.setVisual({color:"yellow"});
 }
 
 RPG.Spells.MagicExplosion.prototype.getRadius = function() {
@@ -97,7 +94,7 @@ RPG.Spells.MagicExplosion.prototype.getRadius = function() {
 }
 
 RPG.Spells.MagicExplosion.prototype.cast = function() {
-	this.explode(this._caster.getCell().getCoords(), this._radius, true);
+	this.explode(this._caster.getCoords(), this._radius, true);
 }
 
 /**
@@ -114,18 +111,19 @@ RPG.Spells.MagicBolt.prototype.init = function(caster) {
 	this._range = 5;
 
 	this._baseImage = "magic-bolt";
-	this._color = "blueviolet";
+	this.setVisual({color:"blueviolet"});
 }
 
-RPG.Spells.MagicBolt.prototype._fly = function(cell) {
-	this.parent(cell);
+RPG.Spells.MagicBolt.prototype._fly = function(coords) {
+	this.parent(coords);
+	var map = this._caster.getMap();
 
-	var b = cell.getBeing();
+	var b = map.getBeing(coords);
 	if (b) {
 		this._caster.attackMagic(b, this);
-	} else if (!cell.visibleThrough()) {
-		if (RPG.Game.pc.canSee(cell)) {
-			var s = RPG.Misc.format("%The hits %a and disappears.", this, cell.getFeature() || cell);
+	} else if (map.blocks(RPG.BLOCKS_LIGHT, coords)) {
+		if (RPG.Game.pc.canSee(coords)) {
+			var s = RPG.Misc.format("%The hits %a and disappears.", this, map.getFeature(coords) || map.getCell(coords));
 			RPG.UI.buffer.message(s);
 		}
 	}
@@ -147,14 +145,14 @@ RPG.Spells.Fireball.prototype.init = function(caster) {
 	
 	this._explosionImage = "fireball-explosion";
 	this._baseImage = "fireball";
-	this._color = "red"; 
+	this.setVisual({color:"red"});
 }
 
-RPG.Spells.Fireball.prototype._fly = function(cell) {
-	this.parent(cell);
+RPG.Spells.Fireball.prototype._fly = function(coords) {
+	this.parent(coords);
 
-	if (this._flight.index+1 == this._flight.cells.length) {
-		this.explode(cell.getCoords(), this._radius, false);
+	if (this._flight.index+1 == this._flight.coords.length) {
+		this.explode(coords, this._radius, false);
 	}
 }
 

@@ -83,7 +83,7 @@ RPG.Beings.NPC.prototype.confirmAttack = function() {
  * @see RPG.Visual.IVisual#describe
  */
 RPG.Beings.NPC.prototype.describe = function() {
-	var s = this._description;
+	var s = this._visual.desc;
 	if (this._gender == RPG.GENDER_FEMALE) { s = "female "+s; }
 	if (this._name) { s = this._name + " the " + s.capitalize(); }
 	return s;
@@ -120,16 +120,16 @@ RPG.Beings.NPC.prototype.describeIs = function() {
 	return "is";
 }
 
-RPG.Beings.NPC.prototype.teleport = function(cell) {
+RPG.Beings.NPC.prototype.teleport = function(coords) {
 	var pc = RPG.Game.pc;
 	
-	if (pc.canSee(this._cell)) {
+	if (pc.canSee(this._coords)) {
 		var s = RPG.Misc.format("%A suddenly disappears!", this);
 		RPG.UI.buffer.message(s);
 	}
 	
-	if (pc.canSee(cell)) {
-		if (pc.canSee(this._cell)) {
+	if (pc.canSee(coords)) {
+		if (pc.canSee(this._coords)) {
 			var s = RPG.Misc.format("%The immediately reappears!", this);
 		} else {
 			var s = RPG.Misc.format("%A suddenly appears from nowhere!", this);
@@ -137,25 +137,25 @@ RPG.Beings.NPC.prototype.teleport = function(cell) {
 		RPG.UI.buffer.message(s);
 	}
 	
-	this.parent(cell);
+	this.parent(coords);
 }
 
 /**
  * NPCs just cheat. They can see everything in their sight range...
  */
-RPG.Beings.NPC.prototype.canSee = function(cell) {
-	return cell.getCoords().distance(this._cell.getCoords()) <= this.getFeat(RPG.FEAT_SIGHT_RANGE);
+RPG.Beings.NPC.prototype.canSee = function(coords) {
+	return coords.distance(this._coords) <= this.getFeat(RPG.FEAT_SIGHT_RANGE);
 }
 
 /* ------------------------- ACTIONS -----------------*/
 
-RPG.Beings.NPC.prototype.move = function(targetCell, ignoreOldCell) {
-	var sourceCell = this._cell;
+RPG.Beings.NPC.prototype.move = function(target, ignoreOldCoords) {
+	var source = this._coords;
 
-	var result = this.parent(targetCell, ignoreOldCell);
+	var result = this.parent(target, ignoreOldCoords);
 
-	if (sourceCell) { RPG.UI.map.redrawCell(sourceCell); }
-	if (targetCell) { RPG.UI.map.redrawCell(targetCell); }
+	if (source) { RPG.UI.map.redrawCoords(source); }
+	if (target) { RPG.UI.map.redrawCoords(target); }
 	
 	return result;
 }
@@ -174,8 +174,8 @@ RPG.Beings.NPC.prototype._describeLaunch = function(projectile, target) {
 	var verb = (launcher ? "shoots" : "throws");
 	
 	var s = RPG.Misc.format("%A %s %a", this, verb, projectile);
-	if (target.getBeing()) {
-		s += RPG.Misc.format(" at %d", target.getBeing());
+	if (this._map.getBeing(target)) {
+		s += RPG.Misc.format(" at %d", this._map.getBeing(target));
 	}
 	
 	s += ".";
@@ -208,3 +208,4 @@ RPG.Beings.NPC.prototype._describeAttack = function(hit, damage, kill, being, sl
 	
 	RPG.UI.buffer.message(s);
 }
+

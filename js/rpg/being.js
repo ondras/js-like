@@ -7,11 +7,10 @@ RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Visual.IVisual)
 						.implement(RPG.Misc.IActor);
 RPG.Beings.BaseBeing.prototype.init = function(race) {
-	this._initVisuals();
-
 	this._name = "";
 	this._slots = {};
-	this._cell = null;
+	this._coords = null;
+	this._map = null;
 	this._gender = RPG.GENDER_NEUTER;
 	this._items = [];
 	this._stats = {};
@@ -46,10 +45,8 @@ RPG.Beings.BaseBeing.prototype.knowsFeature = function(feature) {
  * Prepare the being-race binding
  */
 RPG.Beings.BaseBeing.prototype._setRace = function(race) {
-	/* inherit color+char+image from race */
-	this._color = race.getColor();
-	this._char = race.getChar();
-	this._image = race.getImage();
+	/* inherit visuals from race */
+	this.setVisual(race.getVisual());
 	
 	/* bind all slots to a particular being */
 	this._slots = race.getSlots();
@@ -119,26 +116,23 @@ RPG.Beings.BaseBeing.prototype.hasSpell = function(spell, castable) {
 }
 
 /**
- * This being is located on a new cell. 
- * @param {RPG.Cells.BaseCell} cell
- * @param {bool} [ignoreOldCell]
+ * This being is located on a new coords. 
+ * @param {RPG.Misc.Coords} coords
  */
-RPG.Beings.BaseBeing.prototype.setCell = function(cell, ignoreOldCell) {
-	this._notifyEnterables(this._cell, cell);
-
-	/* update old cell */
-	if (this._cell && !ignoreOldCell) { this._cell.setBeing(null); }
-	
-	this._cell = cell;
-
-	/* set new cell */
-	if (this._cell) { this._cell.setBeing(this); }
-
-	return this;
+RPG.Beings.BaseBeing.prototype.setCoords = function(coords) {
+	this._coords = coords.clone();
 }
 
-RPG.Beings.BaseBeing.prototype.getCell = function() {
-	return this._cell;
+RPG.Beings.BaseBeing.prototype.getCoords = function() {
+	return this._coords;
+}
+
+RPG.Beings.BaseBeing.prototype.setMap = function(map) {
+	this._map = map;
+}
+
+RPG.Beings.BaseBeing.prototype.getMap = function() {
+	return this._map;
 }
 
 /**
@@ -449,7 +443,7 @@ RPG.Beings.BaseBeing.prototype.dropAll = function() {
 
 	for (var i=0;i<this._items.length;i++) { /* drop items */
 		if (Math.randomPercentage() < 81) { /* FIXME */
-			this._cell.addItem(this._items[i]);
+			this._map.addItem(this._items[i], this._coords);
 		}
 	}
 	this._items = [];
@@ -460,27 +454,27 @@ RPG.Beings.BaseBeing.prototype.dropAll = function() {
  */
 RPG.Beings.BaseBeing.prototype.die = function() {
 	this._alive = false;
-	this._cell.setBeing(null);
+	this._map.setBeing(null, this._coords);
 
 	this.dropAll();
 	
 	if (RPG.Rules.isCorpseGenerated(this)) {
 		var corpse = new RPG.Items.Corpse().setBeing(this);
-		this._cell.addItem(corpse);
+		this._map.addItem(corpse, this._coords);
 	}
 
-	RPG.UI.map.redrawCell(this._cell);
+	RPG.UI.map.redrawCoords(this._coords);
 	RPG.Game.getEngine().removeActor(this);
 	
 	this.dispatch("death");
 }
 
 /**
- * Can this being see target cell?
- * @param {RPG.Cells.BaseCell} cell
+ * Can this being see target coords?
+ * @param {RPG.Misc.Coords} coords
  * @returns {bool}
  */
-RPG.Beings.BaseBeing.prototype.canSee = function(cell) {
+RPG.Beings.BaseBeing.prototype.canSee = function(coords) {
 	return true;
 }
 
@@ -499,7 +493,7 @@ RPG.Beings.BaseBeing.prototype.woundedState = function() {
  * @param {RPG.Features.Trap} trap
  */
 RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
-	var cell = trap.getCell();
+	var coords = trap.getCoords();
 
 	var knows = this.knowsFeature(trap);
 	var activated = true;
@@ -511,7 +505,7 @@ RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
 
 		/* let the being know about this */
 		this._knownFeatures.push(trap);
-	} else if (RPG.Game.pc.canSee(cell)) {
+	} else if (RPG.Game.pc.canSee(coords)) {
 	
 		/* already knows */
 		var verb = RPG.Misc.verb("sidestep", this);
@@ -521,11 +515,11 @@ RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
 }
 
 /**
- * Teleporting to a given cell
- * @param {RPG.Cells.BaseCell} cell
+ * Teleporting to a given coords
+ * @param {RPG.Misc.Coords} coords
  */
-RPG.Beings.BaseBeing.prototype.teleport = function(cell) {
-	this.move(cell);
+RPG.Beings.BaseBeing.prototype.teleport = function(coords) {
+	this.move(coords);
 }
 
 /* -------------------- ACTIONS --------------- */
@@ -535,12 +529,12 @@ RPG.Beings.BaseBeing.prototype.wait = function() {
 }
 
 /**
- * Moving being to a given cell
- * @param {RPG.Cells.BaseCell} target
- * @param {bool} [ignoreOldCell]
+ * Moving being to a given coords
+ * @param {RPG.Misc.Coords} target
+ * @param {bool} [ignoreOldCoords]
  */
-RPG.Beings.BaseBeing.prototype.move = function(target, ignoreOldCell) {
-	this.setCell(target, ignoreOldCell);
+RPG.Beings.BaseBeing.prototype.move = function(target, ignoreOldCoords) {
+	this._map.setBeing(this, target, ignoreOldCoords);
 	return RPG.ACTION_TIME;
 }
 
@@ -644,7 +638,7 @@ RPG.Beings.BaseBeing.prototype.drop = function(items) {
 			/* split heap */
 			item = item.subtract(amount);
 		}
-		this._cell.addItem(item);
+		this._map.addItem(item, this._coords);
 		this.dispatch("drop", {item:item});
 		
 		var verb = RPG.Misc.verb("drop", this);
@@ -667,7 +661,7 @@ RPG.Beings.BaseBeing.prototype.pick = function(items) {
 		
 		if (amount == item.getAmount()) {
 			/* easy, just remove item */
-			this._cell.removeItem(item);
+			this._map.removeItem(item, this._coords);
 		} else {
 			/* split heap */
 			item = item.subtract(amount);
@@ -708,13 +702,13 @@ RPG.Beings.BaseBeing.prototype.open = function(door) {
  * @param {RPG.Features.Door} door
  */
 RPG.Beings.BaseBeing.prototype.close = function(door) {
-	var cell = door.getCell();
-	if (cell.getBeing()) {
+	var coords = door.getCoords();
+	if (this._map.getBeing(coords)) {
 		RPG.UI.buffer.message("There is someone standing at the door.");
 		return;
 	}
 
-	var items = cell.getItems();
+	var items = this._map.getItems(coords);
 	if (items.length) {
 		if (items.length == 1) {
 			RPG.UI.buffer.message("An item blocks the door.");
@@ -733,7 +727,7 @@ RPG.Beings.BaseBeing.prototype.close = function(door) {
 	return RPG.ACTION_TIME;
 }
 
-RPG.Beings.BaseBeing.prototype.launch = function(projectile, cell) {
+RPG.Beings.BaseBeing.prototype.launch = function(projectile, coords) {
 	var p = null;
 	
 	/* remove projectile from being */
@@ -745,11 +739,11 @@ RPG.Beings.BaseBeing.prototype.launch = function(projectile, cell) {
 		p = projectile.subtract(1);
 	}
 
-	if (RPG.Game.pc.canSee(this._cell)) {
-		this._describeLaunch(p, cell);
+	if (RPG.Game.pc.canSee(this._coords)) {
+		this._describeLaunch(p, coords);
 	}
 	
-	p.launch(this._cell, cell.getCoords());
+	p.launch(this._coords, coords, this._map);
 	return RPG.ACTION_TIME;
 }
 
@@ -813,7 +807,7 @@ RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
 		var s = RPG.Misc.format("%A %s %a.", being, verb, projectile);
 		RPG.UI.buffer.message(s);
 		
-		if (recovered) { being.getCell().addItem(projectile); }
+		if (recovered) { this._map.addItem(projectile, being.getCoords()); }
 	} else {
 		var s = RPG.Misc.format("%A %is hit.", being, being);
 		RPG.UI.buffer.message(s);
@@ -835,45 +829,6 @@ RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
 }
 
 /* -------------------- PRIVATE --------------- */
-
-/**
- * Notify all interested parties about cell change.
- * This might be refactored to some other component.
- */
-RPG.Beings.BaseBeing.prototype._notifyEnterables = function(oldCell, newCell) {
-	var oldEnterables = [];
-	var newEnterables = [];
-	
-	/* 1st enterable - cell */
-	oldEnterables.push(oldCell);
-	newEnterables.push(newCell);
-	
-	/* 2nd enterable - feature */
-	oldEnterables.push(oldCell && oldCell.getFeature());
-	newEnterables.push(newCell && newCell.getFeature());
-	
-	/* 3rd enterable - room */
-	var oldRoom = oldCell && oldCell.getRoom();
-	var newRoom = newCell && newCell.getRoom();
-	if (oldRoom != newRoom) {
-		oldEnterables.push(oldRoom);
-		newEnterables.push(newRoom);
-	}
-
-	/* 4th enterable - map */
-	var oldMap = oldCell && oldCell.getMap();
-	var newMap = newCell && newCell.getMap();
-	if (oldMap != newMap) {
-		oldEnterables.push(oldMap);
-		newEnterables.push(newMap);
-	}
-
-	var count = oldEnterables.length;
-	for (var i=0;i<count;i++) {
-		if (oldEnterables[i]) { oldEnterables[i].leaving(this, newEnterables[i]); }
-		if (newEnterables[i]) { newEnterables[i].entering(this, oldEnterables[i]); }
-	}
-}
 
 RPG.Beings.BaseBeing.prototype._describeLaunch = function(projectile, target) {
 }

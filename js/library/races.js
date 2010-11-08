@@ -6,7 +6,7 @@ RPG.Races.Humanoid = OZ.Class().extend(RPG.Races.BaseRace);
 RPG.Races.Humanoid.prototype.init = function() {
 	this.parent();
 	
-	this._char = "@";
+	this.setVisual({ch:"@"});
 	this._defaults[RPG.FEAT_SPEED] = 100;
 	this._defaults[RPG.FEAT_MAX_HP] = 5;
 	this._defaults[RPG.FEAT_DV] = 0;
@@ -46,7 +46,7 @@ RPG.Races.Orc.name = "orc";
 RPG.Races.Orc.image = "orc";
 RPG.Races.Orc.prototype.init = function() {
 	this.parent();
-	this._color = "lime";
+	this.setVisual({color:"lime"});
 	
 	this._defaults[RPG.FEAT_STRENGTH] += 3;
 	this._defaults[RPG.FEAT_TOUGHNESS] += 4;
@@ -63,7 +63,7 @@ RPG.Races.Human.name = "human";
 RPG.Races.Human.image = "human";
 RPG.Races.Human.prototype.init = function() {
 	this.parent();
-	this._color = "royalblue";
+	this.setVisual({color:"royalblue"});
 	this._defaults[RPG.FEAT_STRENGTH] += 0;
 	this._defaults[RPG.FEAT_TOUGHNESS] += 2;
 	this._defaults[RPG.FEAT_MAGIC] += 3;
@@ -79,7 +79,7 @@ RPG.Races.Elf.name = "elf";
 RPG.Races.Elf.image = "elf";
 RPG.Races.Elf.prototype.init = function() {
 	this.parent();
-	this._color = "limegreen";
+	this.setVisual({color:"limegreen"});
 	this._defaults[RPG.FEAT_STRENGTH] -= 1;
 	this._defaults[RPG.FEAT_TOUGHNESS] += -1;
 	this._defaults[RPG.FEAT_MAGIC] += 5;
@@ -95,7 +95,7 @@ RPG.Races.Dwarf.name = "dwarf";
 RPG.Races.Dwarf.image = "dwarf";
 RPG.Races.Dwarf.prototype.init = function() {
 	this.parent();
-	this._color = "khaki";
+	this.setVisual({color:"khaki"});
 	this._defaults[RPG.FEAT_TOUGHNESS] += 5;
 	this._defaults[RPG.FEAT_MAGIC] += 1;
 }

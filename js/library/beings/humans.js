@@ -9,10 +9,12 @@ RPG.Beings.Villager.prototype.init = function() {
 	this.randomGender();
 	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
 	
-	this._description = "villager";
-	this._char = "@";
-	this._color = "peru";
-	this._image = "villager";
+	this.setVisual({
+		desc: "villager",
+		ch: "@",
+		color: "peru",
+		image: "villager"
+	});
 	
 	this.fullStats();
 }

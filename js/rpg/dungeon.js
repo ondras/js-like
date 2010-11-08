@@ -1,5 +1,5 @@
 /**
- * @class Dungeon cell
+ * @class Map cell
  * @augments RPG.Misc.IEnterable
  * @augments RPG.Visual.IVisual
  */
@@ -7,211 +7,114 @@ RPG.Cells.BaseCell = OZ.Class()
 						.implement(RPG.Visual.IVisual)
 						.implement(RPG.Misc.IEnterable);
 RPG.Cells.BaseCell.prototype.init = function() {
-	this._initVisuals();
-	this._items = [];
+	this.setVisual({});
 	this._modifiers = {};
-	this._being = null;
+	this._blocks = RPG.BLOCKS_NOTHING;
+	this._fake = false;
+	this._cell = null;
 	this._feature = null;
-	this._coords = null;
-	this._map = null;
-	this._room = null;
-	this._type = RPG.BLOCKS_NOTHING;
-	this._memory = {
-		state: RPG.MAP_UNKNOWN,
-		data: []
-	}
 }
 
-RPG.Cells.BaseCell.prototype.toJSON = function(handler) {
-	var c = (this._coords ? this._coords.x + "," + this._coords.y : null);
-	return handler.toJSON(this, {
-		exclude:["_coords"], 
-		include:{"_coords": c}
-	});
+RPG.Cells.BaseCell.prototype.isFake = function() {
+	return this._fake;
 }
 
-RPG.Cells.BaseCell.prototype.revive = function() {
-	if (this._coords) {
-		var parts = this._coords.split(",");
-		var x = parseInt(parts[0]);
-		var y = parseInt(parts[1]);
-		this._coords = new RPG.Misc.Coords(x, y);
-	}
+RPG.Cells.BaseCell.prototype.blocks = function(what) {
+	return (this._blocks >= what);
 }
-
-RPG.Cells.BaseCell.prototype.getMemory = function() {
-	return this._memory;
-}
-
-RPG.Cells.BaseCell.prototype.setMemoryState = function(state) {
-	this._memory.state = state;
-	if (state == RPG.MAP_UNKNOWN) { 
-		this._memory.data = [];
-		return;
-	}
-	
-	var arr = [this];
-	
-	if (this._being && state == RPG.MAP_VISIBLE) { /* being? */
-		arr.push(this._being);
-	} else if (this._items.length) {
-		arr.push(this._items[this._items.length-1]);
-	} else if (this._feature && RPG.Game.pc.knowsFeature(this._feature)) {
-		arr.push(this._feature);
-	}
-	
-	/* remembered stack uses clones */
-	if (state == RPG.MAP_REMEMBERED) {
-		for (var i=0;i<arr.length;i++) {
-			arr[i] = new RPG.Visual.Trace(arr[i]);
-		}
-	}
-	
-	this._memory.data = arr;
-	
-}
-
-RPG.Cells.BaseCell.prototype.neighbor = function(dir) {
-	var c = this._coords.clone().plus(RPG.DIR[dir]);
-	return this._map.at(c);
-}
-
-RPG.Cells.BaseCell.prototype.addItem = function(item) {
-	item.mergeInto(this._items);
-}
-
-RPG.Cells.BaseCell.prototype.removeItem = function(item) {
-	var index = this._items.indexOf(item);
-	if (index == -1) { throw new Error("Item not found"); }
-	this._items.splice(index, 1);
-}
-
-RPG.Cells.BaseCell.prototype.getItems = function() {
-	return this._items;
-}
-
 /**
- * Set a being for this cell.
- * Nothing is executed from here; if you wish to apply modifiers etc,
- * make sure you initialize the process by calling Being::setCell.
+ * Called by map 
  */
-RPG.Cells.BaseCell.prototype.setBeing = function(being) {
-	this._being = being;
-	return this;
-}
-
-RPG.Cells.BaseCell.prototype.getBeing = function() {
-	return this._being;
-}
-
-RPG.Cells.BaseCell.prototype.setMap = function(map) {
-	this._map = map;
-}
-
-RPG.Cells.BaseCell.prototype.getMap = function() {
-	return this._map;
-}
-
-RPG.Cells.BaseCell.prototype.setCoords = function(coords) {
-	this._coords = coords.clone();
-}
-
-RPG.Cells.BaseCell.prototype.getCoords = function() {
-	return this._coords;
-}
-
-RPG.Cells.BaseCell.prototype.setFeature = function(feature) {
-	this._feature = feature;
-	if (feature) { feature.setCell(this); }
-}
-
-RPG.Cells.BaseCell.prototype.getFeature = function() {
-	return this._feature;
-}
-
-RPG.Cells.BaseCell.prototype.setRoom = function(room) {
-	this._room = room;
-	return this;
-}
-
-RPG.Cells.BaseCell.prototype.getRoom = function() {
-	return this._room;
-}
-
-RPG.Cells.BaseCell.prototype.getType = function() {
-	return this._type;
+RPG.Cells.BaseCell.prototype.hide = function(map, coords) {
+	this._cell = map.getCell(coords);
+	this._feature = map.getFeature(coords);
+	map.setFeature(null, coords);
 }
 
 /**
- * Can a being move to this cell?
+ * Not called by map
  */
-RPG.Cells.BaseCell.prototype.isFree = function() {
-	if (this._being) { return false; }
-	if (this._type >= RPG.BLOCKS_MOVEMENT) { return false; }
-	if (this._feature) { return this._feature.isFree(); }
-	return true;
+RPG.Cells.BaseCell.prototype.reveal = function(map, coords) {
+	map.setCell(this._cell, coords);
+	map.setFeature(this._feature, coords);
 }
 
 /**
- * Can a being see through this cell?
- */
-RPG.Cells.BaseCell.prototype.visibleThrough = function() {
-	if (this._type >= RPG.BLOCKS_LIGHT) { return false; }
-	if (this._feature) { return this._feature.visibleThrough(); }
-	return true;
-}
-
-/**
- * @class Room, a logical group of cells
+ * @class Area, a logical subset of map
  * @augments RPG.Misc.IEnterable
- * @param {RPG.Misc.Coords} corner1 top-left corner
- * @param {RPG.Misc.Coords} corner2 bottom-right corner
  */
-RPG.Rooms.BaseRoom = OZ.Class()
+RPG.Areas.BaseArea = OZ.Class()
 						.implement(RPG.Misc.IEnterable);
 
-RPG.Rooms.BaseRoom.prototype.init = function(corner1, corner2) {
+RPG.Areas.BaseArea.prototype.init = function() {
 	this._map = null;
 	this._modifiers = {};
 	this._welcome = null;
-	this._corner1 = corner1.clone();
-	this._corner2 = corner2.clone();
 }
 
-RPG.Rooms.BaseRoom.prototype.setMap = function(map) {
-	this._map = map;
-	return this;
+/**
+ * Area occupies all these coordinates
+ * @returns {id[]} 
+ */
+RPG.Areas.BaseArea.prototype.getCoords = function() {
+	return [];
 }
 
-RPG.Rooms.BaseRoom.prototype.getMap = function() {
-	return this._map;
-}
-
-RPG.Rooms.BaseRoom.prototype.setWelcome = function(text) {
+RPG.Areas.BaseArea.prototype.setWelcome = function(text) {
 	this._welcome = text;
 	return this;
 }
 
-RPG.Rooms.BaseRoom.prototype.getCorner1 = function() {
-	return this._corner1;
+RPG.Areas.BaseArea.prototype.setMap = function(map) {
+	this._map = map;
 }
 
-RPG.Rooms.BaseRoom.prototype.getCorner2 = function() {
-	return this._corner2;
-}
-
-RPG.Rooms.BaseRoom.prototype.getCenter = function() {
-	var x = Math.round((this._corner1.x + this._corner2.x)/2);
-	var y = Math.round((this._corner1.y + this._corner2.y)/2);
-	return new RPG.Misc.Coords(x, y);
+RPG.Areas.BaseArea.prototype.getMap = function() {
+	return this._map;
 }
 
 /**
  * @see RPG.Misc.IEnterable#entering
  */
-RPG.Rooms.BaseRoom.prototype.entering = function(being) {
+RPG.Areas.BaseArea.prototype.entering = function(being) {
 	RPG.Misc.IEnterable.prototype.entering.apply(this, arguments);
 	if (this._welcome && being == RPG.Game.pc) { RPG.UI.buffer.message(this._welcome); }
+}
+
+/**
+ * @class Room area
+ * @augments RPG.Areas.BaseArea
+ */
+RPG.Areas.Room = OZ.Class().extend(RPG.Areas.BaseArea);
+
+RPG.Areas.Room.prototype.init = function(corner1, corner2) {
+	this.parent();
+	this._corner1 = corner1.clone();
+	this._corner2 = corner2.clone();
+}
+
+RPG.Areas.Room.prototype.getCorner1 = function() {
+	return this._corner1;
+}
+
+RPG.Areas.Room.prototype.getCorner2 = function() {
+	return this._corner2;
+}
+
+RPG.Areas.Room.prototype.getCenter = function() {
+	var x = Math.round((this._corner1.x + this._corner2.x)/2);
+	var y = Math.round((this._corner1.y + this._corner2.y)/2);
+	return new RPG.Misc.Coords(x, y);
+}
+
+RPG.Areas.Room.prototype.getCoords = function() {
+	var arr = [];
+	for (var i=this._corner1.x; i<=this._corner2.x; i++) {
+		for (var j=this._corner1.y; j<=this._corner2.y; j++) {
+			arr.push(new RPG.Misc.Coords(i, j));
+		}
+	}
+	return arr;
 }
 
 /**
@@ -222,36 +125,31 @@ RPG.Features.BaseFeature = OZ.Class()
 							.implement(RPG.Visual.IVisual)
 							.implement(RPG.Misc.IEnterable);
 RPG.Features.BaseFeature.prototype.init = function() {
-	this._cell = null;
-	this._initVisuals();
+	this.setVisual({});
+	this._coords = null;
+	this._map = null;
 	this._modifiers = {};
-	this._type = RPG.BLOCKS_NOTHING;
+	this._blocks = RPG.BLOCKS_NOTHING;
 }
 
-RPG.Features.BaseFeature.prototype.setCell = function(cell) {
-	this._cell = cell;
+RPG.Features.BaseFeature.prototype.setCoords = function(coords) {
+	this._coords = coords.clone();
 }
 
-RPG.Features.BaseFeature.prototype.getCell = function() {
-	return this._cell;
+RPG.Features.BaseFeature.prototype.getCoords = function() {
+	return this._coords;
 }
 
-RPG.Features.BaseFeature.prototype.getType = function() {
-	return this._type;
+RPG.Features.BaseFeature.prototype.setMap = function(map) {
+	this._map = map;
 }
 
-/**
- * Can a being move to this feature?
- */
-RPG.Features.BaseFeature.prototype.isFree = function() {
-	return (this._type < RPG.BLOCKS_MOVEMENT);
+RPG.Features.BaseFeature.prototype.getMap = function() {
+	return this._map;
 }
 
-/**
- * Can a being see through this feature?
- */
-RPG.Features.BaseFeature.prototype.visibleThrough = function() {
-	return (this._type < RPG.BLOCKS_LIGHT);
+RPG.Features.BaseFeature.prototype.blocks = function(what) {
+	return (this._blocks >= what);
 }
 
 /**
@@ -266,58 +164,39 @@ RPG.Map.prototype.init = function(id, size, danger) {
 	this._welcome = "";
 	this._sound = null;
 	this._size = size.clone();
-	this._data = [];
-	this._rooms = [];
 	this._danger = danger;
-
-	this._blank();
-}
-
-/**
- * @see RPG.Misc.IEnterable#entering
- */
-RPG.Map.prototype.entering = function(being, from) {
-	RPG.Misc.IEnterable.prototype.entering.apply(this, arguments);
-	if (being != RPG.Game.pc) { return; }
+	this._cellTypes = [ /* 0 = default empty, 1 = default full */
+		RPG.Cells.BaseCell,
+		RPG.Cells.BaseCell
+	];
 	
-	if (this._sound) { RPG.UI.sound.playBackground(this._sound); }
-	if (this._welcome) { RPG.UI.buffer.message(this._welcome); }
-}
+	
+	this._areas = [];
+	this._areasByCoords = {};
 
-/**
- * @see RPG.Misc.IEnterable#leaving
- */
-RPG.Map.prototype.leave = function(being) {
-	RPG.Misc.IEnterable.prototype.leaving.apply(this, arguments);
-	if (being != RPG.Game.pc) { return; }
+	/* hashmaps */
+	this._cells = {}; 
+	this._beings = {}; 
+	this._items = {}; 
+	this._features = {}; 
+	this._memory = {};
 
-	/* mark visible cells as remembered */
-	for (var i=0;i<this._size.x;i++) {
-		for (var j=0;j<this._size.y;j++) {
-			var c = this._data[i][j];
-			if (!c) { continue; }
-			var m = c.getMemory();
-			if (m.state == RPG.MAP_VISIBLE) { c.setMemoryState(RPG.MAP_REMEMBERED); }
-		}
-	}
 }
 
 /**
  * Populates cells in this map based on an array of arrays of integers.
  * @param {int[][]} intMap
- * @param {RPG.Cells.BaseCell[]} cells Array of used cells
  */
-RPG.Map.prototype.fromIntMap = function(intMap, cells) {
-	var tmpCells = [];
-	
+RPG.Map.prototype.fromIntMap = function(intMap) {
 	var w = intMap.length;
 	var h = intMap[0].length;
-	
+	var tmpCells = [];
+
 	/* first, create all cells */
 	for (var i=0;i<w;i++) {
 		tmpCells.push([]);
 		for (var j=0;j<h;j++) {
-			var cell = this._cellFromNumber(intMap[i][j], cells);
+			var cell = this._cellFromNumber(intMap[i][j]);
 			tmpCells[i].push(cell);
 		}
 	}
@@ -331,8 +210,8 @@ RPG.Map.prototype.fromIntMap = function(intMap, cells) {
             var cell = tmpCells[x][y];
 
 			/* passable section */
-			if (cell.visibleThrough()) {
-				this.setCell(coords, cell);
+			if (!cell.blocks(RPG.BLOCKS_MOVEMENT)) {
+				this.setCell(cell, coords);
 				continue;
 			}
 			
@@ -348,18 +227,62 @@ RPG.Map.prototype.fromIntMap = function(intMap, cells) {
 					neighbor.x = i;
 					neighbor.y = j;
 					var neighborCell = tmpCells[i][j];
-					if (neighborCell.visibleThrough()) { ok = true; }
+					if (!neighborCell.blocks(RPG.BLOCKS_MOVEMENT)) { ok = true; }
 				}
 			}
 			
 			if (ok) {
-				this.setCell(coords, cell);
+				this.setCell(cell, coords);
 				continue;
 			}
 		}
 	}
+}
 
-	return this;
+/**
+ * @see RPG.Misc.IEnterable#entering
+ */
+RPG.Map.prototype.entering = function(being) {
+	RPG.Misc.IEnterable.prototype.entering.apply(this, arguments);
+	if (being != RPG.Game.pc) { return; }
+	
+	if (this._sound) { RPG.UI.sound.playBackground(this._sound); }
+	if (this._welcome) { RPG.UI.buffer.message(this._welcome); }
+}
+
+/**
+ * @see RPG.Misc.IEnterable#leaving
+ */
+RPG.Map.prototype.leaving = function(being) {
+	RPG.Misc.IEnterable.prototype.leaving.apply(this, arguments);
+	if (being != RPG.Game.pc) { return; }
+
+	for (var id in this._memory) {
+		this._setMemory(RPG.MAP_REMEMBERED, id);
+	}
+}
+
+/**
+ * Every dungeon provides its default cell types, at least two
+ * @returns {function[]}
+ */
+RPG.Map.prototype.getCellTypes = function() {
+	return this._cellTypes;
+}
+
+RPG.Map.prototype.getID = function() {
+	return this._id;
+}
+
+RPG.Map.prototype.getDanger = function() {
+	return this._danger;
+}
+
+/**
+ * Map size
+ */
+RPG.Map.prototype.getSize = function() {
+	return this._size;
 }
 
 RPG.Map.prototype.setWelcome = function(text) {
@@ -376,12 +299,33 @@ RPG.Map.prototype.getSound = function() {
 	return this._sound;
 }
 
-RPG.Map.prototype.getId = function() {
-	return this._id;
+RPG.Map.prototype.getMemory = function(coords) {
+	return this._memory[coords.x+","+coords.y];
 }
 
-RPG.Map.prototype.getDanger = function() {
-	return this._danger;
+RPG.Map.prototype.setMemory = function(state, coords) {
+	this._setMemory(state, coords.x+","+coords.y);
+}
+
+RPG.Map.prototype._setMemory = function(state, id) {
+	var m = {state:state, data:[]};
+	this._memory[id] = m;
+	
+	if (state == RPG.MAP_UNKNOWN) { return; }
+	m.data.push(this._cells[id]);
+	
+	if (this._beings[id] && state == RPG.MAP_VISIBLE) { /* being? */
+		m.data.push(this._beings[id]);
+	} else if (this._items[id] && this._items[id].length) {
+		m.data.push(this._items[id][this._items[id].length-1]);
+	} else if (this._features[id] && RPG.Game.pc.knowsFeature(this._features[id])) {
+		m.data.push(this._features[id]);
+	}
+	
+	/* convert to visuals */
+	for (var i=0;i<m.data.length;i++) {
+		m.data[i] = m.data[i].getVisual();
+	}
 }
 
 /**
@@ -389,40 +333,113 @@ RPG.Map.prototype.getDanger = function() {
  */ 
 RPG.Map.prototype.getBeings = function() {
 	var all = [];
-	for (var i=0;i<this._size.x;i++) {
-		for (var j=0;j<this._size.y;j++) {
-			var cell = this._data[i][j];
-			if (!cell) { continue; }
-			var b = cell.getBeing();
-			if (b) { all.push(b); }
-		}
-	}
+	for (var hash in this._beings) { all.push(this._beings[hash]); }
 	return all;
 }
 
-/**
- * Map size
- */
-RPG.Map.prototype.getSize = function() {
-	return this._size;
+RPG.Map.prototype.getItems = function(coords) {
+	return (this._items[coords.x+","+coords.y] || []);
 }
 
-RPG.Map.prototype.setCell = function(coords, cell) {
-	this._data[coords.x][coords.y] = cell;
-	cell.setCoords(coords);
-	cell.setMap(this);
+RPG.Map.prototype.addItem = function(item, coords) {
+	var id = coords.x+","+coords.y;
+	if (!(id in this._items)) { this._items[id] = []; }
+	item.mergeInto(this._items[id]);
 }
 
-RPG.Map.prototype.at = function(coords) {
-	if (coords.x < 0 || coords.y < 0 || coords.x >= this._size.x || coords.y >= this._size.y) { return null; }
-	return this._data[coords.x][coords.y];
+RPG.Map.prototype.removeItem = function(item) {
+	for (var hash in this._items) {
+		var list = this._items[hash];
+		var index = list.indexOf(item);
+		if (index != -1) {
+			list.splice(index, 1);
+			if (!list.length) { delete this._items[hash]; }
+			return;
+		}
+	}
+	throw new Error("Cannot remove item '"+item+"'");
 }
+
+RPG.Map.prototype.getFeature = function(coords) {
+	return this._features[coords.x+","+coords.y];
+}
+
+RPG.Map.prototype.setFeature = function(feature, coords) {
+	var id = coords.x+","+coords.y;
+	if (feature) {
+		this._features[id] = feature;
+		feature.setMap(this);
+		feature.setCoords(coords);
+	} else if (this._features[id]) {
+		delete this._features[id];
+	}
+}
+
+RPG.Map.prototype.getBeing = function(coords) {
+	return this._beings[coords.x+","+coords.y];
+}
+
+RPG.Map.prototype.setBeing = function(being, coords, ignoreOldPosition) {
+	var id = coords.x+","+coords.y;
+	if (!being) { /* just remove being. it should be here. */
+		var b = this._beings[id];
+		if (b) {
+			this.leaving(b);
+			delete this._beings[id];
+		}
+		return;
+	}
+	
+	var oldCoords = being.getCoords();
+	var newCoords = coords;
+	var oldMap = being.getMap();
+	var newMap = this;
+	var oldArea = (oldMap ? oldMap.getArea(oldCoords) : null);
+	var newArea = this.getArea(newCoords);
+	var oldCell = (oldMap ? oldMap.getCell(oldCoords) : null);
+	var newCell = this.getCell(newCoords);
+	
+	if (oldMap != newMap) { /* map change */
+		if (oldMap) { oldMap.leaving(being); }
+		this.entering(being);
+		being.setMap(this);
+	} else if (!ignoreOldPosition) { /* same map - remove being from old coords */
+		delete this._beings[oldCoords.x+","+oldCoords.y];
+	}
+	
+	if (oldArea != newArea) { /* area change */
+		if (oldArea) { oldArea.leaving(being); }
+		if (newArea) { newArea.entering(being); }
+	}
+	
+	if (oldCell != newCell) { /* cell change */
+		if (oldCell) { oldCell.leaving(being); }
+		newCell.entering(being);
+	}
+
+	this._beings[id] = being;
+	being.setCoords(coords);
+}
+	
+RPG.Map.prototype.getCell = function(coords) {
+	return this._cells[coords.x+","+coords.y];
+}
+
+RPG.Map.prototype.setCell = function(cell, coords) {
+	var id = coords.x+","+coords.y;
+	if (cell) {
+		if (cell.isFake()) { cell.hide(this, coords); }
+		this._cells[id] = cell;
+	} else if (this._cells[id]) {
+		delete this._cells[id];
+	}
+}
+
 
 RPG.Map.prototype.isValid = function(coords) {
-	var size = this._size;
 	if (Math.min(coords.x, coords.y) < 0) { return false; }
-	if (coords.x >= size.x) { return false; }
-	if (coords.y >= size.y) { return false; }
+	if (coords.x >= this._size.x) { return false; }
+	if (coords.y >= this._size.y) { return false; }
 	return true;
 }
 
@@ -431,140 +448,90 @@ RPG.Map.prototype.isValid = function(coords) {
  */
 RPG.Map.prototype.getFeatures = function(ctor) {
 	var arr = [];
-	for (var i=0;i<this._size.x;i++) {
-		for (var j=0;j<this._size.y;j++) {
-			var cell = this._data[i][j];
-			if (!cell) { continue; }
-			var f = cell.getFeature();
-			if (f && f instanceof ctor) { arr.push(f); }
-		}
+	for (var id in this._features) {
+		var f = this._features[id];
+		if (f && f instanceof ctor) { arr.push(f); }
 	}
 	return arr;
 }
 
 /**
- * Add a new room
- * @param {RPG.Misc.Coords} corner1
- * @param {RPG.Misc.Coords} corner2
+ * Add a new area
+ * @param {RPG.Areas.BaseArea} area
  */
-RPG.Map.prototype.addRoom = function(room) {
-	room.setMap(this);
-	this._rooms.push(room);
-	this._assignRoom(room.getCorner1(), room.getCorner2(), room);
-	return room;
-}
-
-/**
- * Replace old room with a new one. They must have the same position.
- */
-RPG.Map.prototype.replaceRoom = function(oldRoom, newRoom) {
-	var index = this._rooms.indexOf(oldRoom);
-	if (index == -1) { throw new Error("Cannot find room"); }
-	oldRoom.setMap(null);
-	this._rooms[index] = newRoom;
-	newRoom.setMap(this);
-	this._assignRoom(newRoom.getCorner1(), newRoom.getCorner2(), newRoom);
-	
-}
-
-RPG.Map.prototype.removeRoom = function(room) {
-	var index = this._rooms.indexOf(room);
-	if (index == -1) { throw new Error("Cannot find room"); }
-	room.setMap(null);
-	this._rooms.splice(index, 1);
-	this._assignRoom(room.getCorner1(), room.getCorner2(), null);
+RPG.Map.prototype.addArea = function(area) {
+	this._areas.push(area);
+	area.setMap(this);
+	var coords = area.getCoords();
+	for (var i=0;i<coords.length;i++) {
+		var id = coords[i].x+","+coords[i].y;
+		this._areasByCoords[id] = area;
+	}
 }
 
 /**
  * Returns list of rooms in this map
- * @returns {RPG.Rooms.BaseRoom[]}
+ * @returns {RPG.Areas.BaseArea[]}
  */
-RPG.Map.prototype.getRooms = function() {
-	return this._rooms;
+RPG.Map.prototype.getAreas = function() {
+	return this._areas;
 }
 
 /**
- * Is it possible to see from one cell to another?
- * @obsolete
- * @param {RPG.Misc.Coords} c1
- * @param {RPG.Misc.Coords} c2
- * @returns {bool}
+ * Get area containing these coordinates
  */
-RPG.Map.prototype.lineOfSight = function(c1, c2) {
-	var dx = c2.x-c1.x;
-	var dy = c2.y-c1.y;
-	if (Math.abs(dx) > Math.abs(dy)) {
-		var major = "x";
-		var minor = "y";
-		var majorstep = dx > 0 ? 1 : -1;
-		var minorstep = dy > 0 ? 1 : -1;
-		var delta = Math.abs(dy/dx);
-	} else {
-		var major = "y";
-		var minor = "x";
-		var majorstep = dy > 0 ? 1 : -1;
-		var minorstep = dx > 0 ? 1 : -1;
-		var delta = Math.abs(dx/dy);
-	}
-	var error = 0;
-	var current = c1.clone();
-	while (1) {
-		current[major] += majorstep;
-		error += delta;
-		if (error + 0.001 > 0.5) {
-			current[minor] += minorstep;
-			error -= 1;
-		}
-		if (current[major] == c2[major]) { return true; }
-		if (!this._data[current.x][current.y].visibleThrough()) { return false; }
-	}
-	
-	return true;
+RPG.Map.prototype.getArea = function(coords) {
+	return this._areasByCoords[coords.x+","+coords.y];
 }
 
-RPG.Map.prototype.getFreeCell = function(noItems) {
+RPG.Map.prototype.getFreeCoords = function(noItems) {
 	var all = [];
 	var c = new RPG.Misc.Coords();
 	for (var i=0;i<this._size.x;i++) {
 		for (var j=0;j<this._size.y;j++) {
 			c.x = i;
 			c.y = j;
-			var cell = this._data[i][j];
-			if (!cell) { continue; }
-			if (!cell.isFree()) { continue; }
-			if (cell.getFeature()) { continue; }
-			if (noItems && cell.getItems().length) { continue; }
-			all.push(cell);
+			var id = c.x+","+c.y;
+			if (!(id in this._cells)) { continue; }
+			if (id in this._features) { continue; }
+			
+			if (this.blocks(RPG.BLOCKS_MOVEMENT, c)) { continue; }
+			
+			var items = this._items[id];
+			if (noItems && items && items.length) { continue; }
+			
+			all.push(c.clone());
 		}
 	}
 	
-	var index = Math.floor(Math.random()*all.length);
-	return all[index];
+	return all.random();
 }
 
 /**
- * Return array of cells forming a "circle", e.g. having constant radius from a center point
+ * Return array of coords forming a "circle", e.g. having constant radius from a center point
  * @param {RPG.Misc.Coords} center
  * @param {int} radius
  * @param {bool} includeInvalid Include "null" value where a cell does not exist?
- * @returns {RPG.Cells.BaseCell[]}
+ * @returns {RPG.Misc.Coords[]}
  */
-RPG.Map.prototype.cellsInCircle = function(center, radius, includeInvalid) {
+RPG.Map.prototype.getCoordsInCircle = function(center, radius, includeInvalid) {
 	var arr = [];
 	var W = this._size.x;
 	var H = this._size.y;
-	var c = center.clone();
-	c.x += radius;
-	c.y += radius;
+	var c = center.clone().plus(new RPG.Misc.Coords(radius, radius));
 	
 	var dirs = [RPG.N, RPG.W, RPG.S, RPG.E];
 	
 	var count = 8*radius;
 	for (var i=0;i<count;i++) {
 		if (c.x < 0 || c.y < 0 || c.x >= W || c.y >= H) {
-			if (includeInvalid) { arr.push(false); }
+			if (includeInvalid) { arr.push(null); }
 		} else {
-			arr.push(this._data[c.x][c.y]);
+			if (this._cells[c.x+","+c.y]) {
+				arr.push(c.clone());
+			} else if (includeInvalid) {
+				arr.push(null);
+			}
 		}
 		
 		var dir = dirs[Math.floor(i*dirs.length/count)];
@@ -574,13 +541,13 @@ RPG.Map.prototype.cellsInCircle = function(center, radius, includeInvalid) {
 }
 
 /**
- * Line connecting two cells
+ * Line connecting two coords
  * @param {RPG.Misc.Coords} c1
  * @param {RPG.Misc.Coords} c2
- * @returns {RPG.Cells.BaseCell[]}
+ * @returns {RPG.Misc.Coords[]}
  */
-RPG.Map.prototype.cellsInLine = function(c1, c2) {
-	var result = [this._data[c1.x][c1.y]];
+RPG.Map.prototype.getCoordsInLine = function(c1, c2) {
+	var result = [c1.clone()];
 	
 	var dx = c2.x-c1.x;
 	var dy = c2.y-c1.y;
@@ -606,26 +573,25 @@ RPG.Map.prototype.cellsInLine = function(c1, c2) {
 			current[minor] += minorstep;
 			error -= 1;
 		}
-		result.push(this._data[current.x][current.y]);
+		result.push(current.clone());
 	}
 	
 	return result;
 }
 
 /**
- * Returns cells in a flood-filled area
+ * Returns coords in a flood-filled area
  * @param {RPG.Misc.Coords} center
  * @param {int} radius
  */
-RPG.Map.prototype.cellsInArea = function(center, radius) {
+RPG.Map.prototype.getCoordsInArea = function(center, radius) {
 	var result = [];
-	var cell = this._data[center.x][center.y];
 	
 	function go(x, depth) {
 		var index = -1;
 		for (var i=0;i<result.length;i++) {
 			var item = result[i];
-			if (item[0] != x) { continue; }
+			if (!item[0].equals(x)) { continue; }
 			if (item[1] <= depth) { 
 				return; /* we have this one with better depth */
 			} else {
@@ -644,13 +610,13 @@ RPG.Map.prototype.cellsInArea = function(center, radius) {
 		for (var i=0;i<8;i++) {
 			var n = x.neighbor(i);
 			if (!n) { continue; }
-			if (!n.visibleThrough()) { continue; }
-			arguments.callee(n, depth+1);
+			if (this.blocks(RPG.BLOCKS_LIGHT, n)) { continue; }
+			arguments.callee.call(this, n, depth+1);
 		}
 		
 	}
 	
-	go(cell, 0);
+	go.call(this, center, 0);
 	
 	var arr = [];
 	for (var i=0;i<result.length;i++) {
@@ -663,9 +629,9 @@ RPG.Map.prototype.cellsInArea = function(center, radius) {
 /**
  * Returns map corner coordinates
  * @returns {RPG.Misc.Coords[]}
+ * FIXME refactor to private, when the AI "furthest cell" is moved to map
  */
-RPG.Map.prototype.getCorners = function()
-{
+RPG.Map.prototype.getCorners = function() {
 	return [
 		new RPG.Misc.Coords(0, 0),
 		new RPG.Misc.Coords(this._size.x-1, 0),
@@ -675,40 +641,39 @@ RPG.Map.prototype.getCorners = function()
 }
 
 /**
- * Returns first free cell closest to a coordinate
+ * Returns first free coords closest to a coordinate
  * @param {RPG.Misc.Coords} center
  * @param {int} max radius
  */
-RPG.Map.prototype.getClosestRandomFreeCell = function(center,radius)
-{
+RPG.Map.prototype.getClosestRandomFreeCoords = function(center, radius) {
 	var sx = this._size.x;
 	var sy = this._size.y;
 	var max = radius * radius || (sx * sx + sy * sy);
 
-	var cell = false;
+	var coords = false;
 	var r = 0;
 
-	while (!cell && (r * r) < max) {
-		var candidates = this.cellsInCircle(center, r, false);
+	while (!coords && (r * r) < max) {
+		var candidates = this.getCoordsInCircle(center, r, false);
 		var avail = [];
 
 		for (var j=0;j<candidates.length;j++) {
 			var c = candidates[j];
-			if (c.isFree()) { avail.push(c); }
+			if (!this.blocks(RPG.BLOCKS_MOVEMENT, c)) { avail.push(c); }
 		}
 
-		if (avail.length) { cell = avail.random(); }
+		if (avail.length) { coords = avail.random(); }
 
 		r++;
 	}
 
-	return cell;
+	return coords;
 }
 
 /**
- * Returns two free cells located in opposite corners
+ * Returns two free coords located in opposite corners
  */
-RPG.Map.prototype.cellsInTwoCorners = function() {
+RPG.Map.prototype.getCoordsInTwoCorners = function() {
 	var corners = this.getCorners();
 
 	var i1 = Math.floor(Math.random()*corners.length);
@@ -718,35 +683,63 @@ RPG.Map.prototype.cellsInTwoCorners = function() {
 
 	for (var i=0;i<indexes.length;i++) {
 		var center = corners[indexes[i]];
-		var cell = this.getClosestRandomFreeCell(center);
-		if (cell) { result.push(cell) }
+		var coords = this.getClosestRandomFreeCoords(center);
+		if (coords) { result.push(coords) }
 	}
 
 	return result;
 }
 
-RPG.Map.prototype._blank = function() {
-	for (var i=0;i<this._size.x;i++) {
-		var col = [];
-		for (var j=0;j<this._size.y;j++) {
-			col.push(null);
-		}
-		this._data.push(col);
-	}
+RPG.Map.prototype.blocks = function(what, coords) {
+	var id = coords.x+","+coords.y;
+
+	var c = this._cells[id];
+	if (!c) { return true; }
+	if (c.blocks(what)) { return true; }
+
+	if (this._beings[id] && what == RPG.BLOCKS_MOVEMENT) { return true; }
+	if (this._features[id] && this._features[id].blocks(what)) { return true; }
+
+	return false;
 }
 
-RPG.Map.prototype._assignRoom = function(corner1, corner2, room) {
-	for (var i=corner1.x;i<=corner2.x;i++) {
-		for (var j=corner1.y;j<=corner2.y;j++) {
-			this._data[i][j].setRoom(room);
-		}
-	}
+RPG.Map.prototype._cellFromNumber = function(celltype) {
+    return RPG.Factories.cells.get(this._cellTypes[celltype]);
 }
 
-RPG.Map.prototype._cellFromNumber = function(celltype, cells) {
-    return new cells[celltype]();
+/**
+ * @class Dungeon map
+ * @augments RPG.Map
+ */
+RPG.Map.Dungeon = OZ.Class().extend(RPG.Map);
+
+RPG.Map.Dungeon.prototype.init = function(id, size, danger) {
+	this.parent(id, size, danger);
+	this._cellTypes[0] = RPG.Cells.Corridor;
+	this._cellTypes[1] = RPG.Cells.Wall;
+	this._rooms = [];
 }
 
+RPG.Map.Dungeon.prototype.addRoom = function(room) {
+	this._rooms.push(room);
+	this.addArea(room);
+}
+
+RPG.Map.Dungeon.prototype.getRooms = function() {
+	return this._rooms;
+}
+
+/**
+ * @class Village map
+ * @augments RPG.Map
+ */
+RPG.Map.Village = OZ.Class().extend(RPG.Map);
+
+RPG.Map.Village.prototype.init = function(id, size, danger) {
+	this.parent(id, size, danger);
+	this._cellTypes[0] = RPG.Cells.Grass;
+	this._cellTypes[1] = RPG.Cells.Wall;
+}
 
 /**
  * @class Map decorator
@@ -762,9 +755,9 @@ RPG.Decorators.BaseDecorator.prototype.decorate = function(map) {
  */
 RPG.Decorators.BaseDecorator.prototype._freeNeighbors = function(map, center) {
 	var result = 0;
-	var cells = map.cellsInCircle(center, 1, false);
-	for (var i=0;i<cells.length;i++) {
-		if (cells[i] instanceof RPG.Cells.Corridor) { result++; }
+	var coords = map.getCoordsInCircle(center, 1, false);
+	for (var i=0;i<coords.length;i++) {
+		if (!map.blocks(RPG.BLOCKS_MOVEMENT, coords[i])) { result++; }
 	}
 	return result;
 }
@@ -774,9 +767,8 @@ RPG.Decorators.BaseDecorator.prototype._freeNeighbors = function(map, center) {
  */
 RPG.Generators.BaseGenerator = OZ.Class();
 
-RPG.Generators.BaseGenerator.prototype.init = function(size, maptypes) {
+RPG.Generators.BaseGenerator.prototype.init = function(size) {
 	this._size = size;
-	this._maptypes = maptypes || [RPG.Cells.Corridor, RPG.Cells.Wall];
 
 	this._dug = 0;
 	this._bitMap = null;
@@ -789,8 +781,8 @@ RPG.Generators.BaseGenerator.prototype.generate = function(id, danger) {
 }
 
 RPG.Generators.BaseGenerator.prototype._convertToMap = function(id, danger) {
-	var map = new RPG.Map(id, this._size, danger);
-	map.fromIntMap(this._bitMap, this._maptypes);
+	var map = new RPG.Map.Dungeon(id, this._size, danger);
+	map.fromIntMap(this._bitMap);
 	
 	for (var i=0;i<this._rooms.length;i++) {
 		map.addRoom(this._rooms[i]);
@@ -835,7 +827,7 @@ RPG.Generators.BaseGenerator.prototype._blankMap = function() {
 }
 
 RPG.Generators.BaseGenerator.prototype._digRoom = function(corner1, corner2) {
-	var room = new RPG.Rooms.BaseRoom(corner1, corner2);
+	var room = new RPG.Areas.Room(corner1, corner2);
 	this._rooms.push(room);
 	
 	for (var i=corner1.x;i<=corner2.x;i++) {

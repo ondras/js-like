@@ -8,8 +8,8 @@ RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Misc.IEnterable); /* "entering" an item means equipping it */
 RPG.Items.BaseItem.factory.ignore = true;
 RPG.Items.BaseItem.prototype.init = function() {
-	this._initVisuals();
-	this._descriptionPlural = null;
+	this.setVisual({});
+	this._descPlural = null;
 	this._modifiers = {};
 	this._amount = 1;
 	this._uncountable = false;
@@ -91,10 +91,10 @@ RPG.Items.BaseItem.prototype.getPrice = function() {
 RPG.Items.BaseItem.prototype.describe = function() {
 	var s = "";
 	if (this._amount == 1) {
-		s += this._description;
+		s += this._visual.desc;
 	} else {
 		s += "heap of " + this._amount + " ";
-		s += this._descriptionPlural || (this._description + "s");
+		s += this._descPlural || (this._visual.desc + "s");
 	}
 
 	if (this._remembered) { /* known items show modifiers, if any */

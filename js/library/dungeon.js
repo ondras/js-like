@@ -5,10 +5,12 @@
 RPG.Cells.Corridor = OZ.Class().extend(RPG.Cells.BaseCell);
 RPG.Cells.Corridor.prototype.init = function() {
 	this.parent();
-	this._description = "floor section";
-	this._char = ".";
-	this._image = "corridor";
-	this._color = "silver";
+	this.setVisual({
+		desc: "floor section",
+		ch: ".",
+		image: "corridor",
+		color: "silver"
+	});
 }
 
 /**
@@ -18,10 +20,12 @@ RPG.Cells.Corridor.prototype.init = function() {
 RPG.Cells.Grass = OZ.Class().extend(RPG.Cells.BaseCell);
 RPG.Cells.Grass.prototype.init = function() {
 	this.parent();
-	this._description = "grass";
-	this._char = ".";
-	this._image = "grass";
-	this._color = "OliveDrab";
+	this.setVisual({
+		desc: "grass",
+		ch: ".",
+		image: "grass",
+		color: "OliveDrab"
+	});
 }
 
 /**
@@ -31,10 +35,12 @@ RPG.Cells.Grass.prototype.init = function() {
 RPG.Cells.Water = OZ.Class().extend(RPG.Cells.BaseCell);
 RPG.Cells.Water.prototype.init = function() {
 	this.parent();
-	this._description = "water";
-	this._char = "=";
-	this._image = "water";
-	this._color = "darkblue";
+	this.setVisual({
+		desc: "water",
+		ch: "=",
+		image: "water",
+		color: "darkblue"
+	});
 }
 
 /**
@@ -44,11 +50,13 @@ RPG.Cells.Water.prototype.init = function() {
 RPG.Cells.Wall = OZ.Class().extend(RPG.Cells.BaseCell);
 RPG.Cells.Wall.prototype.init = function() {
 	this.parent();
-	this._description = "solid wall";
-	this._char = "#";
-	this._image = "wall";
-	this._color = "dimgray";
-	this._type = RPG.BLOCKS_LIGHT;
+	this.setVisual({
+		desc: "solid wall",
+		ch: "#",
+		image: "wall",
+		color: "dimgray"
+	});
+	this._blocks = RPG.BLOCKS_LIGHT;
 }
 
 /**
@@ -56,14 +64,9 @@ RPG.Cells.Wall.prototype.init = function() {
  * @augments RPG.Cells.Wall
  */
 RPG.Cells.Wall.Fake = OZ.Class().extend(RPG.Cells.Wall);
-
-RPG.Cells.Wall.Fake.prototype.init = function(cell) {
+RPG.Cells.Wall.Fake.prototype.init = function() {
 	this.parent();
-	this._cell = cell;
-}
-
-RPG.Cells.Wall.Fake.prototype.getRealCell = function() {
-	return this._cell;
+	this._fake = true;
 }
 
 /**
@@ -73,11 +76,13 @@ RPG.Cells.Wall.Fake.prototype.getRealCell = function() {
 RPG.Features.Tree = OZ.Class().extend(RPG.Features.BaseFeature);
 RPG.Features.Tree.prototype.init = function() {
 	this.parent();
-	this._image = "tree";
-	this._char = "T";
-	this._color = "green";
-	this._description = "tree";
-	this._type = RPG.BLOCKS_MOVEMENT;
+	this.setVisual({
+		desc: "tree",
+		ch: "T",
+		image: "tree",
+		color: "green"
+	});
+	this._blocks = RPG.BLOCKS_MOVEMENT;
 }
 
 /**
@@ -90,7 +95,7 @@ RPG.Features.Door.prototype.init = function() {
 	this._hp = 4;
 	this._closed = null;
 	this._locked = null;
-	this._color = "sienna";
+	this.setVisual({color:"sienna"});
 	this.open();
 }
 
@@ -103,22 +108,26 @@ RPG.Features.Door.prototype.close = function() {
 	this._closed = true;
 	this._locked = false;
 	
-	this._type = RPG.BLOCKS_LIGHT;
+	this._blocks = RPG.BLOCKS_LIGHT;
 	
-	this._description = "closed door";
-	this._image = "door-closed";
-	this._char = "+";
+	this.setVisual({
+		desc: "closed door",
+		image: "door-closed",
+		ch: "+"
+	});
 }
 
 RPG.Features.Door.prototype.open = function() {
 	this._closed = false;
 	this._locked = false;
 	
-	this._type = RPG.BLOCKS_NOTHING;
+	this._blocks = RPG.BLOCKS_NOTHING;
 	
-	this._description = "open door";
-	this._image = "door-open";
-	this._char = "/";
+	this.setVisual({
+		desc: "open door",
+		image: "door-open",
+		ch: "/"
+	});
 }
 
 RPG.Features.Door.prototype.unlock = function() {
@@ -140,7 +149,7 @@ RPG.Features.Door.prototype.isLocked = function() {
  */
 RPG.Features.Door.prototype.damage = function(amount) {
 	this._hp -= amount;
-	if (this._hp <= 0) { this._cell.setFeature(null); }
+	if (this._hp <= 0) { this._map.setFeature(null, this._coords); }
 	return (this._hp > 0);
 }
 
@@ -152,7 +161,7 @@ RPG.Features.Trap = OZ.Class().extend(RPG.Features.BaseFeature);
 RPG.Features.Trap.factory.ignore = true;
 RPG.Features.Trap.prototype.init = function() {
 	this.parent();
-	this._char = "^";
+	this.setVisual({ch:"^"});
 	this._damage = null;
 }
 
@@ -176,15 +185,17 @@ RPG.Features.Trap.Teleport = OZ.Class().extend(RPG.Features.Trap);
 
 RPG.Features.Trap.Teleport.prototype.init = function() {
 	this.parent();
-	
-	this._color = "limegreen";
-	this._image = "trap-teleport";
-	this._description = "teleport trap";
+	this.setVisual({
+		desc: "teleport trap",
+		image: "trap-teleport",
+		color: "limegreen"
+	});
 }
 
 RPG.Features.Trap.Teleport.prototype.setOff = function(e) {
-	var c = this._cell.getMap().getFreeCell();
-	this._cell.getBeing().teleport(c);
+	var c = this._map.getFreeCoords();
+	var being = this._map.getBeing(this._coords);
+	being.teleport(c);
 }
 
 /**
@@ -197,15 +208,16 @@ RPG.Features.Trap.Pit.prototype.init = function() {
 	this.parent();
 	
 	this._damage = new RPG.Misc.RandomValue(3, 1);
-
-	this._color = "sienna";
-	this._image = "trap-pit";
-	this._description = "pit trap";
+	this.setVisual({
+		desc: "pit trap",
+		image: "trap-pit",
+		color: "sienna"
+	});
 }
 
 RPG.Features.Trap.Pit.prototype.setOff = function() {
-	var canSee = RPG.Game.pc.canSee(this._cell);
-	var being = this._cell.getBeing();
+	var canSee = RPG.Game.pc.canSee(this._coords);
+	var being = this._map.getBeing(this._coords);
 
 	if (canSee) {
 		var verb = RPG.Misc.verb("fall", being);
@@ -231,31 +243,30 @@ RPG.Features.Staircase = OZ.Class().extend(RPG.Features.BaseFeature);
 
 RPG.Features.Staircase.prototype.init = function() {
 	this.parent();
-	this._color = "silver";
+	this.setVisual({color:"silver"});
 	this._target = null;
 }
 
 RPG.Features.Staircase.prototype.enter = function(being) {
-	var cell = this.getTarget();
+	var target = this.getTarget();
 
-	if (cell) {	
+	if (target) {	
 		/* switch maps */
-		var map = cell.getMap();
-		return RPG.Game.setMap(map, cell);
+		return RPG.Game.setMap(this._target[0], this._target[1]);
 	} else {
 		return being.wait();
 	}
 }
 
-RPG.Features.Staircase.prototype.setTarget = function(cell) {
-	this._target = cell;
+RPG.Features.Staircase.prototype.setTarget = function(map, coords) {
+	this._target = [map, coords];
 }
 
 /**
- * @returns {RPG.Cells.BaseCell}
+ * @returns {[RPG.Map, RPG.Misc.Coords]}
  */
 RPG.Features.Staircase.prototype.getTarget = function() {
-	if (!this._target) { 
+	if (!this._target) { /* ask story to generate some */
 		this._target = RPG.Game.getStory().staircaseCallback(this);
 	}
 	return this._target;
@@ -268,9 +279,11 @@ RPG.Features.Staircase.prototype.getTarget = function() {
 RPG.Features.Staircase.Down = OZ.Class().extend(RPG.Features.Staircase);
 RPG.Features.Staircase.Down.prototype.init = function() {
 	this.parent();
-	this._char = ">";
-	this._description = "staircase leading down";
-	this._image = "staircase-down";
+	this.setVisual({
+		desc: "staircase leading down",
+		image: "staircase-down",
+		ch: ">"
+	});
 }
 
 /**
@@ -280,23 +293,25 @@ RPG.Features.Staircase.Down.prototype.init = function() {
 RPG.Features.Staircase.Up = OZ.Class().extend(RPG.Features.Staircase);
 RPG.Features.Staircase.Up.prototype.init = function() {
 	this.parent();
-	this._char = "<";
-	this._description = "staircase leading up";
-	this._image = "staircase-up";
+	this.setVisual({
+		desc: "staircase leading up",
+		image: "staircase-up",
+		ch: "<"
+	});
 }
 
 /**
- * @class Shop room
- * @augments RPG.Rooms.BaseRoom
+ * @class Shop area
+ * @augments RPG.Areas.Room
  */
-RPG.Rooms.Shop = OZ.Class().extend(RPG.Rooms.BaseRoom);
-RPG.Rooms.Shop.prototype.init = function(corner1, corner2) {
+RPG.Areas.Shop = OZ.Class().extend(RPG.Areas.Room);
+RPG.Areas.Shop.prototype.init = function(corner1, corner2) {
 	this.parent(corner1, corner2);
 	this._door = null;
 	this._welcome = "You entered a shop.";
 }
 
-RPG.Rooms.Shop.prototype.setMap = function(map) {
+RPG.Areas.Shop.prototype.setMap = function(map) {
 	this.parent(map);
 
 	var c = new RPG.Misc.Coords(0, 0);
@@ -305,24 +320,22 @@ RPG.Rooms.Shop.prototype.setMap = function(map) {
 			if (i >= this._corner1.x && i <= this._corner2.x && j >= this._corner1.y && j <= this._corner2.y) { continue; }
 			c.x = i;
 			c.y = j;
-			var cell = map.at(c);
-			if (!cell.isFree()) { continue; }
+			if (this._map.blocks(RPG.BLOCKS_MOVEMENT, c)) { continue; }
 			
 			if (this._door) { throw new Error("Shop cannot have >1 doors"); }
-			this._door = cell;
+			this._door = c.clone();
 		}
 	}
 	
 	if (!this._door) { throw new Error("Shop without doors"); }
 }
 
-RPG.Rooms.Shop.prototype.getDoor = function() {
+RPG.Areas.Shop.prototype.getDoor = function() {
 	return this._door;
 }
 
-RPG.Rooms.Shop.prototype.setShopkeeper = function(being) {
-	being.setCell(this._door);
-	
+RPG.Areas.Shop.prototype.setShopkeeper = function(being) {
+	this._map.setBeing(being, this._door);
 	var ai = new RPG.AI.Shopkeeper(being, this);
 	being.setAI(ai);
 }

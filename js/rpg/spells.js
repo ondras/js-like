@@ -10,7 +10,7 @@ RPG.Spells.BaseSpell.name = "";
 RPG.Spells.BaseSpell.damage = null;
 
 RPG.Spells.BaseSpell.prototype.init = function(caster) {
-	this._initVisuals();
+	this.setVisual({});
 	
 	this._type = RPG.SPELL_SELF;
 	this._caster = caster;
@@ -57,28 +57,26 @@ RPG.Spells.Attack.prototype.init = function(caster) {
  * @param {bool} ignoreCenter
  */
 RPG.Spells.Attack.prototype.explode = function(center, radius, ignoreCenter) {
-	this._image = this._explosionImage;
-	this._char = "*";
+	this.setVisual({ch:"*", image:this._explosionImage});
 
 	RPG.UI.map.removeProjectiles();
 	RPG.Game.getEngine().lock();
-	var map = this._caster.getCell().getMap();
-	var cells = map.cellsInArea(center, radius);
-	if (ignoreCenter) { cells.shift(); }
+	var map = this._caster.getMap();
+	var coords = map.getCoordsInArea(center, radius);
+	if (ignoreCenter) { coords.shift(); }
 	
-	for (var i=0;i<cells.length;i++) {
-		var cell = cells[i];
-		RPG.UI.map.addProjectile(cell.getCoords(), this);
+	for (var i=0;i<coords.length;i++) {
+		var c = coords[i];
+		RPG.UI.map.addProjectile(c, this);
 	}
 	setTimeout(this.bind(function(){
-		this._afterExplosion(cells);
+		this._afterExplosion(coords);
 	}), 100);
 }
 
-RPG.Spells.Attack.prototype._afterExplosion = function(cells) {
-	for (var i=0;i<cells.length;i++) {
-		var cell = cells[i];
-		var b = cell.getBeing();
+RPG.Spells.Attack.prototype._afterExplosion = function(coords) {
+	for (var i=0;i<coords.length;i++) {
+		var b = this._caster.getMap().getBeing(coords[i]);
 		if (!b) { continue; }
 		this._caster.attackMagic(b, this);
 	}
@@ -105,25 +103,25 @@ RPG.Spells.Projectile.prototype.init = function(caster) {
 }
 
 RPG.Spells.Projectile.prototype.cast = function(target) {
-	this.launch(this._caster.getCell(), target);
+	this.launch(this._caster.getCoords(), target, this._caster.getMap());
 }
 
 RPG.Spells.Projectile.prototype._fly = function() {
 	RPG.Misc.IProjectile.prototype._fly.call(this);
 
-	var cell = this._flight.cells[this._flight.index];
+	var coords = this._flight.coords[this._flight.index];
 	var bounce = this._flight.bounces[this._flight.index];
 	
-	if (bounce && RPG.Game.pc.canSee(cell.getCoords())) {
+	if (bounce && RPG.Game.pc.canSee(coords)) {
 		var s = RPG.Misc.format("%The bounces!", this);
 		RPG.UI.buffer.message(s);
 	}
 }
 
-RPG.Spells.Projectile.prototype.computeTrajectory = function(source, target) {
+RPG.Spells.Projectile.prototype.computeTrajectory = function(source, target, map) {
 	if (this._type == RPG.SPELL_TARGET) { 
 		/* same as basic projectiles */
-		return RPG.Misc.IProjectile.prototype.computeTrajectory.call(this, source, target); 
+		return RPG.Misc.IProjectile.prototype.computeTrajectory.apply(this, arguments); 
 	}
 	
 	if (this._type == RPG.SPELL_DIRECTION) {
@@ -131,7 +129,7 @@ RPG.Spells.Projectile.prototype.computeTrajectory = function(source, target) {
 		var dir = target;
 		
 		this._flight.index = -1;
-		this._flight.cells = [];
+		this._flight.coords = [];
 		this._flight.chars = [];
 		this._flight.images = [];
 		this._flight.bounces = [];
@@ -139,21 +137,21 @@ RPG.Spells.Projectile.prototype.computeTrajectory = function(source, target) {
 		var dist = 0;
 		while (dist < this._range) {
 			dist++;
-			var prev = (this._flight.cells.length ? this._flight.cells[this._flight.cells.length-1] : source);
-			var cell = prev.neighbor(dir);
-			if (!cell) { return this._flight; }
+			var prev = (this._flight.coords.length ? this._flight.coords[this._flight.coords.length-1] : source);
+			var coords = prev.neighbor(dir);
+			if (!map.getCell(coords)) { return this._flight; }
 			
-			if (cell.visibleThrough() || !this._bounces) {
+			if (!map.blocks(RPG.BLOCKS_LIGHT, coords) || !this._bounces) {
 				/* either free space or non-bouncing end obstacle */
 				this._flight.bounces.push(false);
-				this._flight.cells.push(cell);
+				this._flight.coords.push(coords);
 				this._flight.chars.push(this._chars[dir]);
 				
 				var image = this._baseImage;
 				if (this._suffixes[dir]) { image += "-" + this._suffixes[dir]; }
 				this._flight.images.push(image);
 				
-				if (!cell.visibleThrough()) { break; }
+				if (map.blocks(RPG.BLOCKS_LIGHT, coords)) { break; }
 			} else {
 				/* bounce! */
 				dir = this._computeBounce(prev, dir);
@@ -168,35 +166,40 @@ RPG.Spells.Projectile.prototype.computeTrajectory = function(source, target) {
 
 /**
  * Compute bouncing
- * @param {RPG.Cells.BaseCell} cell Previous (free) cell
- * @param {int} dir Direction to current (blocking) cell
+ * @param {RPG.Misc.Coords} coords Previous (free) coords
+ * @param {int} dir Direction to current (blocking) coords
  */
-RPG.Spells.Projectile.prototype._computeBounce = function(cell, dir) {
-	var newCell = cell;
+RPG.Spells.Projectile.prototype._computeBounce = function(coords, dir) {
+	var newCoords = coords;
 	var newDir = null;
+	var map = this._caster.getMap();
 	
 	var leftDir = (dir+7) % 8;
 	var rightDir = (dir+1) % 8;
-	var leftCell = cell.neighbor(leftDir);
-	var rightCell = cell.neighbor(rightDir);
+	var leftCoords = coords.neighbor(leftDir);
+	var rightCoords = coords.neighbor(rightDir);
 	
-	var leftFree = !leftCell || leftCell.visibleThrough();
-	var rightFree = !rightCell || rightCell.visibleThrough();
+	var leftFree = !leftCoords || !map.blocks(RPG.BLOCKS_LIGHT, leftCoords);
+	var rightFree = !rightCoords || !map.blocks(RPG.BLOCKS_LIGHT, rightCoords);
 	
 	if (leftFree == rightFree) { /* backwards */
 		newDir = (dir+4) % 8;
 	} else if (leftFree) { /* bounce to the left */
-		newCell = leftCell; /* FIXME does this _always_ exist? */
+		newCoords = leftCoords; /* FIXME does this _always_ exist? */
 		newDir = (dir+6) % 8;
 	} else { /* bounce to the right */
-		newCell = rightCell; /* FIXME does this _always_ exist? */
+		newCoords = rightCoords; /* FIXME does this _always_ exist? */
 		newDir = (dir+2) % 8;
 	}
 	
 	this._flight.bounces.push(true);
-	this._flight.cells.push(newCell);
+	this._flight.coords.push(newCoords);
 	this._flight.chars.push(this._chars[newDir]);
 	this._flight.images.push(this._baseImage + "-" + this._suffixes[newDir]);
 	
 	return newDir;
 }
+
+/* FIXME */
+RPG.Misc.IProjectile.mark = new RPG.Misc.IProjectile.Mark();
+RPG.Misc.IProjectile.endMark = new RPG.Misc.IProjectile.EndMark();

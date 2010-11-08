@@ -14,10 +14,12 @@ RPG.Beings.Goblin.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DEXTERITY, 9);
 	this.setFeat(RPG.FEAT_MAGIC, 9);
 	
-	this._description = "goblin";
-	this._char = "g";
-	this._color = "mediumblue";
-	this._image = "goblin";
+	this.setVisual({
+		desc: "goblin",
+		ch: "g",
+		color: "mediumblue",
+		image: "goblin"
+	});
 	
 	if (Math.randomPercentage() < 21) {
 		var dagger = new RPG.Items.Dagger();
@@ -44,7 +46,7 @@ RPG.Beings.Goblin.prototype.init = function() {
 RPG.Beings.GoblinRockthrower = OZ.Class().extend(RPG.Beings.Goblin);
 RPG.Beings.GoblinRockthrower.prototype.init = function() {
 	this.parent();
-	this._description = "goblin rockthrower";
+	this.setVisual({desc:"goblin rockthrower"});
 
 	var rocks = new RPG.Items.Rock().setAmount(8);
 	this.equip(RPG.SLOT_PROJECTILE, rocks);
@@ -61,9 +63,11 @@ RPG.Beings.Hobgoblin.prototype.init = function() {
 	this.adjustFeat(RPG.FEAT_STRENGTH, 2);
 	this.adjustFeat(RPG.FEAT_TOUGHNESS, 2);
 
-	this._color = "yellowgreen";
-	this._description = "hobgoblin";
-	this._image = "hobgoblin";
+	this.setVisual({
+		desc: "hobgoblin",
+		color: "yellowgreen",
+		image: "hobgoblin"
+	});
 	
 	this.fullStats();	
 }
@@ -80,9 +84,11 @@ RPG.Beings.HobgoblinLeader.prototype.init = function() {
 	this.adjustFeat(RPG.FEAT_STRENGTH, 2);
 	this.adjustFeat(RPG.FEAT_TOUGHNESS, 2);
 	
-	this._color = "forestgreen";
-	this._description = "hobgoblin leader";
-	this._image = "hobgoblin-leader";
+	this.setVisual({
+		desc: "hobgoblin leader",
+		color: "forestgreen",
+		image: "hobgoblin-leader"
+	});
 
 	this.fullStats();
 }
@@ -105,10 +111,12 @@ RPG.Beings.Troll.prototype.init = function() {
 	this.setFeat(RPG.FEAT_MAGIC, 5);
 	this.setFeat(RPG.FEAT_PV, 5);
 
-	this._char = "T";
-	this._color = "darkgray";
-	this._description = "troll";
-	this._image = "troll";
+	this.setVisual({
+		desc: "troll",
+		ch: "T",
+		color: "darkgray",
+		image: "troll"
+	});
 	
 	this.getSlot(RPG.SLOT_WEAPON).setHit(new RPG.Misc.RandomValue(10, 5));
 
@@ -121,26 +129,25 @@ RPG.Beings.Troll.prototype.init = function() {
  * @augments RPG.Beings.PC
  */
 RPG.Beings.God = OZ.Class().extend(RPG.Beings.PC);
-RPG.Beings.God.prototype.getVisibleCells = function() {
-	var arr = [];
-	var map = this._cell.getMap();
-	var size = map.getSize();
+RPG.Beings.God.prototype.getVisibleCoords = function() {
+	var all = {};
+	var size = this._map.getSize();
 	var c = new RPG.Misc.Coords(0, 0);
 	for (var i=0;i<size.x;i++) {
 		for (var j=0;j<size.y;j++) {
 			c.x = i;
 			c.y = j;
-			var cell = map.at(c);
-			if (cell) { arr.push(cell); }
+			var cell = this._map.getCell(c);
+			if (cell) { all[c.x+","+c.y] = c.clone(); }
 		}
 	}
-	return arr;
+	return all;
 }
 
 RPG.Beings.God.prototype.updateVisibility = function() {
 }
 
-RPG.Beings.God.prototype.canSee = function(cell) {
+RPG.Beings.God.prototype.canSee = function(coords) {
 	return true;
 }
 
@@ -156,10 +163,12 @@ RPG.Beings.Rat.prototype.init = function() {
 	this.setFeat(RPG.FEAT_TOUGHNESS, 7);
 	this.setFeat(RPG.FEAT_DEXTERITY, 14);
 
-	this._char = "r";
-	this._color = "silver";
-	this._description = "rat";
-	this._image = "rat";
+	this.setVisual({
+		desc: "rat",
+		ch: "r",
+		color: "silver",
+		image: "rat"
+	});
 
 	this.fullStats();
 }
@@ -176,9 +185,11 @@ RPG.Beings.GiantRat.prototype.init = function() {
 	var f = this._feats[RPG.FEAT_MAX_HP];
 	this.setFeat(RPG.FEAT_MAX_HP, Math.round(f.getBase() * 1.5));
 
-	this._color = "saddlebrown";
-	this._description = "giant rat";
-	this._image = "giant-rat";
+	this.setVisual({
+		desc: "giant rat",
+		color: "saddlebrown",
+		image: "giant-rat"
+	});
 
 	this.fullStats();
 }
@@ -196,10 +207,12 @@ RPG.Beings.Bat.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DEXTERITY, 14);
 	this.setFeat(RPG.FEAT_DV, 2);
 
-	this._char = "b";
-	this._color = "darkgray";
-	this._description = "bat";
-	this._image = "bat";
+	this.setVisual({
+		desc: "bat",
+		ch: "b",
+		color: "darkgray",
+		image: "bat"
+	});
 
 	this.fullStats();
 }
@@ -216,10 +229,12 @@ RPG.Beings.GiantBat.prototype.init = function() {
 	var f = this._feats[RPG.FEAT_MAX_HP];
 	this.setFeat(RPG.FEAT_MAX_HP, Math.round(f.getBase() * 1.5));
 
-	this._char = "B";
-	this._color = "saddlebrown";
-	this._description = "giant bat";
-	this._image = "giant-bat";
+	this.setVisual({
+		desc: "giant bat",
+		ch: "B",
+		color: "saddlebrown",
+		image: "giant-bat"
+	});
 
 	this.fullStats();
 }
@@ -238,10 +253,12 @@ RPG.Beings.Wolf.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DEXTERITY, 11);
 	this.getSlot(RPG.SLOT_WEAPON).setHit(new RPG.Misc.RandomValue(7, 4));
 
-	this._char = "d";
-	this._color = "white";
-	this._description = "wolf";
-	this._image = "wolf";
+	this.setVisual({
+		desc: "wolf",
+		ch: "d",
+		color: "white",
+		image: "wolf"
+	});
 
 	this.fullStats();
 }
@@ -257,10 +274,12 @@ RPG.Beings.Dog.prototype.init = function() {
 	
 	this.setFeat(RPG.FEAT_STRENGTH, 9);
 
-	this._char = "d";
-	this._color = "darkkhaki";
-	this._description = "dog";
-	this._image = "dog";
+	this.setVisual({
+		desc: "dog",
+		ch: "d",
+		color: "darkkhaki",
+		image: "dog"
+	});
 
 	this.fullStats();
 }
@@ -278,10 +297,12 @@ RPG.Beings.Jackal.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 9);
 	this.setFeat(RPG.FEAT_TOUGHNESS,9 );
 
-	this._char = "d";
-	this._color = "darkgray";
-	this._description = "jackal";
-	this._image = "jackal";
+	this.setVisual({
+		desc: "jackal",
+		ch: "d",
+		color: "darkgray",
+		image: "jackal"
+	});
 
 	this.fullStats();
 }
@@ -302,10 +323,12 @@ RPG.Beings.Bear.prototype.init = function() {
 	this.setFeat(RPG.FEAT_SPEED, 90);
 	this.setFeat(RPG.FEAT_PV, 4);
 
-	this._char = "N";
-	this._color = "brown";
-	this._description = "bear";
-	this._image = "bear";
+	this.setVisual({
+		desc: "bear",
+		ch: "N",
+		color: "brown",
+		image: "bear"
+	});
 
 	this.fullStats();
 }
@@ -325,10 +348,12 @@ RPG.Beings.Snake.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DEXTERITY, 14);
 	this.setFeat(RPG.FEAT_SPEED, 105);
 
-	this._char = "s";
-	this._color = "red";
-	this._description = "snake";
-	this._image = "snake";
+	this.setVisual({
+		desc: "snake",
+		ch: "s",
+		color: "red",
+		image: "snake"
+	});
 
 	this.fullStats();
 }
@@ -349,10 +374,12 @@ RPG.Beings.Orc.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DEXTERITY, 9);
 	this.setFeat(RPG.FEAT_MAGIC, 10);
 	
-	this._description = "orc";
-	this._char = "o";
-	this._color = "lime";
-	this._image = "orc";
+	this.setVisual({
+		desc: "orc",
+		ch: "o",
+		color: "lime",
+		image: "orc"
+	});
 	
 	if (Math.randomPercentage() < 21) {
 		var dagger = new RPG.Items.OrcishDagger();
@@ -379,10 +406,11 @@ RPG.Beings.LargeOrc.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 13);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 13);
 	
-	this._description = "large orc";
-	this._char = "o";
-	this._color = "limegreen";
-	this._image = "orc-large";
+	this.setVisual({
+		desc: "large orc",
+		color: "limegreen",
+		image: "orc-large"
+	});
 	
 	if (Math.randomPercentage() < 41) {
 		var dagger = new RPG.Items.OrcishDagger();
@@ -411,10 +439,11 @@ RPG.Beings.OrcChieftain.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DEXTERITY, 11); 
 	this.setFeat(RPG.FEAT_MAGIC, 11); 
 	
-	this._description = "orc chieftain";
-	this._char = "o";
-	this._color = "limegreen";
-	this._image = "orc-chieftain";
+	this.setVisual({
+		desc: "orc chieftain",
+		color: "limegreen",
+		image: "orc-chieftain"
+	});
 	
 	if (Math.randomPercentage() < 41) {
 		var dagger = new RPG.Items.OrcishDagger();
@@ -445,10 +474,12 @@ RPG.Beings.Ogre.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DEXTERITY, 9);
 	this.setFeat(RPG.FEAT_MAGIC, 7);
 	
-	this._description = "ogre";
-	this._char = "O";
-	this._color = "lime";
-	this._image = "ogre";
+	this.setVisual({
+		desc: "ogre",
+		ch: "O",
+		color: "lime",
+		image: "ogre"
+	});
 	
 	this.fullStats();
 }
@@ -469,10 +500,12 @@ RPG.Beings.Gnoll.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DEXTERITY, 9);
 	this.setFeat(RPG.FEAT_MAGIC, 8);
 	
-	this._description = "gnoll";
-	this._char = "g";
-	this._color = "brown";
-	this._image = "gnoll";
+	this.setVisual({
+		desc: "gnoll",
+		ch: "g",
+		color: "brown",
+		image: "gnoll"
+	});
 	
 	if (Math.randomPercentage() < 31) {
 		var axe = new RPG.Items.Axe();
@@ -498,10 +531,12 @@ RPG.Beings.Kobold.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DEXTERITY, 12);
 	this.setFeat(RPG.FEAT_MAGIC, 9);
 	
-	this._description = "kobold";
-	this._char = "k";
-	this._color = "lime";
-	this._image = "kobold";
+	this.setVisual({
+		desc: "kobold",
+		ch: "k",
+		color: "lime",
+		image: "kobold"
+	});
 	
 	if (Math.randomPercentage() < 31) {
 		var club = new RPG.Items.Club();

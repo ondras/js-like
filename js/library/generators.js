@@ -16,8 +16,8 @@ RPG.Generators.Arena.prototype.generate = function(id, danger) {
 
 /**
  * @class Random map generator, tries to fill the space evenly
- * @augments RPG.Generators.BaseGenerator
  * FIXME this is not {finished,working}
+ * @augments RPG.Generators.BaseGenerator
  */ 
 RPG.Generators.Uniform = OZ.Class().extend(RPG.Generators.BaseGenerator);
 

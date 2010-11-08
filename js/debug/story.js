@@ -9,7 +9,7 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 	var map = gen.generate("testbed", 1);
 	
 	var up = new RPG.Features.Staircase.Up();
-	map.getFreeCell().setFeature(up);
+	map.setFeature(up, map.getFreeCoords());
 	
 	this._staircases["end"] = up;
 	this._staircaseCallbacks["end"] = this.end;

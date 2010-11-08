@@ -10,13 +10,15 @@ RPG.Decorators.Hidden.prototype.decorate = function(map, percentage) {
 		for (var j=0;j<size.y;j++) {
 			c.x = i;
 			c.y = j;
-			var cell = map.at(c);
-			if (!(cell instanceof RPG.Cells.Corridor)) { continue; }
+			var cell = map.getCell(c);
+			if (!cell) { continue; }
+			
+			if (!cell.blocks(RPG.BLOCKS_LIGHT)) { continue; }
 			if (this._freeNeighbors(map, c) != 2) { continue; }
 			if (Math.random() >= percentage) { continue; }
 			
-			var fake = new RPG.Cells.Wall.Fake(cell);
-			map.setCell(c, fake);
+			var fake = new RPG.Cells.Wall.Fake();
+			map.setCell(fake, c);
 		}
 	}
 	return this;
@@ -30,10 +32,10 @@ RPG.Decorators.Beings = OZ.Singleton().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Beings.prototype.decorate = function(map, count) {
 	var danger = map.getDanger();
 	for (var i=0;i<count;i++) {
-		var b = RPG.Beings.NPC.getInstance(danger);
-		var c = map.getFreeCell(true);
+		var b = RPG.Factories.npcs.getInstance(danger);
+		var c = map.getFreeCoords(true);
 		if (!c) { return this; }
-		b.setCell(c);
+		map.setBeing(b, c);
 	}
 	return this;
 }
@@ -46,9 +48,10 @@ RPG.Decorators.Items = OZ.Singleton().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Items.prototype.decorate = function(map, count) {
 	var danger = map.getDanger();
 	for (var i=0;i<count;i++) {
-		var item = RPG.Items.getInstance(danger);
-		var c = map.getFreeCell(true);
-		c.addItem(item);
+		var item = RPG.Factories.items.getInstance(danger);
+		var c = map.getFreeCoords(true);
+		if (!c) { return this; }
+		map.addItem(item, c);
 	}
 	return this;
 }
@@ -61,21 +64,23 @@ RPG.Decorators.Traps = OZ.Singleton().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Traps.prototype.addTraps = function(map, count) {
 	var danger = map.getDanger();
 	for (var i=0;i<count;i++) {
-		var trap = RPG.Features.Trap.getInstance(danger);
-		var c = map.getFreeCell(true);
-		c.setFeature(trap);
+		var trap = RPG.Factories.traps.getInstance(danger);
+		var c = map.getFreeCoords(true);
+		if (!c) { return this; }
+		map.setFeature(trap, c);
 	}
 	return this;
 }
 
 /**
- * @class Map decorator
+ * @class Door decorator
+ * - adds doors to surrounding corridors
+ * - transforms walls with adjacent corridors to fake walls
  * @augments RPG.Decorators.BaseDecorator
  */
 RPG.Decorators.Doors = OZ.Singleton().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Doors.prototype.decorate = function(map, room, options) {
 	var o = {
-		corridor: RPG.Cells.Corridor,
 		doors: true,
 		closed: 0.5,
 		locked: 0.05,
@@ -114,10 +119,8 @@ RPG.Decorators.Doors.prototype.decorate = function(map, room, options) {
 			
 			c.x = i;
 			c.y = j;
-			var cell = map.at(c);
-			if (!cell) { continue; }
 			
-			var feature = cell.getFeature()
+			var cell = map.getCell(c);
 			if (cell instanceof RPG.Cells.Wall) {
 				/* try fake corridor, if applicable */
 				if (Math.random() >= o.fakeCorridors) { continue; } /* bad luck */
@@ -125,18 +128,22 @@ RPG.Decorators.Doors.prototype.decorate = function(map, room, options) {
 				if (nc != 4) { continue; } /* bad neighbor count */
 				
 				var after = c.clone().plus(dir);
-				if (!map.isValid(after) || !(map.at(after) instanceof RPG.Cells.Corridor)) { continue; } /* bad layout */
+				if (map.blocks(RPG.BLOCKS_MOVEMENT, after)) { continue; } /* bad layout */
 				
 				/* fake corridor */
-				var fake = new RPG.Cells.Wall.Fake(new o.corridor());
-				map.setCell(c, fake);
+				var cctor = map.getCellTypes()[0];
+				var corridor = RPG.Factories.cells.get(cctor);
+				map.setCell(corridor, c);
+				var fake = new RPG.Cells.Wall.Fake();
+				map.setCell(fake, c);
 				continue;
 			}
 			
+			var feature = map.getFeature(c);
 			if (!feature && o.doors) {
 				/* add door */
 				feature = new RPG.Features.Door();
-				cell.setFeature(feature);
+				map.setFeature(feature, c);
 			}
 			
 			if (!(feature instanceof RPG.Features.Door)) { continue; } /* not a door */
@@ -145,8 +152,8 @@ RPG.Decorators.Doors.prototype.decorate = function(map, room, options) {
 
 			/* fake wall */
 			if (Math.random() < o.fakeDoors) {
-				var fake = new RPG.Cells.Wall.Fake(cell);
-				map.setCell(c, fake);
+				var fake = new RPG.Cells.Wall.Fake();
+				map.setCell(fake, c);
 			} /* if fake */
 
 		} /* for y */
@@ -170,12 +177,12 @@ RPG.Decorators.Treasure.prototype.decorate = function(map, room, options) {
 	var c2 = room.getCorner2();
 	for (var i=c1.x;i<=c2.x;i++) {
 		for (var j=c1.y;j<=c2.y;j++) {
-			var cell = map.at(new RPG.Misc.Coords(i, j));
-			if (!cell.isFree()) { continue; }
+			var c = new RPG.Misc.Coords(i, j);
+			if (map.blocks(RPG.BLOCKS_MOVEMENT, c)) { continue; }
 
 			if (Math.random() < o.treasure) {
 				var treasure = this._generateTreasure(danger);
-				cell.addItem(treasure);
+				map.addItem(treasure, c);
 				continue;
 			}
 			
@@ -185,9 +192,9 @@ RPG.Decorators.Treasure.prototype.decorate = function(map, room, options) {
 }
 RPG.Decorators.Treasure.prototype._generateTreasure = function(danger) {
 	if (Math.randomPercentage() < 67) {
-		return RPG.Items.Gold.factory.method.call(RPG.Items.Gold, danger);
+		return RPG.Factories.gold.getInstance(danger);
 	} else {
-		return RPG.Items.Gem.getInstance(danger);
+		return RPG.Factories.gems.getInstance(danger);
 	}
 }
 

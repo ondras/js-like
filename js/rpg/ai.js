@@ -234,42 +234,41 @@ RPG.AI.prototype._attack = function(e) {
 
 /**
  * Static pathfinder method 
- * @param {RPG.Cells.BaseCell} source Where are we now
- * @param {RPG.Cells.BaseCell} target Target cell
- * @param {int} target Target cell
+ * @param {RPG.Misc.Coords} source Where are we now
+ * @param {RPG.Misc.Coords} target Target coords
+ * @param {int} distance
+ * @param {RPG.Map} map
  */
-RPG.AI.cellToDistance = function(source, target, distance) {
-	var targetCoords = target.getCoords();
-	
-	var currentDistance = source.getCoords().distance(targetCoords); /* we have this distance now */
+RPG.AI.coordsToDistance = function(source, target, distance, map) {
+	var currentDistance = source.distance(target); /* we have this distance now */
 	var bestDistance = currentDistance; /* best distance found so far */
-	var bestCell = null; /* neighbor cell with best resulting distance */
+	var best = null; /* neighbor coords with best resulting distance */
 	
 	if (currentDistance == distance) { return null; } /* we are already there! */
 	
 	var radius = 3; /* max radius to try */
 	var todo = [source]; /* stack */
-	var currentIndex = 0; /* pointer to currently tried cell */
-	var maxIndex = 1; /* pointer to first cell in next radius*/
+	var currentIndex = 0; /* pointer to currently tried coords */
+	var maxIndex = 1; /* pointer to first coords in next radius */
 	var current = null;
 	var neighbor = null;
 	
 	var r = 1;
 	while (r <= radius) { /* for all available radii */
-		while (currentIndex < maxIndex) { /* for all cells in current radius */
+		while (currentIndex < maxIndex) { /* for all coords in current radius */
 			current = todo[currentIndex++];
 			for (var i=0;i<8;i++) { /* for all neighbors */
 				neighbor = current.neighbor(i);
 				if (!neighbor) { continue; }
-				if (!neighbor.isFree()) { continue; }
+				if (map.blocks(RPG.BLOCKS_MOVEMENT, neighbor)) { continue; }
 				if (todo.indexOf(neighbor) != -1) { continue; }
 				
 				neighbor._prev = current; /* so we can trace back the optimal sibling */
 
-				var dist = neighbor.getCoords().distance(targetCoords); /* have we found a better candidate? */
+				var dist = neighbor.distance(target); /* have we found a better candidate? */
 				if (Math.abs(dist - distance) < Math.abs(bestDistance - distance)) { 
 					bestDistance = dist;
-					bestCell = neighbor;
+					best = neighbor;
 
 					if (dist == distance) { /* cutoff - already at best distance */
 						r = radius+1;
@@ -291,9 +290,9 @@ RPG.AI.cellToDistance = function(source, target, distance) {
 		maxIndex = todo.length;
 	}
 	
-	if (bestCell) {
-		while (bestCell._prev != source) { bestCell = bestCell._prev; }
-		return bestCell;
+	if (best) {
+		while (best._prev != source) { best = best._prev; }
+		return best;
 	} else {
 		return null;
 	}
@@ -328,16 +327,16 @@ RPG.AI.Task.prototype.go = function() {
 RPG.AI.Wander = OZ.Class().extend(RPG.AI.Task);
 RPG.AI.Wander.prototype.go = function() {
 	var being = this._ai.getBeing();
-	var cell = being.getCell();
-	var map = cell.getMap();
+	var coords = being.getCoords();
+	var map = being.getMap();
 	
-	var neighbors = map.cellsInCircle(cell.getCoords(), 1);
+	var neighbors = map.getCoordsInCircle(coords, 1);
 	var avail = [null];
 	for (var i=0;i<neighbors.length;i++) {
-		if (neighbors[i].isFree()) { avail.push(neighbors[i]); }
+		if (!map.blocks(RPG.BLOCKS_MOVEMENT, neighbors[i])) { avail.push(neighbors[i]); }
 	}
 	
-	var target = avail[Math.floor(Math.random() * avail.length)];
+	var target = avail.random();
 	if (target) {
 		this._ai.setActionResult(being.move(target));
 	} else {

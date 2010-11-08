@@ -7,26 +7,11 @@ RPG.Game = {
 	_engine: null,
 	_map: null,
 	_events: [],
-	_version: 5
+	_version: 7
 }
 
 RPG.Game.init = function() {
-	var f = new RPG.Misc.Factory().add(RPG.Items.BaseItem);
-	RPG.Items.getInstance = f.bind(f.getInstance);
-
-	var f = new RPG.Misc.Factory().add(RPG.Items.Gem);
-	RPG.Items.Gem.getInstance = f.bind(f.getInstance);
-
-	var f = new RPG.Misc.Factory().add(RPG.Beings.NPC);
-	RPG.Beings.NPC.getInstance = f.bind(f.getInstance);
-	RPG.Beings.NPC.getClass = f.bind(f.getClass);
-
-	var f = new RPG.Misc.Factory().add(RPG.Features.Trap);
-	RPG.Features.Trap.getInstance = f.bind(f.getInstance);
-
-	var f = new RPG.Misc.Factory().add(RPG.Spells.BaseSpell);
-	RPG.Spells.getInstance = f.bind(f.getInstance);
-	RPG.Spells.getClass = f.bind(f.getClass);
+	this._initFactories();
 
 	this._engine = new RPG.Engine();
 }
@@ -56,8 +41,8 @@ RPG.Game.getStory = function() {
 	return this._story;
 }
 
-RPG.Game.startMap = function(map, cell) {
-	this.setMap(map, cell);
+RPG.Game.startMap = function(map, coords) {
+	this.setMap(map, coords);
 	this._engine.unlock();
 }
 
@@ -76,18 +61,20 @@ RPG.Game.end = function() {
 }
 
 /**
- * Change to a new map by moving PC onto "cell"
+ * Change to a new map by moving PC onto "coords"
  * @param {RPG.Map} map New map
- * @param {RPG.Cells.BaseCell} cell PC's cell
+ * @param {RPG.Misc.Coords} coords PC's coords
  */
-RPG.Game.setMap = function(map, cell) {
+RPG.Game.setMap = function(map, coords) {
 	this._map = map; /* remember where we are */
 
-	RPG.UI.status.updateMap(map.getId()); /* update statusbar */	
-	RPG.UI.map.resize(map.getSize()); /* draw the map */
-	RPG.UI.map.redrawAll();
+	RPG.UI.status.updateMap(map.getID()); /* update statusbar */	
+	RPG.UI.map.resize(map.getSize()); /* adjust the map */
+	RPG.UI.map.redrawAll(); /* draw from memory */
 
-	var result = this.pc.move(cell); /* move PC to the cell -> redraw visible part */
+	map.setBeing(this.pc, coords);
+	var result = this.pc.move(coords); /* move PC to the coords -> redraw visible part */
+
 	this._engine.useMap(map); /* switch engine to new actorset */
 	return result; /* return result of move action */
 }
@@ -184,6 +171,17 @@ RPG.Game._runStack = function(stack, readyStateChange) {
 	step();
 }
 
+RPG.Game._initFactories = function() {
+	RPG.Factories.items = new RPG.Misc.Factory().add(RPG.Items.BaseItem);
+	RPG.Factories.gems = new RPG.Misc.Factory().add(RPG.Items.Gem);
+	RPG.Factories.npcs = new RPG.Misc.Factory().add(RPG.Beings.NPC);
+	RPG.Factories.traps = new RPG.Misc.Factory().add(RPG.Features.Trap);
+	RPG.Factories.spells = new RPG.Misc.Factory().add(RPG.Spells.BaseSpell);
+	RPG.Factories.gold = new RPG.Misc.Factory().add(RPG.Items.Gold);
+
+	RPG.Factories.cells = new RPG.Misc.CellFactory();
+}
+
 /**
  * Return a plain JSON content
  */
@@ -194,7 +192,9 @@ RPG.Game.toJSON = function(handler) {
 		engine: this._engine,
 		map: this._map,
 		sound: RPG.UI.sound.getBackground(),
-		status: RPG.UI.status.toJSON()
+		status: RPG.UI.status.toJSON(handler),
+		visual: RPG.Visual.toJSON(handler),
+		cells: RPG.Factories.cells.toJSON(handler)
 	});
 }
 
@@ -208,6 +208,8 @@ RPG.Game.fromJSON = function(data) {
 	this._map = data.map;
 	RPG.UI.sound.playBackground(data.sound);
 	RPG.UI.status.fromJSON(data.status);
+	RPG.Visual.fromJSON(data.visual);
+	RPG.Factories.cells.fromJSON(data.cells);
 	
 	RPG.UI.map.resize(this._map.getSize());
 	RPG.UI.map.redrawAll(); 

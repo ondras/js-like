@@ -10,8 +10,10 @@ RPG.Items.Weapon.prototype.init = function(hit, damage) {
 	this.setHit(hit);
 	this.setDamage(damage);
 	this._dualHand = false;
-	this._char = ")";
-	this._color = "lightgray";
+	this.setVisual({
+		ch: ")",
+		color: "lightgray"
+	});
 }
 
 RPG.Items.Weapon.prototype.isDualHand = function() {
@@ -30,8 +32,10 @@ RPG.Items.Weapon.prototype._describeModifiers = function() {
 RPG.Items.Dagger = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Dagger.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(5, 3));
-	this._image = "dagger";
-	this._description = "dagger";
+	this.setVisual({
+		image: "dagger",
+		desc: "dagger"
+	});
 }
 
 /**
@@ -41,8 +45,10 @@ RPG.Items.Dagger.prototype.init = function() {
 RPG.Items.OrcishDagger = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.OrcishDagger.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(5, 3));
-	this._image = "orcish-dagger";
-	this._description = "orcish dagger";
+	this.setVisual({
+		image: "orcish-dagger",
+		desc: "orcish dagger"
+	});
 }
 
 /**
@@ -52,9 +58,11 @@ RPG.Items.OrcishDagger.prototype.init = function() {
 RPG.Items.Club = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Club.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(7, 3));
-	this._color = "brown";
-	this._image = "club";
-	this._description = "club"; 
+	this.setVisual({
+		image: "club",
+		desc: "club",
+		color: "brown"
+	});
 }
 
 /**
@@ -65,9 +73,11 @@ RPG.Items.ShortSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.ShortSword.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(4, 2));
 	
-	this._color = "darkgray";
-	this._image = "short-sword";
-	this._description = "short sword"; 
+	this.setVisual({
+		image: "short-sword",
+		desc: "short sword",
+		color: "darkgray"
+	});
 }
 
 /**
@@ -77,9 +87,12 @@ RPG.Items.ShortSword.prototype.init = function() {
 RPG.Items.LongSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.LongSword.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(6, 2));
-	this._color = "darkgray";
-	this._image = "long-sword";
-	this._description = "long sword"; 
+
+	this.setVisual({
+		image: "long-sword",
+		desc: "long sword",
+		color: "darkgray"
+	});
 }
 
 /**
@@ -89,9 +102,11 @@ RPG.Items.LongSword.prototype.init = function() {
 RPG.Items.Axe = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Axe.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(6, 2));
-	this._color = "brown";
-	this._image = "axe";
-	this._description = "axe"; 
+	this.setVisual({
+		image: "axe",
+		desc: "axe",
+		color: "brown"
+	});
 }
 
 /**
@@ -102,9 +117,11 @@ RPG.Items.Hammer = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Hammer.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(7, 1));
 	
-	this._color = "darkgray";
-	this._image = "hammer";   
-	this._description = "hammer"; 
+	this.setVisual({
+		image: "hammer",
+		desc: "hammer",
+		color: "darkgray"
+	});
 	this._dualHand = true;
 }
 
@@ -116,9 +133,11 @@ RPG.Items.Staff = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Staff.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(4, 2));
 
-	this._color = "brown";
-	this._image = "staff";
-	this._description = "staff"; 
+	this.setVisual({
+		image: "staff",
+		desc: "staff",
+		color: "brown"
+	});
 	this._dualHand = true;
 }
 
@@ -130,9 +149,11 @@ RPG.Items.Broom = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Broom.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(2, 4));
 	
-	this._color = "brown";
-	this._image = "broom";
-	this._description = "broom"; 
+	this.setVisual({
+		image: "broom",
+		desc: "broom",
+		color: "brown"
+	});
 	this._dualHand = true;
 }
 
@@ -143,10 +164,12 @@ RPG.Items.Broom.prototype.init = function() {
 RPG.Items.Torch = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Torch.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 2), new RPG.Misc.RandomValue(4, 3));
-	this._color = "gray";
-	this._image = "torch";
-	this._description = "torch"; 
-	this._descriptionPlural = "torches"; 
+	this.setVisual({
+		image: "torch",
+		desc: "torch",
+		color: "gray"
+	});
+	this._descPlural = "torches"; 
 	
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 1;
 }
@@ -163,9 +186,12 @@ RPG.Items.KlingonSword.prototype.init = function() {
 	this._modifiers[RPG.FEAT_PV] = 1;
 	this._modifiers[RPG.FEAT_STRENGTH] = 2;
 	this._dualHand = true;
-	this._color = "gold";
-	this._image = "klingon-sword";
-	this._description = "Klingon ceremonial sword";
+
+	this.setVisual({
+		image: "klingon-sword",
+		desc: "Klingon ceremonial sword",
+		color: "gold"
+	});
 }
 
 /**
@@ -228,25 +254,28 @@ RPG.Items.Projectile.prototype._fly = function() {
 }
 
 RPG.Items.Projectile.prototype._done = function() {
-	this._char = this._baseChar;
-	this._image = this._baseImage;
+	this.setVisual({
+		ch: this._baseChar,
+		image: this._baseImage
+	});
 
-	var cell = this._flight.cells[this._flight.cells.length-1];
-	var b = cell.getBeing();
-	var f = cell.getFeature();
+	var coords = this._flight.coords[this._flight.coords.length-1];
+	var map = this._owner.getMap();
+	var b = map.getBeing(coords);
+	var f = map.getFeature(coords);
 	var dropPossible = false;
 	
 	if (b) {
 		this._owner.attackRanged(b, this);
 	} else {
-		if (cell.isFree()) { 
+		if (!map.blocks(RPG.BLOCKS_MOVEMENT, coords)) { 
 			if (RPG.Rules.isProjectileRecovered(this)) {
-				cell.addItem(this);
+				map.addItem(this, coords);
 				var pc = RPG.Game.pc;
-				RPG.UI.map.redrawCell(cell);
+				RPG.UI.map.redrawCoords(coords);
 			}
 		} else {
-			var f = cell.getFeature() || cell;
+			var f = (map.getFeature(coords) || map.getCell(coords));
 			var s = RPG.Misc.format("%A hits %a.", this, f);
 			RPG.UI.buffer.message(s);
 		}
@@ -265,14 +294,17 @@ RPG.Items.Rock.prototype.init = function() {
 	var ch = "*";
 	this._baseImage = "rock";
 	this._baseChar = ch;
-	this._color = "gray";
 	for (var dir in RPG.DIR) { 
 		this._chars[dir] = ch; 
 		this._suffixes[dir] = ""; 
 	}
-	this._image = this._baseImage;
-	this._char = ch;
-	this._description = "rock";
+
+	this.setVisual({
+		image: this._baseImage,
+		ch: this._baseChar,
+		color: "gray",
+		desc: "rock"
+	});
 }
 
 /**
@@ -288,12 +320,22 @@ RPG.Items.Arrow.prototype.init = function(amount) {
 	this.parent(new RPG.Misc.RandomValue(2, 1), new RPG.Misc.RandomValue(2, 1));
 	this._baseImage = "arrow";
 	this._baseChar = "/";
+<<<<<<< .working
 	this._char = this._baseChar;
 	this._image = this._baseImage;
 	this._color = "brown";
 	this._description = "arrow";
+=======
+>>>>>>> .merge-right.r297
 	this._amount = amount;
 	
+	this.setVisual({
+		image: this._baseImage,
+		ch: this._baseChar,
+		color: "brown",
+		desc: "arrow"
+	});
+
 	this._weapon = RPG.Items.Bow;
 }
 
@@ -319,8 +361,9 @@ RPG.Items.Bow.prototype.getRange = function() {
 RPG.Items.ShortBow = OZ.Class().extend(RPG.Items.Bow);
 RPG.Items.ShortBow.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(3, 1), new RPG.Misc.RandomValue(3, 1));
-	this._description = "short bow";
-	this._char = "}";
-	this._image = "short-bow"; 
+	this.setVisual({
+		desc: "short bow",
+		image: "short-bow",
+		ch: "}"
+	});
 }
-

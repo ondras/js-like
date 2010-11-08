@@ -35,12 +35,12 @@ RPG.UI.BaseMap.prototype.resize = function(size) {
 }
 
 /**
- * Redraw a game cell. If this cell is outside a visibility range, do nothing.
+ * Redraw a game coords. If this cell is outside a visibility range, do nothing.
  */
-RPG.UI.BaseMap.prototype.redrawCell = function(cell) {
-	if (!RPG.Game.pc.canSee(cell)) { return; }
-	cell.setMemoryState(RPG.MAP_VISIBLE);
-	this._redrawCell(cell);
+RPG.UI.BaseMap.prototype.redrawCoords = function(coords) {
+	if (!RPG.Game.pc.canSee(coords)) { return; }
+	RPG.Game.pc.getMap().setMemory(RPG.MAP_VISIBLE, coords);
+	this._redrawCoords(coords);
 }
 
 /**
@@ -50,29 +50,29 @@ RPG.UI.BaseMap.prototype.redrawVisible = function() {
 	var map = RPG.Game.getMap();
 
 	var pc = RPG.Game.pc;
-	var oldVisible = pc.getVisibleCells();
+	var oldVisible = pc.getVisibleCoords();
 	pc.updateVisibility(); /* tell PC to update its set of visible coordinates */
-	var newVisible = pc.getVisibleCells();
+	var newVisible = pc.getVisibleCoords();
 
 	/* check all cells visible before; if some is not visible now, mark it as remembered */
-	for (var i=0; i<oldVisible.length; i++) {
-		var cell = oldVisible[i];
-		if (newVisible.indexOf(cell) == -1) { /* this one is no longer visible */
-			cell.setMemoryState(RPG.MAP_REMEMBERED);
-			this._redrawCell(cell);
+	for (var hash in oldVisible) {
+		if (!(hash in newVisible)) { /* this one is no longer visible */
+			var coords = oldVisible[hash];
+			map.setMemory(RPG.MAP_REMEMBERED, coords);
+			this._redrawCoords(coords);
 		}
 	}
 
 	/* take all currently visible and mark them as visible */
-	for (var i=0;i<newVisible.length;i++) {
-		var cell = newVisible[i];
-		cell.setMemoryState(RPG.MAP_VISIBLE);
-		this._redrawCell(cell);
+	for (var hash in newVisible) {
+		var coords = newVisible[hash];
+		map.setMemory(RPG.MAP_VISIBLE, coords);
+		this._redrawCoords(coords);
 	}
 }
 
 /**
- * Redraw all cells on this map.
+ * Redraw all coords on this map.
  */
 RPG.UI.BaseMap.prototype.redrawAll = function() {
 	var map = RPG.Game.getMap();
@@ -83,9 +83,7 @@ RPG.UI.BaseMap.prototype.redrawAll = function() {
 		for (var j=0;j<size.y;j++) {
 			coords.x = i;
 			coords.y = j;
-			var cell = map.at(coords);
-			if (!cell) { continue; }
-			this._redrawCell(cell);
+			this._redrawCoords(coords);
 		}
 	}
 }
@@ -120,11 +118,11 @@ RPG.UI.BaseMap.prototype.removeProjectiles = function() {
 }
 
 /**
- * Force redraw a cell
+ * Force redraw a coords
  */
-RPG.UI.BaseMap.prototype._redrawCell = function(cell) {
-	var c = cell.getCoords();
-	var what = this._dom.data[c.x][c.y];
+RPG.UI.BaseMap.prototype._redrawCoords = function(coords) {
+	var map = RPG.Game.pc.getMap();
+	var what = this._dom.data[coords.x][coords.y];
 
 	var index = this._projectiles.indexOf(what);
 	if (index != -1) {
@@ -132,7 +130,7 @@ RPG.UI.BaseMap.prototype._redrawCell = function(cell) {
 		what.removeProjectile();
 	}
 
-	what.update(cell.getMemory());
+	what.update(map.getMemory(coords));
 }
 
 RPG.UI.BaseMap.prototype._resize = function() {
@@ -149,7 +147,7 @@ RPG.UI.BaseCell.prototype.init = function(owner, coords) {
 
 /**
  * Update cell contents
- * @param {object} memory Cell memory
+ * @param {object || null} memory Map memory
  */
 RPG.UI.BaseCell.prototype.update = function(memory) {
 }
@@ -223,11 +221,10 @@ RPG.UI.ImageCell.prototype.init = function(owner, coords) {
  * @see RPG.UI.BaseCell#update
  */
 RPG.UI.ImageCell.prototype.update = function(memory) {
-	this._dom.container.style.opacity = (memory.state == RPG.MAP_REMEMBERED ? 0.5 : 1);
-	var data = memory.data;
+	this._dom.container.style.opacity = (memory && memory.state == RPG.MAP_REMEMBERED ? 0.5 : 1);
 
 	for (var i=0;i<this._dom.nodes.length;i++) {
-		var what = (data.length > i ? data[i] : null);
+		var what = (memory && memory.data.length > i ? memory.data[i] : null);
 		this._updateImage(this._dom.nodes[i], what);
 		if (i == 1) { this._topLayer = what; }
 	}
@@ -252,33 +249,9 @@ RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 	}
 	
 	node.style.visibility = "visible";
-	var src = what.getImage();
-	var text = what.describe();
-	var type = "";
+	var url = "img/" + what.imagePrefix + "/" + what.image + ".png";
+	var text = what.desc;
 	
-	if (what instanceof RPG.Visual.Trace) {
-		var f = function(){};
-		f.prototype = what.getClass().prototype;
-		what = new f();
-	}
-
-	if (what instanceof RPG.Beings.PC) {
-		type = "pc";
-	} else if (what instanceof RPG.Beings.NPC) {
-		type = "beings";
-	} else if (what instanceof RPG.Items.BaseItem) {
-		type = "items";
-	} else if (what instanceof RPG.Cells.BaseCell) {
-		type = "cells";
-	} else if (what instanceof RPG.Spells.BaseSpell) {
-		type = "spells";
-	} else if (what instanceof RPG.Features.BaseFeature) {
-		type = "features";
-	} else {
-		type = "misc";
-	}
-	
-	var url = "img/"+type+"/"+src+".png";
 	if (node.src.indexOf(url) == -1) { 
 		node.src = url; 
 	}
@@ -340,10 +313,9 @@ RPG.UI.ASCIICell.prototype.init = function(owner, coords) {
  * @see RPG.UI.BaseCell#update
  */
 RPG.UI.ASCIICell.prototype.update = function(memory) {
-	this._dom.node.style.opacity = (memory.state == RPG.MAP_REMEMBERED ? 0.5 : 1);
-	var data = memory.data;
+	this._dom.node.style.opacity = (memory && memory.state == RPG.MAP_REMEMBERED ? 0.5 : 1);
 	
-	var item = (data.length ? data[data.length-1] : null);
+	var item = (memory && memory.data.length ? memory.data[memory.data.length-1] : null);
 	if (!item) {
 		this._dom.node.innerHTML = "&nbsp;";
 		this._dom.node.style.color = "white";
@@ -352,11 +324,11 @@ RPG.UI.ASCIICell.prototype.update = function(memory) {
 		return;
 	}
 
-	var ch = item.getChar();
+	var ch = item.ch;
 	if (ch in this.entities) { ch = this.entities[ch]; }
 
-	var color = item.getColor();
-	var title = item.describe();
+	var color = item.color;
+	var title = item.desc;
 	
 	this._dom.node.title = title;
 	if (ch != this._currentChar) {
@@ -378,8 +350,8 @@ RPG.UI.ASCIICell.prototype.removeFocus = function() {
 }
 
 RPG.UI.ASCIICell.prototype.addProjectile = function(projectile) {
-	this._dom.node.innerHTML = projectile.getChar();
-	this._dom.node.style.color = projectile.getColor();
+	this._dom.node.innerHTML = projectile.getVisual().ch;
+	this._dom.node.style.color = projectile.getVisual().color;
 }
 
 RPG.UI.ASCIICell.prototype.removeProjectile = function() {
@@ -389,6 +361,7 @@ RPG.UI.ASCIICell.prototype.removeProjectile = function() {
 
 /**
  * @class Canvas-based map
+ * FIXME does not handle projectiles correctly.
  * @augments RPG.UI.BaseMap
  */
 RPG.UI.CanvasMap = OZ.Class().extend(RPG.UI.BaseMap);
@@ -427,7 +400,7 @@ RPG.UI.CanvasMap.prototype.resize = function(size) {
 
 RPG.UI.CanvasMap.prototype.addProjectile = function(coords, projectile) {
 	this._projectiles.push(coords.clone());
-	this._redrawCoords(coords, projectile);
+	this._redrawCoords(coords, projectile.getVisual());
 }
 
 RPG.UI.CanvasMap.prototype.removeProjectiles = function() {
@@ -452,10 +425,6 @@ RPG.UI.CanvasMap.prototype.setFocus = function(coords) {
 	this._ctx.stroke();
 }
 
-RPG.UI.CanvasMap.prototype._redrawCell = function(cell) {
-	this._redrawCoords(cell.getCoords())
-}
-
 RPG.UI.CanvasMap.prototype._redrawCoords = function(coords, what) {
 	var x = coords.x * this._charWidth;
 	var y = coords.y * this._charHeight;
@@ -463,17 +432,16 @@ RPG.UI.CanvasMap.prototype._redrawCoords = function(coords, what) {
 	
 	var todo = what;
 	if (!todo) {
-		var cell = RPG.Game.getMap().at(coords);
-		if (cell) {
-			var memory = cell.getMemory();
+		var memory = RPG.Game.getMap().getMemory(coords);
+		if (memory) {
 			if (memory.state == RPG.MAP_REMEMBERED) { this._ctx.globalAlpha = 0.5; }
 			if (memory.data.length) { todo = memory.data[memory.data.length-1]; }
 		}
 	}
 	
 	if (todo) {
-		var ch = todo.getChar();
-		var color = todo.getColor();
+		var ch = todo.ch;
+		var color = todo.color;
 		this._ctx.fillStyle = color;
 		this._ctx.fillText(ch, x, y + this._charHeight);
 		this._ctx.globalAlpha = 1;

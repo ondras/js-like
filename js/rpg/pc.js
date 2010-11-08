@@ -1,4 +1,3 @@
-
 /**
  * @class Player character
  * @augments RPG.Beings.BaseBeing
@@ -7,11 +6,12 @@ RPG.Beings.PC = OZ.Class().extend(RPG.Beings.BaseBeing);
 RPG.Beings.PC.prototype.init = function(race, profession) {
 	this.parent(race);
 	var prof = new profession();
-	this._image += "-" + prof.getImage();
 	
-	this._visibleCells = [];
+	this.setVisual({image:this._visual.image + "-" + prof.getImage()});
 	
-	this._description = "you";
+	this._visibleCoordsHash = {};
+	
+	this.setVisual({desc:"you"});
 	this._kills = 0;
 	this._quests = [];
 	
@@ -25,6 +25,10 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this.addEffect(tc);
 	
 	this.fullStats();
+}
+
+RPG.Beings.PC.prototype.toJSON = function(handler) {
+	return handler.toJSON(this, {exclude:"_visibleCoordsHash"});
 }
 
 RPG.Beings.PC.prototype.getQuests = function() {
@@ -51,8 +55,8 @@ RPG.Beings.PC.prototype.addKill = function(being) {
 	this._kills++;
 }
 
-RPG.Beings.PC.prototype.getVisibleCells = function() {
-	return this._visibleCells;
+RPG.Beings.PC.prototype.getVisibleCoords = function() {
+	return this._visibleCoordsHash;
 }
 
 RPG.Beings.PC.prototype.addItem = function(item) { 
@@ -78,11 +82,9 @@ RPG.Beings.PC.prototype._updateFeat = function(feat) {
 	return value;
 }
 
-RPG.Beings.PC.prototype.setCell = function(cell) {
-	if (this._cell && cell) {
-		if (this._cell.getMap() != cell.getMap()) { this._visibleCells = []; }
-	}
-	this.parent(cell);
+RPG.Beings.PC.prototype.setMap = function(map) {
+	this.parent(map);
+	this._visibleCoordsHash = {};
 }
 
 /**
@@ -131,8 +133,9 @@ RPG.Beings.PC.prototype.describeIs = function() {
 /**
  * PC uses a different approach - maintains a list of visible coords
  */
-RPG.Beings.PC.prototype.canSee = function(cell) {
-	return (this._visibleCells.indexOf(cell) != -1);
+RPG.Beings.PC.prototype.canSee = function(coords) {
+	var id = coords.x+","+coords.y;
+	return (id in this._visibleCoordsHash);
 }
 
 /**
@@ -140,17 +143,19 @@ RPG.Beings.PC.prototype.canSee = function(cell) {
  */
 RPG.Beings.PC.prototype.updateVisibility = function() {
 	var R = this.getFeat(RPG.FEAT_SIGHT_RANGE);
-	var center = this._cell.getCoords();
+	var center = this._coords;
 	var current = new RPG.Misc.Coords(0, 0);
-	var map = this._cell.getMap();
-	var cell = null;
+	var map = this._map;
 	var eps = 1e-4;
+	var c = false;
 
 	/* directions blocked */
 	var arcs = [];
 	
 	/* results */
-	this._visibleCells = [this._cell];
+	this._visibleCoordsHash = {};
+	var id = this._coords.x+","+this._coords.y;
+	this._visibleCoordsHash[id] = this._coords;
 	
 	/* number of cells in current ring */
 	var cellCount = 0;
@@ -161,16 +166,16 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 	/* analyze surrounding cells in concentric rings, starting from the center */
 	for (var r=1; r<=R; r++) {
 		cellCount += 8;
-		arcsPerCell = arcCount / cellCount; /* number of arcs per cell */
+		var arcsPerCell = arcCount / cellCount; /* number of arcs per cell */
 		
-		var cells = map.cellsInCircle(center, r, true);
-		for (var i=0;i<cells.length;i++) {
-			if (!cells[i]) { continue; }
-			cell = cells[i];
+		var coords = map.getCoordsInCircle(center, r, true);
+		for (var i=0;i<coords.length;i++) {
+			if (!coords[i]) { continue; }
+			c = coords[i];
 
 			var startArc = (i-0.5) * arcsPerCell + 0.5;
-			if (this._visibleCell(!cell.visibleThrough(), startArc, arcsPerCell, arcs)) { 
-				this._visibleCells.push(cell); 
+			if (this._visibleCoords(map.blocks(RPG.BLOCKS_LIGHT, c), startArc, arcsPerCell, arcs)) { 
+				this._visibleCoordsHash[c.x+","+c.y] = c; 
 			}
 
 			/* cutoff? */
@@ -187,13 +192,13 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 }
 
 /**
- * Subroutine for updateVisibility(). For a given cell, checks if it is visible and adjusts arcs it blocks.
+ * Subroutine for updateVisibility(). For a given coords, checks if it is visible and adjusts arcs it blocks.
  * @param {bool} blocks Does this cell block?
  * @param {float} startArc Floating arc index corresponding to first arc shaded by this cell
  * @param {float} arcsPerCell How many arcs are shaded by this one, >= 1
  * @param {arc[]} array of available arcs
  */
-RPG.Beings.PC.prototype._visibleCell = function(blocks, startArc, arcsPerCell, arcs) {
+RPG.Beings.PC.prototype._visibleCoords = function(blocks, startArc, arcsPerCell, arcs) {
 	var eps = 1e-4;
 	var startIndex = Math.floor(startArc);
 	var arcCount = arcs.length;
@@ -253,9 +258,9 @@ RPG.Beings.PC.prototype.yourTurn = function() {
 	return RPG.ACTION_DEFER;
 }
 
-RPG.Beings.PC.prototype.teleport = function(cell) {
+RPG.Beings.PC.prototype.teleport = function(coords) {
 	RPG.UI.buffer.message("You suddenly teleport away!");
-	this.parent(cell);
+	this.parent(coords);
 }
 
 /* ------------------------- ACTIONS -----------------*/
@@ -265,10 +270,10 @@ RPG.Beings.PC.prototype.activateTrap = function(trap) {
 	return RPG.ACTION_TIME;
 }
 
-RPG.Beings.PC.prototype.move = function(targetCell, ignoreOldCell) {
-	var result = this.parent(targetCell, ignoreOldCell);
+RPG.Beings.PC.prototype.move = function(target, ignoreOldCoords) {
+	var result = this.parent(target, ignoreOldCoords);
 	
-	if (targetCell) {
+	if (target) {
 		this._describeLocal();
 		RPG.UI.map.redrawVisible();
 		RPG.UI.refocus();
@@ -279,10 +284,10 @@ RPG.Beings.PC.prototype.move = function(targetCell, ignoreOldCell) {
 
 /**
  * Flirt with someone
- * @param {RPG.Cells.BaseCell} cell
+ * @param {RPG.Misc.Coords} coords
  */
-RPG.Beings.PC.prototype.flirt = function(cell) {
-	var being = cell.getBeing();
+RPG.Beings.PC.prototype.flirt = function(coords) {
+	var being = this._map.getBeing(coords);
 
 	if (this == being) {
 		RPG.UI.buffer.message("You spend some nice time flirting with yourself.");
@@ -301,10 +306,10 @@ RPG.Beings.PC.prototype.flirt = function(cell) {
 
 /**
  * Switch position
- * @param {RPG.Cells.BaseCell} cell
+ * @param {RPG.Misc.Coords} coords
  */
-RPG.Beings.PC.prototype.switchPosition = function(cell) {
-	var being = cell.getBeing();
+RPG.Beings.PC.prototype.switchPosition = function(coords) {
+	var being = this._map.getBeing(coords);
 	
 	if (!being) {
 		RPG.UI.buffer.message("There is noone to switch position with.");
@@ -323,8 +328,8 @@ RPG.Beings.PC.prototype.switchPosition = function(cell) {
 			RPG.UI.buffer.message(s);
 		}
 */		
-		var source = this._cell;
-		this.move(cell, true);
+		var source = this._coords;
+		this.move(coords, true);
 		being.move(source, true);
 	}
 
@@ -339,10 +344,10 @@ RPG.Beings.PC.prototype.equipDone = function() {
 
 /**
  * Looking around
- * @param {RPG.Cells.BaseCell} cell
+ * @param {RPG.Misc.Coords} coords
  */
-RPG.Beings.PC.prototype.look = function(cell) {
-	this._describeRemote(cell);
+RPG.Beings.PC.prototype.look = function(coords) {
+	this._describeRemote(coords);
 	return RPG.ACTION_NO_TIME;
 }
 
@@ -351,7 +356,7 @@ RPG.Beings.PC.prototype.look = function(cell) {
  * @param {RPG.Features.BaseFeature} feature
  */
 RPG.Beings.PC.prototype.enterLocation = function() {
-	var f = this._cell.getFeature();
+	var f = this._map.getFeature(this._coords);
 	return f.enter(this);
 }
 
@@ -378,10 +383,9 @@ RPG.Beings.PC.prototype.search = function() {
 	RPG.UI.buffer.message("You search your surroundings...");
 	var found = 0;
 	
-	var map = this._cell.getMap();
-	var cells = map.cellsInCircle(this._cell.getCoords(), 1, false);
-	for (var i=0;i<cells.length;i++) {
-		found += this._search(cells[i]);
+	var coords = this._map.getCoordsInCircle(this._coords, 1, false);
+	for (var i=0;i<coords.length;i++) {
+		found += this._search(coords[i]);
 	}
 	
 	if (found) { RPG.UI.map.redrawVisible(); }
@@ -391,21 +395,21 @@ RPG.Beings.PC.prototype.search = function() {
 
 /**
  * @returns {int} 1 = revealed, 0 = not revealed
+ * FIXME
  */
-RPG.Beings.PC.prototype._search = function(cell) {
-	if (cell instanceof RPG.Cells.Wall.Fake && RPG.Rules.isFakeDetected(this, cell)) {
-		/* reveal! */
-		var realCell = cell.getRealCell();
-		cell.getMap().setCell(cell.getCoords(), realCell);
+RPG.Beings.PC.prototype._search = function(coords) {
+	var cell = this._map.getCell(coords);
+	if (cell.isFake() && RPG.Rules.isFakeDetected(this, cell)) {
+		cell.reveal(this._map, coords); /* reveal! */
 
 		var desc = "passage";
-		if (realCell.getFeature()) { desc = realCell.getFeature().describe(); }
+		if (this._map.getFeature(coords)) { desc = this._map.getFeature(coords).describe(); }
 		var s = RPG.Misc.format("You discover a hidden %s!", desc);
 		RPG.UI.buffer.message(s);
 		return 1;
 	}
 	
-	var f = cell.getFeature();
+	var f = this._map.getFeature(coords);
 	if (f && f instanceof RPG.Features.Trap && !this.knowsFeature(f) && RPG.Rules.isTrapDetected(this, f)) {
 		this._knownTraps.push(f);
 		var s = RPG.Misc.format("You discover %a!", f);
@@ -437,14 +441,14 @@ RPG.Beings.PC.prototype.chat = function(being) {
 
 /**
  * Kick something
- * @param {RPG.Cells.BaseCell} cell
+ * @param {RPG.Misc.Coords} coords
  */
-RPG.Beings.PC.prototype.kick = function(cell) {
-	var feature = cell.getFeature();
-	var being = cell.getBeing();
-	var items = cell.getItems();
+RPG.Beings.PC.prototype.kick = function(coords) {
+	var feature = this._map.getFeature(coords);
+	var being = this._map.getBeing(coords);
+	var items = this._map.getItems(coords);
 	
-	if (cell == this._cell) {
+	if (coords.equals(this._coords)) {
 		RPG.UI.buffer.message("You would not do that, would you?");
 		return RPG.ACTION_NO_TIME;
 	}
@@ -468,25 +472,25 @@ RPG.Beings.PC.prototype.kick = function(cell) {
 		return RPG.ACTION_TIME;
 	}
 
-	if (!cell.isFree()) {
+	if (this._map.blocks(RPG.BLOCKS_MOVEMENT, coords)) {
 		RPG.UI.buffer.message("Ouch! That hurts!");
 		return RPG.ACTION_TIME;
 	}
 	
 	if (items.length) { /* try kicking items */
-		var dir = this._cell.getCoords().dirTo(cell.getCoords());
-		var target = cell.neighbor(dir);
+		var dir = this._coords.dirTo(coords);
+		var target = coords.neighbor(dir);
 		
-		if (target && target.isFree()) { /* kick topmost item */
+		if (!this._map.blocks(RPG.BLOCKS_MOVEMENT, target)) { /* kick topmost item */
 			var item = items[items.length-1];
-			cell.removeItem(item);
-			target.addItem(item);
+			this._map.removeItem(item, coords);
+			this._map.addItem(item, target);
 			
 			var s = RPG.Misc.format("You kick %the. It slides away.", item);
 			RPG.UI.buffer.message(s);
 			
-			RPG.UI.map.redrawCell(cell); 
-			RPG.UI.map.redrawCell(target); 
+			RPG.UI.map.redrawCoords(coords); 
+			RPG.UI.map.redrawCoords(target); 
 			return RPG.ACTION_TIME;
 		}
 	}
@@ -558,13 +562,13 @@ RPG.Beings.PC.prototype._describeAttack = function(hit, damage, kill, being, slo
 }
 
 RPG.Beings.PC.prototype._describeLocal = function() {
-	var f = this._cell.getFeature();
+	var f = this._map.getFeature(this._coords);
 	if (f && this.knowsFeature(f)) {
 		var s = RPG.Misc.format("%A.", f);
 		RPG.UI.buffer.message(s);
 	}
 	
-	var items = this._cell.getItems();
+	var items = this._map.getItems(this._coords);
 	if (items.length > 1) {
 		RPG.UI.buffer.message("Several items are lying here.");
 	} else if (items.length == 1) {
@@ -574,13 +578,13 @@ RPG.Beings.PC.prototype._describeLocal = function() {
 	}
 }
 
-RPG.Beings.PC.prototype._describeRemote = function(cell) {
-	if (!this.canSee(cell)) {
+RPG.Beings.PC.prototype._describeRemote = function(coords) {
+	if (!this.canSee(coords)) {
 		RPG.UI.buffer.message("You can not see that place.");
 		return;
 	}
 	
-	var b = cell.getBeing();
+	var b = this._map.getBeing(coords);
 	if (b) {
 		var s = "";
 		if (b == this) {
@@ -592,16 +596,16 @@ RPG.Beings.PC.prototype._describeRemote = function(cell) {
 		return;
 	}
 	
-	var s = RPG.Misc.format("%A.", cell);
+	var s = RPG.Misc.format("%A.", this._map.getCell(coords));
 	RPG.UI.buffer.message(s);
 
-	var f = cell.getFeature();
+	var f = this._map.getFeature(coords);
 	if (f && this.knowsFeature(f)) {
 		var s = RPG.Misc.format("%A.", f);
 		RPG.UI.buffer.message(s);
 	}
 	
-	var items = cell.getItems();
+	var items = this._map.getItems(coords);
 	if (items.length) {
 		var what = "";
 		if (items.length > 1) {

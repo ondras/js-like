@@ -66,7 +66,7 @@ RPG.Races.BaseRace = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Races.BaseRace.name = "";
 RPG.Races.BaseRace.image = "";
 RPG.Races.BaseRace.prototype.init = function() {
-	this._initVisuals();
+	this.setVisual({image:this.constructor.image});
 	this._slots = {};
 	this._defaults = {};
 	this._defaults[RPG.FEAT_REGEN_HP] = 10; /* per 100 turns */
@@ -76,10 +76,6 @@ RPG.Races.BaseRace.prototype.init = function() {
 
 RPG.Races.BaseRace.prototype.getDefaults = function() {
 	return this._defaults;
-}
-
-RPG.Races.BaseRace.prototype.getImage = function() {
-	return this.constructor.image;
 }
 
 RPG.Races.BaseRace.prototype.getSlots = function() {

@@ -22,24 +22,24 @@ RPG.AI.WanderInArea.prototype.init = function(corner1, corner2) {
 
 RPG.AI.WanderInArea.prototype.go = function() {
 	var being = this._ai.getBeing();
-	var cell = being.getCell();
+	var coords = being.getCoords();
 	
-	if (!this._inArea(cell.getCoords())) { /* PANIC! We are not in our area */
+	if (!this._inArea(coords)) { /* PANIC! We are not in our area */
 		this._ai.setActionResult(being.wait());
 		return RPG.AI_OK;
 	}
 	
-	var map = cell.getMap();
-	var neighbors = map.cellsInCircle(cell.getCoords(), 1);
+	var map = being.getMap();
+	var neighbors = map.getCoordsInCircle(coords, 1);
 	var avail = [null];
 	for (var i=0;i<neighbors.length;i++) {
 		var neighbor = neighbors[i];
-		if (!neighbor.isFree()) { continue; }
-		if (!this._inArea(neighbor.getCoords())) { continue; }
+		if (map.blocks(RPG.BLOCKS_MOVEMENT, neighbor)) { continue; }
+		if (!this._inArea(neighbor)) { continue; }
 		avail.push(neighbor);
 	}
 	
-	var target = avail[Math.floor(Math.random() * avail.length)];
+	var target = avail.random();
 	if (target) {
 		this._ai.setActionResult(being.move(target));
 	} else {
@@ -133,10 +133,10 @@ RPG.AI.AttackRanged.prototype.go = function() {
 	
 	if (!projectile.isLaunchable()) { return RPG.AI_IMPOSSIBLE; } /* missing a launcher */
 
-	var targetCoords = this._being.getCell().getCoords();
-	var trajectory = projectile.computeTrajectory(being.getCell(), targetCoords);
-	var last = trajectory.cells.pop();
-	if (last != this._being.getCell()) { return RPG.AI_IMPOSSIBLE; } /* some obstacle or we are too far */
+	var target = this._being.getCoords();
+	var trajectory = projectile.computeTrajectory(being.getCoords(), target, being.getMap());
+	var last = trajectory.coords.pop();
+	if (!last.equals(this._being.getCoords())) { return RPG.AI_IMPOSSIBLE; } /* some obstacle or we are too far */
 	
 	var result = being.launch(projectile, last);
 	this._ai.setActionResult(result);
@@ -155,20 +155,20 @@ RPG.AI.AttackMagic.prototype.init = function(being) {
 
 RPG.AI.AttackMagic.prototype.go = function() {
 	var being = this._ai.getBeing();
-	var cell = being.getCell();
-	var target = this._being.getCell();
+	var coords = being.getCoords();
+	var target = this._being.getCoords();
 	
 	/* MagicBolt */
 	if (being.hasSpell(RPG.Spells.MagicBolt, true)) {
 		var spell = new RPG.Spells.MagicBolt(being);
 		for (var i=0;i<8;i++) { /* find some direction */
-			var trajectory = spell.computeTrajectory(cell, i);
+			var trajectory = spell.computeTrajectory(coords, i, being.getMap());
 			var selfHit = false;
 			var targetHit = false;
-			for (var j=0;j<trajectory.cells.length;j++) { /* check if target is hit and we are not */
-				var test = trajectory.cells[j];
-				if (test == target) { targetHit = true; }
-				if (test == cell) { selfHit = true; }
+			for (var j=0;j<trajectory.coords.length;j++) { /* check if target is hit and we are not */
+				var test = trajectory.coords[j];
+				if (test.equals(target)) { targetHit = true; }
+				if (test.equals(coords)) { selfHit = true; }
 			}
 			if (targetHit && !selfHit) { /* launch! */
 				var result = being.cast(spell, i);
@@ -181,7 +181,7 @@ RPG.AI.AttackMagic.prototype.go = function() {
 	/* MagicExplosion */
 	if (being.hasSpell(RPG.Spells.MagicExplosion, true)) {
 		var spell = new RPG.Spells.MagicExplosion(being);
-		var dist = cell.getCoords().distance(target.getCoords()); 
+		var dist = coords.distance(target); 
 		if (dist <= spell.getRadius()) {
 			var result = being.cast(spell);
 			this._ai.setActionResult(result);
@@ -192,9 +192,9 @@ RPG.AI.AttackMagic.prototype.go = function() {
 	/* Fireball */
 	if (being.hasSpell(RPG.Spells.Fireball, true)) {
 		var spell = new RPG.Spells.Fireball(being);
-		var dist = cell.getCoords().distance(target.getCoords()); 
+		var dist = coords.distance(target); 
 		if (dist > spell.getRadius() && dist <= spell.getRadius() + spell.getRange()) {
-			var result = being.cast(spell, target.getCoords());
+			var result = being.cast(spell, target);
 			this._ai.setActionResult(result);
 			return RPG.AI_OK;
 		}
@@ -221,9 +221,8 @@ RPG.AI.Approach.prototype.init = function(being) {
 
 RPG.AI.Approach.prototype.go = function() {
 	var being = this._ai.getBeing();
-	var c1 = being.getCell().getCoords();
-	var cell = this._being.getCell();
-	var c2 = cell.getCoords();
+	var c1 = being.getCoords();
+	var c2 = this._being.getCoords();
 	
 	if (c1.distance(c2) == 1) { return RPG.AI_ALREADY_DONE; } /* we are happy when distance==1 */
 	
@@ -232,15 +231,15 @@ RPG.AI.Approach.prototype.go = function() {
 		this._lastCoords = null;
 	}
 	
-	if (being.canSee(cell)) { /* we can see the victim; record where is it standing */
+	if (being.canSee(c2)) { /* we can see the victim; record where is it standing */
 		this._lastCoords = c2.clone();
 	}
 	
 	if (this._lastCoords) {
 		/* we know where to go */
-		var cell = RPG.AI.cellToDistance(being.getCell(), this._being.getCell(), 1);
-		if (cell) {
-			this._ai.setActionResult(being.move(cell));
+		var coords = RPG.AI.coordsToDistance(c1, c2, 1, this._being.getMap());
+		if (coords) {
+			this._ai.setActionResult(being.move(coords));
 		} else {
 			this._ai.setActionResult(being.wait());
 		}
@@ -294,20 +293,19 @@ RPG.AI.Retreat.prototype.go = function() {
 	if (!RPG.Rules.isWoundedToRetreat(being)) { return RPG.AI_ALREADY_DONE; }
 
 	/* get away */
-	var c1 = being.getCell().getCoords();
-	var cell = this._being.getCell();
-	var c2 = cell.getCoords();
+	var c1 = being.getCoords();
+	var c2 = this._being.getCoords();
 
 	/* FIXME: the logic for stopping teleport spree stinks here */
 	/* we see target - we need and know how to get away */
-	if (being.canSee(cell)) {
+	if (being.canSee(c2)) {
 		/* try to teleport away */
 		if (this._subtasks.teleport.go() == RPG.AI_OK) { return RPG.AI_OK; }
 
 		/* run away */
-		var cell = RPG.AI.cellToDistance(being.getCell(), this._being.getCell(), 1e5);
-		if (cell) {
-			this._ai.setActionResult(being.move(cell));
+		var coords = RPG.AI.coordsToDistance(c1, c2, 1e5, being.getMap());
+		if (coords) {
+			this._ai.setActionResult(being.move(coords));
 		} else {
 			this._ai.setActionResult(being.wait());
 		}
@@ -375,8 +373,8 @@ RPG.AI.HealOther.prototype.go = function() {
 	}
 
 	/* check distance */
-	var c1 = being.getCell().getCoords();
-	var c2 = this._being.getCell().getCoords();
+	var c1 = being.getCoords();
+	var c2 = this._being.getCoords();
 
 	if (c1.distance(c2) > 1) { /* too distant, approach */
 		/* FIXME refactor */
@@ -385,7 +383,7 @@ RPG.AI.HealOther.prototype.go = function() {
 		return RPG.AI_OK;
 	} else { /* okay, cast */
 		heal = new heal(being);
-		being.cast(heal,c1.dirTo(c2)); 
+		being.cast(heal, c1.dirTo(c2)); 
 		return RPG.AI_OK;	
 	}
 }
@@ -405,38 +403,37 @@ RPG.AI.TeleportAway.prototype.go = function() {
 		return RPG.AI_IMPOSSIBLE;
 	}
 
-	var c = being.getCell();
-	var target = this._getFurthestFreeCell(c);
+	var c = being.getCoords();
+	var target = this._getFurthestFreeCoords(c);
 
 	/* no free cell anywhere! */
 	if (!target) { return RPG.AI_IMPOSSIBLE; }
 
 	teleport = new teleport(being);
-	being.cast(teleport,target.getCoords());
+	being.cast(teleport, target);
 
 	return RPG.AI_OK;
 }
 
 /* FIXME: refactor to map? */
-RPG.AI.TeleportAway.prototype._getFurthestFreeCell = function(cell) {
+RPG.AI.TeleportAway.prototype._getFurthestFreeCoords = function(coords) {
 	var target = false;
 
-	var map = cell.getMap();
+	var map = this._ai.getBeing().getMap();
 	var corners = map.getCorners();
 
 	/* find most distant corner */
 	var max = -Infinity;
 	var c = false;
-	var c1 = cell.getCoords();
 
 	for (var i=0;i<corners.length;i++) {
-		var c2 = corners[i];
-		var d = c1.distance(c2);
+		var corner = corners[i];
+		var d = coords.distance(corner);
 
-		if (d > max) { c = c2; max = d; }
+		if (d > max) { c = corner; max = d; }
 	}
 
-	return map.getClosestRandomFreeCell(c);
+	return map.getClosestRandomFreeCoords(c);
 }
 
 
@@ -450,7 +447,7 @@ RPG.AI.Shopkeeper.prototype.init = function(being, shop) {
 	this._guarding = null;
 	this._items = [];
 
-	var c = shop.getDoor().getCoords();
+	var c = shop.getDoor();
 	var corner1 = shop.getCorner1();
 	var corner2 = shop.getCorner2();
 	var c1 = new RPG.Misc.Coords(c.x-1, c.y-1);
@@ -472,16 +469,15 @@ RPG.AI.Shopkeeper.prototype.init = function(being, shop) {
 		for (var j=corner1.y; j<=corner2.y; j++) {
 			c.x = i;
 			c.y = j;
-			var cell = map.at(c);
-			if (!cell.isFree()) { continue; }
+			if (map.blocks(RPG.BLOCKS_MOVEMENT, c)) { continue; }
 			
 			do {
-				var item = RPG.Items.getInstance(danger);
+				var item = RPG.Factories.items.getInstance(danger);
 			} while (item instanceof RPG.Items.Gold);
 			
 			item.setPrice(10 + Math.round(Math.random() * danger * 100));
 			this._items.push(item);
-			cell.addItem(item);
+			map.addItem(item, c);
 		}
 	}
 
@@ -607,16 +603,16 @@ RPG.AI.Shopkeeper.prototype._drop = function(e) {
  * @augments RPG.AI.Task
  */
 RPG.AI.HoldPosition = OZ.Class().extend(RPG.AI.Task);
-RPG.AI.HoldPosition.prototype.init = function(cell) {
+RPG.AI.HoldPosition.prototype.init = function(coords) {
 	this.parent();
-	this._cell = cell;
+	this._coords = coords;
 }
 
 RPG.AI.HoldPosition.prototype.go = function() {
 	var being = this._ai.getBeing();
-	var cell = RPG.AI.cellToDistance(being.getCell(), this._cell, 0);
-	if (cell) {
-		this._ai.setActionResult(being.move(cell));
+	var coords = RPG.AI.coordsToDistance(being.getCoords(), this._coords, 0, being.getMap());
+	if (coords) {
+		this._ai.setActionResult(being.move(coords));
 	} else {
 		this._ai.setActionResult(being.wait());
 	}

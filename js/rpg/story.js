@@ -90,8 +90,8 @@ RPG.Story.prototype._charPicked = function(e) {
 	
 	RPG.Stats.send(RPG.Stats.NEW);
 	var map = this._firstMap();
-	var cell = map.getFeatures(RPG.Features.Staircase.Up)[0].getCell();
-	RPG.Game.startMap(map, cell);
+	var coords = map.getFeatures(RPG.Features.Staircase.Up)[0].getCoords();
+	RPG.Game.startMap(map, coords);
 }
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
