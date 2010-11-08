@@ -320,13 +320,6 @@ RPG.Items.Arrow.prototype.init = function(amount) {
 	this.parent(new RPG.Misc.RandomValue(2, 1), new RPG.Misc.RandomValue(2, 1));
 	this._baseImage = "arrow";
 	this._baseChar = "/";
-<<<<<<< .working
-	this._char = this._baseChar;
-	this._image = this._baseImage;
-	this._color = "brown";
-	this._description = "arrow";
-=======
->>>>>>> .merge-right.r297
 	this._amount = amount;
 	
 	this.setVisual({
