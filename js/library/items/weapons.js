@@ -298,7 +298,7 @@ RPG.Items.Rock.prototype.init = function() {
 		this._chars[dir] = ch; 
 		this._suffixes[dir] = ""; 
 	}
-
+	
 	this.setVisual({
 		image: this._baseImage,
 		ch: this._baseChar,
