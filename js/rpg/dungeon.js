@@ -180,7 +180,6 @@ RPG.Map.prototype.init = function(id, size, danger) {
 	this._items = {}; 
 	this._features = {}; 
 	this._memory = {};
-
 }
 
 /**
@@ -435,7 +434,6 @@ RPG.Map.prototype.setCell = function(cell, coords) {
 	}
 }
 
-
 RPG.Map.prototype.isValid = function(coords) {
 	if (Math.min(coords.x, coords.y) < 0) { return false; }
 	if (coords.x >= this._size.x) { return false; }
@@ -627,19 +625,6 @@ RPG.Map.prototype.getCoordsInArea = function(center, radius) {
 }
 
 /**
- * Returns map corner coordinates
- * @returns {RPG.Misc.Coords[]}
- */
-RPG.Map.prototype._getCorners = function() {
-	return [
-		new RPG.Misc.Coords(0, 0),
-		new RPG.Misc.Coords(this._size.x-1, 0),
-		new RPG.Misc.Coords(this._size.x-1, this._size.y-1),
-		new RPG.Misc.Coords(0, this._size.y-1)
-	];
-}
-
-/**
  * Returns first free coords closest to a coordinate
  * @param {RPG.Misc.Coords} center
  * @param {int} max radius
@@ -725,6 +710,19 @@ RPG.Map.prototype.blocks = function(what, coords) {
 
 RPG.Map.prototype._cellFromNumber = function(celltype) {
     return RPG.Factories.cells.get(this._cellTypes[celltype]);
+}
+
+/**
+ * Returns map corner coordinates
+ * @returns {RPG.Misc.Coords[]}
+ */
+RPG.Map.prototype._getCorners = function() {
+	return [
+		new RPG.Misc.Coords(0, 0),
+		new RPG.Misc.Coords(this._size.x-1, 0),
+		new RPG.Misc.Coords(this._size.x-1, this._size.y-1),
+		new RPG.Misc.Coords(0, this._size.y-1)
+	];
 }
 
 /**
