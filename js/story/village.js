@@ -355,7 +355,7 @@ RPG.Items.WeddingNecklace.prototype.init = function() {
 	this.setVisual({
 		desc: "wedding necklace",
 		color: "gold",
-		image: "wedding-necklace" /* FIXME */
+		image: "wedding-necklace"
 	});
 }
 
