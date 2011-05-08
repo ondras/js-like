@@ -629,9 +629,8 @@ RPG.Map.prototype.getCoordsInArea = function(center, radius) {
 /**
  * Returns map corner coordinates
  * @returns {RPG.Misc.Coords[]}
- * FIXME refactor to private, when the AI "furthest cell" is moved to map
  */
-RPG.Map.prototype.getCorners = function() {
+RPG.Map.prototype._getCorners = function() {
 	return [
 		new RPG.Misc.Coords(0, 0),
 		new RPG.Misc.Coords(this._size.x-1, 0),
@@ -674,7 +673,7 @@ RPG.Map.prototype.getClosestRandomFreeCoords = function(center, radius) {
  * Returns two free coords located in opposite corners
  */
 RPG.Map.prototype.getCoordsInTwoCorners = function() {
-	var corners = this.getCorners();
+	var corners = this._getCorners();
 
 	var i1 = Math.floor(Math.random()*corners.length);
 	var i2 = (i1+2) % corners.length;
@@ -689,6 +688,27 @@ RPG.Map.prototype.getCoordsInTwoCorners = function() {
 
 	return result;
 }
+
+/**
+ * Returns free coords most distant to a given coords
+ * @param {RPG.Misc.Coords} coords Source, we want to get as far as possible
+ */
+RPG.Map.prototype.getFurthestFreeCoords = function(coords) {
+	var corners = this._getCorners();
+
+	/* find most distant corner */
+	var max = -Infinity;
+	var c = false;
+
+	for (var i=0;i<corners.length;i++) {
+		var corner = corners[i];
+		var d = coords.distance(corner);
+		if (d > max) { c = corner; max = d; }
+	}
+
+	return this.getClosestRandomFreeCoords(c);
+}
+
 
 RPG.Map.prototype.blocks = function(what, coords) {
 	var id = coords.x+","+coords.y;

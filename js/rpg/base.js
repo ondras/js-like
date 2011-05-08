@@ -63,7 +63,7 @@ RPG.Feats.AdvancedFeat.prototype._drd = function() {
  * @augments RPG.Visual.IVisual
  */
 RPG.Races.BaseRace = OZ.Class().implement(RPG.Visual.IVisual);
-RPG.Races.BaseRace.name = "";
+RPG.Races.BaseRace.label = "";
 RPG.Races.BaseRace.image = "";
 RPG.Races.BaseRace.prototype.init = function() {
 	this.setVisual({image:this.constructor.image});
@@ -156,7 +156,7 @@ RPG.Slots.BaseSlot.prototype.getName = function() {
  * @class Base profession
  */
 RPG.Professions.BaseProfession = OZ.Class();
-RPG.Professions.BaseProfession.name = "";
+RPG.Professions.BaseProfession.label = "";
 RPG.Professions.BaseProfession.image = "";
 RPG.Professions.BaseProfession.init = function() {
 }

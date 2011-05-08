@@ -42,7 +42,7 @@ RPG.Races.Humanoid.prototype.init = function() {
  * @augments RPG.Races.BaseRace
  */
 RPG.Races.Orc = OZ.Class().extend(RPG.Races.Humanoid);
-RPG.Races.Orc.name = "orc";
+RPG.Races.Orc.label = "orc";
 RPG.Races.Orc.image = "orc";
 RPG.Races.Orc.prototype.init = function() {
 	this.parent();
@@ -59,7 +59,7 @@ RPG.Races.Orc.prototype.init = function() {
  * @augments RPG.Races.BaseRace
  */
 RPG.Races.Human = OZ.Class().extend(RPG.Races.Humanoid);
-RPG.Races.Human.name = "human";
+RPG.Races.Human.label = "human";
 RPG.Races.Human.image = "human";
 RPG.Races.Human.prototype.init = function() {
 	this.parent();
@@ -75,7 +75,7 @@ RPG.Races.Human.prototype.init = function() {
  * @augments RPG.Races.BaseRace
  */
 RPG.Races.Elf = OZ.Class().extend(RPG.Races.Humanoid);
-RPG.Races.Elf.name = "elf";
+RPG.Races.Elf.label = "elf";
 RPG.Races.Elf.image = "elf";
 RPG.Races.Elf.prototype.init = function() {
 	this.parent();
@@ -91,7 +91,7 @@ RPG.Races.Elf.prototype.init = function() {
  * @augments RPG.Races.BaseRace
  */
 RPG.Races.Dwarf = OZ.Class().extend(RPG.Races.Humanoid);
-RPG.Races.Dwarf.name = "dwarf";
+RPG.Races.Dwarf.label = "dwarf";
 RPG.Races.Dwarf.image = "dwarf";
 RPG.Races.Dwarf.prototype.init = function() {
 	this.parent();

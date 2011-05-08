@@ -139,7 +139,7 @@ RPG.Items.BaseItem.prototype._describeModifiers = function() {
 		if (c == RPG.FEAT_PV) { pv = c; }
 		if (RPG.ATTRIBUTES.indexOf(c) != -1) {
 			var a = RPG.Feats[c];
-			var str = a.name.capitalize().substring(0, 3);
+			var str = a.label.capitalize().substring(0, 3);
 			var num = this.getModifier(c);
 			if (num >= 0) { num = "+"+num; }
 			arr.push("{"+str+num+"}");

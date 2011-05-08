@@ -3,7 +3,7 @@
  * @augments RPG.Spells.BaseSpell
  */
 RPG.Spells.Heal = OZ.Class().extend(RPG.Spells.BaseSpell);
-RPG.Spells.Heal.name = "heal";
+RPG.Spells.Heal.label = "heal";
 RPG.Spells.Heal.cost = 4;
 RPG.Spells.Heal.prototype.init = function(caster) {
 	this.parent(caster);
@@ -19,8 +19,9 @@ RPG.Spells.Heal.prototype.cast = function(dir) {
 		RPG.UI.buffer.message("Nothing happens.");
 		return;
 	}
-
-	being.heal(5); /* FIXME amount */
+	
+	var amount = RPG.Rules.getHealingAmount(this._caster, being);
+	being.heal(amount);
 }
 
 /**
@@ -28,7 +29,7 @@ RPG.Spells.Heal.prototype.cast = function(dir) {
  * @augments RPG.Spells.BaseSpell
  */
 RPG.Spells.Teleport = OZ.Class().extend(RPG.Spells.BaseSpell);
-RPG.Spells.Teleport.name = "teleport";
+RPG.Spells.Teleport.label = "teleport";
 RPG.Spells.Teleport.cost = 7;
 RPG.Spells.Teleport.prototype.init = function(caster) {
 	this.parent(caster);
@@ -51,7 +52,7 @@ RPG.Spells.Teleport.prototype.cast = function(coords) {
  * @augments RPG.Spells.BaseSpell
  */
 RPG.Spells.Knock = OZ.Class().extend(RPG.Spells.BaseSpell);
-RPG.Spells.Knock.name = "knock";
+RPG.Spells.Knock.label = "knock";
 RPG.Spells.Knock.cost = 3;
 RPG.Spells.Knock.prototype.init = function(caster) {
 	this.parent(caster);
@@ -77,7 +78,7 @@ RPG.Spells.Knock.prototype.cast = function(dir) {
  * @augments RPG.Spells.Attack
  */
 RPG.Spells.MagicExplosion = OZ.Class().extend(RPG.Spells.Attack);
-RPG.Spells.MagicExplosion.name = "magic explosion";
+RPG.Spells.MagicExplosion.label = "magic explosion";
 RPG.Spells.MagicExplosion.cost = 11;
 RPG.Spells.MagicExplosion.damage = new RPG.Misc.RandomValue(5, 3);
 RPG.Spells.MagicExplosion.prototype.init = function(caster) {
@@ -102,7 +103,7 @@ RPG.Spells.MagicExplosion.prototype.cast = function() {
  * @augments RPG.Spells.Projectile
  */
 RPG.Spells.MagicBolt = OZ.Class().extend(RPG.Spells.Projectile);
-RPG.Spells.MagicBolt.name = "magic bolt";
+RPG.Spells.MagicBolt.label = "magic bolt";
 RPG.Spells.MagicBolt.cost = 8;
 RPG.Spells.MagicBolt.damage = new RPG.Misc.RandomValue(4, 1);
 RPG.Spells.MagicBolt.prototype.init = function(caster) {
@@ -134,7 +135,7 @@ RPG.Spells.MagicBolt.prototype._fly = function(coords) {
  * @augments RPG.Spells.Projectile
  */
 RPG.Spells.Fireball = OZ.Class().extend(RPG.Spells.Projectile);
-RPG.Spells.Fireball.name = "fireball";
+RPG.Spells.Fireball.label = "fireball";
 RPG.Spells.Fireball.cost = 12;
 RPG.Spells.Fireball.damage = new RPG.Misc.RandomValue(5, 3);
 RPG.Spells.Fireball.prototype.init = function(caster) {

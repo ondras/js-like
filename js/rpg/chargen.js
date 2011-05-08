@@ -55,7 +55,7 @@ RPG.CharGen.prototype._buildMatrix = function(tb) {
 	/* race labels */
 	for (var i=0;i<this.races.length;i++) {
 		var td = OZ.DOM.elm("td");
-		td.innerHTML = this.races[i].name.capitalize();
+		td.innerHTML = this.races[i].label.capitalize();
 		tr.appendChild(td);
 	}
 	
@@ -67,7 +67,7 @@ RPG.CharGen.prototype._buildMatrix = function(tb) {
 		
 		/* profession label */
 		var td = OZ.DOM.elm("td");
-		td.innerHTML = profCtor.name.capitalize();
+		td.innerHTML = profCtor.label.capitalize();
 		tr.appendChild(td);
 		
 		for (var j=0;j<this.races.length;j++) {

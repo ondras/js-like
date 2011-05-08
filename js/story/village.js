@@ -785,7 +785,7 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 
 	var generator = this["_maze" + this._mazeDepth];
 	map = generator.generate("Maze #" + this._mazeDepth, this._mazeDepth);
-	if (this._mazeDepth == 1) { map.setSound("neverhood"); } /* FIXME */
+	if (this._mazeDepth == 1) { map.setSound("neverhood"); }
 
 	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);
 	

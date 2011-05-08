@@ -404,7 +404,8 @@ RPG.AI.TeleportAway.prototype.go = function() {
 	}
 
 	var c = being.getCoords();
-	var target = this._getFurthestFreeCoords(c);
+	var map = being.getMap();
+	var target = map.getFurthestFreeCoords(c);
 
 	/* no free cell anywhere! */
 	if (!target) { return RPG.AI_IMPOSSIBLE; }
@@ -414,28 +415,6 @@ RPG.AI.TeleportAway.prototype.go = function() {
 
 	return RPG.AI_OK;
 }
-
-/* FIXME: refactor to map? */
-RPG.AI.TeleportAway.prototype._getFurthestFreeCoords = function(coords) {
-	var target = false;
-
-	var map = this._ai.getBeing().getMap();
-	var corners = map.getCorners();
-
-	/* find most distant corner */
-	var max = -Infinity;
-	var c = false;
-
-	for (var i=0;i<corners.length;i++) {
-		var corner = corners[i];
-		var d = coords.distance(corner);
-
-		if (d > max) { c = corner; max = d; }
-	}
-
-	return map.getClosestRandomFreeCoords(c);
-}
-
 
 /**
  * @class Specialized shopkeeper AI

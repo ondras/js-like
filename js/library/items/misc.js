@@ -297,10 +297,10 @@ RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 	this._attribute = attribute;
 	this.setVisual({
 		image: "silver-ring",
-		desc: "ring of " + RPG.Feats[attribute].name,
+		desc: "ring of " + RPG.Feats[attribute].label,
 		color: "silver"
 	});
-	this._descPlural = "rings of " + RPG.Feats[attribute].name;
+	this._descPlural = "rings of " + RPG.Feats[attribute].label;
 }
 
 RPG.Items.RingOfAttribute.prototype.clone = function() {
@@ -336,7 +336,7 @@ RPG.Items.Scroll.prototype.init = function(spell) {
 		ch: "?",
 		color: "white",
 		image: "scroll",
-		desc: "scroll of " + spell.name.capitalize()
+		desc: "scroll of " + spell.label.capitalize()
 	});
 }
 
@@ -364,7 +364,7 @@ RPG.Items.Scroll.prototype.read = function(being) {
 	being.addSpell(this._spell);
 	being.removeItem(this);
 	if (being == RPG.Game.pc) { 
-		var s = RPG.Misc.format("You learn the '%s' spell.", this._spell.name);
+		var s = RPG.Misc.format("You learn the '%s' spell.", this._spell.label);
 		RPG.UI.buffer.message(s); 
 	}
 }

@@ -442,7 +442,7 @@ RPG.Beings.BaseBeing.prototype.dropAll = function() {
 	for (var p in this._slots) { this.unequip(p); }
 
 	for (var i=0;i<this._items.length;i++) { /* drop items */
-		if (Math.randomPercentage() < 81) { /* FIXME */
+		if (RPG.Rules.isItemDropped(this, this._items[i])) {
 			this._map.addItem(this._items[i], this._coords);
 		}
 	}

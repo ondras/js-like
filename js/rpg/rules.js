@@ -84,6 +84,19 @@ RPG.Rules.isSpellHit = function(attacker, defender, spell) {
 	return !RPG.Rules.isLucky(defender);
 }
 
+RPG.Rules.isItemDropped = function(being, item) {
+	return (Math.randomPercentage() < 81);
+}
+
+/**
+ * How much hitpoints is regenerated using a spell
+ * @param {RPG.Beings.BaseBeing} caster
+ * @param {RPG.Beings.BaseBeing} target
+ */
+RPG.Rules.getHealingAmount = function(cater, target) {
+	return 5;
+}
+
 /**
  * How much damage does this attacker with a given weapon to a defender
  */

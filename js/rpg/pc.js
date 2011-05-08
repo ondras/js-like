@@ -395,7 +395,6 @@ RPG.Beings.PC.prototype.search = function() {
 
 /**
  * @returns {int} 1 = revealed, 0 = not revealed
- * FIXME
  */
 RPG.Beings.PC.prototype._search = function(coords) {
 	var cell = this._map.getCell(coords);

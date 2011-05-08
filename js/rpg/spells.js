@@ -6,7 +6,7 @@ RPG.Spells.BaseSpell = OZ.Class()
 						.implement(RPG.Visual.IVisual);
 RPG.Spells.BaseSpell.factory.ignore = true;
 RPG.Spells.BaseSpell.cost = null;
-RPG.Spells.BaseSpell.name = "";
+RPG.Spells.BaseSpell.label = "";
 RPG.Spells.BaseSpell.damage = null;
 
 RPG.Spells.BaseSpell.prototype.init = function(caster) {
@@ -17,7 +17,7 @@ RPG.Spells.BaseSpell.prototype.init = function(caster) {
 }
 
 RPG.Spells.BaseSpell.prototype.describe = function() {
-	return this.constructor.name;
+	return this.constructor.label;
 }
 
 RPG.Spells.BaseSpell.prototype.cast = function(target) {
@@ -179,16 +179,16 @@ RPG.Spells.Projectile.prototype._computeBounce = function(coords, dir) {
 	var leftCoords = coords.neighbor(leftDir);
 	var rightCoords = coords.neighbor(rightDir);
 	
-	var leftFree = !leftCoords || !map.blocks(RPG.BLOCKS_LIGHT, leftCoords);
-	var rightFree = !rightCoords || !map.blocks(RPG.BLOCKS_LIGHT, rightCoords);
+	var leftFree = !map.blocks(RPG.BLOCKS_LIGHT, leftCoords);
+	var rightFree = !map.blocks(RPG.BLOCKS_LIGHT, rightCoords);
 	
 	if (leftFree == rightFree) { /* backwards */
 		newDir = (dir+4) % 8;
 	} else if (leftFree) { /* bounce to the left */
-		newCoords = leftCoords; /* FIXME does this _always_ exist? */
+		newCoords = leftCoords;
 		newDir = (dir+6) % 8;
 	} else { /* bounce to the right */
-		newCoords = rightCoords; /* FIXME does this _always_ exist? */
+		newCoords = rightCoords;
 		newDir = (dir+2) % 8;
 	}
 	
@@ -200,6 +200,5 @@ RPG.Spells.Projectile.prototype._computeBounce = function(coords, dir) {
 	return newDir;
 }
 
-/* FIXME */
 RPG.Misc.IProjectile.mark = new RPG.Misc.IProjectile.Mark();
 RPG.Misc.IProjectile.endMark = new RPG.Misc.IProjectile.EndMark();

@@ -103,12 +103,14 @@ RPG.UI.Status.prototype._build = function(container) {
 	var s = OZ.DOM.elm("span");
 	this._dom.feats[RPG.FEAT_PV] = s;
 	td.appendChild(s);
+
+	/* attributes */
 	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
 		var c = RPG.ATTRIBUTES[i];
-		var a = RPG.Feats[c];
+		var f = RPG.Feats[c];
 		var td = OZ.DOM.elm("td");
 		tr.appendChild(td);
-		td.innerHTML = a.name.capitalize() + ": ";
+		td.innerHTML = f.label.capitalize() + ": ";
 		var s = OZ.DOM.elm("span");
 		this._dom.feats[c] = s;
 		td.appendChild(s);
