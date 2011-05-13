@@ -25,13 +25,13 @@ RPG.Generators.Uniform.prototype.init = function(size) {
 	this.parent(size);
 	
 	this._roomAttempts = 10; /* new room is created N-times until is considered as impossible to generate */
-	this._corridorAttemps = 50; /* corridors are tried N-times until the level is considered as impossible to connect */
+	this._corridorAttempts = 50; /* corridors are tried N-times until the level is considered as impossible to connect */
 	this._roomPercentage = 0.15; /* we stop after this percentage of level area has been dug out */
 	this._minSize = 3; /* minimum room dimension */
 	this._maxWidth = 7; /* maximum room width */
 	this._maxHeight = 5; /* maximum room height */
-	this._roomSeparation = 2; /* minimum amount of cells between two rooms */
-	this._usedWalls = [];
+	
+	this._connected = []; /* list of room-is-connected flags FIXME can result in serveral disconnected components */
 	
 	this.NORTH = 0;
 	this.EAST = 1;
@@ -41,28 +41,16 @@ RPG.Generators.Uniform.prototype.init = function(size) {
 
 RPG.Generators.Uniform.prototype.generate = function(id, danger) {
 	while (1) {
-		this._blankMap(id);
+		this._blankMap();
 		this._generateRooms();
 		var result = this._generateCorridors();
-		if (result == 1) { 
-			return this._convertToMap(id, danger); 
-		}
+		if (result) { return this._convertToMap(id, danger); }
 	}
-}
-
-RPG.Generators.Uniform.prototype._blankMap = function() {
-	this._usedWalls = [];
-	this.parent();
 }
 
 RPG.Generators.Uniform.prototype._digRoom = function(c1, c2) {
 	this.parent(c1, c2);
-	var o = {};
-	o[this.NORTH] = 0;
-	o[this.EAST] = 0;
-	o[this.SOUTH] = 0;
-	o[this.WEST] = 0;
-	this._usedWalls.push(o);
+	this._connected.push(false);
 }
 
 /**
@@ -74,8 +62,46 @@ RPG.Generators.Uniform.prototype._generateRooms = function() {
 
 	do {
 		var result = this._generateRoom();
-		if (this._dug/(w*h) > this._roomPercentage) { break; }
+		if (this._dug/(w*h) > this._roomPercentage) { break; } /* achieved requested amount of free space */
 	} while (result);
+	
+	/* either enough rooms, or not able to generate more of them :) */
+}
+
+/**
+ * Try to generate one room
+ */
+RPG.Generators.Uniform.prototype._generateRoom = function() {
+	var count = 0;
+	while (count < this._roomAttempts) {
+		count++;
+		
+		/* generate corner */
+		var corner1 = this._generateCoords(this._minSize);
+		
+		/* generate second corner */
+		var corner2 = this._generateSecondCorner(corner1, this._minSize, this._maxWidth, this._maxHeight);
+		
+		/* enlarge for fitting */
+		corner1.x--;
+		corner1.y--;
+		corner2.x++;
+		corner2.y++;
+		
+		/* if not good, skip to next attempt */
+		if (!this._freeSpace(corner1, corner2)) { continue; }
+		
+		/* shrink */
+		corner1.x++;
+		corner1.y++;
+		corner2.x--;
+		corner2.y--;
+		this._digRoom(corner1, corner2);
+		return true;
+	} 
+
+	/* no room was generated in a given number of attempts */
+	return false;
 }
 
 /**
@@ -86,163 +112,43 @@ RPG.Generators.Uniform.prototype._generateCorridors = function() {
 	var cnt = 0;
 		
 	do {
-		/* get two distinct rooms with unused walls */
-		var rooms = this._findRoomPair();
-
-		/* no such rooms - fuck! */
-		if (!rooms) { return false; }
+		/* get two distinct rooms */
+		var avail = [];
+		for (var i=0;i<this._rooms.length;i++) { avail.push(this._rooms[i]); }
+		var room1 = avail.random();
+		var index = avail.indexOf(room1);
+		avail.splice(index, 1);
+		var room2 = avail.random();
 		
-		/* connect those two walls with a corridor */
-		var result = this._tryCorridor(rooms);
-		if (result) {
-			/* corridor created */
-			cnt = 0;
-		} else {
-			/* failed to create */
-			cnt++;
+		this._connectRooms(room1, room2);
+		
+		var unconnected = 0; /* how many remain to be connected? */
+		for (var i=0;i<this._connected.length;i++) {
+			if (!this._connected[i]) { unconnected++; }
 		}
-		/* are we done? */
-		if (this._noFreeRooms()) { return true; }
+		
+		if (!unconnected) { return true; } /* are we done? */
 		
 	} while (cnt < this._corridorAttempts);
 	
 	return false;
 }
 
-/**
- * Try to generate one room
- */
-RPG.Generators.Uniform.prototype._generateRoom = function() {
-	var count = 0;
-	do {
-		count++;
-		
-		/* generate corner */
-		var corner1 = this._generateCoords(this._minSize);
-		
-		/* and room size */
-		var dims = this._generateSize(corner1, this._minSize, this._maxWidth, this._maxHeight);
-		
-		/* this is the room */
-		var corner2 = corner1.clone().plus(dims);
-		corner2.x -= 1;
-		corner2.y -= 1;
-		
-		/* enlarge for fitting */
-		var c1 = corner1.clone();
-		c1.x--;
-		c1.y--;
-		var c2 = corner2.clone();
-		c2.x++;
-		c2.y++;
-		
-		/* is this one room okay? */
-		var fits = this._freeSpace(c1, c2);
-		
-		if (fits) {
-			/* dig the room */
-			this._digRoom(corner1, corner2);
-			return true;
-		}
-		
-	} while (count < this._roomAttempts);
-
-	/* no room was generated in a given number of attempts */
-	return false;
-}
-
-/**
- * Find two rooms that can be connected
- * @returns {false || int[]} [room1index, wall1, room2index, wall2] 
- */
-RPG.Generators.Uniform.prototype._findRoomPair = function() {
-	var freeIndexes = [];
-	for (var i=0;i<this._usedWalls.length;i++) {
-		var w = this._usedWalls[i];
-		if (!w[this.NORTH] || !w[this.EAST] || !w[this.SOUTH] || !w[this.WEST]) { freeIndexes.push(i); }
-	}
+RPG.Generators.Uniform.prototype._connectRooms = function(room1, room2) {
+	var index1 = this._rooms.indexOf(room1);
+	var index2 = this._rooms.indexOf(room2);
+	this._connected[index1] = true;
+	this._connected[index2] = true;
 	
-	/* we are unable to find 2 rooms */
-	if (freeIndexes.length < 2) { return false; }
+	var center1 = room1.getCenter();
+	var center2 = room1.getCenter();
+	var diffX = center2.x - center1.x;
+	var diffY = center2.y - center1.y;
 	
-	while (1) {
-		var room1i = freeIndexes.random();
-		var room2i = room1i;
-		while (room1i == room2i) { room2i = freeIndexes.random(); }
-		
-		var room1 = this._rooms[room1i];
-		var room2 = this._rooms[room2i];
-		var walls1 = this._usedWalls[room1i];
-		var walls2 = this._usedWalls[room2i];
-		var avail1 = [];
-		var avail2 = [];
-		
-		/* find maximum horizontal/vertical distance */
-		var width1 = Math.abs(room1[0].x - room2[1].x);
-		var width2 = Math.abs(room1[1].x - room2[0].x);
-		var height1 = Math.abs(room1[0].y - room2[1].y);
-		var height2 = Math.abs(room1[1].y - room2[0].y);
-		
-		var w = Math.max(width1, width2);
-		var h = Math.max(height1, height2);
-		var total = Math.max(w, h);
-		
-		/* get list of available walls for both rooms */
-		for (var i=0;i<4;i++) {
-			switch (i) {
-				case this.WEST:
-					if (!walls1[i] && (total != w || room1[0].x > room2[0].x)) { avail1.push(i); }
-					if (!walls2[i] && (total != w || room2[0].x > room1[0].x)) { avail2.push(i); }
-				break;
-				case this.EAST:
-					if (!walls1[i] && (total != w || room1[1].x < room2[1].x)) { avail1.push(i); }
-					if (!walls2[i] && (total != w || room2[1].x < room1[1].x)) { avail2.push(i); }
-				break;
-				case this.NORTH:
-					if (!walls1[i] && (total != h || room1[0].y > room2[0].y)) { avail1.push(i); }
-					if (!walls2[i] && (total != h || room2[0].y > room1[0].y)) { avail2.push(i); }
-				break;
-				case this.SOUTH:
-					if (!walls1[i] && (total != h || room1[1].y < room2[1].y)) { avail1.push(i); }
-					if (!walls2[i] && (total != h || room2[1].y < room1[1].y)) { avail2.push(i); }
-				break;
-			}
-		}
-		
-		/* these two rooms have no suitable walls */
-		if (!avail1.length || !avail2.length) { continue; }
-		
-		return [room1i, avail1.random(), room2i, avail2.random()];
+	if (Math.abs(diffX) > Math.abs(diffY)) {
+	} else {
 	}
 }
-
-/**
- * Try connecting two rooms with given walls
- * @param {array} rooms [room1, wall1, room2, wall2]
- */
-RPG.Generators.Uniform.prototype._tryCorridor = function(rooms) {
-	var room1i = rooms[0];
-	var wall1 = rooms[1];
-	var room2i = rooms[2];
-	var wall2 = rooms[3];
-	var room1 = this._rooms[room1i];
-	var room2 = this._rooms[room2i];
-	
-	return false;
-}
-
-/**
- * Are there no unconnected rooms remaining?
- */
-RPG.Generators.Uniform.prototype._noFreeRooms = function() {
-	return true;
-	for (var i=0;i<this._usedWalls.length;i++) {
-		var w = this._usedWalls[i];
-		if (w[this.NORTH] + w[this.EAST] + w[this.SOUTH] + w[this.WEST] == 0) { return false; }
-	}
-	return true;
-}
-
 
 /**
  * @class Random dungeon generator using human-like digging patterns.
@@ -252,8 +158,8 @@ RPG.Generators.Uniform.prototype._noFreeRooms = function() {
  */
 RPG.Generators.Digger = OZ.Class().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.Digger.prototype.init = function(size, maptypes) {
-	this.parent(size, maptypes);
+RPG.Generators.Digger.prototype.init = function(size) {
+	this.parent(size);
 	this._features = {
 		room: 2,
 		corridor: 4
@@ -302,11 +208,7 @@ RPG.Generators.Digger.prototype.generate = function(id, danger) {
 
 RPG.Generators.Digger.prototype._firstRoom = function() {
 	var corner1 = this._generateCoords(this._minSize);
-	var dims = this._generateSize(corner1, this._minSize, this._maxWidth, this._maxHeight);
-	
-	var corner2 = corner1.clone().plus(dims);
-	corner2.x -= 1;
-	corner2.y -= 1;
+	var corner2 = this._generateSecondCorner(corner1, this._minSize, this._maxWidth, this._maxHeight);
 	
 	this._digRoom(corner1, corner2);
 	this._addSurroundingWalls(corner1, corner2);
@@ -633,8 +535,8 @@ RPG.Generators.Digger.prototype._addSurroundingWalls = function(corner1, corner2
  */
 RPG.Generators.DividedMaze = OZ.Class().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.DividedMaze.prototype.init = function(size, maptypes) {
-	this.parent(size, maptypes);
+RPG.Generators.DividedMaze.prototype.init = function(size) {
+	this.parent(size);
 	this._stack = [];
 }
 
@@ -736,8 +638,8 @@ RPG.Generators.DividedMaze.prototype._partitionRoom = function(room) {
  */
 RPG.Generators.Maze = OZ.Class().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.Maze.prototype.init = function(size, maptypes) {
-	this.parent(size, maptypes);
+RPG.Generators.Maze.prototype.init = function(size) {
+	this.parent(size);
 	this._width = Math.ceil((this._size.x-2)/2);
 }
 
@@ -830,8 +732,8 @@ RPG.Generators.Maze.prototype._addToList = function(i, L, R) {
  */
 RPG.Generators.IceyMaze = OZ.Class().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.IceyMaze.prototype.init = function(size, maptypes, regularity) {
-	this.parent(size, maptypes);
+RPG.Generators.IceyMaze.prototype.init = function(size, regularity) {
+	this.parent(size);
 	this._regularity = regularity || 0;
 }
 

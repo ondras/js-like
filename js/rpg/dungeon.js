@@ -454,7 +454,7 @@ RPG.Map.prototype.getFeatures = function(ctor) {
 }
 
 /**
- * Add a new area
+ * Add a new area. Areas may NOT overlap.
  * @param {RPG.Areas.BaseArea} area
  */
 RPG.Map.prototype.addArea = function(area) {
@@ -857,6 +857,10 @@ RPG.Generators.BaseGenerator.prototype._digRoom = function(corner1, corner2) {
 	this._dug += (corner2.x-corner1.x) * (corner2.y-corner1.y);
 }
 
+/**
+ * Randomly picked coords. Can represent top-left corner of a room minSize*minSize
+ * @param {int} minSize
+ */
 RPG.Generators.BaseGenerator.prototype._generateCoords = function(minSize) {
 	var padding = 2 + minSize - 1;
 	var x = Math.floor(Math.random()*(this._size.x-padding)) + 1;
@@ -864,16 +868,24 @@ RPG.Generators.BaseGenerator.prototype._generateCoords = function(minSize) {
 	return new RPG.Misc.Coords(x, y);
 }
 
-RPG.Generators.BaseGenerator.prototype._generateSize = function(corner, minSize, maxWidth, maxHeight) {
+/**
+ * Randomly picked bottom-right corner
+ * @param {RPG.Misc.Coords} corner top-left corner
+ * @param {int} minSize
+ * @param {int} maxWidth
+ * @param {int} maxHeight
+ * FIXME does it really work right?
+ */
+RPG.Generators.BaseGenerator.prototype._generateSecondCorner = function(corner, minSize, maxWidth, maxHeight) {
 	var availX = this._size.x - corner.x - minSize;
 	var availY = this._size.y - corner.y - minSize;
 	
-	availX = Math.min(availX, maxWidth - this._minSize + 1);
-	availY = Math.min(availY, maxHeight - this._minSize + 1);
+	availX = Math.min(availX, maxWidth - minSize + 1);
+	availY = Math.min(availY, maxHeight - minSize + 1);
 	
 	var x = Math.floor(Math.random()*availX) + minSize;
 	var y = Math.floor(Math.random()*availY) + minSize;
-	return new RPG.Misc.Coords(x, y);
+	return new RPG.Misc.Coords(corner.x + x - 1, corner.y + y - 1);
 }
 
 /**
