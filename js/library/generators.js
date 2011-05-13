@@ -32,11 +32,6 @@ RPG.Generators.Uniform.prototype.init = function(size) {
 	this._maxHeight = 5; /* maximum room height */
 	
 	this._connected = []; /* list of room-is-connected flags FIXME can result in serveral disconnected components */
-	
-	this.NORTH = 0;
-	this.EAST = 1;
-	this.SOUTH = 2;
-	this.WEST = 3;
 }
 
 RPG.Generators.Uniform.prototype.generate = function(id, danger) {
@@ -142,12 +137,41 @@ RPG.Generators.Uniform.prototype._connectRooms = function(room1, room2) {
 	
 	var center1 = room1.getCenter();
 	var center2 = room1.getCenter();
+	var r1c1 = room1.getCorner1();
+	var r1c2 = room1.getCorner2();
+	var r2c1 = room2.getCorner1();
+	var r2c2 = room2.getCorner2();
+
 	var diffX = center2.x - center1.x;
 	var diffY = center2.y - center1.y;
 	
-	if (Math.abs(diffX) > Math.abs(diffY)) {
-	} else {
+	if (Math.abs(diffX) < Math.abs(diffY)) { /* first try connecting north-south walls */
+		var wall1 = (diffY > 0 ? RPG.S : RPG.N);
+		var wall2 = (wall1 + 4) % 8;
+		
+		if (r1c1.x > r2c2.x || r2c1.x > r1c2.x) { /* cannot connect with straight line */
+			this._connectPolyline(room1, wall1, room2, wall2);
+		} else { /* can connect with straight line */
+			this._connectStraight(room1, wall1, room2, wall2);
+		}
+		
+	} else { /* first try connecting east-west walls */
+		var wall1 = (diffX > 0 ? RPG.E : RPG.W);
+		var wall2 = (wall1 + 4) % 8;
+
+		if (r1c1.y > r2c2.y || r2c1.y > r1c2.y) { /* cannot connect with straight line */
+			this._connectPolyline(room1, wall1, room2, wall2);
+		} else { /* can connect with straight line */
+			this._connectStraight(room1, wall1, room2, wall2);
+		}
+
 	}
+}
+
+RPG.Generators.Uniform.prototype._connectStraight = function(room1, wall1, room2, wall2) {
+}
+
+RPG.Generators.Uniform.prototype._connectPolyline = function(room1, wall1, room2, wall2) {
 }
 
 /**
