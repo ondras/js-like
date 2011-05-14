@@ -121,7 +121,7 @@ RPG.UI.BaseMap.prototype.removeProjectiles = function() {
  * Force redraw a coords
  */
 RPG.UI.BaseMap.prototype._redrawCoords = function(coords) {
-	var map = RPG.Game.pc.getMap();
+	var map = RPG.Game.getMap();
 	var what = this._dom.data[coords.x][coords.y];
 
 	var index = this._projectiles.indexOf(what);

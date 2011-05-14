@@ -137,41 +137,57 @@ RPG.Generators.Uniform.prototype._connectRooms = function(room1, room2) {
 	
 	var center1 = room1.getCenter();
 	var center2 = room1.getCenter();
-	var r1c1 = room1.getCorner1();
-	var r1c2 = room1.getCorner2();
-	var r2c1 = room2.getCorner1();
-	var r2c2 = room2.getCorner2();
 
 	var diffX = center2.x - center1.x;
 	var diffY = center2.y - center1.y;
 	
+	var min = 0;
+	var max = 0;
 	if (Math.abs(diffX) < Math.abs(diffY)) { /* first try connecting north-south walls */
 		var wall1 = (diffY > 0 ? RPG.S : RPG.N);
 		var wall2 = (wall1 + 4) % 8;
-		
-		if (r1c1.x > r2c2.x || r2c1.x > r1c2.x) { /* cannot connect with straight line */
-			this._connectPolyline(room1, wall1, room2, wall2);
-		} else { /* can connect with straight line */
-			this._connectStraight(room1, wall1, room2, wall2);
-		}
-		
+		min = room2.getCorner1().x;
+		max = room2.getCorner2().x;
 	} else { /* first try connecting east-west walls */
 		var wall1 = (diffX > 0 ? RPG.E : RPG.W);
 		var wall2 = (wall1 + 4) % 8;
+		min = room2.getCorner1().y;
+		max = room2.getCorner2().y;
+	}
+	
+	var start = this._placeInWall(room1, wall1);
 
-		if (r1c1.y > r2c2.y || r2c1.y > r1c2.y) { /* cannot connect with straight line */
-			this._connectPolyline(room1, wall1, room2, wall2);
-		} else { /* can connect with straight line */
-			this._connectStraight(room1, wall1, room2, wall2);
-		}
-
+	if (start >= min && start <= max) { /* possible to connect with straight line */
+	} else if (start < min || start > max) { /* need to switch target wall (L-like) */
+	} else { /* use current wall pair, but adjust the line in the middle (snake-like) */
+		var end = this._placeInWall(room2, wall2);
 	}
 }
 
-RPG.Generators.Uniform.prototype._connectStraight = function(room1, wall1, room2, wall2) {
-}
-
-RPG.Generators.Uniform.prototype._connectPolyline = function(room1, wall1, room2, wall2) {
+RPG.Generators.Uniform.prototype._placeInWall = function(room, wall) {
+	var c1 = room.getCorner1();
+	var c2 = room.getCorner2();
+	var x = 0;
+	var y = 0;
+	switch (wall) {
+		case RPG.N:
+			y = c1.y;
+			x = c1.x + Math.floor(Math.random() * (c2.x-c1.x));
+		break;
+		case RPG.S:
+			y = c2.y;
+			x = c1.x + Math.floor(Math.random() * (c2.x-c1.x));
+		break;
+		case RPG.W:
+			x = c1.x;
+			y = c1.y + Math.floor(Math.random() * (c2.y-c1.y));
+		break;
+		case RPG.E:
+			x = c2.x;
+			y = c1.y + Math.floor(Math.random() * (c2.y-c1.y));
+		break;
+	}
+	return new RPG.Misc.Coords(x, y);
 }
 
 /**
