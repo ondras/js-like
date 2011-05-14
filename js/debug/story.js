@@ -9,8 +9,13 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 	var map = gen.generate("testbed", 1);
 
 	var rooms = map.getRooms();
+	var o = {
+		closed: 1,
+		fakeDoors: 0,
+		fakeCorridors: 0
+	};
 	for (var i=0;i<rooms.length;i++) { 
-//		RPG.Decorators.Doors.getInstance().decorate(map, rooms[i]);
+		RPG.Decorators.Doors.getInstance().decorate(map, rooms[i], o);
 	}
 	
 	var up = new RPG.Features.Staircase.Up();

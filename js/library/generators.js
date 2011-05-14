@@ -30,12 +30,14 @@ RPG.Generators.Uniform.prototype.init = function(size) {
 	this._maxWidth = 7; /* maximum room width */
 	this._maxHeight = 5; /* maximum room height */
 	
-	this._unconnected = []; /* list of remaining unconnected rooms FIXME can result in serveral disconnected components */
+	this._connected = []; /* list of already connected rooms */
+	this._unconnected = []; /* list of remaining unconnected rooms */
 }
 
 RPG.Generators.Uniform.prototype.generate = function(id, danger) {
 	while (1) {
 		this._blankMap();
+		this._connected = [];
 		this._unconnected = [];
 		this._generateRooms();
 		var result = this._generateCorridors();
@@ -110,18 +112,26 @@ RPG.Generators.Uniform.prototype._generateCorridors = function() {
 		cnt++;
 		if (cnt > this._corridorAttempts) { return false; } /* no success */
 
-		var room1 = this._unconnected.random(); /* pick opne unconnected */
-		var index = this._unconnected.indexOf(room1);
-		this._unconnected.splice(index, 1);
-		
-		if (this._unconnected.length) { /* there are more unconnected to pick 2nd from */
+		var room1 = this._unconnected.random(); /* pick one unconnected */
+		if (this._connected.length) { /* connect to first one already finished */
+			var room2 = this._connected[0];
+		} else { /* first try - pick other unconnected */
+			var index = this._unconnected.indexOf(room1);
+			this._unconnected.splice(index, 1);
 			var room2 = this._unconnected.random();
-		} else { /* no more unconnected; pick one already done */
-			var room2 = this._rooms.random();
+			this._unconnected.push(room1); /* return first one */
 		}
-		this._unconnected.push(room1); /* return first one */
 		
 		this._connectRooms(room1, room2); /* connect these two */
+		
+		/* trick: if room2 was picked from a connected pool, it is now guaranteed to be 
+		connected twice. move it to the end of the queue. */
+		var index = this._connected.indexOf(room2);
+		if (index != -1) {
+			this._connected.splice(index, 1);
+			this._connected.push(room2);
+		}
+
 	};
 	
 	return true;
@@ -267,7 +277,10 @@ RPG.Generators.Uniform.prototype._digLine = function(points) {
 	while (connected.length) {
 		var room = connected.pop();
 		var index = this._unconnected.indexOf(room);
-		if (index != -1) { this._unconnected.splice(index, 1); }
+		if (index != -1) { 
+			this._unconnected.splice(index, 1);
+			this._connected.push(room);
+		}
 	}
 	
 	while (todo.length) { /* do actual digging */
