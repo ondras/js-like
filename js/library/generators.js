@@ -15,8 +15,7 @@ RPG.Generators.Arena.prototype.generate = function(id, danger) {
 }
 
 /**
- * @class Random map generator, tries to fill the space evenly
- * FIXME this is not {finished,working}
+ * @class Random map generator, tries to fill the space evenly. Generates independent rooms and tries to connect them.
  * @augments RPG.Generators.BaseGenerator
  */ 
 RPG.Generators.Uniform = OZ.Class().extend(RPG.Generators.BaseGenerator);
@@ -26,17 +25,18 @@ RPG.Generators.Uniform.prototype.init = function(size) {
 	
 	this._roomAttempts = 10; /* new room is created N-times until is considered as impossible to generate */
 	this._corridorAttempts = 50; /* corridors are tried N-times until the level is considered as impossible to connect */
-	this._roomPercentage = 0.15; /* we stop after this percentage of level area has been dug out */
+	this._roomPercentage = 0.1; /* we stop createing rooms after this percentage of level area has been dug out */
 	this._minSize = 3; /* minimum room dimension */
 	this._maxWidth = 7; /* maximum room width */
 	this._maxHeight = 5; /* maximum room height */
 	
-	this._connected = []; /* list of room-is-connected flags FIXME can result in serveral disconnected components */
+	this._unconnected = []; /* list of remaining unconnected rooms FIXME can result in serveral disconnected components */
 }
 
 RPG.Generators.Uniform.prototype.generate = function(id, danger) {
 	while (1) {
 		this._blankMap();
+		this._unconnected = [];
 		this._generateRooms();
 		var result = this._generateCorridors();
 		if (result) { return this._convertToMap(id, danger); }
@@ -44,8 +44,8 @@ RPG.Generators.Uniform.prototype.generate = function(id, danger) {
 }
 
 RPG.Generators.Uniform.prototype._digRoom = function(c1, c2) {
-	this.parent(c1, c2);
-	this._connected.push(false);
+	var room = this.parent(c1, c2);
+	this._unconnected.push(room);
 }
 
 /**
@@ -106,61 +106,90 @@ RPG.Generators.Uniform.prototype._generateRoom = function() {
 RPG.Generators.Uniform.prototype._generateCorridors = function() {
 	var cnt = 0;
 		
-	do {
-		/* get two distinct rooms */
-		var avail = [];
-		for (var i=0;i<this._rooms.length;i++) { avail.push(this._rooms[i]); }
-		var room1 = avail.random();
-		var index = avail.indexOf(room1);
-		avail.splice(index, 1);
-		var room2 = avail.random();
+	while (this._unconnected.length) {
+		cnt++;
+		if (cnt > this._corridorAttempts) { return false; } /* no success */
+
+		var room1 = this._unconnected.random(); /* pick opne unconnected */
+		var index = this._unconnected.indexOf(room1);
+		this._unconnected.splice(index, 1);
 		
-		this._connectRooms(room1, room2);
-		
-		var unconnected = 0; /* how many remain to be connected? */
-		for (var i=0;i<this._connected.length;i++) {
-			if (!this._connected[i]) { unconnected++; }
+		if (this._unconnected.length) { /* there are more unconnected to pick 2nd from */
+			var room2 = this._unconnected.random();
+		} else { /* no more unconnected; pick one already done */
+			var room2 = this._rooms.random();
 		}
+		this._unconnected.push(room1); /* return first one */
 		
-		if (!unconnected) { return true; } /* are we done? */
-		
-	} while (cnt < this._corridorAttempts);
+		this._connectRooms(room1, room2); /* connect these two */
+	};
 	
-	return false;
+	return true;
 }
 
 RPG.Generators.Uniform.prototype._connectRooms = function(room1, room2) {
-	var index1 = this._rooms.indexOf(room1);
-	var index2 = this._rooms.indexOf(room2);
-	this._connected[index1] = true;
-	this._connected[index2] = true;
-	
 	var center1 = room1.getCenter();
-	var center2 = room1.getCenter();
+	var center2 = room2.getCenter();
 
 	var diffX = center2.x - center1.x;
 	var diffY = center2.y - center1.y;
-	
-	var min = 0;
-	var max = 0;
+	var prop = "";
+
 	if (Math.abs(diffX) < Math.abs(diffY)) { /* first try connecting north-south walls */
 		var wall1 = (diffY > 0 ? RPG.S : RPG.N);
 		var wall2 = (wall1 + 4) % 8;
-		min = room2.getCorner1().x;
-		max = room2.getCorner2().x;
+		prop = "x";
 	} else { /* first try connecting east-west walls */
 		var wall1 = (diffX > 0 ? RPG.E : RPG.W);
 		var wall2 = (wall1 + 4) % 8;
-		min = room2.getCorner1().y;
-		max = room2.getCorner2().y;
+		prop = "y";
 	}
-	
-	var start = this._placeInWall(room1, wall1);
 
-	if (start >= min && start <= max) { /* possible to connect with straight line */
-	} else if (start < min || start > max) { /* need to switch target wall (L-like) */
-	} else { /* use current wall pair, but adjust the line in the middle (snake-like) */
+	var minorProp = (prop == "x" ? "y" : "x");
+	var min = room2.getCorner1()[prop];
+	var max = room2.getCorner2()[prop];	
+	var start = this._placeInWall(room1, wall1); /* corridor will start here */
+
+	if (start[prop] >= min && start[prop] <= max) { /* possible to connect with straight line */
+
+		var corner = (wall2 == RPG.N || wall2 == RPG.W ? room2.getCorner1() : room2.getCorner2());
+		var x = (prop == "x" ? start[prop] : corner.x);
+		var y = (prop == "y" ? start[prop] : corner.y);
+		var end = new RPG.Misc.Coords(x, y);
+		return this._digLine([start, end]);
+		
+	} else if (start[prop] < min-1 || start[prop] > max+1) { /* need to switch target wall (L-like) */
+		
+		var diff = start[prop] - center2[prop];
+		switch (wall2) {
+			case RPG.N:
+			case RPG.E:	var rotation = (diff < 0 ? 6 : 2); break;
+			break;
+			case RPG.S:
+			case RPG.W:	var rotation = (diff < 0 ? 2 : 6); break;
+			break;
+		}
+		wall2 = (wall2 + rotation) % 8;
+		
 		var end = this._placeInWall(room2, wall2);
+		var mid = new RPG.Misc.Coords(0, 0);
+		mid[prop] = start[prop];
+		mid[minorProp] = end[minorProp];
+		return this._digLine([start, mid, end]);
+		
+	} else { /* use current wall pair, but adjust the line in the middle (snake-like) */
+	
+		var end = this._placeInWall(room2, wall2);
+		var mid = Math.round((end[minorProp] + start[minorProp])/2);
+
+		var mid1 = new RPG.Misc.Coords(0, 0);
+		var mid2 = new RPG.Misc.Coords(0, 0);
+		mid1[prop] = start[prop];
+		mid1[minorProp] = mid;
+		mid2[prop] = end[prop];
+		mid2[minorProp] = mid;
+		return this._digLine([start, mid1, mid2, end]);
+
 	}
 }
 
@@ -188,6 +217,91 @@ RPG.Generators.Uniform.prototype._placeInWall = function(room, wall) {
 		break;
 	}
 	return new RPG.Misc.Coords(x, y);
+}
+
+/**
+ * Try to dig a polyline. Stop if it crosses any room more than two times.
+ */
+RPG.Generators.Uniform.prototype._digLine = function(points) {
+	var todo = [];
+	var rooms = []; /* rooms crossed with this line */
+	
+	var check = function(coords) {
+		todo.push(coords.clone());
+		rooms = rooms.concat(this._roomsWithWall(coords));
+	}
+	
+	/* compute and check all coords on this polyline */
+	var current = points.shift();
+	while (points.length) {
+		var target = points.shift();
+		var diffX = target.x - current.x;
+		var diffY = target.y - current.y;
+		var length = Math.max(Math.abs(diffX), Math.abs(diffY));
+		var stepX = Math.round(diffX / length);
+		var stepY = Math.round(diffY / length);
+		for (var i=0;i<length;i++) {
+			check.call(this, current);
+			current.x += stepX;
+			current.y += stepY;
+		}
+	}
+	check.call(this, current);
+	
+	/* any room violated? */
+	var connected = [];
+	while (rooms.length) {
+		var room = rooms.pop();
+		connected.push(room);
+		var count = 1;
+		for (var i=rooms.length-1; i>=0; i--) {
+			if (rooms[i] == room) {
+				rooms.splice(i, 1);
+				count++;
+			}
+		}
+		if (count > 2) { return; } /* room crossed too many times */
+	}
+	
+	/* mark encountered rooms as connected */
+	while (connected.length) {
+		var room = connected.pop();
+		var index = this._unconnected.indexOf(room);
+		if (index != -1) { this._unconnected.splice(index, 1); }
+	}
+	
+	while (todo.length) { /* do actual digging */
+		var coords = todo.pop();
+		this._bitMap[coords.x][coords.y] = 0;
+	}
+}
+
+/**
+ * Returns a list of rooms which have this wall
+ */
+RPG.Generators.Uniform.prototype._roomsWithWall = function(coords) {
+	var result = [];
+	for (var i=0;i<this._rooms.length;i++) {
+		var room = this._rooms[i];
+		var ok = false;
+		var c1 = room.getCorner1();
+		var c2 = room.getCorner2();
+		
+		if ( /* one of vertical walls */
+			(coords.x+1 == c1.x || coords.x-1 == c2.x) 
+			&& coords.y+1 >= c1.y 
+			&& coords.y-1 <= c2.y
+		) { ok = true; }
+		
+		if ( /* one of horizontal walls */
+			(coords.y+1 == c1.y || coords.y-1 == c2.y) 
+			&& coords.x+1 >= c1.x 
+			&& coords.x-1 <= c2.x
+		) { ok = true; }
+
+		if (ok) { result.push(room); }		
+	}
+	return result;
 }
 
 /**

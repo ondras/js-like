@@ -7,6 +7,11 @@ RPG.Story.Testbed = OZ.Class().extend(RPG.Story);
 RPG.Story.Testbed.prototype._firstMap = function() {
 	var gen = new RPG.Generators.Uniform(new RPG.Misc.Coords(59, 19));
 	var map = gen.generate("testbed", 1);
+
+	var rooms = map.getRooms();
+	for (var i=0;i<rooms.length;i++) { 
+//		RPG.Decorators.Doors.getInstance().decorate(map, rooms[i]);
+	}
 	
 	var up = new RPG.Features.Staircase.Up();
 	map.setFeature(up, map.getFreeCoords());

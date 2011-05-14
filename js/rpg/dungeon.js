@@ -855,6 +855,7 @@ RPG.Generators.BaseGenerator.prototype._digRoom = function(corner1, corner2) {
 	}
 	
 	this._dug += (corner2.x-corner1.x) * (corner2.y-corner1.y);
+	return room;
 }
 
 /**

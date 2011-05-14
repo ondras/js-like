@@ -227,8 +227,8 @@ RPG.ATTRIBUTES = [RPG.FEAT_STRENGTH, RPG.FEAT_TOUGHNESS, RPG.FEAT_DEXTERITY, RPG
 /**
  * Directional constants should not be renumbered. Current numbering offers:
  * - for (i=0;i<8;i++)
- * - index +- 2 (mod 8) = normal
- * - index +- 4 (mod 8) = opposite
+ * - index + 2 (mod 8) = normal
+ * - index + 4 (mod 8) = opposite
  * - index % 2 = diagonal
  */
 
