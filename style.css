@@ -36,8 +36,8 @@ body {
 }
 
 #map .ascii {
-	font-family:monospace; 
-	font-size:125%;
+	font-family: monospace; 
+	font-size: 16px;
 }
 
 #map .ascii .focus {

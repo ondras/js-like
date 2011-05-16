@@ -27,7 +27,7 @@ RPG.Generators.Uniform.prototype.init = function(size) {
 	this._corridorAttempts = 50; /* corridors are tried N-times until the level is considered as impossible to connect */
 	this._roomPercentage = 0.1; /* we stop createing rooms after this percentage of level area has been dug out */
 	this._minSize = 3; /* minimum room dimension */
-	this._maxWidth = 7; /* maximum room width */
+	this._maxWidth = 9; /* maximum room width */
 	this._maxHeight = 5; /* maximum room height */
 	
 	this._connected = []; /* list of already connected rooms */
@@ -37,7 +37,6 @@ RPG.Generators.Uniform.prototype.init = function(size) {
 RPG.Generators.Uniform.prototype.generate = function(id, danger) {
 	while (1) {
 		this._blankMap();
-		this._connected = [];
 		this._unconnected = [];
 		this._generateRooms();
 		var result = this._generateCorridors();
@@ -107,31 +106,21 @@ RPG.Generators.Uniform.prototype._generateRoom = function() {
  */
 RPG.Generators.Uniform.prototype._generateCorridors = function() {
 	var cnt = 0;
+	this._connected = [];
+	if (this._unconnected.length) { this._connected.push(this._unconnected.pop()); }
 		
 	while (this._unconnected.length) {
 		cnt++;
 		if (cnt > this._corridorAttempts) { return false; } /* no success */
-
-		var room1 = this._unconnected.random(); /* pick one unconnected */
-		if (this._connected.length) { /* connect to first one already finished */
-			var room2 = this._connected[0];
-		} else { /* first try - pick other unconnected */
-			var index = this._unconnected.indexOf(room1);
-			this._unconnected.splice(index, 1);
-			var room2 = this._unconnected.random();
-			this._unconnected.push(room1); /* return first one */
-		}
 		
+		var room1 = this._unconnected[0]; /* start with the first unconnected */
+		var center = room1.getCenter();
+		this._connected.sort(function(a,b){ /* find closest connected */
+			return a.getCenter().distance(center) - b.getCenter().distance(center);
+		});
+		var room2 = this._connected[0];
+
 		this._connectRooms(room1, room2); /* connect these two */
-		
-		/* trick: if room2 was picked from a connected pool, it is now guaranteed to be 
-		connected twice. move it to the end of the queue. */
-		var index = this._connected.indexOf(room2);
-		if (index != -1) {
-			this._connected.splice(index, 1);
-			this._connected.push(room2);
-		}
-
 	};
 	
 	return true;
@@ -159,6 +148,7 @@ RPG.Generators.Uniform.prototype._connectRooms = function(room1, room2) {
 	var min = room2.getCorner1()[prop];
 	var max = room2.getCorner2()[prop];	
 	var start = this._placeInWall(room1, wall1); /* corridor will start here */
+	if (!start) { return; }
 
 	if (start[prop] >= min && start[prop] <= max) { /* possible to connect with straight line */
 
@@ -182,6 +172,7 @@ RPG.Generators.Uniform.prototype._connectRooms = function(room1, room2) {
 		wall2 = (wall2 + rotation) % 8;
 		
 		var end = this._placeInWall(room2, wall2);
+		if (!end) { return; }
 		var mid = new RPG.Misc.Coords(0, 0);
 		mid[prop] = start[prop];
 		mid[minorProp] = end[minorProp];
@@ -190,6 +181,7 @@ RPG.Generators.Uniform.prototype._connectRooms = function(room1, room2) {
 	} else { /* use current wall pair, but adjust the line in the middle (snake-like) */
 	
 		var end = this._placeInWall(room2, wall2);
+		if (!end) { return; }
 		var mid = Math.round((end[minorProp] + start[minorProp])/2);
 
 		var mid1 = new RPG.Misc.Coords(0, 0);
@@ -204,29 +196,44 @@ RPG.Generators.Uniform.prototype._connectRooms = function(room1, room2) {
 }
 
 RPG.Generators.Uniform.prototype._placeInWall = function(room, wall) {
+	var prop = "";
 	var c1 = room.getCorner1();
 	var c2 = room.getCorner2();
 	var x = 0;
 	var y = 0;
 	switch (wall) {
 		case RPG.N:
-			y = c1.y;
+			y = c1.y-1;
 			x = c1.x + Math.floor(Math.random() * (c2.x-c1.x));
+			prop = "x";
 		break;
 		case RPG.S:
-			y = c2.y;
+			y = c2.y+1;
 			x = c1.x + Math.floor(Math.random() * (c2.x-c1.x));
+			prop = "x";
 		break;
 		case RPG.W:
-			x = c1.x;
+			x = c1.x-1;
 			y = c1.y + Math.floor(Math.random() * (c2.y-c1.y));
+			prop = "y";
 		break;
 		case RPG.E:
-			x = c2.x;
+			x = c2.x+1;
 			y = c1.y + Math.floor(Math.random() * (c2.y-c1.y));
+			prop = "y";
 		break;
 	}
-	return new RPG.Misc.Coords(x, y);
+	
+	var result = new RPG.Misc.Coords(x, y);
+	/* check if neighbors are not empty */
+	result[prop] -= 1;
+	if (this._isValid(result) && !this._bitMap[result.x][result.y]) { return null; }
+	result[prop] += 2;
+	if (this._isValid(result) && !this._bitMap[result.x][result.y]) { return null; }
+	result[prop] -= 1;
+
+	return result; 
+	
 }
 
 /**
@@ -335,7 +342,7 @@ RPG.Generators.Digger.prototype.init = function(size) {
 	this._maxLength = 10; /* max corridor length */
 	this._minLength = 2; /* min corridor length */
 	this._minSize = 3; /* min room size */
-	this._maxWidth = 8; /* max room width */
+	this._maxWidth = 9; /* max room width */
 	this._maxHeight = 5; /* max room height */
 	this._dugPercentage = 0.2; /* we stop after this percentage of level area has been dug out */
 	
