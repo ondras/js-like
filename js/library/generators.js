@@ -833,7 +833,7 @@ RPG.Generators.Maze.prototype.generate = function(id, danger) {
 	}
 	L.push(this._width-1); /* fake stop-block at the right side */
 
-	for (var j=1;j+2<this._size.y;j+=2) {
+	for (var j=1;j+3<this._size.y;j+=2) {
 		/* one row */
 		for (var i=0;i<this._width;i++) {
 			/* cell coords (will be always empty) */
