@@ -216,7 +216,7 @@ RPG.Items.Potion = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Potion.factory.ignore = true;
 RPG.Items.Potion.prototype.init = function() {
 	this.parent();
-	this.setVisual({char:"!"});
+	this.setVisual({ch:"!"});
 }
 RPG.Items.Potion.prototype.drink = function(being) {
 }

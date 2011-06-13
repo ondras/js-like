@@ -454,34 +454,12 @@ RPG.Misc.CellFactory.prototype.fromJSON = function(instances) {
 RPG.Misc.Scheduler = OZ.Class();
 RPG.Misc.Scheduler.prototype.init = function() {
 	this._actors = [];
-	this._current = [];
-	this._maxSpeed = 0;
 }
-
-RPG.Misc.Scheduler.prototype.toJSON = function(handler) {
-	var current = [];
-	for (var i=0;i<this._current.length;i++) {
-		current.push(this._actors.indexOf(this._current[i]));
-	}
-	
-	return handler.toJSON(this, {
-		exclude:["_current"], 
-		include:{"_current": current}
-	});
-}
-
-RPG.Misc.Scheduler.prototype.revive = function() {
-	for (var i=0;i<this._current.length;i++) {
-		this._current[i] = this._actors[this._current[i]];
-	}
-}
-
 
 RPG.Misc.Scheduler.prototype.addActor = function(actor) {
 	var o = {
 		actor: actor,
-		bucket: 0,
-		speed: 0
+		bucket: 1/actor.getSpeed()
 	}
 	this._actors.push(o);
 	return this;
@@ -503,48 +481,32 @@ RPG.Misc.Scheduler.prototype.removeActor = function(actor) {
 		}
 	}
 	
-	var index = this._current.indexOf(a);
-	if (index != -1) { this._current.splice(index, 1); }
-
 	return this;
 }
 
 RPG.Misc.Scheduler.prototype.scheduleActor = function() {
 	if (!this._actors.length) { return null; }
 
-	/* if there is a set of pre-scheduled actors */
-	if (this._current.length) {
-		var a = this._current.shift();
-		a.bucket -= this._maxSpeed;
-		return a.actor;
-	}
-	
-	/* update speeds */
-	this._maxSpeed = 0;
+	var minBucket = Infinity;
+	var minActor = null;
+
 	for (var i=0;i<this._actors.length;i++) {
-		var obj = this._actors[i];
-		obj.speed = obj.actor.getSpeed();
-		if (obj.speed > this._maxSpeed) { this._maxSpeed = obj.speed; }
+		var actor = this._actors[i];
+		if (actor.bucket < minBucket) {
+			minBucket = actor.bucket;
+			minActor = actor;
+		}
 	}
 	
-	/* increase buckets and determine those eligible for a turn */
-	do {
+	if (minBucket) { /* non-zero value; subtract from all buckets */
 		for (var i=0;i<this._actors.length;i++) {
-			var obj = this._actors[i];
-			obj.bucket += obj.speed;
-			if (obj.bucket >= this._maxSpeed) { this._current.push(obj); }
+			var actor = this._actors[i];
+			actor.bucket = Math.max(0, actor.bucket - minBucket);
 		}
-	}  while (!this._current.length);
+	}
 	
-	/* sort eligible actors by their buckets */
-	var actors = this._actors;
-	this._current.sort(function(a,b) {
-		return b.bucket - a.bucket;
-	});
-	
-	/* recurse */
-	return arguments.callee.apply(this, arguments);
-	
+	minActor.bucket += 1/minActor.actor.getSpeed();
+	return minActor.actor;
 }
 
 /**
