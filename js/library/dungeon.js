@@ -9,7 +9,7 @@ RPG.Cells.Corridor.prototype.init = function() {
 		desc: "floor section",
 		ch: ".",
 		image: "corridor",
-		color: "silver"
+		color: "#ccc"
 	});
 }
 
@@ -24,7 +24,7 @@ RPG.Cells.Grass.prototype.init = function() {
 		desc: "grass",
 		ch: ".",
 		image: "grass",
-		color: "OliveDrab"
+		color: "#693"
 	});
 }
 
@@ -39,7 +39,7 @@ RPG.Cells.Water.prototype.init = function() {
 		desc: "water",
 		ch: "=",
 		image: "water",
-		color: "darkblue"
+		color: "#009"
 	});
 }
 
@@ -54,7 +54,7 @@ RPG.Cells.Wall.prototype.init = function() {
 		desc: "solid wall",
 		ch: "#",
 		image: "wall",
-		color: "dimgray"
+		color: "#666"
 	});
 	this._blocks = RPG.BLOCKS_LIGHT;
 }
@@ -80,7 +80,7 @@ RPG.Features.Tree.prototype.init = function() {
 		desc: "tree",
 		ch: "T",
 		image: "tree",
-		color: "green"
+		color: "#093"
 	});
 	this._blocks = RPG.BLOCKS_MOVEMENT;
 }
@@ -188,7 +188,7 @@ RPG.Features.Trap.Teleport.prototype.init = function() {
 	this.setVisual({
 		desc: "teleport trap",
 		image: "trap-teleport",
-		color: "limegreen"
+		color: "#3c3"
 	});
 }
 
@@ -211,7 +211,7 @@ RPG.Features.Trap.Pit.prototype.init = function() {
 	this.setVisual({
 		desc: "pit trap",
 		image: "trap-pit",
-		color: "sienna"
+		color: "#963"
 	});
 }
 

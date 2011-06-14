@@ -171,7 +171,7 @@ RPG.Beings.VillageHealer.prototype.init = function() {
 	
 	this.setVisual({
 		desc: "village healer",
-		color: "red",
+		color: "#f00",
 		image: "village-healer"
 	});
 
@@ -198,7 +198,7 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
 	
 	this.setVisual({
 		desc: "shopkeeper",
-		color: "red",
+		color: "#f00",
 		image: "village-shopkeeper"
 	});
 
@@ -226,7 +226,7 @@ RPG.Beings.VillageWitch.prototype.init = function() {
 	
 	this.setVisual({
 		desc: "witch",
-		color: "blue",
+		color: "#00f",
 		image: "village-witch"
 	});
 
@@ -269,7 +269,7 @@ RPG.Beings.VillageGuard.prototype.init = function() {
 	
 	this.setVisual({
 		desc: "elder's guard",
-		color: "red",
+		color: "#f00",
 		image: "village-guard"
 	});
 	
@@ -303,7 +303,7 @@ RPG.Beings.VillageSmith.prototype.init = function() {
 	
 	this.setVisual({
 		desc: "dwarven smith",
-		color: "darkgray",
+		color: "#999",
 		ch: "h",
 		image: "village-smith"
 	});
@@ -337,7 +337,7 @@ RPG.Beings.VillageElder.prototype.init = function() {
 	
 	this.setVisual({
 		desc: "village elder",
-		color: "brown",
+		color: "#630",
 		image: "village-elder"
 	});
 	
@@ -354,7 +354,7 @@ RPG.Items.WeddingNecklace.prototype.init = function() {
 	this.parent();
 	this.setVisual({
 		desc: "wedding necklace",
-		color: "gold",
+		color: "#fc0",
 		image: "wedding-necklace"
 	});
 }

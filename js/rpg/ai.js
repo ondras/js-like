@@ -196,9 +196,6 @@ RPG.AI.prototype._attack = function(e) {
 	/* ignore our own actions */
 	if (source == this._being) { return; }
 
-	/* not interested if not alive */
-	if (!this._being.isAlive()) { return; }
-	
 	/* somebody is attacking us! */
 	var kill = false;
 	var defense = false;

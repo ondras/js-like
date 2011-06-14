@@ -12,9 +12,21 @@ RPG.UI.Button._buttons = [];
  * Static keypress handler
  */
 RPG.UI.Button._keyPress = function(e) {
+	var charCode = e.charCode || e.keyCode; /* opera puts charcode in keycode */
 	var list = RPG.UI.Button._buttons.clone();
 	for (var i=0;i<list.length;i++) {
-		list[i][0]._keyPress(e);
+		list[i][0]._key(e, charCode, -1);
+	}
+}
+
+/**
+ * Static keyup handler
+ */
+RPG.UI.Button._keyUp = function(e) {
+	var keyCode = e.keyCode;
+	var list = RPG.UI.Button._buttons.clone();
+	for (var i=0;i<list.length;i++) {
+		list[i][0]._key(e, -1, keyCode);
 	}
 }
 
@@ -118,13 +130,11 @@ RPG.UI.Button.prototype.disable = function() {
 	this._input.disabled = true;
 }
 
-RPG.UI.Button.prototype._keyPress = function(e) {
+RPG.UI.Button.prototype._key = function(e, charCode, keyCode) {
 	if (this._input.disabled) { return; }
 	if (e.ctrlKey != this._ctrlKey) { return false; }
 	if (e.altKey != this._altKey) { return false; }
-	var ch = e.charCode || e.keyCode; /* opera puts charcode in keycode on keypress .) */
-	var k = e.keyCode;
-	if (this._charCodes.indexOf(ch) != -1 || this._keyCodes.indexOf(k) != -1) {
+	if (this._charCodes.indexOf(charCode) != -1 || this._keyCodes.indexOf(keyCode) != -1) {
 		OZ.Event.prevent(e);
 		this._callback(this);
 	}
@@ -137,3 +147,4 @@ RPG.UI.Button.prototype._click = function(e) {
 
 OZ.Event.add(document, "click", RPG.UI.Button._click);
 OZ.Event.add(document, "keypress", RPG.UI.Button._keyPress);
+OZ.Event.add(document, "keyup", RPG.UI.Button._keyUp);

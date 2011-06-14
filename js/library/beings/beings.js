@@ -17,7 +17,7 @@ RPG.Beings.Goblin.prototype.init = function() {
 	this.setVisual({
 		desc: "goblin",
 		ch: "g",
-		color: "mediumblue",
+		color: "#00c",
 		image: "goblin"
 	});
 	
@@ -65,7 +65,7 @@ RPG.Beings.Hobgoblin.prototype.init = function() {
 
 	this.setVisual({
 		desc: "hobgoblin",
-		color: "yellowgreen",
+		color: "#9c3",
 		image: "hobgoblin"
 	});
 	
@@ -86,7 +86,7 @@ RPG.Beings.HobgoblinLeader.prototype.init = function() {
 	
 	this.setVisual({
 		desc: "hobgoblin leader",
-		color: "forestgreen",
+		color: "#393",
 		image: "hobgoblin-leader"
 	});
 
@@ -114,7 +114,7 @@ RPG.Beings.Troll.prototype.init = function() {
 	this.setVisual({
 		desc: "troll",
 		ch: "T",
-		color: "darkgray",
+		color: "#999",
 		image: "troll"
 	});
 	
@@ -166,7 +166,7 @@ RPG.Beings.Rat.prototype.init = function() {
 	this.setVisual({
 		desc: "rat",
 		ch: "r",
-		color: "silver",
+		color: "#ccc",
 		image: "rat"
 	});
 
@@ -187,7 +187,7 @@ RPG.Beings.GiantRat.prototype.init = function() {
 
 	this.setVisual({
 		desc: "giant rat",
-		color: "saddlebrown",
+		color: "#930",
 		image: "giant-rat"
 	});
 
@@ -210,7 +210,7 @@ RPG.Beings.Bat.prototype.init = function() {
 	this.setVisual({
 		desc: "bat",
 		ch: "b",
-		color: "darkgray",
+		color: "#999",
 		image: "bat"
 	});
 
@@ -232,7 +232,7 @@ RPG.Beings.GiantBat.prototype.init = function() {
 	this.setVisual({
 		desc: "giant bat",
 		ch: "B",
-		color: "saddlebrown",
+		color: "#930",
 		image: "giant-bat"
 	});
 
@@ -256,7 +256,7 @@ RPG.Beings.Wolf.prototype.init = function() {
 	this.setVisual({
 		desc: "wolf",
 		ch: "d",
-		color: "white",
+		color: "#fff",
 		image: "wolf"
 	});
 
@@ -277,7 +277,7 @@ RPG.Beings.Dog.prototype.init = function() {
 	this.setVisual({
 		desc: "dog",
 		ch: "d",
-		color: "darkkhaki",
+		color: "#cc6",
 		image: "dog"
 	});
 
@@ -300,7 +300,7 @@ RPG.Beings.Jackal.prototype.init = function() {
 	this.setVisual({
 		desc: "jackal",
 		ch: "d",
-		color: "darkgray",
+		color: "#999",
 		image: "jackal"
 	});
 
@@ -326,7 +326,7 @@ RPG.Beings.Bear.prototype.init = function() {
 	this.setVisual({
 		desc: "bear",
 		ch: "N",
-		color: "brown",
+		color: "#630",
 		image: "bear"
 	});
 
@@ -351,7 +351,7 @@ RPG.Beings.Snake.prototype.init = function() {
 	this.setVisual({
 		desc: "snake",
 		ch: "s",
-		color: "red",
+		color: "#f00",
 		image: "snake"
 	});
 
@@ -377,7 +377,7 @@ RPG.Beings.Orc.prototype.init = function() {
 	this.setVisual({
 		desc: "orc",
 		ch: "o",
-		color: "lime",
+		color: "#0f0",
 		image: "orc"
 	});
 	
@@ -408,7 +408,7 @@ RPG.Beings.LargeOrc.prototype.init = function() {
 	
 	this.setVisual({
 		desc: "large orc",
-		color: "limegreen",
+		color: "#3c3",
 		image: "orc-large"
 	});
 	
@@ -441,7 +441,7 @@ RPG.Beings.OrcChieftain.prototype.init = function() {
 	
 	this.setVisual({
 		desc: "orc chieftain",
-		color: "limegreen",
+		color: "#3c3",
 		image: "orc-chieftain"
 	});
 	
@@ -477,7 +477,7 @@ RPG.Beings.Ogre.prototype.init = function() {
 	this.setVisual({
 		desc: "ogre",
 		ch: "O",
-		color: "lime",
+		color: "#0f0",
 		image: "ogre"
 	});
 	
@@ -503,7 +503,7 @@ RPG.Beings.Gnoll.prototype.init = function() {
 	this.setVisual({
 		desc: "gnoll",
 		ch: "g",
-		color: "brown",
+		color: "#630",
 		image: "gnoll"
 	});
 	
@@ -534,7 +534,7 @@ RPG.Beings.Kobold.prototype.init = function() {
 	this.setVisual({
 		desc: "kobold",
 		ch: "k",
-		color: "lime",
+		color: "#0f0",
 		image: "kobold"
 	});
 	

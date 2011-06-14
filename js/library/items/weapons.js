@@ -12,7 +12,7 @@ RPG.Items.Weapon.prototype.init = function(hit, damage) {
 	this._dualHand = false;
 	this.setVisual({
 		ch: ")",
-		color: "lightgray"
+		color: "#ccc"
 	});
 }
 
@@ -61,7 +61,7 @@ RPG.Items.Club.prototype.init = function() {
 	this.setVisual({
 		image: "club",
 		desc: "club",
-		color: "brown"
+		color: "#630"
 	});
 }
 
@@ -76,7 +76,7 @@ RPG.Items.ShortSword.prototype.init = function() {
 	this.setVisual({
 		image: "short-sword",
 		desc: "short sword",
-		color: "darkgray"
+		color: "#999"
 	});
 }
 
@@ -91,7 +91,7 @@ RPG.Items.LongSword.prototype.init = function() {
 	this.setVisual({
 		image: "long-sword",
 		desc: "long sword",
-		color: "darkgray"
+		color: "#999"
 	});
 }
 
@@ -105,7 +105,7 @@ RPG.Items.Axe.prototype.init = function() {
 	this.setVisual({
 		image: "axe",
 		desc: "axe",
-		color: "brown"
+		color: "#630"
 	});
 }
 
@@ -120,7 +120,7 @@ RPG.Items.Hammer.prototype.init = function() {
 	this.setVisual({
 		image: "hammer",
 		desc: "hammer",
-		color: "darkgray"
+		color: "#999"
 	});
 	this._dualHand = true;
 }
@@ -136,7 +136,7 @@ RPG.Items.Staff.prototype.init = function() {
 	this.setVisual({
 		image: "staff",
 		desc: "staff",
-		color: "brown"
+		color: "#630"
 	});
 	this._dualHand = true;
 }
@@ -152,7 +152,7 @@ RPG.Items.Broom.prototype.init = function() {
 	this.setVisual({
 		image: "broom",
 		desc: "broom",
-		color: "brown"
+		color: "#630"
 	});
 	this._dualHand = true;
 }
@@ -167,7 +167,7 @@ RPG.Items.Torch.prototype.init = function() {
 	this.setVisual({
 		image: "torch",
 		desc: "torch",
-		color: "gray"
+		color: "#999"
 	});
 	this._descPlural = "torches"; 
 	
@@ -190,7 +190,7 @@ RPG.Items.KlingonSword.prototype.init = function() {
 	this.setVisual({
 		image: "klingon-sword",
 		desc: "Klingon ceremonial sword",
-		color: "gold"
+		color: "#fc0"
 	});
 }
 
@@ -302,7 +302,7 @@ RPG.Items.Rock.prototype.init = function() {
 	this.setVisual({
 		image: this._baseImage,
 		ch: this._baseChar,
-		color: "gray",
+		color: "#999",
 		desc: "rock"
 	});
 }
@@ -325,7 +325,7 @@ RPG.Items.Arrow.prototype.init = function(amount) {
 	this.setVisual({
 		image: this._baseImage,
 		ch: this._baseChar,
-		color: "brown",
+		color: "#630",
 		desc: "arrow"
 	});
 

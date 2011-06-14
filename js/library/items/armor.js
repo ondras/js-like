@@ -8,7 +8,7 @@ RPG.Items.Shield.prototype.init = function() {
 	this.parent();
 	this.setVisual({
 		ch: "[",
-		color: "darkgray"
+		color: "#999"
 	});
 }
 
@@ -66,7 +66,7 @@ RPG.Items.HeadGear.prototype.init = function() {
 	this.parent();
 	this.setVisual({
 		ch: "[",
-		color: "lightgray"
+		color: "#ccc"
 	});
 }
 
@@ -80,7 +80,7 @@ RPG.Items.Boots.prototype.init = function() {
 	this.parent();
 	this.setVisual({
 		ch: "[",
-		color: "brown"
+		color: "#630"
 	});
 }
 
@@ -94,7 +94,7 @@ RPG.Items.Armor.prototype.init = function() {
 	this.parent();
 	this.setVisual({
 		ch: "]",
-		color: "brown"
+		color: "#630"
 	});
 }
 
@@ -138,7 +138,7 @@ RPG.Items.Clothes.prototype.init = function() {
 	this.parent();
 	this._uncountable = true;
 	this.setVisual({
-		color: "lime",
+		color: "#0f0",
 		desc: "clothes",
 		image: "clothes"
 	});
@@ -153,8 +153,8 @@ RPG.Items.MageRobe = OZ.Class().extend(RPG.Items.Armor);
 RPG.Items.MageRobe.prototype.init = function() {
 	this.parent();
 	this.setVisual({
-		color: "red",
-		desc: "mage-robe",
+		color: "#f00",
+		desc: "mage robe",
 		image: "mage-robe"
 	});
 	this._modifiers[RPG.FEAT_PV] = 1;
@@ -184,7 +184,7 @@ RPG.Items.ChainMail = OZ.Class().extend(RPG.Items.Armor);
 RPG.Items.ChainMail.prototype.init = function() {
 	this.parent();
 	this.setVisual({
-		color: "darkgray",
+		color: "#999",
 		desc: "chain mail",
 		image: "chain-mail"
 	});
@@ -199,7 +199,7 @@ RPG.Items.ScaleMail = OZ.Class().extend(RPG.Items.Armor);
 RPG.Items.ScaleMail.prototype.init = function() {
 	this.parent();
 	this.setVisual({
-		color: "darkgray",
+		color: "#999",
 		desc: "scale mail",
 		image: "scale-mail"
 	});

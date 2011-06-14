@@ -146,7 +146,7 @@ RPG.Spells.Fireball.prototype.init = function(caster) {
 	
 	this._explosionImage = "fireball-explosion";
 	this._baseImage = "fireball";
-	this.setVisual({color:"red"});
+	this.setVisual({color:"#f00"});
 }
 
 RPG.Spells.Fireball.prototype._fly = function(coords) {

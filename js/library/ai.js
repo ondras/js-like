@@ -535,9 +535,9 @@ RPG.AI.Shopkeeper.prototype.getItems = function() {
 
 RPG.AI.Shopkeeper.prototype._addEvents = function() {
 	this.parent();
-	this._ec.push(RPG.Game.addEvent(null, "pick", this.bind(this._pick)));
-	this._ec.push(RPG.Game.addEvent(null, "drop", this.bind(this._drop)));
-	this._ec.push(RPG.Game.addEvent(null, "clone", this.bind(this._clone)));
+	this._ec.push(RPG.Game.addEvent(null, "item-pick", this.bind(this._pick)));
+	this._ec.push(RPG.Game.addEvent(null, "item-drop", this.bind(this._drop)));
+	this._ec.push(RPG.Game.addEvent(null, "item-clone", this.bind(this._clone)));
 }
 
 RPG.AI.Shopkeeper.prototype._pick = function(e) {

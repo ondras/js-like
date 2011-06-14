@@ -101,7 +101,7 @@ RPG.Story.prototype._createPC = function(race, profession, name) {
 }
 
 RPG.Story.prototype._addDeathEvent = function() {
-	RPG.Game.addEvent(this._pc, "death", this.bind(this._death));
+	RPG.Game.addEvent(this._pc, "being-death", this.bind(this._death));
 }
 	
 /**

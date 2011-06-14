@@ -31,6 +31,10 @@ RPG.Beings.PC.prototype.toJSON = function(handler) {
 	return handler.toJSON(this, {exclude:"_visibleCoordsHash"});
 }
 
+RPG.Beings.PC.prototype.revive = function() {
+	this.updateVisibility();
+}
+
 RPG.Beings.PC.prototype.getQuests = function() {
 	return this._quests;
 }

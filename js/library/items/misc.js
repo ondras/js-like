@@ -60,7 +60,7 @@ RPG.Items.Apple.prototype.init = function() {
 	this.setVisual({
 		image: "apple",
 		desc: "apple",
-		color: "lime"
+		color: "#0f0"
 	});
 }
 
@@ -74,7 +74,7 @@ RPG.Items.DwarvenSausage.prototype.init = function() {
 	this.setVisual({
 		image: "dwarven-sausage",
 		desc: "dwarven sausage",
-		color: "firebrick"
+		color: "#933"
 	});
 }
 
@@ -88,7 +88,7 @@ RPG.Items.IronRation.prototype.init = function() {
 	this.setVisual({
 		image: "iron-ration",
 		desc: "iron ration",
-		color: "brown"
+		color: "#630"
 	});
 }
 
@@ -108,7 +108,7 @@ RPG.Items.Gold.prototype.init = function(amount) {
 		image: "gold",
 		desc: "piece of gold",
 		ch: "$",
-		color: "gold"
+		color: "#fc0"
 	});
 	this._descPlural = "pieces";
 	this._amount = amount;
@@ -144,7 +144,7 @@ RPG.Items.Diamond.prototype.init = function() {
 	this.setVisual({
 		image: "diamond",
 		desc: "diamond",
-		color: "white"
+		color: "#fff"
 	});
 }
 
@@ -159,7 +159,7 @@ RPG.Items.Sapphire.prototype.init = function() {
 	this.setVisual({
 		image: "sapphire",
 		desc: "sapphire",
-		color: "blue"
+		color: "#00f"
 	});
 }
 
@@ -174,7 +174,7 @@ RPG.Items.Ruby.prototype.init = function() {
 	this.setVisual({
 		image: "ruby",
 		desc: "ruby",
-		color: "red"
+		color: "#f00"
 	});
 }
 
@@ -189,7 +189,7 @@ RPG.Items.Opal.prototype.init = function() {
 	this.setVisual({
 		image: "opal",
 		desc: "opal",
-		color: "magenta"
+		color: "#f0f"
 	});
 }
 
@@ -204,7 +204,7 @@ RPG.Items.Turquoise.prototype.init = function() {
 	this.setVisual({
 		image: "turquoise",
 		desc: "turquoise",
-		color: "turquoise"
+		color: "#3cc"
 	});
 }
 
@@ -231,7 +231,7 @@ RPG.Items.HealingPotion.prototype.init = function() {
 	this.setVisual({
 		image: "potion-healing",
 		desc: "healing potion",
-		color: "blue"
+		color: "#00f"
 	});
 }
 
@@ -273,7 +273,7 @@ RPG.Items.BrassRing.prototype.init = function() {
 	this.setVisual({
 		image: "brass-ring",
 		desc: "brass ring",
-		color: "burlywood"
+		color: "#c66"
 	});
 }
 
@@ -298,7 +298,7 @@ RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 	this.setVisual({
 		image: "silver-ring",
 		desc: "ring of " + RPG.Feats[attribute].label,
-		color: "silver"
+		color: "#ccc"
 	});
 	this._descPlural = "rings of " + RPG.Feats[attribute].label;
 }
@@ -334,7 +334,7 @@ RPG.Items.Scroll.prototype.init = function(spell) {
 
 	this.setVisual({
 		ch: "?",
-		color: "white",
+		color: "#fff",
 		image: "scroll",
 		desc: "scroll of " + spell.label.capitalize()
 	});
@@ -364,7 +364,7 @@ RPG.Items.Scroll.prototype.read = function(being) {
 	being.addSpell(this._spell);
 	being.removeItem(this);
 	if (being == RPG.Game.pc) { 
-		var s = RPG.Misc.format("You learn the '%s' spell.", this._spell.label);
+		var s = RPG.Misc.format("You learn the '%S' spell.", this._spell.label);
 		RPG.UI.buffer.message(s); 
 	}
 }

@@ -21,7 +21,7 @@ RPG.Beings.Skeleton.prototype.init = function() {
 	this.setVisual({
 		desc: "skeleton",
 		ch: "z",
-		color: "gainsboro",
+		color: "#ccc",
 		image: "skeleton"
 	});
 	
@@ -50,7 +50,7 @@ RPG.Beings.Zombie.prototype.init = function() {
 	this.setVisual({
 		desc: "zombie",
 		ch: "z",
-		color: "goldenrod",
+		color: "#c93",
 		image: "zombie"
 	});
 	

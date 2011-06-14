@@ -30,7 +30,7 @@ RPG.Quests.Kill.prototype._addEvents = function() {
 	var target = this._being;
 	if (typeof(target) == "function") { target = null; }
 
-	this._event = RPG.Game.addEvent(target, "death", this.bind(this._death));
+	this._event = RPG.Game.addEvent(target, "being-death", this.bind(this._death));
 }
 
 RPG.Quests.Kill.prototype._death = function(e) {

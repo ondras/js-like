@@ -91,7 +91,7 @@ RPG.Serializer.prototype._deferInstance = function(what) {
  * JSONify a class by converting it to string with index
  */
 RPG.Serializer.prototype._classToJSON = function(cl) {
-	return "#c"+this.classIndex(cl);
+	return "$"+this.classIndex(cl);
 }
 
 RPG.Serializer.prototype._objectToJSON = function(obj, options) {
@@ -110,7 +110,7 @@ RPG.Serializer.prototype._objectToJSON = function(obj, options) {
 	var result = {};
 
 	if (obj.constructor.extend) {
-		result["#"] = this.classIndex(obj.constructor);
+		result["$"] = this.classIndex(obj.constructor);
 	}
 
 	var ignore = ["constructor"];
@@ -218,7 +218,7 @@ RPG.Serializer.Stack.prototype.init = function(serializer, ctor) {
  * Return stack identification
  */
 RPG.Serializer.Stack.prototype.getID = function() {
-	return "#" + this._index;
+	return "$" + this._index;
 }
 
 /**
@@ -238,7 +238,7 @@ RPG.Serializer.Stack.prototype.add = function(instance) {
 		index = this._instances.length;
 		this._instances.push(instance);
 	}
-	return this.getID() + "#" + index;
+	return this.getID() + "$" + index;
 }
 
 /**
@@ -300,10 +300,10 @@ RPG.Parser.prototype.go = function(str) {
 	this._instances = {};
 	this._done = {};
 	for (var p in data) {
-		if (p.charAt(0) != "#") { continue; }
+		if (p.charAt(0) != "$") { continue; }
 		var stack = data[p];
 		for (var i=0;i<stack.length;i++) {
-			var id = p + "#" + i;
+			var id = p + "$" + i;
 			this._instances[id] = stack[i];
 		}
 	}
@@ -356,7 +356,7 @@ RPG.Parser.prototype._parse = function(obj) {
  * Resolve string reference to constructor/instance
  */
 RPG.Parser.prototype._parseString = function(string, object, property) {
-	var r = string.match(/^#(c|[0-9]*#)([0-9]+)$/);
+	var r = string.match(/^\$(c|[0-9]*\$)([0-9]+)$/);
 	if (!r) { return; }
 
 	if (r[1] == "c") {
@@ -380,7 +380,7 @@ RPG.Parser.prototype._parseString = function(string, object, property) {
  */
 RPG.Parser.prototype._parseInstance = function(id) {
 	var instance = this._instances[id];
-	var classIndex = instance["#"];
+	var classIndex = instance["$"];
 	var ctor = this._parseClass(classIndex);
 	if (!ctor) { throw new Error("No class available for '"+id+"'"); }
 	
@@ -391,7 +391,7 @@ RPG.Parser.prototype._parseInstance = function(id) {
 	
 	/* copy all values */
 	for (var p in instance) {
-		if (p == "#") { continue; }
+		if (p == "$") { continue; }
 		result[p] = instance[p];
 	}
 	

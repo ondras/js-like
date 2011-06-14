@@ -12,7 +12,7 @@ RPG.Beings.Villager.prototype.init = function() {
 	this.setVisual({
 		desc: "villager",
 		ch: "@",
-		color: "peru",
+		color: "#c93",
 		image: "villager"
 	});
 	

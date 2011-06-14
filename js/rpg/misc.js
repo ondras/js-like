@@ -32,7 +32,6 @@ RPG.Misc.RandomValue.prototype.add = function(rv) {
  * @class Coordinates
  */
 RPG.Misc.Coords = OZ.Class();
-RPG.Misc.Coords.callers = {};
 RPG.Misc.Coords.fromString = function(str) {
 	var parts = str.split(",");
 	return new this(parseInt(parts[0]), parseInt(parts[1]));
@@ -288,7 +287,7 @@ RPG.Misc.IProjectile.prototype.computeTrajectory = function(source, target, map)
  */
 RPG.Misc.IProjectile.Mark = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Misc.IProjectile.Mark.prototype.init = function() {
-	this.setVisual({ch:"*", color:"white", image:"crosshair"});
+	this.setVisual({ch:"*", color:"#fff", image:"crosshair"});
 }
 
 /**
@@ -297,7 +296,7 @@ RPG.Misc.IProjectile.Mark.prototype.init = function() {
  */
 RPG.Misc.IProjectile.EndMark = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Misc.IProjectile.EndMark.prototype.init = function() {
-	this.setVisual({ch:"X", color:"white", image:"crosshair-end"});
+	this.setVisual({ch:"X", color:"#fff", image:"crosshair-end"});
 }
 
 /**

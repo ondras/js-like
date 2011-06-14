@@ -46,7 +46,7 @@ RPG.Races.Orc.label = "orc";
 RPG.Races.Orc.image = "orc";
 RPG.Races.Orc.prototype.init = function() {
 	this.parent();
-	this.setVisual({color:"lime"});
+	this.setVisual({color:"#0f0"});
 	
 	this._defaults[RPG.FEAT_STRENGTH] += 3;
 	this._defaults[RPG.FEAT_TOUGHNESS] += 4;

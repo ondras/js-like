@@ -466,7 +466,7 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 	RPG.UI.map.redrawCoords(this._coords);
 	RPG.Game.getEngine().removeActor(this);
 	
-	this.dispatch("death");
+	this.dispatch("being-death");
 }
 
 /**
@@ -639,7 +639,7 @@ RPG.Beings.BaseBeing.prototype.drop = function(items) {
 			item = item.subtract(amount);
 		}
 		this._map.addItem(item, this._coords);
-		this.dispatch("drop", {item:item});
+		this.dispatch("item-drop", {item:item});
 		
 		var verb = RPG.Misc.verb("drop", this);
 		var s = RPG.Misc.format("%A %s %a.", this, verb, item);
@@ -668,7 +668,7 @@ RPG.Beings.BaseBeing.prototype.pick = function(items) {
 		}
 		
 		this.addItem(item);
-		this.dispatch("pick", {item:item});
+		this.dispatch("item-pick", {item:item});
 		
 		var verb = RPG.Misc.verb("pick", this);
 		var s = RPG.Misc.format("%A %s up %a.", this, verb, item);

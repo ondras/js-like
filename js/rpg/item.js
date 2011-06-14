@@ -36,7 +36,7 @@ RPG.Items.BaseItem.prototype.clone = function() {
 		clone._modifiers[feat] = this._modifiers[feat];
 	}
 	
-	this.dispatch("clone", {clone:clone});
+	this.dispatch("item-clone", {clone:clone});
 	return clone;
 }
 
