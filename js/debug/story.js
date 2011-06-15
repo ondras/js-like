@@ -19,8 +19,15 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 	}
 	
 	var up = new RPG.Features.Staircase.Up();
-	map.setFeature(up, map.getFreeCoords());
+	var coords = map.getFreeCoords();
+	map.setFeature(up, coords);
 	
+	var trap = new RPG.Features.Trap.Flash();
+	map.setFeature(trap, coords.neighbor(RPG.W));
+
+	var goblin = new RPG.Beings.Goblin();
+	map.setBeing(goblin, coords.neighbor(RPG.E));
+
 	this._staircases["end"] = up;
 	this._staircaseCallbacks["end"] = this.end;
 
@@ -28,7 +35,7 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 }
 
 RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
-	var pc = new RPG.Beings.God(race, profession);
+	var pc = new RPG.Beings.PC(race, profession);
 	pc.setName(name);
 	return pc;
 }

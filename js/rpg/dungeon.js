@@ -397,6 +397,8 @@ RPG.Map.prototype.setBeing = function(being, coords, ignoreOldPosition) {
 	var newArea = this.getArea(newCoords);
 	var oldCell = (oldMap ? oldMap.getCell(oldCoords) : null);
 	var newCell = this.getCell(newCoords);
+	var oldFeature = (oldMap ? oldMap.getFeature(oldCoords) : null);
+	var newFeature = this.getFeature(newCoords);
 	
 	if (oldMap != newMap) { /* map change */
 		if (oldMap) { oldMap.leaving(being); }
@@ -414,6 +416,11 @@ RPG.Map.prototype.setBeing = function(being, coords, ignoreOldPosition) {
 	if (oldCell != newCell) { /* cell change */
 		if (oldCell) { oldCell.leaving(being); }
 		newCell.entering(being);
+	}
+
+	if (oldFeature != newFeature) { /* feature change */
+		if (oldFeature) { oldFeature.leaving(being); }
+		if (newFeature) { newFeature.entering(being); }
 	}
 
 	this._beings[id] = being;

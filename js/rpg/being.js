@@ -25,10 +25,8 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._setRace(r);
 	this._initStatsAndFeats(r);
 
-	var regen = new RPG.Effects.Regeneration(this);
-	this.addEffect(regen);
-	var regen = new RPG.Effects.ManaRegeneration(this);
-	this.addEffect(regen);
+	this.addEffect(new RPG.Effects.HPRegeneration());
+	this.addEffect(new RPG.Effects.ManaRegeneration());
 	this.fullStats();
 }
 
@@ -60,8 +58,8 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function(race) {
 	var defaults = race.getDefaults();
 	
 	this._stats = {};
-	this._stats[RPG.STAT_HP] = 0;
-	this._stats[RPG.STAT_MANA] = 0;
+	this._stats[RPG.STAT_HP] = Infinity;
+	this._stats[RPG.STAT_MANA] = Infinity;
 	
 	this._feats = {};
 	
@@ -300,6 +298,7 @@ RPG.Beings.BaseBeing.prototype.getEffects = function() {
 
 RPG.Beings.BaseBeing.prototype.addEffect = function(e) {
 	this._effects.push(e);
+	e.entering(this);
 	return this;
 }
 
@@ -307,6 +306,7 @@ RPG.Beings.BaseBeing.prototype.removeEffect = function(e) {
 	var index = this._effects.indexOf(e);
 	if (index == -1) { throw new Error("Cannot find effect"); }
 	this._effects.splice(index, 1);
+	e.leaving(this);
 	return this;
 }
 
@@ -344,6 +344,9 @@ RPG.Beings.BaseBeing.prototype._updateFeat = function(feat) {
 		modifier += this._modifierList[i].getModifier(feat);
 	}
 	f.setModified(modifier);
+	
+	if (feat == RPG.FEAT_MAX_HP) { this.adjustStat(RPG.STAT_HP, 0); }
+	if (feat == RPG.FEAT_MAX_MANA) { this.adjustStat(RPG.STAT_MANA, 0); }
 	
 	if (f instanceof RPG.Feats.AdvancedFeat) {
 		var modified = f.getModified();
@@ -497,11 +500,12 @@ RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
 
 	var knows = this.knowsFeature(trap);
 	var activated = true;
+
 	if (knows) { activated = RPG.Rules.isTrapActivated(this, trap); }
 
 	if (activated) {
 		/* dmg or whateva */
-		trap.setOff();
+		trap.setOff(this);
 
 		/* let the being know about this */
 		this._knownFeatures.push(trap);
@@ -828,14 +832,6 @@ RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
 	return RPG.ACTION_NO_TIME;
 }
 
-/* -------------------- PRIVATE --------------- */
-
-RPG.Beings.BaseBeing.prototype._describeLaunch = function(projectile, target) {
-}
-
-RPG.Beings.BaseBeing.prototype._describeAttack = function(hit, damage, kill, being, slot) {
-}
-
 RPG.Beings.BaseBeing.prototype.addModifiers = function(imodifier) {
 	this._modifierList.push(imodifier);
 	this._updateFeatsByModifier(imodifier);
@@ -846,6 +842,14 @@ RPG.Beings.BaseBeing.prototype.removeModifiers = function(imodifier) {
 	if (index == -1) { throw new Error("Cannot find imodifier '"+imodifier+"'"); }
 	this._modifierList.splice(index, 1);
 	this._updateFeatsByModifier(imodifier);
+}
+
+/* -------------------- PRIVATE --------------- */
+
+RPG.Beings.BaseBeing.prototype._describeLaunch = function(projectile, target) {
+}
+
+RPG.Beings.BaseBeing.prototype._describeAttack = function(hit, damage, kill, being, slot) {
 }
 
 /**

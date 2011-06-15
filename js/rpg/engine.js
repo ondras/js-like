@@ -96,7 +96,5 @@ RPG.Engine.prototype._newActor = function() {
 	this._actor = actor;
 	if (!this._actor) { return; }
 	var effects = this._actor.getEffects();
-	for (var i=0;i<effects.length;i++) {
-		effects[i].go();
-	}
+	for (var i=0;i<effects.length;i++) { effects[i].go(); }
 }

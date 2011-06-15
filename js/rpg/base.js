@@ -83,26 +83,36 @@ RPG.Races.BaseRace.prototype.getSlots = function() {
 }
 
 /**
- * @class Basic per-turn effect
+ * @class Basic per-turn effect: represents a condition for a being.
+ * Effects have various qualities:
+ *  - they may hold modifiers,
+ *  - they are eneterable,
+ *  - they may have a limited duration,
+ *  - additionally, they can perform anything during being's turn
+ * @augments RPG.Misc.IEnterable
  */
-RPG.Effects.BaseEffect = OZ.Class();
-RPG.Effects.BaseEffect.prototype.init = function(being) {
-	this._being = being;
+RPG.Effects.BaseEffect = OZ.Class().implement(RPG.Misc.IEnterable);
+RPG.Effects.BaseEffect.prototype.init = function(turnsRemaining) {
+	this._modifiers = {};
+	this._being = null;
+	this._turnsRemaining = turnsRemaining || 0;
 }
 
 RPG.Effects.BaseEffect.prototype.go = function() {
+	if (this._turnsRemaining) {
+		this._turnsRemaining--;
+		if (!this._turnsRemaining) { this._being.removeEffect(this); }
+	}
 }
 
-/*
- 	if (!window.__log) { window.__log = []; }
-	var caller = arguments.callee.caller;
-	var found = false;
-	for (var i=0;i<__log.length;i++) {
-		var item = window.__log[i];
-		if (item[0] == caller) { item[1]++; found = true; }
-	}
-	if (!found) { window.__log.push([caller, 1]); }
-*/
+RPG.Effects.BaseEffect.prototype.entering = function(being) {
+	this._being = being;
+	return RPG.Misc.IEnterable.prototype.entering.apply(this, arguments);
+}
+
+RPG.Effects.BaseEffect.prototype.leaving = function(being) {
+	return RPG.Misc.IEnterable.prototype.leaving.apply(this, arguments);
+}
 
 /**
  * @class Body part - place for an item

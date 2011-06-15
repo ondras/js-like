@@ -538,4 +538,3 @@ RPG.Misc.format = function(formatStr) {
 RPG.Misc.verb = function(verb, who) {
 	return (who == RPG.Game.pc ? verb : verb+"s");
 }
-

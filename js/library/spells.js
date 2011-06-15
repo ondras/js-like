@@ -87,7 +87,7 @@ RPG.Spells.MagicExplosion.prototype.init = function(caster) {
 	this._radius = 2;
 
 	this._explosionImage = "magic-explosion";
-	this.setVisual({color:"yellow"});
+	this.setVisual({color:"#ff0"});
 }
 
 RPG.Spells.MagicExplosion.prototype.getRadius = function() {
@@ -112,7 +112,7 @@ RPG.Spells.MagicBolt.prototype.init = function(caster) {
 	this._range = 5;
 
 	this._baseImage = "magic-bolt";
-	this.setVisual({color:"blueviolet"});
+	this.setVisual({color:"#93c"});
 }
 
 RPG.Spells.MagicBolt.prototype._fly = function(coords) {

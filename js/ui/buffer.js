@@ -5,22 +5,20 @@ RPG.UI.TextBuffer = OZ.Class();
 RPG.UI.TextBuffer.prototype.init = function(container) {
 	this._dom = {
 		container: container,
-		textarea: OZ.DOM.elm("textarea")
+		textarea: OZ.DOM.elm("textarea"),
+		backlog: OZ.DOM.elm("textarea")
 	}
 	this._dom.textarea.value = "";
 	this._dom.textarea.readOnly = true;
+	this._dom.backlog.value = "";
+	this._dom.backlog.readOnly = true;
 	container.appendChild(this._dom.textarea);
+	container.appendChild(this._dom.backlog);
+	this.hideBacklog();
 	
-	this._backlog = "";
+	this._backlog = [];
 	this._lastMessage = "";
 	this._repeat = 0;
-}
-
-RPG.UI.TextBuffer.prototype.reset = function() {
-	this._backlog = "";
-	this._lastMessage = "";
-	this._repeat = 0;
-	this._dom.textarea.value = "";
 }
 
 RPG.UI.TextBuffer.prototype.message = function(str) {
@@ -28,12 +26,17 @@ RPG.UI.TextBuffer.prototype.message = function(str) {
 
 	if (str == this._lastMessage) {
 		this._repeat++;
+		this._backlog.pop();
+		this._backlog.push(this._lastMessage + " (" + (this._repeat+1) + "x)");
 	} else {
-		this._flushBacklog();
+		this._backlog.push(str);
 		this._repeat = 0;
 		this._lastMessage = str;
 	}
 	
+	if (this._dom.backlog.length > 500) { this._dom.backlog.shift(); }
+	this._dom.backlog.value = this._backlog.join("\n");
+	this._dom.backlog.scrollTop = this._dom.backlog.scrollHeight;	
 }
 
 RPG.UI.TextBuffer.prototype.important = function(str) {
@@ -43,29 +46,17 @@ RPG.UI.TextBuffer.prototype.important = function(str) {
 
 RPG.UI.TextBuffer.prototype.showBacklog = function() {
 	OZ.DOM.addClass(this._dom.container, "backlog");
-	this._flushBacklog();
-	this._dom.textarea.value = this._backlog;
-	this._dom.textarea.scrollTop = this._dom.textarea.scrollHeight;
+	this._dom.textarea.style.display = "none";
+	this._dom.backlog.style.display = "";
+	this._dom.backlog.scrollTop = this._dom.backlog.scrollHeight;
 }
 
 RPG.UI.TextBuffer.prototype.hideBacklog = function() {
 	OZ.DOM.removeClass(this._dom.container, "backlog");
-	this._dom.textarea.value = this._lastMessage;
+	this._dom.textarea.style.display = "";
+	this._dom.backlog.style.display = "none";
 }
 
 RPG.UI.TextBuffer.prototype.clear = function() {
 	this._dom.textarea.value = "";
-	if (this._backlog.length && this._backlog.charAt(this._backlog.length-1) != "\n") {
-		this._backlog += "\n";
-	}
-}
-
-RPG.UI.TextBuffer.prototype._flushBacklog = function() {
-	if (this._lastMessage) { 
-		this._backlog += this._lastMessage + " "; 
-		this._lastMessage = "";
-	}
-	if (this._repeat > 1) { 
-		this._backlog += "("+this._repeat+"x)\n"; 
-	}
 }

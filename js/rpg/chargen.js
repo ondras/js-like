@@ -31,8 +31,6 @@ RPG.CharGen.prototype.build = function() {
 	p2.innerHTML = "Your name: ";
 	p2.appendChild(this._name);
 
-
-
 	var t = OZ.DOM.elm("table", {className:"chargen"});
 	var tb = OZ.DOM.elm("tbody");
 	t.appendChild(tb);

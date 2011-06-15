@@ -95,7 +95,7 @@ RPG.Features.Door.prototype.init = function() {
 	this._hp = 4;
 	this._closed = null;
 	this._locked = null;
-	this.setVisual({color:"sienna"});
+	this.setVisual({color:"#963"});
 	this.open();
 }
 
@@ -170,7 +170,7 @@ RPG.Features.Trap.prototype.entering = function(being) {
 	being.trapEncounter(this);
 }
 
-RPG.Features.Trap.prototype.setOff = function() {
+RPG.Features.Trap.prototype.setOff = function(being) {
 }
 
 RPG.Features.Trap.prototype.getDamage = function() {
@@ -192,9 +192,8 @@ RPG.Features.Trap.Teleport.prototype.init = function() {
 	});
 }
 
-RPG.Features.Trap.Teleport.prototype.setOff = function(e) {
+RPG.Features.Trap.Teleport.prototype.setOff = function(being) {
 	var c = this._map.getFreeCoords();
-	var being = this._map.getBeing(this._coords);
 	being.teleport(c);
 }
 
@@ -215,9 +214,8 @@ RPG.Features.Trap.Pit.prototype.init = function() {
 	});
 }
 
-RPG.Features.Trap.Pit.prototype.setOff = function() {
+RPG.Features.Trap.Pit.prototype.setOff = function(being) {
 	var canSee = RPG.Game.pc.canSee(this._coords);
-	var being = this._map.getBeing(this._coords);
 
 	if (canSee) {
 		var verb = RPG.Misc.verb("fall", being);
@@ -236,6 +234,34 @@ RPG.Features.Trap.Pit.prototype.setOff = function() {
 }
 
 /**
+ * @class Flash trap
+ * @augments RPG.Features.Trap
+ */
+RPG.Features.Trap.Flash = OZ.Class().extend(RPG.Features.Trap);
+
+RPG.Features.Trap.Flash.prototype.init = function() {
+	this.parent();
+	
+	this.setVisual({
+		desc: "flash trap",
+		image: "trap-flash FIXME",
+		color: "#ff0"
+	});
+}
+
+RPG.Features.Trap.Flash.prototype.setOff = function(being) {
+	var canSee = RPG.Game.pc.canSee(this._coords);
+
+	var blindness = new RPG.Effects.Blindness(5);
+	being.addEffect(blindness);
+
+	if (canSee) {
+		var s = RPG.Misc.format("%A %is blinded by a light flash!", being);
+		RPG.UI.buffer.message(s);
+	}
+}
+
+/**
  * @class Staircase leading up/down
  * @augments RPG.Features.BaseFeature
  */
@@ -243,7 +269,7 @@ RPG.Features.Staircase = OZ.Class().extend(RPG.Features.BaseFeature);
 
 RPG.Features.Staircase.prototype.init = function() {
 	this.parent();
-	this.setVisual({color:"silver"});
+	this.setVisual({color:"#ccc"});
 	this._target = null;
 }
 
@@ -307,6 +333,7 @@ RPG.Features.Staircase.Up.prototype.init = function() {
 RPG.Areas.Shop = OZ.Class().extend(RPG.Areas.Room);
 RPG.Areas.Shop.prototype.init = function(corner1, corner2) {
 	this.parent(corner1, corner2);
+	this._modifiers[RPG.FEAT_MAX_MANA] = -Infinity; /* in shops, there is no mana .) */
 	this._door = null;
 	this._welcome = "You entered a shop.";
 }

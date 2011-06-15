@@ -21,9 +21,7 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	
 	prof.setup(this);
 	
-	var tc = new RPG.Effects.TurnCounter(this);
-	this.addEffect(tc);
-	
+	this.addEffect(new RPG.Effects.TurnCounter());
 	this.fullStats();
 }
 
@@ -160,6 +158,9 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 	this._visibleCoordsHash = {};
 	var id = this._coords.x+","+this._coords.y;
 	this._visibleCoordsHash[id] = this._coords;
+
+	/* standing in a dark place */
+	if (map.blocks(RPG.BLOCKS_LIGHT, this._coords)) { return; }
 	
 	/* number of cells in current ring */
 	var cellCount = 0;
@@ -270,7 +271,7 @@ RPG.Beings.PC.prototype.teleport = function(coords) {
 /* ------------------------- ACTIONS -----------------*/
 
 RPG.Beings.PC.prototype.activateTrap = function(trap) {
-	trap.setOff();
+	trap.setOff(this);
 	return RPG.ACTION_TIME;
 }
 
@@ -414,7 +415,7 @@ RPG.Beings.PC.prototype._search = function(coords) {
 	
 	var f = this._map.getFeature(coords);
 	if (f && f instanceof RPG.Features.Trap && !this.knowsFeature(f) && RPG.Rules.isTrapDetected(this, f)) {
-		this._knownTraps.push(f);
+		this._knownFeatures.push(f);
 		var s = RPG.Misc.format("You discover %a!", f);
 		RPG.UI.buffer.message(s);
 		return 1;

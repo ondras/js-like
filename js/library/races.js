@@ -63,7 +63,7 @@ RPG.Races.Human.label = "human";
 RPG.Races.Human.image = "human";
 RPG.Races.Human.prototype.init = function() {
 	this.parent();
-	this.setVisual({color:"royalblue"});
+	this.setVisual({color:"#36c"});
 	this._defaults[RPG.FEAT_STRENGTH] += 0;
 	this._defaults[RPG.FEAT_TOUGHNESS] += 2;
 	this._defaults[RPG.FEAT_MAGIC] += 3;
@@ -79,7 +79,7 @@ RPG.Races.Elf.label = "elf";
 RPG.Races.Elf.image = "elf";
 RPG.Races.Elf.prototype.init = function() {
 	this.parent();
-	this.setVisual({color:"limegreen"});
+	this.setVisual({color:"#3c3"});
 	this._defaults[RPG.FEAT_STRENGTH] -= 1;
 	this._defaults[RPG.FEAT_TOUGHNESS] += -1;
 	this._defaults[RPG.FEAT_MAGIC] += 5;
@@ -95,7 +95,7 @@ RPG.Races.Dwarf.label = "dwarf";
 RPG.Races.Dwarf.image = "dwarf";
 RPG.Races.Dwarf.prototype.init = function() {
 	this.parent();
-	this.setVisual({color:"khaki"});
+	this.setVisual({color:"#fc6"});
 	this._defaults[RPG.FEAT_TOUGHNESS] += 5;
 	this._defaults[RPG.FEAT_MAGIC] += 1;
 }
