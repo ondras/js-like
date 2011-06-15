@@ -24,7 +24,6 @@ RPG.Serializer.prototype.go = function() {
 	
 	this._stacks.push(new RPG.Serializer.Stack(this, RPG.Beings.BaseBeing));
 	this._stacks.push(new RPG.Serializer.Stack(this, RPG.Items.BaseItem));
-	this._stacks.push(new RPG.Serializer.Stack(this, RPG.Visual));
 	this._stacks.push(new RPG.Serializer.Stack(this, RPG.Map));
 	this._stacks.push(new RPG.Serializer.Stack(this));
 

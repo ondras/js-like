@@ -3,8 +3,7 @@
  * @augments RPG.Professions.BaseProfession
  */
 RPG.Professions.Adventurer = OZ.Class().extend(RPG.Professions.BaseProfession);
-RPG.Professions.Adventurer.label = "adventurer";
-RPG.Professions.Adventurer.image = "adventurer";
+RPG.Professions.Adventurer.visual = { desc:"adventurer", image:"adventurer" };
 RPG.Professions.Adventurer.prototype.setup = function(being) {
 	this.parent(being);
 
@@ -16,8 +15,7 @@ RPG.Professions.Adventurer.prototype.setup = function(being) {
  * @augments RPG.Professions.BaseProfession
  */
 RPG.Professions.Warrior = OZ.Class().extend(RPG.Professions.BaseProfession);
-RPG.Professions.Warrior.label = "warrior";
-RPG.Professions.Warrior.image = "warrior";
+RPG.Professions.Warrior.visual = { desc:"warrior", image:"warrior" };
 RPG.Professions.Warrior.prototype.setup = function(being) {
 	this.parent(being);
 
@@ -33,8 +31,7 @@ RPG.Professions.Warrior.prototype.setup = function(being) {
  * @augments RPG.Professions.BaseProfession
  */
 RPG.Professions.Archer = OZ.Class().extend(RPG.Professions.BaseProfession);
-RPG.Professions.Archer.label = "archer";
-RPG.Professions.Archer.image = "archer";
+RPG.Professions.Archer.visual = { desc:"archer", image:"archer" };
 RPG.Professions.Archer.prototype.setup = function(being) {
 	this.parent(being);
 
@@ -47,8 +44,7 @@ RPG.Professions.Archer.prototype.setup = function(being) {
  * @augments RPG.Professions.BaseProfession
  */
 RPG.Professions.Wizard = OZ.Class().extend(RPG.Professions.BaseProfession);
-RPG.Professions.Wizard.label = "wizard";
-RPG.Professions.Wizard.image = "wizard";
+RPG.Professions.Wizard.visual = { desc:"wizard", image:"wizard" };
 RPG.Professions.Wizard.prototype.setup = function(being) {
 	this.parent(being);
 

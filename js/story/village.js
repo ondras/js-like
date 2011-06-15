@@ -157,6 +157,7 @@ RPG.Map.SmallVillage.prototype._buildPeople = function() {
  */
 RPG.Beings.VillageHealer = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageHealer.factory.ignore = true;
+RPG.Beings.VillageHealer.visual = { desc:"village healer", color:"#f00", image:"village-healer" };
 RPG.Beings.VillageHealer.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
 
@@ -169,12 +170,6 @@ RPG.Beings.VillageHealer.prototype.init = function() {
 	this.setFeat(RPG.FEAT_PV, 10);
 	this.setFeat(RPG.FEAT_MAX_HP, 20);
 	
-	this.setVisual({
-		desc: "village healer",
-		color: "#f00",
-		image: "village-healer"
-	});
-
 	this.fullStats();
 }
 
@@ -184,6 +179,7 @@ RPG.Beings.VillageHealer.prototype.init = function() {
  */
 RPG.Beings.VillageShopkeeper = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageShopkeeper.factory.ignore = true;
+RPG.Beings.VillageShopkeeper.visual = { desc:"shopkeeper", color:"#f00", image:"village-shopkeeper" };
 RPG.Beings.VillageShopkeeper.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
 
@@ -195,12 +191,6 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
 	this.setFeat(RPG.FEAT_PV, 10);
 	this.setFeat(RPG.FEAT_STRENGTH, 20);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
-	
-	this.setVisual({
-		desc: "shopkeeper",
-		color: "#f00",
-		image: "village-shopkeeper"
-	});
 
 	this.fullStats();
 }
@@ -211,6 +201,7 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
  */
 RPG.Beings.VillageWitch = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageWitch.factory.ignore = true;
+RPG.Beings.VillageWitch.visual = { desc:"witch", color:"#00f", image:"village-witch" };
 RPG.Beings.VillageWitch.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
 
@@ -224,12 +215,6 @@ RPG.Beings.VillageWitch.prototype.init = function() {
 	this.addItem(broom);
 	this.equip(RPG.SLOT_WEAPON, broom);
 	
-	this.setVisual({
-		desc: "witch",
-		color: "#00f",
-		image: "village-witch"
-	});
-
 	this.addSpell(RPG.Spells.MagicBolt);
 	this.addSpell(RPG.Spells.Teleport);
 
@@ -244,6 +229,7 @@ RPG.Beings.VillageWitch.prototype.init = function() {
  */
 RPG.Beings.VillageGuard = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageGuard.factory.ignore = true;
+RPG.Beings.VillageGuard.visual = { desc:"elder's guard", color:"#f00", image:"village-guard" };
 RPG.Beings.VillageGuard.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
 
@@ -267,12 +253,6 @@ RPG.Beings.VillageGuard.prototype.init = function() {
     var armor = new RPG.Items.ChainMail();
     this.equip(RPG.SLOT_ARMOR,armor);
 	
-	this.setVisual({
-		desc: "elder's guard",
-		color: "#f00",
-		image: "village-guard"
-	});
-	
 	this._ai.setDialogText("Hey there! Friend or foe?");
 
 	this.fullStats();
@@ -284,6 +264,7 @@ RPG.Beings.VillageGuard.prototype.init = function() {
  */
 RPG.Beings.VillageSmith = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageSmith.factory.ignore = true;
+RPG.Beings.VillageSmith.visual = { desc:"dwarven smith", color:"#999", ch:"h", image:"village-smith" };
 RPG.Beings.VillageSmith.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
 
@@ -301,13 +282,6 @@ RPG.Beings.VillageSmith.prototype.init = function() {
 	var hammer = new RPG.Items.Hammer();
 	this.equip(RPG.SLOT_WEAPON, hammer);
 	
-	this.setVisual({
-		desc: "dwarven smith",
-		color: "#999",
-		ch: "h",
-		image: "village-smith"
-	});
-	
 	this._ai.setDialogText("Aye! Need some steel?");
 	this.fullStats();
 }
@@ -318,6 +292,7 @@ RPG.Beings.VillageSmith.prototype.init = function() {
  */
 RPG.Beings.VillageElder = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageElder.factory.ignore = true;
+RPG.Beings.VillageElder.visual = { desc:"village elder", color:"#630", image:"village-elder" };
 RPG.Beings.VillageElder.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
 
@@ -335,12 +310,6 @@ RPG.Beings.VillageElder.prototype.init = function() {
 	var sword = new RPG.Items.LongSword();
 	this.equip(RPG.SLOT_WEAPON, sword);
 	
-	this.setVisual({
-		desc: "village elder",
-		color: "#630",
-		image: "village-elder"
-	});
-	
 	this.fullStats();
 }
 
@@ -350,14 +319,7 @@ RPG.Beings.VillageElder.prototype.init = function() {
  */
 RPG.Items.WeddingNecklace = OZ.Class().extend(RPG.Items.Necklace);
 RPG.Items.WeddingNecklace.factory.ignore = true;
-RPG.Items.WeddingNecklace.prototype.init = function() {
-	this.parent();
-	this.setVisual({
-		desc: "wedding necklace",
-		color: "#fc0",
-		image: "wedding-necklace"
-	});
-}
+RPG.Items.WeddingNecklace.visual = { desc:"wedding necklace", image:"wedding-necklace", color:"#fc0" };
 
 /**
  * @class Elder's enemy quest

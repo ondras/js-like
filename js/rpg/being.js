@@ -1,11 +1,15 @@
 /**
  * @class Basic being
- * @augments RPG.Visual.IVisual
+ * @augments RPG.IVisual
  * @augments RPG.Misc.IActor
  */
 RPG.Beings.BaseBeing = OZ.Class()
-						.implement(RPG.Visual.IVisual)
+						.implement(RPG.IVisual)
 						.implement(RPG.Misc.IActor);
+						
+/**
+ * @param {function} race Race constructor
+ */
 RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._name = "";
 	this._slots = {};
@@ -21,13 +25,22 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._spells = [];
 	this._knownFeatures = [];
 
-	var r = new race();
-	this._setRace(r);
-	this._initStatsAndFeats(r);
+	this._race = race;
+	this._initSlots();
+	this._initStatsAndFeats();
 
 	this.addEffect(new RPG.Effects.HPRegeneration());
 	this.addEffect(new RPG.Effects.ManaRegeneration());
 	this.fullStats();
+}
+
+RPG.Beings.BaseBeing.prototype.getVisual = function() {
+	var visual = this.parent();
+	var raceVisual = new this._race().getVisual();
+	for (var p in raceVisual) {
+		if (!(p in visual)) { visual[p] = raceVisual[p]; }
+	}
+	return visual;
 }
 
 RPG.Beings.BaseBeing.prototype.toString = function() {
@@ -42,20 +55,17 @@ RPG.Beings.BaseBeing.prototype.knowsFeature = function(feature) {
 /**
  * Prepare the being-race binding
  */
-RPG.Beings.BaseBeing.prototype._setRace = function(race) {
-	/* inherit visuals from race */
-	this.setVisual(race.getVisual());
-	
+RPG.Beings.BaseBeing.prototype._initSlots = function() {
 	/* bind all slots to a particular being */
-	this._slots = race.getSlots();
+	this._slots = new this._race().getSlots();
 	for (var p in this._slots) { this._slots[p].setBeing(this); }
 }
 
 /**
  * Initialize stats (HP, ...) and feats (Max HP, DV, PV, ...)
  */
-RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function(race) {
-	var defaults = race.getDefaults();
+RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
+	var defaults = new this._race().getDefaults();
 	
 	this._stats = {};
 	this._stats[RPG.STAT_HP] = Infinity;

@@ -143,8 +143,10 @@ RPG.Misc.IWeapon.prototype.getDamage = function() {
 /**
  * @class Interface for flying objects
  * @augments RPG.Misc.IWeapon
+ * @augments RPG.IVisual
  */
 RPG.Misc.IProjectile = OZ.Class()
+						.extend(RPG.IVisual)
 						.implement(RPG.Misc.IWeapon);
 
 RPG.Misc.IProjectile.prototype._initProjectile = function() {
@@ -153,13 +155,9 @@ RPG.Misc.IProjectile.prototype._initProjectile = function() {
 	
 	this._flight = {
 		index: -1,
-		coords: [],
-		chars: [],
-		images: []
+		coords: []
 	}
 	
-	this._baseImage = "";
-
 	this._chars = {};
 	this._chars[RPG.N]  = "|";
 	this._chars[RPG.NE] = "/";
@@ -181,6 +179,22 @@ RPG.Misc.IProjectile.prototype._initProjectile = function() {
 	this._suffixes[RPG.NW] = "nw";
 }
 
+RPG.Misc.IProjectile.prototype.getVisual = function() {
+	var visual = this.parent();
+
+	if (this._flying) { /* we are in flight, use special visual representation */
+		var c = this._flight.coords[i];
+		var prev = this._flight.coords[i-1];
+		var dir = prev.dirTo(c);
+
+		visual.ch = this._chars[dir];
+		var image = visual.image;
+		if (this._suffixes[dir]) { image += "-" + this._suffixes[dir]; }
+		visual.image = image;
+	}
+	return visual;
+}
+
 RPG.Misc.IProjectile.prototype.getRange = function() {
 	return this._range;
 }
@@ -194,6 +208,7 @@ RPG.Misc.IProjectile.prototype.getRange = function() {
 RPG.Misc.IProjectile.prototype.launch = function(source, target, map) {
 	this.computeTrajectory(source, target, map);
 	this._flying = true;
+	this._flight.index = 0; /* starting from first coords in line */
 	RPG.Game.getEngine().lock();
 	var interval = 75;
 	this._interval = setInterval(this.bind(this._step), interval);
@@ -201,7 +216,6 @@ RPG.Misc.IProjectile.prototype.launch = function(source, target, map) {
 
 /**
  * Flying...
- * @returns {bool} still in flight?
  */
 RPG.Misc.IProjectile.prototype._fly = function() {
 	var coords = this._flight.coords[this._flight.index];
@@ -221,7 +235,6 @@ RPG.Misc.IProjectile.prototype.showTrajectory = function(source, target, map) {
 	RPG.UI.map.removeProjectiles();
 	for (var i=0;i<this._flight.coords.length;i++) {
 		var coords = this._flight.coords[i];
-		
 		if (!pc.canSee(coords)) { continue; }
 		
 		var mark = (i+1 == this._flight.coords.length ? RPG.Misc.IProjectile.endMark : RPG.Misc.IProjectile.mark);
@@ -239,7 +252,6 @@ RPG.Misc.IProjectile.prototype._step = function() {
 		return;
 	}
 	
-	this.setVisual({ch:this._flight.chars[index], image:this._flight.images[index]});
 	this._fly(this._flight.coords[index]);
 }
 
@@ -256,25 +268,15 @@ RPG.Misc.IProjectile.prototype._done = function() {
  * @param {RPG.Map} map
  */
 RPG.Misc.IProjectile.prototype.computeTrajectory = function(source, target, map) {
-	this._flight.index = -1;
+	this._flight.index = 0;
 	this._flight.coords = [];
-	this._flight.chars = [];
-	this._flight.images = [];
 
 	var coords = map.getCoordsInLine(source, target);
 	var max = Math.min(this.getRange()+1, coords.length);
 
-	for (var i=1;i<max;i++) {
+	for (var i=0;i<max;i++) {
 		var c = coords[i];
-		var prev = coords[i-1];
-
 		this._flight.coords.push(c);
-		var dir = prev.dirTo(c);
-		this._flight.chars.push(this._chars[dir]);
-		var image = this._baseImage;
-		if (this._suffixes[dir]) { image += "-" + this._suffixes[dir]; }
-		this._flight.images.push(image);
-
 		if (map.blocks(RPG.BLOCKS_MOVEMENT, c)) { break; }
 	}
 	
@@ -283,21 +285,19 @@ RPG.Misc.IProjectile.prototype.computeTrajectory = function(source, target, map)
 
 /**
  * @class Projectile mark
- * @augments RPG.Visual.IVisual
+ * @augments RPG.IVisual
  */
-RPG.Misc.IProjectile.Mark = OZ.Class().implement(RPG.Visual.IVisual);
-RPG.Misc.IProjectile.Mark.prototype.init = function() {
-	this.setVisual({ch:"*", color:"#fff", image:"crosshair"});
-}
+RPG.Misc.IProjectile.Mark = OZ.Class().implement(RPG.IVisual);
+RPG.Misc.IProjectile.Mark.visual = { ch:"*", color:"#fff", image:"crosshair" };
+RPG.Misc.IProjectile.mark = new RPG.Misc.IProjectile.Mark();
 
 /**
  * @class Projectile end mark
- * @augments RPG.Visual.IVisual
+ * @augments RPG.IVisual
  */
-RPG.Misc.IProjectile.EndMark = OZ.Class().implement(RPG.Visual.IVisual);
-RPG.Misc.IProjectile.EndMark.prototype.init = function() {
-	this.setVisual({ch:"X", color:"#fff", image:"crosshair-end"});
-}
+RPG.Misc.IProjectile.EndMark = OZ.Class().implement(RPG.IVisual);
+RPG.Misc.IProjectile.EndMark.visual = { ch:"X", color:"#fff", image:"crosshair-end" };
+RPG.Misc.IProjectile.endMark = new RPG.Misc.IProjectile.EndMark();
 
 /**
  * @class Actor interface

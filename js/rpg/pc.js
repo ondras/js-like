@@ -3,15 +3,17 @@
  * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.PC = OZ.Class().extend(RPG.Beings.BaseBeing);
+RPG.Beings.PC.visual = { path:"pc", desc:"you" };
+
+/**
+ * @param {function} race Race constructor
+ * @param {function} profession Profession constructor
+ */
 RPG.Beings.PC.prototype.init = function(race, profession) {
 	this.parent(race);
-	var prof = new profession();
-	
-	this.setVisual({image:this._visual.image + "-" + prof.getImage()});
 	
 	this._visibleCoordsHash = {};
 	
-	this.setVisual({desc:"you"});
 	this._kills = 0;
 	this._quests = [];
 	
@@ -19,10 +21,17 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this.setFeat(RPG.FEAT_MAX_HP, 10);
 	this.setFeat(RPG.FEAT_MAX_MANA, 5);
 	
-	prof.setup(this);
+	this._profession = profession;
+	new profession().setup(this);
 	
 	this.addEffect(new RPG.Effects.TurnCounter());
 	this.fullStats();
+}
+
+RPG.Beings.PC.prototype.getVisual = function() {
+	var visual = this.parent();
+	visual.image += "-" + new this._profession().getVisual().image;
+	return visual;
 }
 
 RPG.Beings.PC.prototype.toJSON = function(handler) {
@@ -90,14 +99,14 @@ RPG.Beings.PC.prototype.setMap = function(map) {
 }
 
 /**
- * @see RPG.Visual.IVisual#describeA
+ * @see RPG.IVisual#describeA
  */
 RPG.Beings.PC.prototype.describeA = function() {
 	return this.describe();
 }
 
 /**
- * @see RPG.Visual.IVisual#describeThe
+ * @see RPG.IVisual#describeThe
  */
 RPG.Beings.PC.prototype.describeThe = function() {
 	return this.describe();
@@ -126,7 +135,7 @@ RPG.Beings.PC.prototype.describeHis = function() {
 
 
 /**
- * @see RPG.Visual.IVisual#describeIs
+ * @see RPG.IVisual#describeIs
  */
 RPG.Beings.PC.prototype.describeIs = function() {
 	return "are";

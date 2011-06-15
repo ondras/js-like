@@ -4,10 +4,7 @@
  */
 RPG.Items.Consumable = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Consumable.factory.ignore = true;
-RPG.Items.Consumable.prototype.init = function() {
-	this.parent();
-	this.setVisual({ch:"%"});
-}
+RPG.Items.Consumable.visual = { ch:"%" };
 RPG.Items.Consumable.prototype.eat = function(being) {
 	var max = being.getFeat(RPG.FEAT_MAX_HP);
 	var amount = Math.floor(max/4) || 1;
@@ -20,9 +17,13 @@ RPG.Items.Consumable.prototype.eat = function(being) {
  */
 RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Consumable);
 RPG.Items.Corpse.factory.ignore = true;
-RPG.Items.Corpse.prototype.init = function() {
-	this.parent();
-	this.setVisual({image:"corpse"});
+RPG.Items.Corpse.visual = { image:"corpse" };
+
+RPG.Items.Corpse.prototype.getVisual = function() {
+	var visual = this.parent();
+	visual.color = this._being.getVisual().color;
+	visual.desc = this._being.getVisual().desc + " corpse";
+	return visual;
 }
 
 /**
@@ -30,10 +31,6 @@ RPG.Items.Corpse.prototype.init = function() {
  */
 RPG.Items.Corpse.prototype.setBeing = function(being) {
 	this._being = being;
-	this.setVisual({
-		color: being.getVisual().color,
-		desc: being.getVisual().desc + " corpse"
-	});
 	return this;
 }
 
@@ -55,42 +52,21 @@ RPG.Items.Corpse.prototype.isSameAs = function(item) {
  * @augments RPG.Items.Consumable
  */
 RPG.Items.Apple = OZ.Class().extend(RPG.Items.Consumable);
-RPG.Items.Apple.prototype.init = function() {
-	this.parent();
-	this.setVisual({
-		image: "apple",
-		desc: "apple",
-		color: "#0f0"
-	});
-}
+RPG.Items.Apple.visual = { image:"apple", desc:"apple", color:"#0f0" };
 
 /**
  * @class Dwarven sausage
  * @augments RPG.Items.Consumable
  */
 RPG.Items.DwarvenSausage = OZ.Class().extend(RPG.Items.Consumable);
-RPG.Items.DwarvenSausage.prototype.init = function() {
-	this.parent();
-	this.setVisual({
-		image: "dwarven-sausage",
-		desc: "dwarven sausage",
-		color: "#933"
-	});
-}
+RPG.Items.DwarvenSausage.visual = { image:"dwarven-sausage", desc:"dwarven sausage", color:"#933" };
 
 /**
  * @class Iron ration
  * @augments RPG.Items.Consumable
  */
 RPG.Items.IronRation = OZ.Class().extend(RPG.Items.Consumable);
-RPG.Items.IronRation.prototype.init = function() {
-	this.parent();
-	this.setVisual({
-		image: "iron-ration",
-		desc: "iron ration",
-		color: "#630"
-	});
-}
+RPG.Items.IronRation.visual = { image:"iron-ration", desc:"iron ration", color:"#630" };
 
 /**
  * @class Gold, money
@@ -101,22 +77,17 @@ RPG.Items.Gold.factory.method = function(danger) {
 	var amount = 1 + Math.round(Math.random() * danger * 30);
 	return new this(amount);
 }
+RPG.Items.Gold.visual = { image:"gold", ch:"$", desc:"piece of gold", color:"#fc0" };
 
 RPG.Items.Gold.prototype.init = function(amount) {
 	this.parent();
-	this.setVisual({
-		image: "gold",
-		desc: "piece of gold",
-		ch: "$",
-		color: "#fc0"
-	});
 	this._descPlural = "pieces";
 	this._amount = amount;
 }
 
 RPG.Items.Gold.prototype.describe = function() {
 	if (this._amount == 1) {
-		return this._visual.desc;
+		return this.parent();
 	} else {
 		return "heap of gold ("+this._amount + " " + this._descPlural + ")";
 	}
@@ -128,10 +99,7 @@ RPG.Items.Gold.prototype.describe = function() {
  */
 RPG.Items.Gem = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Gem.factory.ignore = true;
-RPG.Items.Gem.prototype.init = function() {
-	this.parent();
-	this.setVisual({ch:"*"});
-}
+RPG.Items.Gem.visual = { ch:"*" };
 
 /**
  * @class Diamond
@@ -139,14 +107,7 @@ RPG.Items.Gem.prototype.init = function() {
  */
 RPG.Items.Diamond = OZ.Class().extend(RPG.Items.Gem);
 RPG.Items.Diamond.factory.frequency = 20;
-RPG.Items.Diamond.prototype.init = function() {
-	this.parent();
-	this.setVisual({
-		image: "diamond",
-		desc: "diamond",
-		color: "#fff"
-	});
-}
+RPG.Items.Diamond.visual = { image:"diamond", desc:"diamond", color:"#fff" };
 
 /**
  * @class Sapphire
@@ -154,14 +115,7 @@ RPG.Items.Diamond.prototype.init = function() {
  */
 RPG.Items.Sapphire = OZ.Class().extend(RPG.Items.Gem);
 RPG.Items.Sapphire.factory.frequency = 25;
-RPG.Items.Sapphire.prototype.init = function() {
-	this.parent();
-	this.setVisual({
-		image: "sapphire",
-		desc: "sapphire",
-		color: "#00f"
-	});
-}
+RPG.Items.Sapphire.visual = { image:"sapphire", desc:"sapphire", color:"#00f" };
 
 /**
  * @class Ruby
@@ -169,14 +123,7 @@ RPG.Items.Sapphire.prototype.init = function() {
  */
 RPG.Items.Ruby = OZ.Class().extend(RPG.Items.Gem);
 RPG.Items.Ruby.factory.frequency = 25;
-RPG.Items.Ruby.prototype.init = function() {
-	this.parent();
-	this.setVisual({
-		image: "ruby",
-		desc: "ruby",
-		color: "#f00"
-	});
-}
+RPG.Items.Ruby.visual = { image:"ruby", desc:"ruby", color:"#f00" };
 
 /**
  * @class Opal
@@ -184,14 +131,7 @@ RPG.Items.Ruby.prototype.init = function() {
  */
 RPG.Items.Opal = OZ.Class().extend(RPG.Items.Gem);
 RPG.Items.Opal.factory.frequency = 25;
-RPG.Items.Opal.prototype.init = function() {
-	this.parent();
-	this.setVisual({
-		image: "opal",
-		desc: "opal",
-		color: "#f0f"
-	});
-}
+RPG.Items.Opal.visual = { image:"opal", desc:"opal", color:"#f0f" };
 
 /**
  * @class Turquoise
@@ -199,14 +139,7 @@ RPG.Items.Opal.prototype.init = function() {
  */
 RPG.Items.Turquoise = OZ.Class().extend(RPG.Items.Gem);
 RPG.Items.Turquoise.factory.frequency = 25;
-RPG.Items.Turquoise.prototype.init = function() {
-	this.parent();
-	this.setVisual({
-		image: "turquoise",
-		desc: "turquoise",
-		color: "#3cc"
-	});
-}
+RPG.Items.Turquoise.visual = { image:"turquoise", desc:"turquoise", color:"#3cc" };
 
 /**
  * @class Potion
@@ -214,10 +147,7 @@ RPG.Items.Turquoise.prototype.init = function() {
  */
 RPG.Items.Potion = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Potion.factory.ignore = true;
-RPG.Items.Potion.prototype.init = function() {
-	this.parent();
-	this.setVisual({ch:"!"});
-}
+RPG.Items.Potion.visual = { ch:"!" };
 RPG.Items.Potion.prototype.drink = function(being) {
 }
 
@@ -226,14 +156,7 @@ RPG.Items.Potion.prototype.drink = function(being) {
  * @augments RPG.Items.Potion
  */
 RPG.Items.HealingPotion = OZ.Class().extend(RPG.Items.Potion);
-RPG.Items.HealingPotion.prototype.init = function() {
-	this.parent();
-	this.setVisual({
-		image: "potion-healing",
-		desc: "healing potion",
-		color: "#00f"
-	});
-}
+RPG.Items.HealingPotion.visual = { image:"potion-healing", desc:"healing potion", color:"#00f" };
 
 RPG.Items.HealingPotion.prototype.drink = function(being) {
 	var max = being.getFeat(RPG.FEAT_MAX_HP);
@@ -247,10 +170,7 @@ RPG.Items.HealingPotion.prototype.drink = function(being) {
  */
 RPG.Items.Ring = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Ring.factory.ignore = true;
-RPG.Items.Ring.prototype.init = function() {
-	this.parent();
-	this.setVisual({ch:"="});
-}
+RPG.Items.Ring.visual = { ch:"=" };
 
 /**
  * @class Necklace
@@ -258,35 +178,27 @@ RPG.Items.Ring.prototype.init = function() {
  */
 RPG.Items.Necklace = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Necklace.factory.ignore = true;
-RPG.Items.Necklace.prototype.init = function() {
-	this.parent();
-	this.setVisual({ch:"'"});
-}
+RPG.Items.Necklace.visual = { ch:"'" };
 
 /**
  * @class Brass ring
  * @augments RPG.Items.Ring
  */
 RPG.Items.BrassRing = OZ.Class().extend(RPG.Items.Ring);
-RPG.Items.BrassRing.prototype.init = function() {
-	this.parent();
-	this.setVisual({
-		image: "brass-ring",
-		desc: "brass ring",
-		color: "#c66"
-	});
-}
+RPG.Items.BrassRing.visual = { image:"brass-ring", desc:"brass ring", color:"#c66" };
 
 /**
  * @class Ring modifying attribute
  * @augments RPG.Items.Ring
  */
 RPG.Items.RingOfAttribute = OZ.Class().extend(RPG.Items.Ring);
+RPG.Items.RingOfAttribute.visual = { image:"silver-ring", color:"#ccc", desc:"ring of " };
 RPG.Items.RingOfAttribute.factory.method = function(danger) {
 	var att = RPG.ATTRIBUTES.random();
 	var amount = 1 + (danger/8);
 	return new this(att, amount);
 }
+
 
 RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 	this.parent();
@@ -295,12 +207,13 @@ RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 	this._modifiers[attribute] = rv.roll();
 
 	this._attribute = attribute;
-	this.setVisual({
-		image: "silver-ring",
-		desc: "ring of " + RPG.Feats[attribute].label,
-		color: "#ccc"
-	});
 	this._descPlural = "rings of " + RPG.Feats[attribute].label;
+}
+
+RPG.Items.RingOfAttribute.prototype.getVisual = function() {
+	var visual = this.parent();
+	visual.desc += RPG.Feats[this._attribute].label;
+	return visual;
 }
 
 RPG.Items.RingOfAttribute.prototype.clone = function() {
@@ -327,17 +240,17 @@ RPG.Items.Scroll.factory.method = function(danger) {
 	var spell = RPG.Factories.spells.getClass(danger);
 	return new this(spell);
 }
+RPG.Items.Scroll.visual = { ch:"?", color:"#fff", image:"scroll", desc:"scroll of " };
 
 RPG.Items.Scroll.prototype.init = function(spell) {
 	this.parent();
 	this._spell = spell;
+}
 
-	this.setVisual({
-		ch: "?",
-		color: "#fff",
-		image: "scroll",
-		desc: "scroll of " + spell.label.capitalize()
-	});
+RPG.Items.Scroll.prototype.getVisual = function() {
+	var visual = this.parent();
+	visual.desc += this._spell.visual.desc.capitalize();
+	return visual;
 }
 
 RPG.Items.Scroll.prototype.clone = function() {
@@ -364,7 +277,7 @@ RPG.Items.Scroll.prototype.read = function(being) {
 	being.addSpell(this._spell);
 	being.removeItem(this);
 	if (being == RPG.Game.pc) { 
-		var s = RPG.Misc.format("You learn the '%S' spell.", this._spell.label);
+		var s = RPG.Misc.format("You learn the '%S' spell.", this._spell.visual.desc);
 		RPG.UI.buffer.message(s); 
 	}
 }

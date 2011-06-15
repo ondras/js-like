@@ -15,7 +15,11 @@ OZ.Class = function() {
 	c._implement = [];
 	c.implement = function(parent) {
 		this._implement.push(parent);
-		for (var p in parent.prototype) { if (!(p in this.prototype)) { this.prototype[p] = parent.prototype[p]; } }
+		for (var p in parent.prototype) { 
+			var val = parent.prototype[p];
+			this.prototype[p] = val; 
+			if (p != "constructor" && typeof(val) == "function" && !val.owner) { val.owner = parent; }
+		}
 		return this;
 	};
 	c.implements = function(iface) {
@@ -69,11 +73,15 @@ OZ.Class = function() {
 	}
 
 	c.prototype.parent = function() {
-		var caller = arguments.callee.caller;
-		var owner = caller.owner || this.constructor;
-		var parent = owner._extend;
-		for (var p in owner.prototype) {
-			if (owner.prototype[p] == caller) { return owner._extend.prototype[p].apply(this, arguments); }
+		var caller = arguments.callee.caller; /* one step back in call stack */
+		var owner = caller.owner || this.constructor; /* class which owns calling method */
+		for (var p in owner.prototype) { /* find the name of called method */
+			if (owner.prototype[p] != caller) { continue; }
+			var candidates = [owner._extend].concat(owner._implement); /* find extended/implemented class which has this method */
+			while (candidates.length) {
+				var candidate = candidates.shift();
+				if (candidate && p in candidate.prototype) { return candidate.prototype[p].apply(this, arguments); } /* if available, call */
+			}
 		}
 	};
 	return c;

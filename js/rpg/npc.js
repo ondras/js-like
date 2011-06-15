@@ -4,7 +4,7 @@
  */
 RPG.Beings.NPC = OZ.Class().extend(RPG.Beings.BaseBeing);
 RPG.Beings.NPC.factory.ignore = true;
-
+RPG.Beings.PC.visual = { path:"beings" };
 RPG.Beings.NPC.prototype.init = function(race) {
 	this.parent(race);
 	this._confirm = RPG.CONFIRM_NA;
@@ -80,18 +80,18 @@ RPG.Beings.NPC.prototype.confirmAttack = function() {
 
 /**
  * Takes gender and name into account
- * @see RPG.Visual.IVisual#describe
+ * @see RPG.IVisual#describe
  */
 RPG.Beings.NPC.prototype.describe = function() {
-	var s = this._visual.desc;
-	if (this._gender == RPG.GENDER_FEMALE) { s = "female "+s; }
-	if (this._name) { s = this._name + " the " + s.capitalize(); }
-	return s;
+	var desc = this.getVisual().desc;
+	if (this._gender == RPG.GENDER_FEMALE) { desc = "female "+desc; }
+	if (this._name) { desc = this._name + " the " + desc.capitalize(); }
+	return desc;
 }
 
 /**
  * Takes name into account
- * @see RPG.Visual.IVisual#describeA
+ * @see RPG.IVisual#describeA
  */
 RPG.Beings.NPC.prototype.describeA = function() {
 	if (this._name) { 
@@ -103,7 +103,7 @@ RPG.Beings.NPC.prototype.describeA = function() {
 
 /**
  * Takes name into account
- * @see RPG.Visual.IVisual#describeThe
+ * @see RPG.IVisual#describeThe
  */
 RPG.Beings.NPC.prototype.describeThe = function() {
 	if (this._name) { 
@@ -114,7 +114,7 @@ RPG.Beings.NPC.prototype.describeThe = function() {
 }
 
 /**
- * @see RPG.Visual.IVisual#describeIs
+ * @see RPG.IVisual#describeIs
  */
 RPG.Beings.NPC.prototype.describeIs = function() {
 	return "is";

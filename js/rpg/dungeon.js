@@ -1,13 +1,13 @@
 /**
  * @class Map cell
  * @augments RPG.Misc.IEnterable
- * @augments RPG.Visual.IVisual
+ * @augments RPG.IVisual
  */
 RPG.Cells.BaseCell = OZ.Class()
-						.implement(RPG.Visual.IVisual)
+						.implement(RPG.IVisual)
 						.implement(RPG.Misc.IEnterable);
+RPG.Cells.BaseCell.visual = { path:"cells" };
 RPG.Cells.BaseCell.prototype.init = function() {
-	this.setVisual({});
 	this._modifiers = {};
 	this._blocks = RPG.BLOCKS_NOTHING;
 	this._fake = false;
@@ -77,7 +77,7 @@ RPG.Areas.BaseArea.prototype.getMap = function() {
  * @see RPG.Misc.IEnterable#entering
  */
 RPG.Areas.BaseArea.prototype.entering = function(being) {
-	RPG.Misc.IEnterable.prototype.entering.apply(this, arguments);
+	this.parent(being);
 	if (this._welcome && being == RPG.Game.pc) { RPG.UI.buffer.message(this._welcome); }
 }
 
@@ -119,13 +119,13 @@ RPG.Areas.Room.prototype.getCoords = function() {
 
 /**
  * @class Dungeon feature
- * @augments RPG.Visual.IVisual
+ * @augments RPG.IVisual
  */
 RPG.Features.BaseFeature = OZ.Class()
-							.implement(RPG.Visual.IVisual)
+							.implement(RPG.IVisual)
 							.implement(RPG.Misc.IEnterable);
+RPG.Features.BaseFeature.visual = { path:"features" };
 RPG.Features.BaseFeature.prototype.init = function() {
-	this.setVisual({});
 	this._coords = null;
 	this._map = null;
 	this._modifiers = {};
@@ -242,7 +242,7 @@ RPG.Map.prototype.fromIntMap = function(intMap) {
  * @see RPG.Misc.IEnterable#entering
  */
 RPG.Map.prototype.entering = function(being) {
-	RPG.Misc.IEnterable.prototype.entering.apply(this, arguments);
+	this.parent(being);
 	if (being != RPG.Game.pc) { return; }
 	
 	if (this._sound) { RPG.UI.sound.playBackground(this._sound); }
@@ -253,7 +253,7 @@ RPG.Map.prototype.entering = function(being) {
  * @see RPG.Misc.IEnterable#leaving
  */
 RPG.Map.prototype.leaving = function(being) {
-	RPG.Misc.IEnterable.prototype.leaving.apply(this, arguments);
+	this.parent(being);
 	if (being != RPG.Game.pc) { return; }
 
 	for (var id in this._memory) {

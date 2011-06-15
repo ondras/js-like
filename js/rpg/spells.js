@@ -1,23 +1,16 @@
 /**
  * @class Base abstract spell
- * @augments RPG.Visual.IVisual
+ * @augments RPG.IVisual
  */
 RPG.Spells.BaseSpell = OZ.Class()
-						.implement(RPG.Visual.IVisual);
+						.implement(RPG.IVisual);
 RPG.Spells.BaseSpell.factory.ignore = true;
 RPG.Spells.BaseSpell.cost = null;
-RPG.Spells.BaseSpell.label = "";
 RPG.Spells.BaseSpell.damage = null;
-
+RPG.Spells.BaseSpell.visual = { path:"spells" };
 RPG.Spells.BaseSpell.prototype.init = function(caster) {
-	this.setVisual({});
-	
 	this._type = RPG.SPELL_SELF;
 	this._caster = caster;
-}
-
-RPG.Spells.BaseSpell.prototype.describe = function() {
-	return this.constructor.label;
 }
 
 RPG.Spells.BaseSpell.prototype.cast = function(target) {
@@ -44,10 +37,12 @@ RPG.Spells.Attack = OZ.Class()
 					.extend(RPG.Spells.BaseSpell)
 					.implement(RPG.Misc.IWeapon);
 RPG.Spells.Attack.factory.ignore = true;
+RPG.Spells.Attack.visual = { ch:"*" };
 RPG.Spells.Attack.prototype.init = function(caster) {
 	this.parent(caster);
 	this._hit = null;
 	this._damage = null;
+	this._exploded = false;
 }
 
 /**
@@ -57,8 +52,7 @@ RPG.Spells.Attack.prototype.init = function(caster) {
  * @param {bool} ignoreCenter
  */
 RPG.Spells.Attack.prototype.explode = function(center, radius, ignoreCenter) {
-	this.setVisual({ch:"*", image:this._explosionImage});
-
+	this._exploded = true;
 	RPG.UI.map.removeProjectiles();
 	RPG.Game.getEngine().lock();
 	var map = this._caster.getMap();
@@ -107,7 +101,7 @@ RPG.Spells.Projectile.prototype.cast = function(target) {
 }
 
 RPG.Spells.Projectile.prototype._fly = function() {
-	RPG.Misc.IProjectile.prototype._fly.call(this);
+	this.parent();
 
 	var coords = this._flight.coords[this._flight.index];
 	var bounce = this._flight.bounces[this._flight.index];
@@ -121,7 +115,7 @@ RPG.Spells.Projectile.prototype._fly = function() {
 RPG.Spells.Projectile.prototype.computeTrajectory = function(source, target, map) {
 	if (this._type == RPG.SPELL_TARGET) { 
 		/* same as basic projectiles */
-		return RPG.Misc.IProjectile.prototype.computeTrajectory.apply(this, arguments); 
+		return this.parent(source, target, map);
 	}
 	
 	if (this._type == RPG.SPELL_DIRECTION) {
@@ -129,10 +123,8 @@ RPG.Spells.Projectile.prototype.computeTrajectory = function(source, target, map
 		var dir = target;
 		
 		this._flight.index = -1;
-		this._flight.coords = [];
-		this._flight.chars = [];
-		this._flight.images = [];
-		this._flight.bounces = [];
+		this._flight.coords = [source];
+		this._flight.bounces = [false];
 
 		var dist = 0;
 		while (dist < this._range) {
@@ -145,12 +137,6 @@ RPG.Spells.Projectile.prototype.computeTrajectory = function(source, target, map
 				/* either free space or non-bouncing end obstacle */
 				this._flight.bounces.push(false);
 				this._flight.coords.push(coords);
-				this._flight.chars.push(this._chars[dir]);
-				
-				var image = this._baseImage;
-				if (this._suffixes[dir]) { image += "-" + this._suffixes[dir]; }
-				this._flight.images.push(image);
-				
 				if (map.blocks(RPG.BLOCKS_LIGHT, coords)) { break; }
 			} else {
 				/* bounce! */
@@ -194,11 +180,6 @@ RPG.Spells.Projectile.prototype._computeBounce = function(coords, dir) {
 	
 	this._flight.bounces.push(true);
 	this._flight.coords.push(newCoords);
-	this._flight.chars.push(this._chars[newDir]);
-	this._flight.images.push(this._baseImage + "-" + this._suffixes[newDir]);
 	
 	return newDir;
 }
-
-RPG.Misc.IProjectile.mark = new RPG.Misc.IProjectile.Mark();
-RPG.Misc.IProjectile.endMark = new RPG.Misc.IProjectile.EndMark();

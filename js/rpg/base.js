@@ -60,13 +60,10 @@ RPG.Feats.AdvancedFeat.prototype._drd = function() {
 
 /**
  * @class Basic race
- * @augments RPG.Visual.IVisual
+ * @augments RPG.IVisual
  */
-RPG.Races.BaseRace = OZ.Class().implement(RPG.Visual.IVisual);
-RPG.Races.BaseRace.label = "";
-RPG.Races.BaseRace.image = "";
+RPG.Races.BaseRace = OZ.Class().implement(RPG.IVisual);
 RPG.Races.BaseRace.prototype.init = function() {
-	this.setVisual({image:this.constructor.image});
 	this._slots = {};
 	this._defaults = {};
 	this._defaults[RPG.FEAT_REGEN_HP] = 10; /* per 100 turns */
@@ -107,11 +104,7 @@ RPG.Effects.BaseEffect.prototype.go = function() {
 
 RPG.Effects.BaseEffect.prototype.entering = function(being) {
 	this._being = being;
-	return RPG.Misc.IEnterable.prototype.entering.apply(this, arguments);
-}
-
-RPG.Effects.BaseEffect.prototype.leaving = function(being) {
-	return RPG.Misc.IEnterable.prototype.leaving.apply(this, arguments);
+	return this.parent(being);
 }
 
 /**
@@ -165,11 +158,7 @@ RPG.Slots.BaseSlot.prototype.getName = function() {
 /**
  * @class Base profession
  */
-RPG.Professions.BaseProfession = OZ.Class();
-RPG.Professions.BaseProfession.label = "";
-RPG.Professions.BaseProfession.image = "";
-RPG.Professions.BaseProfession.init = function() {
-}
+RPG.Professions.BaseProfession = OZ.Class().implement(RPG.IVisual);
 RPG.Professions.BaseProfession.prototype.setup = function(being) {
 	var tmp = new RPG.Items.HealingPotion();
 	being.addItem(tmp);
@@ -179,10 +168,6 @@ RPG.Professions.BaseProfession.prototype.setup = function(being) {
 	
 	var tmp = new RPG.Items.Torch();
 	being.addItem(tmp);
-}
-
-RPG.Professions.BaseProfession.prototype.getImage = function() {
-	return this.constructor.image;
 }
 
 /**

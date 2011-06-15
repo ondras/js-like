@@ -312,7 +312,7 @@ RPG.UI.Spelllist.prototype.init = function(data, label, callback) {
 
 RPG.UI.Spelllist.prototype._format = function(item) {
 	var str = "(" + item.cost + ") ";
-	str += item.label.capitalize();
+	str += item.visual.desc.capitalize();
 	if (item.implements(RPG.Misc.IProjectile)) {
 		str += " (" + item.damage.toString() + ")";
 	}
@@ -321,7 +321,7 @@ RPG.UI.Spelllist.prototype._format = function(item) {
 
 RPG.UI.Spelllist.prototype._sortData = function(items) {
 	var arr = items.clone();
-	arr.sort(function(a,b) { return a.label.localeCompare(b.label); });
+	arr.sort(function(a,b) { return a.visual.desc.localeCompare(b.visual.desc); });
 	return arr;
 }
 

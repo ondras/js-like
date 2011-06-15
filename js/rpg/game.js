@@ -193,7 +193,6 @@ RPG.Game.toJSON = function(handler) {
 		map: this._map,
 		sound: RPG.UI.sound.getBackground(),
 		status: RPG.UI.status.toJSON(handler),
-		visual: RPG.Visual.toJSON(handler),
 		cells: RPG.Factories.cells.toJSON(handler)
 	});
 }
@@ -208,7 +207,6 @@ RPG.Game.fromJSON = function(data) {
 	this._map = data.map;
 	RPG.UI.sound.playBackground(data.sound);
 	RPG.UI.status.fromJSON(data.status);
-	RPG.Visual.fromJSON(data.visual);
 	RPG.Factories.cells.fromJSON(data.cells);
 	
 	RPG.UI.map.resize(this._map.getSize());
