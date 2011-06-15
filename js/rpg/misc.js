@@ -228,7 +228,7 @@ RPG.Misc.IProjectile.prototype.showTrajectory = function(source, target, map) {
 	var pc = RPG.Game.pc;
 	
 	RPG.UI.map.removeProjectiles();
-	for (var i=0;i<this._flight.coords.length;i++) {
+	for (var i=1;i<this._flight.coords.length;i++) {
 		var coords = this._flight.coords[i];
 		if (!pc.canSee(coords)) { continue; }
 		

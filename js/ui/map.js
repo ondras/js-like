@@ -123,13 +123,13 @@ RPG.UI.BaseMap.prototype.removeProjectiles = function() {
 RPG.UI.BaseMap.prototype._redrawCoords = function(coords) {
 	var map = RPG.Game.getMap();
 	var what = this._dom.data[coords.x][coords.y];
-
+/* FIXME why this? 
 	var index = this._projectiles.indexOf(what);
 	if (index != -1) {
 		this._projectiles.splice(index, 1);
 		what.removeProjectile();
 	}
-
+*/
 	what.update(map.getMemory(coords));
 }
 
@@ -398,16 +398,20 @@ RPG.UI.CanvasMap.prototype.resize = function(size) {
 }
 
 RPG.UI.CanvasMap.prototype.addProjectile = function(coords, projectile) {
-	this._projectiles.push(coords.clone());
-	this._redrawCoords(coords, projectile.getVisual());
+	var visual = projectile.getVisual();
+	this._projectiles.push([coords.clone(), visual]);
+	this._redrawCoords(coords, visual);
 }
 
 RPG.UI.CanvasMap.prototype.removeProjectiles = function() {
+	var all = [];
 	for (var i=0;i<this._projectiles.length;i++) {
-		var coords = this._projectiles[i];
-		this._redrawCoords(coords);
+		var coords = this._projectiles[i][0];
+		all.push(coords);
 	}
 	this._projectiles = [];
+	
+	while (all.length) { this._redrawCoords(all.pop()); }
 }
 
 RPG.UI.CanvasMap.prototype.setFocus = function(coords) {
@@ -430,6 +434,13 @@ RPG.UI.CanvasMap.prototype._redrawCoords = function(coords, what) {
 	this._ctx.clearRect(x, y, this._charWidth, this._charHeight);
 	
 	var todo = what;
+	
+	if (!todo) {
+		for (var i=0;i<this._projectiles.length;i++) {
+			if (this._projectiles[i][0].equals(coords)) { todo = this._projectiles[i][1]; }
+		}
+	}
+	
 	if (!todo) {
 		var memory = RPG.Game.getMap().getMemory(coords);
 		if (memory) {
