@@ -3,7 +3,9 @@
  * @augments RPG.Items.BaseItem
  * @augments RPG.Misc.IWeapon
  */
-RPG.Items.Weapon = OZ.Class().extend(RPG.Items.BaseItem).implement(RPG.Misc.IWeapon);
+RPG.Items.Weapon = OZ.Class()
+					.extend(RPG.Items.BaseItem)
+					.implement(RPG.Misc.IWeapon);
 RPG.Items.Weapon.factory.ignore = true;
 RPG.Items.Weapon.visual = { ch:")", color:"#ccc" };
 RPG.Items.Weapon.prototype.init = function(hit, damage) {
@@ -157,6 +159,12 @@ RPG.Items.Projectile.prototype.init = function(hit, damage) {
 	this._weapon = null;
 }
 
+RPG.Items.Projectile.prototype.getVisual = function() {
+	var visual = this.parent();
+	this._addFlightVisual(visual);
+	return visual;
+}
+
 RPG.Items.Projectile.prototype.getHit = function() {
 	if (!this._flying) { return this._hit; }
 	
@@ -201,11 +209,11 @@ RPG.Items.Projectile.prototype._fly = function() {
 }
 
 RPG.Items.Projectile.prototype._done = function() {
+	this._flying = false;
 	var coords = this._flight.coords[this._flight.coords.length-1];
 	var map = this._owner.getMap();
 	var b = map.getBeing(coords);
 	var f = map.getFeature(coords);
-	var dropPossible = false;
 	
 	if (b) {
 		this._owner.attackRanged(b, this);

@@ -4,7 +4,7 @@
  */
 RPG.Beings.NPC = OZ.Class().extend(RPG.Beings.BaseBeing);
 RPG.Beings.NPC.factory.ignore = true;
-RPG.Beings.PC.visual = { path:"beings" };
+RPG.Beings.NPC.visual = { path:"beings" };
 RPG.Beings.NPC.prototype.init = function(race) {
 	this.parent(race);
 	this._confirm = RPG.CONFIRM_NA;

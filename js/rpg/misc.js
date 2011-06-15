@@ -145,10 +145,7 @@ RPG.Misc.IWeapon.prototype.getDamage = function() {
  * @augments RPG.Misc.IWeapon
  * @augments RPG.IVisual
  */
-RPG.Misc.IProjectile = OZ.Class()
-						.extend(RPG.IVisual)
-						.implement(RPG.Misc.IWeapon);
-
+RPG.Misc.IProjectile = OZ.Class();
 RPG.Misc.IProjectile.prototype._initProjectile = function() {
 	this._range = 5;
 	this._flying = false;
@@ -179,12 +176,11 @@ RPG.Misc.IProjectile.prototype._initProjectile = function() {
 	this._suffixes[RPG.NW] = "nw";
 }
 
-RPG.Misc.IProjectile.prototype.getVisual = function() {
-	var visual = this.parent();
-
+RPG.Misc.IProjectile.prototype._addFlightVisual = function(visual) {
 	if (this._flying) { /* we are in flight, use special visual representation */
-		var c = this._flight.coords[i];
-		var prev = this._flight.coords[i-1];
+		var index = this._flight.index;
+		var c = this._flight.coords[index];
+		var prev = this._flight.coords[index-1];
 		var dir = prev.dirTo(c);
 
 		visual.ch = this._chars[dir];
@@ -192,7 +188,6 @@ RPG.Misc.IProjectile.prototype.getVisual = function() {
 		if (this._suffixes[dir]) { image += "-" + this._suffixes[dir]; }
 		visual.image = image;
 	}
-	return visual;
 }
 
 RPG.Misc.IProjectile.prototype.getRange = function() {
@@ -277,7 +272,7 @@ RPG.Misc.IProjectile.prototype.computeTrajectory = function(source, target, map)
 	for (var i=0;i<max;i++) {
 		var c = coords[i];
 		this._flight.coords.push(c);
-		if (map.blocks(RPG.BLOCKS_MOVEMENT, c)) { break; }
+		if (i && map.blocks(RPG.BLOCKS_MOVEMENT, c)) { break; } /* stop at non-starting blocking cell */
 	}
 	
 	return this._flight;

@@ -96,6 +96,12 @@ RPG.Spells.Projectile.prototype.init = function(caster) {
 	this._bounces = true;
 }
 
+RPG.Spells.Projectile.prototype.getVisual = function() {
+	var visual = this.parent();
+	this._addFlightVisual(visual);
+	return visual;
+}
+
 RPG.Spells.Projectile.prototype.cast = function(target) {
 	this.launch(this._caster.getCoords(), target, this._caster.getMap());
 }

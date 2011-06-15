@@ -17,6 +17,7 @@ OZ.Class = function() {
 		this._implement.push(parent);
 		for (var p in parent.prototype) { 
 			var val = parent.prototype[p];
+			if (p in this.prototype && ["bind","dispatch","parent","constructor"].indexOf(p)==-1) { debugger; }
 			this.prototype[p] = val; 
 			if (p != "constructor" && typeof(val) == "function" && !val.owner) { val.owner = parent; }
 		}
