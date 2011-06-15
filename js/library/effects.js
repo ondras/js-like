@@ -65,7 +65,7 @@ RPG.Effects.ManaRegeneration.prototype.go = function() {
 RPG.Effects.Blindness = OZ.Class().extend(RPG.Effects.BaseEffect);
 RPG.Effects.Blindness.prototype.init = function(turnsRemaining) {
 	this.parent(turnsRemaining);
-	this._modifiers[RPG.FEAT_SIGHT_RANGE] = -Infinity;
+	this._modifiers[RPG.FEAT_SIGHT_RANGE] = -1e6;
 }
 
 RPG.Effects.Blindness.prototype.entering = function(being) {

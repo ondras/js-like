@@ -258,7 +258,7 @@ RPG.Features.Staircase.Up.visual = { desc:"staircase leading up", image:"stairca
 RPG.Areas.Shop = OZ.Class().extend(RPG.Areas.Room);
 RPG.Areas.Shop.prototype.init = function(corner1, corner2) {
 	this.parent(corner1, corner2);
-	this._modifiers[RPG.FEAT_MAX_MANA] = -Infinity; /* in shops, there is no mana .) */
+	this._modifiers[RPG.FEAT_MAX_MANA] = -1e6; /* in shops, there is no mana .) */
 	this._door = null;
 	this._welcome = "You entered a shop.";
 }
