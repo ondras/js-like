@@ -39,7 +39,7 @@ RPG.UI.BaseMap.prototype.resize = function(size) {
  */
 RPG.UI.BaseMap.prototype.redrawCoords = function(coords) {
 	if (!RPG.Game.pc.canSee(coords)) { return; }
-	RPG.Game.pc.getMap().setMemory(RPG.MAP_VISIBLE, coords);
+	RPG.Game.pc.getMap().setMemory(coords, RPG.MAP_VISIBLE);
 	this._redrawCoords(coords);
 }
 
@@ -58,7 +58,7 @@ RPG.UI.BaseMap.prototype.redrawVisible = function() {
 	for (var hash in oldVisible) {
 		if (!(hash in newVisible)) { /* this one is no longer visible */
 			var coords = oldVisible[hash];
-			map.setMemory(RPG.MAP_REMEMBERED, coords);
+			map.setMemory(coords, RPG.MAP_REMEMBERED);
 			this._redrawCoords(coords);
 		}
 	}
@@ -66,7 +66,7 @@ RPG.UI.BaseMap.prototype.redrawVisible = function() {
 	/* take all currently visible and mark them as visible */
 	for (var hash in newVisible) {
 		var coords = newVisible[hash];
-		map.setMemory(RPG.MAP_VISIBLE, coords);
+		map.setMemory(coords, RPG.MAP_VISIBLE);
 		this._redrawCoords(coords);
 	}
 }

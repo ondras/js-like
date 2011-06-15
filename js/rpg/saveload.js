@@ -90,7 +90,7 @@ RPG.Serializer.prototype._deferInstance = function(what) {
  * JSONify a class by converting it to string with index
  */
 RPG.Serializer.prototype._classToJSON = function(cl) {
-	return "$"+this.classIndex(cl);
+	return "$c"+this.classIndex(cl);
 }
 
 RPG.Serializer.prototype._objectToJSON = function(obj, options) {

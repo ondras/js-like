@@ -170,7 +170,6 @@ RPG.Map.prototype.init = function(id, size, danger) {
 		RPG.Cells.BaseCell
 	];
 	
-	
 	this._areas = [];
 	this._areasByCoords = {};
 
@@ -180,6 +179,45 @@ RPG.Map.prototype.init = function(id, size, danger) {
 	this._items = {}; 
 	this._features = {}; 
 	this._memory = {};
+}
+
+RPG.Map.prototype.toJSON = function(handler) {
+	var cache = {};
+	var memory = {};
+	for (var id in this._memory) {
+		var m1 = this._memory[id];
+		var m2 = {state:m1.state, data:[]};
+		for (var i=0;i<m1.data.length;i++) {
+			var visual = m1.data[i];
+			var json = JSON.stringify(visual);
+			if (json in cache) {
+				m2.data.push(cache[json]);
+			} else {
+				m2.data.push(visual);
+				cache[json] = id + "/" + i;
+			}
+		}
+		memory[id] = m2;
+	}
+	return handler.toJSON(this, {exclude: "_memory", include:{_memory:memory}});
+}
+
+RPG.Map.prototype.revive = function() {
+	var memory = {};
+	for (var id in this._memory) {
+		var m1 = this._memory[id];
+		var m2 = {state:m1.state, data:[]};
+		for (var i=0;i<m1.data.length;i++) {
+			var visual = m1.data[i];
+			if (typeof(visual) == "string") {
+				var parts = visual.split("/");
+				visual = this._memory[parts[0]].data[parts[1]];
+			}
+			m2.data.push(visual);
+		}
+		memory[id] = m2;
+	}
+	this._memory = memory;
 }
 
 /**
@@ -257,7 +295,7 @@ RPG.Map.prototype.leaving = function(being) {
 	if (being != RPG.Game.pc) { return; }
 
 	for (var id in this._memory) {
-		this._setMemory(RPG.MAP_REMEMBERED, id);
+		this._setMemory(id, RPG.MAP_REMEMBERED);
 	}
 }
 
@@ -302,11 +340,11 @@ RPG.Map.prototype.getMemory = function(coords) {
 	return this._memory[coords.x+","+coords.y];
 }
 
-RPG.Map.prototype.setMemory = function(state, coords) {
-	this._setMemory(state, coords.x+","+coords.y);
+RPG.Map.prototype.setMemory = function(coords, state) {
+	this._setMemory(coords.x+","+coords.y, state);
 }
 
-RPG.Map.prototype._setMemory = function(state, id) {
+RPG.Map.prototype._setMemory = function(id, state) {
 	var m = {state:state, data:[]};
 	this._memory[id] = m;
 	
