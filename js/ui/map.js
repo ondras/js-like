@@ -125,13 +125,6 @@ RPG.UI.BaseMap.prototype.removeProjectiles = function() {
 RPG.UI.BaseMap.prototype._redrawCoords = function(coords) {
 	var map = RPG.Game.getMap();
 	var what = this._dom.data[coords.x][coords.y];
-/* FIXME why this? 
-	var index = this._projectiles.indexOf(what);
-	if (index != -1) {
-		this._projectiles.splice(index, 1);
-		what.removeProjectile();
-	}
-*/
 	what.update(map.getMemory(coords));
 }
 

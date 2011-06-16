@@ -655,14 +655,16 @@ RPG.Story.Village.prototype._showElderStaircase = function() {
     var staircase = new RPG.Features.Staircase.Down();
     this._village.setFeature(staircase, new RPG.Misc.Coords(32, 14));
     this._staircases["elder"] = staircase;
-	RPG.UI.map.redrawVisible(); 
+    /* FIXME redraw coords */
+	RPG.UI.map.redrawVisible(); /* FIXME update by mohla iniciovat mapa */
 }
 
 RPG.Story.Village.prototype._showMazeStaircase = function() {
     var staircase = new RPG.Features.Staircase.Down();
     this._village.setFeature(staircase, new RPG.Misc.Coords(1, 1));
     this._staircases["maze"] = staircase;
-	RPG.UI.map.redrawVisible(); 
+    /* FIXME redraw coords */
+	RPG.UI.map.redrawVisible(); /* FIXME update by mohla iniciovat mapa */
 }
 
 RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {

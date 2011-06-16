@@ -287,6 +287,7 @@ RPG.Beings.PC.prototype.move = function(target, ignoreOldCoords) {
 	
 	if (target) {
 		this._describeLocal();
+		/* FIXME mozna spis volat updateVisibility(), coz zpusobi redraw? */
 		RPG.UI.map.redrawVisible();
 		RPG.UI.refocus();
 	}
@@ -350,7 +351,8 @@ RPG.Beings.PC.prototype.switchPosition = function(coords) {
 
 RPG.Beings.PC.prototype.equipDone = function() {
 	RPG.UI.buffer.message("You adjust your equipment.");
-	RPG.UI.map.redrawVisible();
+	/* FIXME mozna spis volat updateVisibility(), coz zpusobi redraw? */
+	RPG.UI.map.redrawVisible(); /* sight range might got changed */
 	return RPG.ACTION_TIME;
 }
 
@@ -400,6 +402,7 @@ RPG.Beings.PC.prototype.search = function() {
 		found += this._search(coords[i]);
 	}
 	
+	/* FIXME mozna spis volat updateVisibility(), coz zpusobi redraw? */
 	if (found) { RPG.UI.map.redrawVisible(); }
 
 	return RPG.ACTION_TIME;
@@ -472,6 +475,7 @@ RPG.Beings.PC.prototype.kick = function(coords) {
 			RPG.UI.buffer.message("You kick the door, but it does not budge.");
 		} else {
 			RPG.UI.buffer.message("You shatter the door with a mighty kick!");
+			/* FIXME mozna spis volat updateVisibility(), coz zpusobi redraw? */
 			RPG.UI.map.redrawVisible();
 		}
 		return RPG.ACTION_TIME;
@@ -527,6 +531,7 @@ RPG.Beings.PC.prototype.open = function(door) {
 	var verb = RPG.Misc.verb("open", this);
 	var s = RPG.Misc.format("%A %s the door.", this, verb);
 	RPG.UI.buffer.message(s);
+	/* FIXME mozna spis volat updateVisibility(), coz zpusobi redraw? */
 	RPG.UI.map.redrawVisible(); 
 	
 	return RPG.ACTION_TIME;

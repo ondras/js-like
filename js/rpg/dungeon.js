@@ -1,4 +1,27 @@
 /**
+ * Pozadavky na prekreslovani mapy ci jeji casti:
+ *  1) pri loadu zobrazit vse, co bylo ulozeno => staci jen zapamatovane a ostatni dle viditelnosti
+ *  2) pri navratu na mapu zobrazit vse, co bylo ulozeno => staci jen zapamatovane a ostatni dle viditelnosti
+ *  3) vznikne nejaka akce, ktera meni obsah policka (mozna viditelneho, to ta akce patrne nevi) => pokud je viditelne, update
+ *  4) vznikne nejaka akce, ktera meni mnozinu viditelnych policek => drive viditelna zapamatovat (jejich starou ci novou hodnotou?), nove viditelna prekreslit
+ *  5) vznikne nejaka akce, ktera meni mnozinu pamatovanych policek (forget) => prekreslit (vymazat) zapamatovana policka
+ *  6) interakce s UI (planovani trajektorie)
+ * 
+ * 
+ * - PC ma u sebe MapView pro kazdou navstivenou mapu: sadu pamatovanych souradnic a korespondujicich visualu
+ * - PC pro (viditelnou) souradnici dokazed od mapy vycist, co na ni vidi
+ * - pri aktualizaci viditelnosti muze PC provest "zapamatovani"
+ *  1) UI si od PC vynuti visualy
+ *  2) UI si od PC vynuti visualy
+ *  3) vi o tom mapa, ???
+ *  4) PC aktualizuje MapView
+ *  5) PC aktualizuje MapView
+ *  6) UI si od PC vynuti visual
+ */
+
+
+
+/**
  * @class Map cell
  * @augments RPG.Misc.IEnterable
  * @augments RPG.Visual.IVisual
@@ -180,46 +203,7 @@ RPG.Map.prototype.init = function(id, size, danger) {
 	this._features = {}; 
 	this._memory = {};
 }
-/*
-RPG.Map.prototype.toJSON = function(handler) {
-	var cache = {};
-	var memory = {};
-	for (var id in this._memory) {
-		var m1 = this._memory[id];
-		var m2 = {state:m1.state, data:[]};
-		for (var i=0;i<m1.data.length;i++) {
-			var visual = m1.data[i];
-			var json = JSON.stringify(visual);
-			if (json in cache) {
-				m2.data.push(cache[json]);
-			} else {
-				m2.data.push(visual);
-				cache[json] = id + "/" + i;
-			}
-		}
-		memory[id] = m2;
-	}
-	return handler.toJSON(this, {exclude: "_memory", include:{_memory:memory}});
-}
 
-RPG.Map.prototype.revive = function() {
-	var memory = {};
-	for (var id in this._memory) {
-		var m1 = this._memory[id];
-		var m2 = {state:m1.state, data:[]};
-		for (var i=0;i<m1.data.length;i++) {
-			var visual = m1.data[i];
-			if (typeof(visual) == "string") {
-				var parts = visual.split("/");
-				visual = this._memory[parts[0]].data[parts[1]];
-			}
-			m2.data.push(visual);
-		}
-		memory[id] = m2;
-	}
-	this._memory = memory;
-}
-*/
 /**
  * Populates cells in this map based on an array of arrays of integers.
  * @param {int[][]} intMap

@@ -693,14 +693,16 @@ RPG.Beings.BaseBeing.prototype.pick = function(items) {
  */
 RPG.Beings.BaseBeing.prototype.open = function(door) {
 	var locked = door.isLocked();
-	if (locked) { return; }
+	if (locked) { return; } /* FIXME return value */
 	
 	var stuck = RPG.Rules.isDoorStuck(this, door);
-	if (stuck) { return; }
+	if (stuck) { return; } /* FIXME return value */
 	
 	var verb = RPG.Misc.verb("open", this);
 	var s = RPG.Misc.format("%A %s the door.", this, verb);
 	RPG.UI.buffer.message(s);
+	/* FIXME tady se vubec neoteviraji ty dvere! */
+	/* FIXME mozna ze zmena stavu mapy sama vyvola redraw? */
 	RPG.UI.map.redrawVisible();
 
 	return RPG.ACTION_TIME;
@@ -714,7 +716,7 @@ RPG.Beings.BaseBeing.prototype.close = function(door) {
 	var coords = door.getCoords();
 	if (this._map.getBeing(coords)) {
 		RPG.UI.buffer.message("There is someone standing at the door.");
-		return;
+		return; /* FIXME return value */
 	}
 
 	var items = this._map.getItems(coords);
@@ -724,14 +726,14 @@ RPG.Beings.BaseBeing.prototype.close = function(door) {
 		} else {
 			RPG.UI.buffer.message("Several items block the door.");
 		}
-		return;
+		return; /* FIXME return value */
 	}
 
 	door.close();
 	var verb = RPG.Misc.verb("close", this);
 	var s = RPG.Misc.format("%A %s the door.", this, verb);
 	RPG.UI.buffer.message(s);
-	RPG.UI.map.redrawVisible();
+	RPG.UI.map.redrawVisible(); /* FIXME nemela by iniciovat mapa zmenou stavu dveri? */
 
 	return RPG.ACTION_TIME;
 }

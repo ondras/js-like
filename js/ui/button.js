@@ -20,9 +20,9 @@ RPG.UI.Button._keyPress = function(e) {
 }
 
 /**
- * Static keyup handler
+ * Static keydown handler
  */
-RPG.UI.Button._keyUp = function(e) {
+RPG.UI.Button._keyDown = function(e) {
 	var keyCode = e.keyCode;
 	var list = RPG.UI.Button._buttons.clone();
 	for (var i=0;i<list.length;i++) {
@@ -147,4 +147,4 @@ RPG.UI.Button.prototype._click = function(e) {
 
 OZ.Event.add(document, "click", RPG.UI.Button._click);
 OZ.Event.add(document, "keypress", RPG.UI.Button._keyPress);
-OZ.Event.add(document, "keyup", RPG.UI.Button._keyUp);
+OZ.Event.add(document, "keydown", RPG.UI.Button._keyDown);
