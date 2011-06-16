@@ -115,6 +115,7 @@ RPG.Serializer.prototype._objectToJSON = function(obj, options) {
 	var ignore = ["constructor"];
 	
 	for (var p in obj) {
+		if (!obj.hasOwnProperty(p)) { continue; } /* inherited */
 		if (ignore.indexOf(p) != -1) { continue; } /* globally forbidden name */
 		if (options && options.exclude.indexOf(p) != -1) { continue; } /* locally forbidden name */
 

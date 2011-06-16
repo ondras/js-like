@@ -1,9 +1,9 @@
 /**
  * @class Base abstract spell
- * @augments RPG.IVisual
+ * @augments RPG.Visual.IVisual
  */
 RPG.Spells.BaseSpell = OZ.Class()
-						.implement(RPG.IVisual);
+						.implement(RPG.Visual.IVisual);
 RPG.Spells.BaseSpell.factory.ignore = true;
 RPG.Spells.BaseSpell.cost = null;
 RPG.Spells.BaseSpell.damage = null;
@@ -96,10 +96,8 @@ RPG.Spells.Projectile.prototype.init = function(caster) {
 	this._bounces = true;
 }
 
-RPG.Spells.Projectile.prototype.getVisual = function() {
-	var visual = this.parent();
-	this._addFlightVisual(visual);
-	return visual;
+RPG.Spells.Projectile.prototype.getVisualProperty = function(name) {
+	return this._getFlightVisualProperty(name) || this.parent(name);
 }
 
 RPG.Spells.Projectile.prototype.cast = function(target) {

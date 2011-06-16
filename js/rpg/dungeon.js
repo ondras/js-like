@@ -1,10 +1,10 @@
 /**
  * @class Map cell
  * @augments RPG.Misc.IEnterable
- * @augments RPG.IVisual
+ * @augments RPG.Visual.IVisual
  */
 RPG.Cells.BaseCell = OZ.Class()
-						.implement(RPG.IVisual)
+						.implement(RPG.Visual.IVisual)
 						.implement(RPG.Misc.IEnterable);
 RPG.Cells.BaseCell.visual = { path:"cells" };
 RPG.Cells.BaseCell.prototype.init = function() {
@@ -119,10 +119,10 @@ RPG.Areas.Room.prototype.getCoords = function() {
 
 /**
  * @class Dungeon feature
- * @augments RPG.IVisual
+ * @augments RPG.Visual.IVisual
  */
 RPG.Features.BaseFeature = OZ.Class()
-							.implement(RPG.IVisual)
+							.implement(RPG.Visual.IVisual)
 							.implement(RPG.Misc.IEnterable);
 RPG.Features.BaseFeature.visual = { path:"features" };
 RPG.Features.BaseFeature.prototype.init = function() {
@@ -180,7 +180,7 @@ RPG.Map.prototype.init = function(id, size, danger) {
 	this._features = {}; 
 	this._memory = {};
 }
-
+/*
 RPG.Map.prototype.toJSON = function(handler) {
 	var cache = {};
 	var memory = {};
@@ -219,7 +219,7 @@ RPG.Map.prototype.revive = function() {
 	}
 	this._memory = memory;
 }
-
+*/
 /**
  * Populates cells in this map based on an array of arrays of integers.
  * @param {int[][]} intMap
@@ -361,7 +361,7 @@ RPG.Map.prototype._setMemory = function(id, state) {
 	
 	/* convert to visuals */
 	for (var i=0;i<m.data.length;i++) {
-		m.data[i] = m.data[i].getVisual();
+		m.data[i] = RPG.Visual.getVisual(m.data[i]);
 	}
 }
 

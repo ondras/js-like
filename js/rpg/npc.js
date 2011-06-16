@@ -80,10 +80,10 @@ RPG.Beings.NPC.prototype.confirmAttack = function() {
 
 /**
  * Takes gender and name into account
- * @see RPG.IVisual#describe
+ * @see RPG.Visual.IVisual#describe
  */
 RPG.Beings.NPC.prototype.describe = function() {
-	var desc = this.getVisual().desc;
+	var desc = this.parent();
 	if (this._gender == RPG.GENDER_FEMALE) { desc = "female "+desc; }
 	if (this._name) { desc = this._name + " the " + desc.capitalize(); }
 	return desc;
@@ -91,7 +91,7 @@ RPG.Beings.NPC.prototype.describe = function() {
 
 /**
  * Takes name into account
- * @see RPG.IVisual#describeA
+ * @see RPG.Visual.IVisual#describeA
  */
 RPG.Beings.NPC.prototype.describeA = function() {
 	if (this._name) { 
@@ -103,7 +103,7 @@ RPG.Beings.NPC.prototype.describeA = function() {
 
 /**
  * Takes name into account
- * @see RPG.IVisual#describeThe
+ * @see RPG.Visual.IVisual#describeThe
  */
 RPG.Beings.NPC.prototype.describeThe = function() {
 	if (this._name) { 
@@ -114,7 +114,7 @@ RPG.Beings.NPC.prototype.describeThe = function() {
 }
 
 /**
- * @see RPG.IVisual#describeIs
+ * @see RPG.Visual.IVisual#describeIs
  */
 RPG.Beings.NPC.prototype.describeIs = function() {
 	return "is";

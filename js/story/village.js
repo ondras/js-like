@@ -292,7 +292,7 @@ RPG.Beings.VillageSmith.prototype.init = function() {
  */
 RPG.Beings.VillageElder = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.VillageElder.factory.ignore = true;
-RPG.Beings.VillageElder.visual = { desc:"village elder", color:"#630", image:"village-elder" };
+RPG.Beings.VillageElder.visual = { desc:"village elder", color:"#960", image:"village-elder" };
 RPG.Beings.VillageElder.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
 

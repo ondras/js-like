@@ -142,8 +142,6 @@ RPG.Misc.IWeapon.prototype.getDamage = function() {
 
 /**
  * @class Interface for flying objects
- * @augments RPG.Misc.IWeapon
- * @augments RPG.IVisual
  */
 RPG.Misc.IProjectile = OZ.Class();
 RPG.Misc.IProjectile.prototype._initProjectile = function() {
@@ -176,18 +174,18 @@ RPG.Misc.IProjectile.prototype._initProjectile = function() {
 	this._suffixes[RPG.NW] = "nw";
 }
 
-RPG.Misc.IProjectile.prototype._addFlightVisual = function(visual) {
-	if (this._flying) { /* we are in flight, use special visual representation */
-		var index = this._flight.index;
-		var c = this._flight.coords[index];
-		var prev = this._flight.coords[index-1];
-		var dir = prev.dirTo(c);
-
-		visual.ch = this._chars[dir];
-		var image = visual.image;
-		if (this._suffixes[dir]) { image += "-" + this._suffixes[dir]; }
-		visual.image = image;
-	}
+RPG.Misc.IProjectile.prototype._getFlightVisualProperty = function(name) {
+	if (!this._flying) { return null; }
+	if (name != "ch" && name != "image") { return null; }
+	
+	/* we are in flight, use special visual representation */
+	var index = this._flight.index;
+	var c = this._flight.coords[index];
+	var prev = this._flight.coords[index-1];
+	var dir = prev.dirTo(c);
+	
+	if (name == "ch") { return this._chars[dir]; }
+	if (name == "image") { return this.getImage() + "-" + this._suffixes[dir]; }
 }
 
 RPG.Misc.IProjectile.prototype.getRange = function() {
@@ -280,17 +278,17 @@ RPG.Misc.IProjectile.prototype.computeTrajectory = function(source, target, map)
 
 /**
  * @class Projectile mark
- * @augments RPG.IVisual
+ * @augments RPG.Visual.IVisual
  */
-RPG.Misc.IProjectile.Mark = OZ.Class().implement(RPG.IVisual);
+RPG.Misc.IProjectile.Mark = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Misc.IProjectile.Mark.visual = { ch:"*", color:"#fff", image:"crosshair" };
 RPG.Misc.IProjectile.mark = new RPG.Misc.IProjectile.Mark();
 
 /**
  * @class Projectile end mark
- * @augments RPG.IVisual
+ * @augments RPG.Visual.IVisual
  */
-RPG.Misc.IProjectile.EndMark = OZ.Class().implement(RPG.IVisual);
+RPG.Misc.IProjectile.EndMark = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Misc.IProjectile.EndMark.visual = { ch:"X", color:"#fff", image:"crosshair-end" };
 RPG.Misc.IProjectile.endMark = new RPG.Misc.IProjectile.EndMark();
 

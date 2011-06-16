@@ -65,12 +65,22 @@ RPG.Features.Door.prototype.init = function() {
 	this.open();
 }
 
-RPG.Features.Door.prototype.getVisual = function() {
-	var visual = this.parent();
-	visual.desc = (this._closed ? "closed door" : "open door");
-	visual.image = (this._closed ? "door-closed" : "door-open");
-	visual.ch = (this._closed ? "+" : "/");
-	return visual;
+RPG.Features.Door.prototype.getVisualProperty = function(name) {
+	var result = this.parent(name);
+	if (this._closed) {
+		var data = {
+			ch: "+",
+			desc: "closed door",
+			image: "door-closed"
+		};
+	} else {
+		var data = {
+			ch: "/",
+			desc: "open door",
+			image: "door-open"
+		};
+	}
+	return data[name] || this.parent(name);
 }
 
 RPG.Features.Door.prototype.lock = function() {

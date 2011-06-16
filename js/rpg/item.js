@@ -1,15 +1,14 @@
 /**
  * @class Basic item.
- * @augments RPG.IVisual
+ * @augments RPG.Visual.IVisual
  * @augments RPG.Misc.IEnterable
  */
 RPG.Items.BaseItem = OZ.Class()
-						.implement(RPG.IVisual)
+						.implement(RPG.Visual.IVisual)
 						.implement(RPG.Misc.IEnterable); /* "entering" an item means equipping it */
 RPG.Items.BaseItem.factory.ignore = true;
 RPG.Items.BaseItem.visual = { path:"items" };
 RPG.Items.BaseItem.prototype.init = function() {
-	this._descPlural = null;
 	this._modifiers = {};
 	this._amount = 1;
 	this._uncountable = false;
@@ -84,18 +83,23 @@ RPG.Items.BaseItem.prototype.getPrice = function() {
 	return this._price;
 }
 
+RPG.Items.BaseItem.prototype.getVisualProperty = function(name) {
+	if (name != "desc" || this._amount == 1) { return this.parent(name); }
+	return this.parent("descPlural") || (this.parent("desc") + "s");
+	
+}
+
 /**
  * Items are described with respect to their "remembered" state
- * @see RPG.IVisual#describe
+ * @see RPG.Visual.IVisual#describe
  */
 RPG.Items.BaseItem.prototype.describe = function() {
 	var s = "";
-	var visual = this.getVisual();
+	var desc = this.parent();
 	if (this._amount == 1) {
-		s += visual.desc;
+		s += desc;
 	} else {
-		s += "heap of " + this._amount + " ";
-		s += this._descPlural || (visual.desc + "s");
+		s += "heap of " + this._amount + " " + desc;
 	}
 
 	if (this._remembered) { /* known items show modifiers, if any */

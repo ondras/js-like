@@ -60,9 +60,9 @@ RPG.Feats.AdvancedFeat.prototype._drd = function() {
 
 /**
  * @class Basic race
- * @augments RPG.IVisual
+ * @augments RPG.Visual.IVisual
  */
-RPG.Races.BaseRace = OZ.Class().implement(RPG.IVisual);
+RPG.Races.BaseRace = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Races.BaseRace.prototype.init = function() {
 	this._slots = {};
 	this._defaults = {};
@@ -157,8 +157,9 @@ RPG.Slots.BaseSlot.prototype.getName = function() {
 
 /**
  * @class Base profession
+ * @augments RPG.Visual.IVisual
  */
-RPG.Professions.BaseProfession = OZ.Class().implement(RPG.IVisual);
+RPG.Professions.BaseProfession = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Professions.BaseProfession.prototype.setup = function(being) {
 	var tmp = new RPG.Items.HealingPotion();
 	being.addItem(tmp);

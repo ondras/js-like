@@ -28,10 +28,8 @@ RPG.Beings.PC.prototype.init = function(race, profession) {
 	this.fullStats();
 }
 
-RPG.Beings.PC.prototype.getVisual = function() {
-	var visual = this.parent();
-	visual.image += "-" + new this._profession().getVisual().image;
-	return visual;
+RPG.Beings.PC.prototype.getImage = function() {
+	return this.parent() + "-" + new this._profession().getImage();
 }
 
 RPG.Beings.PC.prototype.toJSON = function(handler) {
@@ -99,14 +97,14 @@ RPG.Beings.PC.prototype.setMap = function(map) {
 }
 
 /**
- * @see RPG.IVisual#describeA
+ * @see RPG.Visual.IVisual#describeA
  */
 RPG.Beings.PC.prototype.describeA = function() {
 	return this.describe();
 }
 
 /**
- * @see RPG.IVisual#describeThe
+ * @see RPG.Visual.IVisual#describeThe
  */
 RPG.Beings.PC.prototype.describeThe = function() {
 	return this.describe();
@@ -135,7 +133,7 @@ RPG.Beings.PC.prototype.describeHis = function() {
 
 
 /**
- * @see RPG.IVisual#describeIs
+ * @see RPG.Visual.IVisual#describeIs
  */
 RPG.Beings.PC.prototype.describeIs = function() {
 	return "are";

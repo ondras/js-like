@@ -249,7 +249,7 @@ RPG.Beings.Jackal.prototype.init = function() {
  */
 RPG.Beings.Bear = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Bear.factory.frequency = 50;
-RPG.Beings.Bear.visual = { desc:"bear", color:"#630", image:"bear", ch:"N" };
+RPG.Beings.Bear.visual = { desc:"bear", color:"#960", image:"bear", ch:"N" };
 RPG.Beings.Bear.prototype.init = function() {
 	this.parent(RPG.Races.Animal);
 	
@@ -392,7 +392,7 @@ RPG.Beings.Ogre.prototype.init = function() {
  */
 RPG.Beings.Gnoll = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Gnoll.factory.frequency = 60;
-RPG.Beings.Gnoll.visual = { desc:"gnoll", color:"#630", image:"gnoll", ch:"g" };
+RPG.Beings.Gnoll.visual = { desc:"gnoll", color:"#960", image:"gnoll", ch:"g" };
 RPG.Beings.Gnoll.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
 	this.randomGender();

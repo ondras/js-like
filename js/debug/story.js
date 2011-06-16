@@ -35,7 +35,16 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 }
 
 RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
-	var pc = new RPG.Beings.God(race, profession);
+	var pc = new RPG.Beings.PC(race, profession);
 	pc.setName(name);
+	
+	var r = new RPG.Items.RingOfAttribute(RPG.FEAT_STRENGTH, 3);
+	r.setAmount(2);
+	pc.addItem(r);
+	
+	var r = new RPG.Items.Rock();
+	r.setAmount(2);
+	pc.addItem(r);
+
 	return pc;
 }

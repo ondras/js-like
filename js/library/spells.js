@@ -139,10 +139,9 @@ RPG.Spells.Fireball.prototype.init = function(caster) {
 	this._radius = 2;
 }
 
-RPG.Spells.Fireball.prototype.getVisual = function() {
-	var visual = this.parent();
-	if (this._exploded) { visual.image = "fireball-explosion"; }
-	return visual;
+RPG.Spells.Fireball.prototype.getImage = function() {
+	if (!this._exploded) { return this.parent(); }
+	return this.getVisualProperty("path") + "/fireball-explosion";
 }
 
 RPG.Spells.Fireball.prototype._fly = function(coords) {

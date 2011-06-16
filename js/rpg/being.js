@@ -1,10 +1,10 @@
 /**
  * @class Basic being
- * @augments RPG.IVisual
+ * @augments RPG.Visual.IVisual
  * @augments RPG.Misc.IActor
  */
 RPG.Beings.BaseBeing = OZ.Class()
-						.implement(RPG.IVisual)
+						.implement(RPG.Visual.IVisual)
 						.implement(RPG.Misc.IActor);
 						
 /**
@@ -34,13 +34,8 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this.fullStats();
 }
 
-RPG.Beings.BaseBeing.prototype.getVisual = function() {
-	var visual = this.parent();
-	var raceVisual = new this._race().getVisual();
-	for (var p in raceVisual) {
-		if (!(p in visual)) { visual[p] = raceVisual[p]; }
-	}
-	return visual;
+RPG.Beings.BaseBeing.prototype.getVisualProperty = function(name) {
+	return this.parent(name) || new this._race().getVisualProperty(name);
 }
 
 RPG.Beings.BaseBeing.prototype.toString = function() {

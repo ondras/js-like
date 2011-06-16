@@ -99,12 +99,14 @@ RPG.UI.BaseMap.prototype.setFocus = function(coords) {
 
 /**
  * Draw a projectile at a given coords
+ * @param {RPG.Misc.Coords}
+ * @param {RPG.Visual.IVisual}
  */
 RPG.UI.BaseMap.prototype.addProjectile = function(coords, projectile) {
 	var cell = this._dom.data[coords.x][coords.y];
 	var index = this._projectiles.indexOf(cell);
 	if (index == -1) { this._projectiles.push(cell); }
-	cell.addProjectile(projectile);
+	cell.addProjectile(RPG.Visual.getVisual(projectile));
 }
 
 /**
@@ -161,7 +163,7 @@ RPG.UI.BaseCell.prototype.removeFocus = function() {
 /**
  * Draw a projectile at this cell
  */
-RPG.UI.BaseCell.prototype.addProjectile = function(projectile) {
+RPG.UI.BaseCell.prototype.addProjectile = function(visual) {
 }
 
 /**
@@ -234,8 +236,8 @@ RPG.UI.ImageCell.prototype.addFocus = function() {
 	this._dom.container.appendChild(this._dom.focus);
 }
 
-RPG.UI.ImageCell.prototype.addProjectile = function(projectile) {
-	this._updateImage(this._dom.nodes[1], projectile);
+RPG.UI.ImageCell.prototype.addProjectile = function(visual) {
+	this._updateImage(this._dom.nodes[1], visual);
 }
 
 RPG.UI.ImageCell.prototype.removeProjectile = function() {
@@ -249,7 +251,7 @@ RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
 	}
 	
 	node.style.visibility = "visible";
-	var url = "img/" + what.imagePrefix + "/" + what.image + ".png";
+	var url = "img/" + what.image + ".png";
 	var text = what.desc;
 	
 	if (node.src.indexOf(url) == -1) { 
@@ -349,9 +351,9 @@ RPG.UI.ASCIICell.prototype.removeFocus = function() {
 	OZ.DOM.removeClass(this._dom.node, "focus");
 }
 
-RPG.UI.ASCIICell.prototype.addProjectile = function(projectile) {
-	this._dom.node.innerHTML = projectile.getVisual().ch;
-	this._dom.node.style.color = projectile.getVisual().color;
+RPG.UI.ASCIICell.prototype.addProjectile = function(visual) {
+	this._dom.node.innerHTML = visual.ch;
+	this._dom.node.style.color = visual.color;
 }
 
 RPG.UI.ASCIICell.prototype.removeProjectile = function() {
@@ -398,7 +400,7 @@ RPG.UI.CanvasMap.prototype.resize = function(size) {
 }
 
 RPG.UI.CanvasMap.prototype.addProjectile = function(coords, projectile) {
-	var visual = projectile.getVisual();
+	var visual = RPG.Visual.getVisual(projectile);
 	this._projectiles.push([coords.clone(), visual]);
 	this._redrawCoords(coords, visual);
 }

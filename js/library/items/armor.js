@@ -55,7 +55,7 @@ RPG.Items.HeadGear.visual = { ch:"[", color:"#ccc" };
  */
 RPG.Items.Boots = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Boots.factory.ignore = true;
-RPG.Items.Boots.visual = { ch:"[", color:"#630" };
+RPG.Items.Boots.visual = { ch:"[", color:"#960" };
 
 /**
  * @class Armor
@@ -63,7 +63,7 @@ RPG.Items.Boots.visual = { ch:"[", color:"#630" };
  */
 RPG.Items.Armor = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Armor.factory.ignore = true;
-RPG.Items.Armor.visual = { ch:"]", color:"#630" };
+RPG.Items.Armor.visual = { ch:"]", color:"#960" };
 
 /**
  * @class Metal cap
@@ -81,11 +81,10 @@ RPG.Items.MetalCap.prototype.init = function() {
  * @augments RPG.Items.Boots
  */
 RPG.Items.LeatherBoots = OZ.Class().extend(RPG.Items.Boots);
-RPG.Items.LeatherBoots.visual = { desc:"leather boots", image:"leather-boots" };
+RPG.Items.LeatherBoots.visual = { desc:"leather boots", image:"leather-boots", descPlural:"pairs of leather boots" };
 RPG.Items.LeatherBoots.prototype.init = function() {
 	this.parent();
 	this._uncountable = true;
-	this._descPlural = "pairs of leather boots";
 	this._modifiers[RPG.FEAT_DV] = 1;
 }
 

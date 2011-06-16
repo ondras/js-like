@@ -8,11 +8,11 @@ RPG.Items.Weapon = OZ.Class()
 					.implement(RPG.Misc.IWeapon);
 RPG.Items.Weapon.factory.ignore = true;
 RPG.Items.Weapon.visual = { ch:")", color:"#ccc" };
+RPG.Items.Weapon.prototype._dualHand = false;
 RPG.Items.Weapon.prototype.init = function(hit, damage) {
 	this.parent();
 	this.setHit(hit);
 	this.setDamage(damage);
-	this._dualHand = false;
 }
 
 RPG.Items.Weapon.prototype.isDualHand = function() {
@@ -49,7 +49,7 @@ RPG.Items.OrcishDagger.prototype.init = function() {
  * @augments RPG.Items.Weapon
  */
 RPG.Items.Club = OZ.Class().extend(RPG.Items.Weapon)
-RPG.Items.Club.visual = { desc:"club", image:"club", color:"#630" };
+RPG.Items.Club.visual = { desc:"club", image:"club", color:"#960" };
 RPG.Items.Club.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(7, 3));
 }
@@ -79,7 +79,7 @@ RPG.Items.LongSword.prototype.init = function() {
  * @augments RPG.Items.Weapon
  */
 RPG.Items.Axe = OZ.Class().extend(RPG.Items.Weapon)
-RPG.Items.Axe.visual = { desc:"axe", image:"axe", color:"#630" };
+RPG.Items.Axe.visual = { desc:"axe", image:"axe", color:"#960" };
 RPG.Items.Axe.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(6, 2));
 }
@@ -90,9 +90,9 @@ RPG.Items.Axe.prototype.init = function() {
  */
 RPG.Items.Hammer = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Hammer.visual = { desc:"hammer", image:"hammer", color:"#999" };
+RPG.Items.Hammer.prototype._dualHand = true;
 RPG.Items.Hammer.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(7, 1));
-	this._dualHand = true;
 }
 
 /**
@@ -100,10 +100,10 @@ RPG.Items.Hammer.prototype.init = function() {
  * @augments RPG.Items.Weapon
  */
 RPG.Items.Staff = OZ.Class().extend(RPG.Items.Weapon)
-RPG.Items.Staff.visual = { desc:"staff", image:"staff", color:"#630" };
+RPG.Items.Staff.visual = { desc:"staff", image:"staff", color:"#960" };
+RPG.Items.Staff.prototype._dualHand = true;
 RPG.Items.Staff.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(4, 2));
-	this._dualHand = true;
 }
 
 /**
@@ -111,10 +111,10 @@ RPG.Items.Staff.prototype.init = function() {
  * @augments RPG.Items.Weapon
  */
 RPG.Items.Broom = OZ.Class().extend(RPG.Items.Weapon)
-RPG.Items.Broom.visual = { desc:"broom", image:"broom", color:"#630" };
+RPG.Items.Broom.visual = { desc:"broom", image:"broom", color:"#960" };
+RPG.Items.Broom.prototype._dualHand = true;
 RPG.Items.Broom.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 1), new RPG.Misc.RandomValue(2, 4));
-	this._dualHand = true;
 }
 
 /**
@@ -122,10 +122,9 @@ RPG.Items.Broom.prototype.init = function() {
  * @augments RPG.Items.Weapon
  */
 RPG.Items.Torch = OZ.Class().extend(RPG.Items.Weapon)
-RPG.Items.Torch.visual = { desc:"torch", image:"torch", color:"#999" };
+RPG.Items.Torch.visual = { desc:"torch", descPlural:"torches", image:"torch", color:"#999" };
 RPG.Items.Torch.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 2), new RPG.Misc.RandomValue(4, 3));
-	this._descPlural = "torches"; 
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 1;
 }
 
@@ -136,12 +135,12 @@ RPG.Items.Torch.prototype.init = function() {
 RPG.Items.KlingonSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.KlingonSword.factory.ignore = true;
 RPG.Items.KlingonSword.visual = { desc:"Klingon ceremonial sword", image:"klingon-sword", color:"#fc0" };
+RPG.Items.KlingonSword.prototype._dualHand = true;
 RPG.Items.KlingonSword.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(10, 3), new RPG.Misc.RandomValue(10, 3));
 	this._modifiers[RPG.FEAT_DV] = 1;
 	this._modifiers[RPG.FEAT_PV] = 1;
 	this._modifiers[RPG.FEAT_STRENGTH] = 2;
-	this._dualHand = true;
 }
 
 /**
@@ -159,10 +158,8 @@ RPG.Items.Projectile.prototype.init = function(hit, damage) {
 	this._weapon = null;
 }
 
-RPG.Items.Projectile.prototype.getVisual = function() {
-	var visual = this.parent();
-	this._addFlightVisual(visual);
-	return visual;
+RPG.Items.Projectile.prototype.getVisualProperty = function(name) {
+	return this._getFlightVisualProperty(name) || this.parent(name);
 }
 
 RPG.Items.Projectile.prototype.getHit = function() {
@@ -243,9 +240,9 @@ RPG.Items.Rock.visual = { ch:"*", image:"rock", color:"#999", desc:"rock" };
 RPG.Items.Rock.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(2, 1), new RPG.Misc.RandomValue(2, 1));
 
-	var visual = this.getVisual();
+	var ch = this.getChar();
 	for (var dir in RPG.DIR) { 
-		this._chars[dir] = visual.ch; 
+		this._chars[dir] = ch; 
 		this._suffixes[dir] = ""; 
 	}
 }
@@ -259,7 +256,7 @@ RPG.Items.Arrow.factory.method = function(danger) {
 	var amount = 10*(1 + Math.round(Math.random() * danger * 1.5));
 	return new this(amount);
 }
-RPG.Items.Arrow.visual = { image:"arrow", ch:"/", color:"#630", desc:"arrow" };
+RPG.Items.Arrow.visual = { image:"arrow", ch:"/", color:"#960", desc:"arrow" };
 RPG.Items.Arrow.prototype.init = function(amount) {
 	this.parent(new RPG.Misc.RandomValue(2, 1), new RPG.Misc.RandomValue(2, 1));
 	this._amount = amount;

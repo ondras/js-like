@@ -19,11 +19,12 @@ RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Consumable);
 RPG.Items.Corpse.factory.ignore = true;
 RPG.Items.Corpse.visual = { image:"corpse" };
 
-RPG.Items.Corpse.prototype.getVisual = function() {
-	var visual = this.parent();
-	visual.color = this._being.getVisual().color;
-	visual.desc = this._being.getVisual().desc + " corpse";
-	return visual;
+RPG.Items.Corpse.prototype.getColor = function() {
+	return this._being.getColor();
+}
+
+RPG.Items.Corpse.prototype.describe = function() {
+	return this._being.describe() + " corpse";
 }
 
 /**
@@ -66,7 +67,7 @@ RPG.Items.DwarvenSausage.visual = { image:"dwarven-sausage", desc:"dwarven sausa
  * @augments RPG.Items.Consumable
  */
 RPG.Items.IronRation = OZ.Class().extend(RPG.Items.Consumable);
-RPG.Items.IronRation.visual = { image:"iron-ration", desc:"iron ration", color:"#630" };
+RPG.Items.IronRation.visual = { image:"iron-ration", desc:"iron ration", color:"#960" };
 
 /**
  * @class Gold, money
@@ -81,7 +82,6 @@ RPG.Items.Gold.visual = { image:"gold", ch:"$", desc:"piece of gold", color:"#fc
 
 RPG.Items.Gold.prototype.init = function(amount) {
 	this.parent();
-	this._descPlural = "pieces";
 	this._amount = amount;
 }
 
@@ -89,7 +89,7 @@ RPG.Items.Gold.prototype.describe = function() {
 	if (this._amount == 1) {
 		return this.parent();
 	} else {
-		return "heap of gold ("+this._amount + " " + this._descPlural + ")";
+		return "heap of gold ("+this._amount + " pieces)";
 	}
 }
 
@@ -170,7 +170,7 @@ RPG.Items.HealingPotion.prototype.drink = function(being) {
  */
 RPG.Items.Ring = OZ.Class().extend(RPG.Items.BaseItem);
 RPG.Items.Ring.factory.ignore = true;
-RPG.Items.Ring.visual = { ch:"=" };
+RPG.Items.Ring.visual = { ch:"=", desc:"ring" };
 
 /**
  * @class Necklace
@@ -192,13 +192,12 @@ RPG.Items.BrassRing.visual = { image:"brass-ring", desc:"brass ring", color:"#c6
  * @augments RPG.Items.Ring
  */
 RPG.Items.RingOfAttribute = OZ.Class().extend(RPG.Items.Ring);
-RPG.Items.RingOfAttribute.visual = { image:"silver-ring", color:"#ccc", desc:"ring of " };
+RPG.Items.RingOfAttribute.visual = { image:"silver-ring", color:"#ccc" };
 RPG.Items.RingOfAttribute.factory.method = function(danger) {
 	var att = RPG.ATTRIBUTES.random();
 	var amount = 1 + (danger/8);
 	return new this(att, amount);
 }
-
 
 RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 	this.parent();
@@ -207,13 +206,10 @@ RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 	this._modifiers[attribute] = rv.roll();
 
 	this._attribute = attribute;
-	this._descPlural = "rings of " + RPG.Feats[attribute].label;
 }
 
-RPG.Items.RingOfAttribute.prototype.getVisual = function() {
-	var visual = this.parent();
-	visual.desc += RPG.Feats[this._attribute].label;
-	return visual;
+RPG.Items.RingOfAttribute.prototype.getVisualProperty = function(name) {
+	if (name == "descPlural" || name == "desc") { return this.parent(name) + " of " + RPG.Feats[this._attribute].label; }
 }
 
 RPG.Items.RingOfAttribute.prototype.clone = function() {
@@ -247,10 +243,8 @@ RPG.Items.Scroll.prototype.init = function(spell) {
 	this._spell = spell;
 }
 
-RPG.Items.Scroll.prototype.getVisual = function() {
-	var visual = this.parent();
-	visual.desc += this._spell.visual.desc.capitalize();
-	return visual;
+RPG.Items.Scroll.prototype.describe = function() {
+	return this.parent() + this._spell.visual.desc.capitalize();
 }
 
 RPG.Items.Scroll.prototype.clone = function() {
