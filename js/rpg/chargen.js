@@ -65,6 +65,7 @@ RPG.CharGen.prototype._buildMatrix = function(tb) {
 		
 		/* profession label */
 		var td = OZ.DOM.elm("td");
+		/* FIXME instantialize? */
 		td.innerHTML = profCtor.visual.desc.capitalize();
 		tr.appendChild(td);
 		
@@ -76,6 +77,7 @@ RPG.CharGen.prototype._buildMatrix = function(tb) {
 			tr.appendChild(td);
 
 			var img = OZ.DOM.elm("img");
+			/* FIXME instantialize? */
 			img.src = "img/pc/" + raceCtor.visual.image + "-" + profCtor.visual.image + ".png";
 			td.appendChild(img);
 			
