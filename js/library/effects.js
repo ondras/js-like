@@ -70,14 +70,12 @@ RPG.Effects.Blindness.prototype.init = function(turnsRemaining) {
 
 RPG.Effects.Blindness.prototype.entering = function(being) {
 	this.parent(being);
-	/* FIXME mozna spis volat updateVisibility() na PC, coz zpusobi redraw? */
-	if (being == RPG.Game.pc) { RPG.UI.map.redrawVisible(); } 
+	if (being == RPG.Game.pc) { RPG.Game.pc.updateVisibility(); } 
 }
 
 RPG.Effects.Blindness.prototype.leaving = function(being) {
 	this.parent(being);
-	/* FIXME mozna spis volat updateVisibility() na PC, coz zpusobi redraw? */
-	if (being == RPG.Game.pc) { RPG.UI.map.redrawVisible(); }
+	if (being == RPG.Game.pc) { RPG.Game.pc.updateVisibility(); }
 
 	var canSee = RPG.Game.pc.canSee(being.getCoords());
 	if (canSee) {

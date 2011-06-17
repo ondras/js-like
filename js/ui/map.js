@@ -35,57 +35,14 @@ RPG.UI.BaseMap.prototype.resize = function(size) {
 }
 
 /**
- * Redraw a game coords. If this cell is outside a visibility range, do nothing.
+ * Main drawing routine
+ * @param {RPG.Misc.Coords} coords
+ * @param {RPG.Visual[]} visuals
+ * @param {bool} memorized Memorized area?
  */
-RPG.UI.BaseMap.prototype.redrawCoords = function(coords) {
-	if (!RPG.Game.pc.canSee(coords)) { return; }
-	RPG.Game.pc.getMap().setMemory(coords, RPG.MAP_VISIBLE);
-	this._redrawCoords(coords);
-}
-
-/**
- * Redraw the visible area.
- */
-RPG.UI.BaseMap.prototype.redrawVisible = function() {
-	var map = RPG.Game.getMap();
-
-	var pc = RPG.Game.pc;
-	var oldVisible = pc.getVisibleCoords();
-	pc.updateVisibility(); /* tell PC to update its set of visible coordinates */
-	var newVisible = pc.getVisibleCoords();
-
-	/* check all cells visible before; if some is not visible now, mark it as remembered */
-	for (var hash in oldVisible) {
-		if (!(hash in newVisible)) { /* this one is no longer visible */
-			var coords = oldVisible[hash];
-			map.setMemory(coords, RPG.MAP_REMEMBERED);
-			this._redrawCoords(coords);
-		}
-	}
-
-	/* take all currently visible and mark them as visible */
-	for (var hash in newVisible) {
-		var coords = newVisible[hash];
-		map.setMemory(coords, RPG.MAP_VISIBLE);
-		this._redrawCoords(coords);
-	}
-}
-
-/**
- * Redraw all coords on this map.
- */
-RPG.UI.BaseMap.prototype.redrawAll = function() {
-	var map = RPG.Game.getMap();
-	var size = map.getSize();
-	
-	var coords = new RPG.Misc.Coords(0, 0);
-	for (var i=0;i<size.x;i++) {
-		for (var j=0;j<size.y;j++) {
-			coords.x = i;
-			coords.y = j;
-			this._redrawCoords(coords);
-		}
-	}
+RPG.UI.BaseMap.prototype.drawAtCoords = function(coords, visuals, memorized) {
+	var what = this._dom.data[coords.x][coords.y];
+	what.update(visuals, memorized);
 }
 
 RPG.UI.BaseMap.prototype.setFocus = function(coords) {
@@ -119,15 +76,6 @@ RPG.UI.BaseMap.prototype.removeProjectiles = function() {
 	}
 }
 
-/**
- * Force redraw a coords
- */
-RPG.UI.BaseMap.prototype._redrawCoords = function(coords) {
-	var map = RPG.Game.getMap();
-	var what = this._dom.data[coords.x][coords.y];
-	what.update(map.getMemory(coords));
-}
-
 RPG.UI.BaseMap.prototype._resize = function() {
 }
 
@@ -142,9 +90,10 @@ RPG.UI.BaseCell.prototype.init = function(owner, coords) {
 
 /**
  * Update cell contents
- * @param {object || null} memory Map memory
+ * @param {RPG.Visual[]} visuals 
+ * @param {bool} memorized
  */
-RPG.UI.BaseCell.prototype.update = function(memory) {
+RPG.UI.BaseCell.prototype.update = function(visuals, memorized) {
 }
 
 RPG.UI.BaseCell.prototype.addFocus = function() {
@@ -215,11 +164,11 @@ RPG.UI.ImageCell.prototype.init = function(owner, coords) {
 /**
  * @see RPG.UI.BaseCell#update
  */
-RPG.UI.ImageCell.prototype.update = function(memory) {
-	this._dom.container.style.opacity = (memory && memory.state == RPG.MAP_REMEMBERED ? 0.5 : 1);
+RPG.UI.ImageCell.prototype.update = function(visuals, memorized) {
+	this._dom.container.style.opacity = (memorized ? 0.5 : 1);
 
 	for (var i=0;i<this._dom.nodes.length;i++) {
-		var what = (memory && memory.data.length > i ? memory.data[i] : null);
+		var what = (visuals.length > i ? visuals[i] : null);
 		this._updateImage(this._dom.nodes[i], what);
 		if (i == 1) { this._topLayer = what; }
 	}
@@ -307,10 +256,10 @@ RPG.UI.ASCIICell.prototype.init = function(owner, coords) {
 /**
  * @see RPG.UI.BaseCell#update
  */
-RPG.UI.ASCIICell.prototype.update = function(memory) {
-	this._dom.node.style.opacity = (memory && memory.state == RPG.MAP_REMEMBERED ? 0.5 : 1);
+RPG.UI.ASCIICell.prototype.update = function(visuals, memorized) {
+	this._dom.node.style.opacity = (memorized ? 0.5 : 1);
 	
-	var item = (memory && memory.data.length ? memory.data[memory.data.length-1] : null);
+	var item = (visuals.length ? visuals[visuals.length-1] : null);
 	if (!item) {
 		this._dom.node.innerHTML = "&nbsp;";
 		this._dom.node.style.color = "white";
@@ -362,6 +311,8 @@ RPG.UI.CanvasMap = OZ.Class().extend(RPG.UI.BaseMap);
 RPG.UI.CanvasMap.prototype.init = function(container) {
 	this.parent(container);	
 	this._font = "16px monospace";
+	this._cache = {};
+	this._projectiles = {};
 	
 	/* create canvas + context */
 	var canvas = OZ.DOM.elm("canvas");
@@ -381,6 +332,7 @@ RPG.UI.CanvasMap.prototype.init = function(container) {
 
 RPG.UI.CanvasMap.prototype.resize = function(size) {
 	this._focus = null;
+	this._cache = {};
 	var w = size.x * this._charWidth;
 	var h = size.y * this._charHeight;
 	this._dom.canvas.width = w;
@@ -394,28 +346,29 @@ RPG.UI.CanvasMap.prototype.resize = function(size) {
 
 RPG.UI.CanvasMap.prototype.addProjectile = function(coords, projectile) {
 	var visual = RPG.Visual.getVisual(projectile);
-	this._projectiles.push([coords.clone(), visual]);
-	this._redrawCoords(coords, visual);
+	this._projectiles[coords.x+","+coords.y] = [visual.ch, visual.color, 1];
+	this._drawCache(coords);
 }
 
 RPG.UI.CanvasMap.prototype.removeProjectiles = function() {
-	var all = [];
-	for (var i=0;i<this._projectiles.length;i++) {
-		var coords = this._projectiles[i][0];
-		all.push(coords);
+	var allCoords = [];
+	for (var hash in this._projectiles) {
+		var coords = RPG.Misc.Coords.fromString(hash);
+		allCoords.push(coords);
 	}
-	this._projectiles = [];
+	this._projectiles = {};
 	
-	while (all.length) { this._redrawCoords(all.pop()); }
+	while (allCoords.length) { this._drawCache(allCoords.pop()); }
 }
 
 RPG.UI.CanvasMap.prototype.setFocus = function(coords) {
-	if (this._focus) { this._redrawCoords(this._focus); }
+	if (this._focus) { this._drawCache(this._focus); }
 	this._focus = coords.clone();
 	
 	var x = coords.x * this._charWidth;
 	var y = (coords.y+1) * this._charHeight - 1;
 	this._ctx.strokeStyle = "white";
+	this._ctx.globalAlpha = 1;
 	this._ctx.beginPath();
 	this._ctx.moveTo(x, y);
 	this._ctx.lineTo(x+this._charWidth-1, y);
@@ -423,32 +376,32 @@ RPG.UI.CanvasMap.prototype.setFocus = function(coords) {
 	this._ctx.stroke();
 }
 
-RPG.UI.CanvasMap.prototype._redrawCoords = function(coords, what) {
+RPG.UI.CanvasMap.prototype.drawAtCoords = function(coords, visuals, memorized) {
+	var hash = coords.x+","+coords.y;
+	if (!visuals.length) {
+		delete this._cache[hash];
+	} else {
+		var visual = visuals[visuals.length-1];
+		this._cache[coords.x+","+coords.y] = [visual.ch, visual.color, memorized ? 0.5 : 1];
+	}
+	this._drawCache(coords);
+}
+
+RPG.UI.CanvasMap.prototype._drawCache = function(coords) {
 	var x = coords.x * this._charWidth;
 	var y = coords.y * this._charHeight;
 	this._ctx.clearRect(x, y, this._charWidth, this._charHeight);
 	
-	var todo = what;
-	
-	if (!todo) {
-		for (var i=0;i<this._projectiles.length;i++) {
-			if (this._projectiles[i][0].equals(coords)) { todo = this._projectiles[i][1]; }
-		}
+	var hash = coords.x + "," + coords.y;
+	if (hash in this._projectiles) {
+		var what = this._projectiles[hash];
+	} else if (hash in this._cache) {
+		var what = this._cache[hash];
+	} else {
+		return;
 	}
-	
-	if (!todo) {
-		var memory = RPG.Game.getMap().getMemory(coords);
-		if (memory) {
-			if (memory.state == RPG.MAP_REMEMBERED) { this._ctx.globalAlpha = 0.5; }
-			if (memory.data.length) { todo = memory.data[memory.data.length-1]; }
-		}
-	}
-	
-	if (todo) {
-		var ch = todo.ch;
-		var color = todo.color;
-		this._ctx.fillStyle = color;
-		this._ctx.fillText(ch, x, y + this._charHeight);
-		this._ctx.globalAlpha = 1;
-	}
+
+	this._ctx.globalAlpha = what[2];
+	this._ctx.fillStyle = what[1];
+	this._ctx.fillText(what[0], x, y + this._charHeight);
 }

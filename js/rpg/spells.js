@@ -96,8 +96,12 @@ RPG.Spells.Projectile.prototype.init = function(caster) {
 	this._bounces = true;
 }
 
-RPG.Spells.Projectile.prototype.getVisualProperty = function(name) {
-	return this._getFlightVisualProperty(name) || this.parent(name);
+RPG.Spells.Projectile.prototype.getImage = function() {
+	return this._getFlightVisualProperty("image") || this.parent();
+}
+
+RPG.Spells.Projectile.prototype.getChar = function() {
+	return this._getFlightVisualProperty("ch") || this.parent();
 }
 
 RPG.Spells.Projectile.prototype.cast = function(target) {

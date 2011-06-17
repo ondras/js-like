@@ -158,8 +158,12 @@ RPG.Items.Projectile.prototype.init = function(hit, damage) {
 	this._weapon = null;
 }
 
-RPG.Items.Projectile.prototype.getVisualProperty = function(name) {
-	return this._getFlightVisualProperty(name) || this.parent(name);
+RPG.Items.Projectile.prototype.getImage = function() {
+	return this._getFlightVisualProperty("image") || this.parent();
+}
+
+RPG.Items.Projectile.prototype.getChar = function() {
+	return this._getFlightVisualProperty("ch") || this.parent();
 }
 
 RPG.Items.Projectile.prototype.getHit = function() {
@@ -216,11 +220,7 @@ RPG.Items.Projectile.prototype._done = function() {
 		this._owner.attackRanged(b, this);
 	} else {
 		if (!map.blocks(RPG.BLOCKS_MOVEMENT, coords)) { 
-			if (RPG.Rules.isProjectileRecovered(this)) {
-				map.addItem(this, coords);
-				var pc = RPG.Game.pc;
-				RPG.UI.map.redrawCoords(coords);
-			}
+			if (RPG.Rules.isProjectileRecovered(this)) { map.addItem(this, coords); }
 		} else {
 			var f = (map.getFeature(coords) || map.getCell(coords));
 			var s = RPG.Misc.format("%A hits %a.", this, f);

@@ -130,8 +130,9 @@ RPG.Beings.BaseBeing.prototype.getCoords = function() {
 	return this._coords;
 }
 
-RPG.Beings.BaseBeing.prototype.setMap = function(map) {
+RPG.Beings.BaseBeing.prototype.setMap = function(map, coords) {
 	this._map = map;
+	this.setCoords(coords);
 }
 
 RPG.Beings.BaseBeing.prototype.getMap = function() {
@@ -471,8 +472,7 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 		this._map.addItem(corpse, this._coords);
 	}
 
-	RPG.UI.map.redrawCoords(this._coords);
-	RPG.Game.getEngine().removeActor(this);
+	RPG.Game.getEngine().removeActor(this); /* FIXME mozna spis jako posluchac being-death? */
 	
 	this.dispatch("being-death");
 }
@@ -693,17 +693,18 @@ RPG.Beings.BaseBeing.prototype.pick = function(items) {
  */
 RPG.Beings.BaseBeing.prototype.open = function(door) {
 	var locked = door.isLocked();
-	if (locked) { return; } /* FIXME return value */
+	if (locked) { return RPG.ACTION_TIME; }
 	
 	var stuck = RPG.Rules.isDoorStuck(this, door);
-	if (stuck) { return; } /* FIXME return value */
+	if (stuck) { return RPG.ACTION_TIME; }
 	
-	var verb = RPG.Misc.verb("open", this);
-	var s = RPG.Misc.format("%A %s the door.", this, verb);
-	RPG.UI.buffer.message(s);
-	/* FIXME tady se vubec neoteviraji ty dvere! */
-	/* FIXME mozna ze zmena stavu mapy sama vyvola redraw? */
-	RPG.UI.map.redrawVisible();
+	door.open(); /* open first, then test visibility */
+	
+	if (RPG.Game.pc.canSee(coords)) {
+		var verb = RPG.Misc.verb("open", this);
+		var s = RPG.Misc.format("%A %s the door.", this, verb);
+		RPG.UI.buffer.message(s);
+	}
 
 	return RPG.ACTION_TIME;
 }
@@ -714,26 +715,18 @@ RPG.Beings.BaseBeing.prototype.open = function(door) {
  */
 RPG.Beings.BaseBeing.prototype.close = function(door) {
 	var coords = door.getCoords();
-	if (this._map.getBeing(coords)) {
-		RPG.UI.buffer.message("There is someone standing at the door.");
-		return; /* FIXME return value */
-	}
+	if (this._map.getBeing(coords)) { return RPG.ACTION_TIME; }
 
 	var items = this._map.getItems(coords);
-	if (items.length) {
-		if (items.length == 1) {
-			RPG.UI.buffer.message("An item blocks the door.");
-		} else {
-			RPG.UI.buffer.message("Several items block the door.");
-		}
-		return; /* FIXME return value */
+	if (items.length) { return RPG.ACTION_TIME; }
+	
+	if (RPG.Game.pc.canSee(coords)) {
+		var verb = RPG.Misc.verb("close", this);
+		var s = RPG.Misc.format("%A %s the door.", this, verb);
+		RPG.UI.buffer.message(s);
 	}
 
-	door.close();
-	var verb = RPG.Misc.verb("close", this);
-	var s = RPG.Misc.format("%A %s the door.", this, verb);
-	RPG.UI.buffer.message(s);
-	RPG.UI.map.redrawVisible(); /* FIXME nemela by iniciovat mapa zmenou stavu dveri? */
+	door.close(); /* first test visibility, then close */
 
 	return RPG.ACTION_TIME;
 }

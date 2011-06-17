@@ -149,17 +149,6 @@ RPG.Beings.NPC.prototype.canSee = function(coords) {
 
 /* ------------------------- ACTIONS -----------------*/
 
-RPG.Beings.NPC.prototype.move = function(target, ignoreOldCoords) {
-	var source = this._coords;
-
-	var result = this.parent(target, ignoreOldCoords);
-
-	if (source) { RPG.UI.map.redrawCoords(source); }
-	if (target) { RPG.UI.map.redrawCoords(target); }
-	
-	return result;
-}
-
 /**
  * Initiate chat with target being
  */

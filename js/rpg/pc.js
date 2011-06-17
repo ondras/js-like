@@ -12,7 +12,8 @@ RPG.Beings.PC.visual = { path:"pc", desc:"you" };
 RPG.Beings.PC.prototype.init = function(race, profession) {
 	this.parent(race);
 	
-	this._visibleCoordsHash = {};
+	this._visibleCoordsHash = {}; /* we currently see these */
+	this._mapMemory = {}; /* remembered visuals */
 	
 	this._kills = 0;
 	this._quests = [];
@@ -34,10 +35,6 @@ RPG.Beings.PC.prototype.getImage = function() {
 
 RPG.Beings.PC.prototype.toJSON = function(handler) {
 	return handler.toJSON(this, {exclude:"_visibleCoordsHash"});
-}
-
-RPG.Beings.PC.prototype.revive = function() {
-	this.updateVisibility();
 }
 
 RPG.Beings.PC.prototype.getQuests = function() {
@@ -91,9 +88,22 @@ RPG.Beings.PC.prototype._updateFeat = function(feat) {
 	return value;
 }
 
-RPG.Beings.PC.prototype.setMap = function(map) {
-	this.parent(map);
-	this._visibleCoordsHash = {};
+RPG.Beings.PC.prototype.setMap = function(map, coords) {
+	if (this._map) { /* memorize all visible visuals, we are leaving */
+		var memory = this._mapMemory[this._map.getID()];
+		for (var hash in this._visibleCoordsHash) {
+			var oldCoords = RPG.Misc.Coords.fromString(hash);
+			var visuals = this._getVisualsForCoords(oldCoords);
+			memory[hash] = visuals;
+		}
+	}
+	
+	this.parent(map, coords);
+
+	var id = map.getID();
+	if (!(id in this._mapMemory)) { this._mapMemory[id] = {}; }
+	
+	this.updateFromMemory();
 }
 
 /**
@@ -140,7 +150,7 @@ RPG.Beings.PC.prototype.describeIs = function() {
 }
 
 /**
- * PC uses a different approach - maintains a list of visible coords
+ * PC uses a different approach for visibility testing - maintains a list of visible coords
  */
 RPG.Beings.PC.prototype.canSee = function(coords) {
 	var id = coords.x+","+coords.y;
@@ -151,6 +161,76 @@ RPG.Beings.PC.prototype.canSee = function(coords) {
  * Update the array with all visible coordinates
  */
 RPG.Beings.PC.prototype.updateVisibility = function() {
+	var visible = this._computeVisibleCoords();
+	var oldVisible = this._visibleCoordsHash;
+	this._visibleCoordsHash = visible;
+	var memory = this._mapMemory[this._map.getID()];
+
+	for (var hash in visible) {
+		if (hash in oldVisible) { /* was visible, remove from the list of to-be-memorized */
+			delete oldVisible[hash];
+			continue; 
+		}
+
+		delete memory[hash];
+		var visuals = this._getVisualsForCoords(visible[hash]);
+		RPG.UI.map.drawAtCoords(visible[hash], visuals, false);
+	}
+
+	for (var hash in oldVisible) { /* these should be memorized now (were visible but are not anymore) */
+		var visuals = this._getVisualsForCoords(oldVisible[hash]);
+		memory[hash] = visuals;
+		RPG.UI.map.drawAtCoords(oldVisible[hash], visuals, true);
+	}
+	
+}
+
+RPG.Beings.PC.prototype.updateFromMemory = function() {
+	RPG.UI.map.resize(this._map.getSize());
+	
+	var memory = this._mapMemory[this._map.getID()];
+	this._visibleCoordsHash = {};
+	for (var hash in memory) {
+		var coords = RPG.Misc.Coords.fromString(hash);
+		RPG.UI.map.drawAtCoords(coords, memory[hash], true);
+	}
+	this.updateVisibility();
+}
+
+/**
+ * Map notifies PC about a change in coords visuals
+ */
+RPG.Beings.PC.prototype.coordsChanged = function(coords) {
+	if (!this.canSee(coords)) { return; }
+	var visuals = this._getVisualsForCoords(coords);
+	RPG.UI.map.drawAtCoords(coords, visuals, false);
+}
+
+/**
+ * Returns the list of visuals at a given location
+ */
+RPG.Beings.PC.prototype._getVisualsForCoords = function(coords) {
+	var visuals = [];
+	
+	var cell = this._map.getCell(coords);
+	visuals.push(RPG.Visual.getVisual(cell));
+	
+	var being = this._map.getBeing(coords);
+	var items = this._map.getItems(coords);
+	var feature = this._map.getFeature(coords);
+	
+	if (being && this.canSee(coords)) {
+		visuals.push(RPG.Visual.getVisual(being));
+	} else if (items.length) {
+		visuals.push(RPG.Visual.getVisual(items[items.length-1]));
+	} else if (feature && this.knowsFeature(feature)) {
+		visuals.push(RPG.Visual.getVisual(feature));
+	}
+	
+	return visuals;
+}
+
+RPG.Beings.PC.prototype._computeVisibleCoords = function() {
 	var R = this.getFeat(RPG.FEAT_SIGHT_RANGE);
 	var center = this._coords;
 	var current = new RPG.Misc.Coords(0, 0);
@@ -162,9 +242,9 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 	var arcs = [];
 	
 	/* results */
-	this._visibleCoordsHash = {};
+	var result = {};
 	var id = this._coords.x+","+this._coords.y;
-	this._visibleCoordsHash[id] = this._coords;
+	result[id] = this._coords;
 
 	/* standing in a dark place */
 	if (map.blocks(RPG.BLOCKS_LIGHT, this._coords)) { return; }
@@ -187,7 +267,7 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 
 			var startArc = (i-0.5) * arcsPerCell + 0.5;
 			if (this._visibleCoords(map.blocks(RPG.BLOCKS_LIGHT, c), startArc, arcsPerCell, arcs)) { 
-				this._visibleCoordsHash[c.x+","+c.y] = c; 
+				result[c.x+","+c.y] = c; 
 			}
 
 			/* cutoff? */
@@ -198,9 +278,11 @@ RPG.Beings.PC.prototype.updateVisibility = function() {
 					break;
 				}
 			}
-			if (done) { return; }
+			if (done) { return result; }
 		} /* for all cells in this ring */
 	} /* for all rings */
+	
+	return result;
 }
 
 /**
@@ -287,8 +369,7 @@ RPG.Beings.PC.prototype.move = function(target, ignoreOldCoords) {
 	
 	if (target) {
 		this._describeLocal();
-		/* FIXME mozna spis volat updateVisibility(), coz zpusobi redraw? */
-		RPG.UI.map.redrawVisible();
+		this.updateVisibility();
 		RPG.UI.refocus();
 	}
 	
@@ -351,8 +432,7 @@ RPG.Beings.PC.prototype.switchPosition = function(coords) {
 
 RPG.Beings.PC.prototype.equipDone = function() {
 	RPG.UI.buffer.message("You adjust your equipment.");
-	/* FIXME mozna spis volat updateVisibility(), coz zpusobi redraw? */
-	RPG.UI.map.redrawVisible(); /* sight range might got changed */
+	this.updateVisibility(); /* sight range might got changed */
 	return RPG.ACTION_TIME;
 }
 
@@ -395,15 +475,9 @@ RPG.Beings.PC.prototype.descend = function() {
  */
 RPG.Beings.PC.prototype.search = function() {
 	RPG.UI.buffer.message("You search your surroundings...");
-	var found = 0;
-	
+
 	var coords = this._map.getCoordsInCircle(this._coords, 1, false);
-	for (var i=0;i<coords.length;i++) {
-		found += this._search(coords[i]);
-	}
-	
-	/* FIXME mozna spis volat updateVisibility(), coz zpusobi redraw? */
-	if (found) { RPG.UI.map.redrawVisible(); }
+	for (var i=0;i<coords.length;i++) { this._search(coords[i]); }
 
 	return RPG.ACTION_TIME;
 }
@@ -420,7 +494,10 @@ RPG.Beings.PC.prototype._search = function(coords) {
 		if (this._map.getFeature(coords)) { desc = this._map.getFeature(coords).describe(); }
 		var s = RPG.Misc.format("You discover a hidden %s!", desc);
 		RPG.UI.buffer.message(s);
-		return 1;
+		
+		this.coordsChanged(coords);
+		this.updateVisibility();
+		return;
 	}
 	
 	var f = this._map.getFeature(coords);
@@ -428,10 +505,9 @@ RPG.Beings.PC.prototype._search = function(coords) {
 		this._knownFeatures.push(f);
 		var s = RPG.Misc.format("You discover %a!", f);
 		RPG.UI.buffer.message(s);
-		return 1;
+		this.coordsChanged(coords);
+		return;
 	}
-	
-	return 0;
 }
 
 RPG.Beings.PC.prototype.chat = function(being) {
@@ -475,8 +551,6 @@ RPG.Beings.PC.prototype.kick = function(coords) {
 			RPG.UI.buffer.message("You kick the door, but it does not budge.");
 		} else {
 			RPG.UI.buffer.message("You shatter the door with a mighty kick!");
-			/* FIXME mozna spis volat updateVisibility(), coz zpusobi redraw? */
-			RPG.UI.map.redrawVisible();
 		}
 		return RPG.ACTION_TIME;
 	}
@@ -504,8 +578,6 @@ RPG.Beings.PC.prototype.kick = function(coords) {
 			var s = RPG.Misc.format("You kick %the. It slides away.", item);
 			RPG.UI.buffer.message(s);
 			
-			RPG.UI.map.redrawCoords(coords); 
-			RPG.UI.map.redrawCoords(target); 
 			return RPG.ACTION_TIME;
 		}
 	}
@@ -528,14 +600,44 @@ RPG.Beings.PC.prototype.open = function(door) {
 	}
 	
 	door.open();
+
 	var verb = RPG.Misc.verb("open", this);
 	var s = RPG.Misc.format("%A %s the door.", this, verb);
 	RPG.UI.buffer.message(s);
-	/* FIXME mozna spis volat updateVisibility(), coz zpusobi redraw? */
-	RPG.UI.map.redrawVisible(); 
 	
 	return RPG.ACTION_TIME;
 }
+
+/**
+ * Close a door
+ * @param {RPG.Features.Door} door
+ */
+RPG.Beings.PC.prototype.close = function(door) {
+	var coords = door.getCoords();
+	if (this._map.getBeing(coords)) {
+		RPG.UI.buffer.message("There is someone standing at the door.");
+		return RPG.ACTION_NO_TIME;
+	}
+
+	var items = this._map.getItems(coords);
+	if (items.length) {
+		if (items.length == 1) {
+			RPG.UI.buffer.message("An item blocks the door.");
+		} else {
+			RPG.UI.buffer.message("Several items block the door.");
+		}
+		return RPG.ACTION_NO_TIME;
+	}
+
+	var verb = RPG.Misc.verb("close", this);
+	var s = RPG.Misc.format("%A %s the door.", this, verb);
+	RPG.UI.buffer.message(s);
+
+	door.close();
+
+	return RPG.ACTION_TIME;
+}
+
 
 RPG.Beings.PC.prototype.attackMagic = function(being, spell) {
 	var result = this.parent(being, spell);

@@ -41,11 +41,10 @@ RPG.Map.SmallVillage.prototype.init = function() {
 	this._buildPeople();
 
     var trees = 8;
-	while (trees) {
+	while (tree--s) {
 		var coords = this.getFreeCoords();
-		if (this.getArea(coords)) { continue; }
+		if (this.getArea(coords)) { continue; } /* FIXME buildings should be defined as areas, will contain trees otherwise */
 		this.setFeature(new RPG.Features.Tree(), coords);
-		trees--;
 	}
 }
 
@@ -655,16 +654,12 @@ RPG.Story.Village.prototype._showElderStaircase = function() {
     var staircase = new RPG.Features.Staircase.Down();
     this._village.setFeature(staircase, new RPG.Misc.Coords(32, 14));
     this._staircases["elder"] = staircase;
-    /* FIXME redraw coords */
-	RPG.UI.map.redrawVisible(); /* FIXME update by mohla iniciovat mapa */
 }
 
 RPG.Story.Village.prototype._showMazeStaircase = function() {
     var staircase = new RPG.Features.Staircase.Down();
     this._village.setFeature(staircase, new RPG.Misc.Coords(1, 1));
     this._staircases["maze"] = staircase;
-    /* FIXME redraw coords */
-	RPG.UI.map.redrawVisible(); /* FIXME update by mohla iniciovat mapa */
 }
 
 RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {

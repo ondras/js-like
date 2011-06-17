@@ -210,6 +210,7 @@ RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 
 RPG.Items.RingOfAttribute.prototype.getVisualProperty = function(name) {
 	if (name == "descPlural" || name == "desc") { return this.parent(name) + " of " + RPG.Feats[this._attribute].label; }
+	return this.parent(name);
 }
 
 RPG.Items.RingOfAttribute.prototype.clone = function() {
@@ -236,15 +237,16 @@ RPG.Items.Scroll.factory.method = function(danger) {
 	var spell = RPG.Factories.spells.getClass(danger);
 	return new this(spell);
 }
-RPG.Items.Scroll.visual = { ch:"?", color:"#fff", image:"scroll", desc:"scroll of " };
+RPG.Items.Scroll.visual = { ch:"?", color:"#fff", image:"scroll", desc:"scroll" };
 
 RPG.Items.Scroll.prototype.init = function(spell) {
 	this.parent();
 	this._spell = spell;
 }
 
-RPG.Items.Scroll.prototype.describe = function() {
-	return this.parent() + this._spell.visual.desc.capitalize();
+RPG.Items.Scroll.prototype.getVisualProperty = function(name) {
+	if (name == "descPlural" || name == "desc") { return this.parent(name) + " of " + this._spell.visual.desc.capitalize(); }
+	return this.parent(name);
 }
 
 RPG.Items.Scroll.prototype.clone = function() {

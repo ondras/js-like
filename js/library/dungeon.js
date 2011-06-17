@@ -91,15 +91,21 @@ RPG.Features.Door.prototype.lock = function() {
 RPG.Features.Door.prototype.close = function() {
 	this._closed = true;
 	this._locked = false;
-	
 	this._blocks = RPG.BLOCKS_LIGHT;
+	if (this._map && this._map.isActive() && RPG.Game.pc.canSee(this._coords)) { 
+		RPG.Game.pc.coordsChanged(this._coords);
+		RPG.Game.pc.updateVisibility(); 
+	}
 }
 
 RPG.Features.Door.prototype.open = function() {
 	this._closed = false;
 	this._locked = false;
-	
 	this._blocks = RPG.BLOCKS_NOTHING;
+	if (this._map && this._map.isActive() && RPG.Game.pc.canSee(this._coords)) { 
+		RPG.Game.pc.coordsChanged(this._coords);
+		RPG.Game.pc.updateVisibility(); 
+	}
 }
 
 RPG.Features.Door.prototype.unlock = function() {
@@ -121,7 +127,10 @@ RPG.Features.Door.prototype.isLocked = function() {
  */
 RPG.Features.Door.prototype.damage = function(amount) {
 	this._hp -= amount;
-	if (this._hp <= 0) { this._map.setFeature(null, this._coords); }
+	if (this._hp <= 0) { 
+		this._map.setFeature(null, this._coords); 
+		if (this._map.isActive() && RPG.Game.pc.canSee(this._coords)) { RPG.Game.pc.updateVisibility(); }
+	}
 	return (this._hp > 0);
 }
 
@@ -225,8 +234,7 @@ RPG.Features.Staircase.prototype.init = function() {
 RPG.Features.Staircase.prototype.enter = function(being) {
 	var target = this.getTarget();
 
-	if (target) {	
-		/* switch maps */
+	if (target) { /* switch maps */
 		return RPG.Game.setMap(this._target[0], this._target[1]);
 	} else {
 		return being.wait();

@@ -66,21 +66,16 @@ RPG.Game.end = function() {
  * @param {RPG.Misc.Coords} coords PC's coords
  */
 RPG.Game.setMap = function(map, coords) {
+	if (this._map) { this._map.setActive(false); }
 	this._map = map; /* remember where we are */
-
+	map.setActive(true);
+	
 	RPG.UI.status.updateMap(map.getID()); /* update statusbar */	
-	RPG.UI.map.resize(map.getSize()); /* adjust the map */
-	RPG.UI.map.redrawAll(); /* draw from memory */
 
 	map.setBeing(this.pc, coords);
-	var result = this.pc.move(coords); /* move PC to the coords -> redraw visible part */
 
 	this._engine.useMap(map); /* switch engine to new actorset */
-	return result; /* return result of move action */
-}
-
-RPG.Game.getMap = function() {
-	return this._map;
+	return RPG.ACTION_TIME;
 }
 
 /**
@@ -209,6 +204,5 @@ RPG.Game.fromJSON = function(data) {
 	RPG.UI.status.fromJSON(data.status);
 	RPG.Factories.cells.fromJSON(data.cells);
 	
-	RPG.UI.map.resize(this._map.getSize());
-	RPG.UI.map.redrawAll(); 
+	this.pc.updateFromMemory(); 
 }

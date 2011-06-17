@@ -38,13 +38,10 @@ RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
 	var pc = new RPG.Beings.PC(race, profession);
 	pc.setName(name);
 	
-	var r = new RPG.Items.RingOfAttribute(RPG.FEAT_STRENGTH, 3);
-	r.setAmount(2);
-	pc.addItem(r);
+	var s = new RPG.Items.Scroll(RPG.Spells.Knock);
+	s.setAmount(2);
+	s.setPrice(123);
+	pc.addItem(s);
 	
-	var r = new RPG.Items.Rock();
-	r.setAmount(2);
-	pc.addItem(r);
-
 	return pc;
 }

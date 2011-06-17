@@ -176,7 +176,6 @@ RPG.Misc.IProjectile.prototype._initProjectile = function() {
 
 RPG.Misc.IProjectile.prototype._getFlightVisualProperty = function(name) {
 	if (!this._flying) { return null; }
-	if (name != "ch" && name != "image") { return null; }
 	
 	/* we are in flight, use special visual representation */
 	var index = this._flight.index;
@@ -185,7 +184,7 @@ RPG.Misc.IProjectile.prototype._getFlightVisualProperty = function(name) {
 	var dir = prev.dirTo(c);
 	
 	if (name == "ch") { return this._chars[dir]; }
-	if (name == "image") { return this.getImage() + "-" + this._suffixes[dir]; }
+	if (name == "image") { return this.getVisualProperty("image") + "-" + this._suffixes[dir]; }
 }
 
 RPG.Misc.IProjectile.prototype.getRange = function() {

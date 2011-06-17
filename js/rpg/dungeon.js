@@ -1,27 +1,4 @@
 /**
- * Pozadavky na prekreslovani mapy ci jeji casti:
- *  1) pri loadu zobrazit vse, co bylo ulozeno => staci jen zapamatovane a ostatni dle viditelnosti
- *  2) pri navratu na mapu zobrazit vse, co bylo ulozeno => staci jen zapamatovane a ostatni dle viditelnosti
- *  3) vznikne nejaka akce, ktera meni obsah policka (mozna viditelneho, to ta akce patrne nevi) => pokud je viditelne, update
- *  4) vznikne nejaka akce, ktera meni mnozinu viditelnych policek => drive viditelna zapamatovat (jejich starou ci novou hodnotou?), nove viditelna prekreslit
- *  5) vznikne nejaka akce, ktera meni mnozinu pamatovanych policek (forget) => prekreslit (vymazat) zapamatovana policka
- *  6) interakce s UI (planovani trajektorie)
- * 
- * 
- * - PC ma u sebe MapView pro kazdou navstivenou mapu: sadu pamatovanych souradnic a korespondujicich visualu
- * - PC pro (viditelnou) souradnici dokazed od mapy vycist, co na ni vidi
- * - pri aktualizaci viditelnosti muze PC provest "zapamatovani"
- *  1) UI si od PC vynuti visualy
- *  2) UI si od PC vynuti visualy
- *  3) vi o tom mapa, ???
- *  4) PC aktualizuje MapView
- *  5) PC aktualizuje MapView
- *  6) UI si od PC vynuti visual
- */
-
-
-
-/**
  * @class Map cell
  * @augments RPG.Misc.IEnterable
  * @augments RPG.Visual.IVisual
@@ -163,8 +140,9 @@ RPG.Features.BaseFeature.prototype.getCoords = function() {
 	return this._coords;
 }
 
-RPG.Features.BaseFeature.prototype.setMap = function(map) {
+RPG.Features.BaseFeature.prototype.setMap = function(map, coords) {
 	this._map = map;
+	this.setCoords(coords);
 }
 
 RPG.Features.BaseFeature.prototype.getMap = function() {
@@ -186,6 +164,7 @@ RPG.Map.prototype.init = function(id, size, danger) {
 	this._id = id;
 	this._welcome = "";
 	this._sound = null;
+	this._active = false; /* is this the current map? */
 	this._size = size.clone();
 	this._danger = danger;
 	this._cellTypes = [ /* 0 = default empty, 1 = default full */
@@ -201,7 +180,15 @@ RPG.Map.prototype.init = function(id, size, danger) {
 	this._beings = {}; 
 	this._items = {}; 
 	this._features = {}; 
-	this._memory = {};
+}
+
+RPG.Map.prototype.setActive = function(active) {
+	this._active = active;
+	return this;
+}
+
+RPG.Map.prototype.isActive = function() {
+	return this._active;
 }
 
 /**
@@ -272,18 +259,6 @@ RPG.Map.prototype.entering = function(being) {
 }
 
 /**
- * @see RPG.Misc.IEnterable#leaving
- */
-RPG.Map.prototype.leaving = function(being) {
-	this.parent(being);
-	if (being != RPG.Game.pc) { return; }
-
-	for (var id in this._memory) {
-		this._setMemory(id, RPG.MAP_REMEMBERED);
-	}
-}
-
-/**
  * Every dungeon provides its default cell types, at least two
  * @returns {function[]}
  */
@@ -320,35 +295,6 @@ RPG.Map.prototype.getSound = function() {
 	return this._sound;
 }
 
-RPG.Map.prototype.getMemory = function(coords) {
-	return this._memory[coords.x+","+coords.y];
-}
-
-RPG.Map.prototype.setMemory = function(coords, state) {
-	this._setMemory(coords.x+","+coords.y, state);
-}
-
-RPG.Map.prototype._setMemory = function(id, state) {
-	var m = {state:state, data:[]};
-	this._memory[id] = m;
-	
-	if (state == RPG.MAP_UNKNOWN) { return; }
-	m.data.push(this._cells[id]);
-	
-	if (this._beings[id] && state == RPG.MAP_VISIBLE) { /* being? */
-		m.data.push(this._beings[id]);
-	} else if (this._items[id] && this._items[id].length) {
-		m.data.push(this._items[id][this._items[id].length-1]);
-	} else if (this._features[id] && RPG.Game.pc.knowsFeature(this._features[id])) {
-		m.data.push(this._features[id]);
-	}
-	
-	/* convert to visuals */
-	for (var i=0;i<m.data.length;i++) {
-		m.data[i] = RPG.Visual.getVisual(m.data[i]);
-	}
-}
-
 /**
  * Get all beings in this Map
  */ 
@@ -366,17 +312,19 @@ RPG.Map.prototype.addItem = function(item, coords) {
 	var id = coords.x+","+coords.y;
 	if (!(id in this._items)) { this._items[id] = []; }
 	item.mergeInto(this._items[id]);
+	if (this._active) { RPG.Game.pc.coordsChanged(coords); }
 }
 
 RPG.Map.prototype.removeItem = function(item) {
 	for (var hash in this._items) {
 		var list = this._items[hash];
 		var index = list.indexOf(item);
-		if (index != -1) {
-			list.splice(index, 1);
-			if (!list.length) { delete this._items[hash]; }
-			return;
-		}
+		if (index == -1) { continue; }
+		
+		list.splice(index, 1);
+		if (!list.length) { delete this._items[hash]; }
+		if (this._active) { RPG.Game.pc.coordsChanged(RPG.Misc.Coords.fromString(hash)); }
+		return;
 	}
 	throw new Error("Cannot remove item '"+item+"'");
 }
@@ -389,11 +337,11 @@ RPG.Map.prototype.setFeature = function(feature, coords) {
 	var id = coords.x+","+coords.y;
 	if (feature) {
 		this._features[id] = feature;
-		feature.setMap(this);
-		feature.setCoords(coords);
+		feature.setMap(this, coords);
 	} else if (this._features[id]) {
 		delete this._features[id];
 	}
+	if (this._active) { RPG.Game.pc.coordsChanged(coords); }
 }
 
 RPG.Map.prototype.getBeing = function(coords) {
@@ -402,15 +350,19 @@ RPG.Map.prototype.getBeing = function(coords) {
 
 RPG.Map.prototype.setBeing = function(being, coords, ignoreOldPosition) {
 	var id = coords.x+","+coords.y;
-	if (!being) { /* just remove being. it should be here. */
+
+	if (!being) { /* just remove being (dead, for example) */
 		var b = this._beings[id];
 		if (b) {
 			this.leaving(b);
 			delete this._beings[id];
+			if (this._active) { RPG.Game.pc.coordsChanged(coords); }
 		}
 		return;
 	}
 	
+	this._beings[id] = being;
+
 	var oldCoords = being.getCoords();
 	var newCoords = coords;
 	var oldMap = being.getMap();
@@ -425,9 +377,14 @@ RPG.Map.prototype.setBeing = function(being, coords, ignoreOldPosition) {
 	if (oldMap != newMap) { /* map change */
 		if (oldMap) { oldMap.leaving(being); }
 		this.entering(being);
-		being.setMap(this);
+		being.setMap(this, coords);
 	} else if (!ignoreOldPosition) { /* same map - remove being from old coords */
 		delete this._beings[oldCoords.x+","+oldCoords.y];
+		being.setCoords(newCoords);
+		if (this._active) { 
+			RPG.Game.pc.coordsChanged(oldCoords); 
+			RPG.Game.pc.coordsChanged(newCoords); 
+		}
 	}
 	
 	if (oldArea != newArea) { /* area change */
@@ -444,9 +401,6 @@ RPG.Map.prototype.setBeing = function(being, coords, ignoreOldPosition) {
 		if (oldFeature) { oldFeature.leaving(being); }
 		if (newFeature) { newFeature.entering(being); }
 	}
-
-	this._beings[id] = being;
-	being.setCoords(coords);
 }
 	
 RPG.Map.prototype.getCell = function(coords) {
@@ -461,6 +415,7 @@ RPG.Map.prototype.setCell = function(cell, coords) {
 	} else if (this._cells[id]) {
 		delete this._cells[id];
 	}
+	if (this._active) { RPG.Game.pc.coordsChanged(coords); }
 }
 
 RPG.Map.prototype.isValid = function(coords) {

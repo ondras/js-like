@@ -74,7 +74,7 @@ RPG.UI.command = function(command) {
 		if (command instanceof RPG.UI.Command.Direction) {
 			/* adjust target */
 			var test = this._target.clone().plus(RPG.DIR[command.getDir()]);
-			var map = RPG.Game.getMap();
+			var map = RPG.Game.pc.getMap();
 			if (!map.isValid(test)) { return; }
 			this._target = test;
 			this._pending.notify(this._target);
