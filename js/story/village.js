@@ -41,7 +41,7 @@ RPG.Map.SmallVillage.prototype.init = function() {
 	this._buildPeople();
 
     var trees = 8;
-	while (tree--s) {
+	while (trees--) {
 		var coords = this.getFreeCoords();
 		if (this.getArea(coords)) { continue; } /* FIXME buildings should be defined as areas, will contain trees otherwise */
 		this.setFeature(new RPG.Features.Tree(), coords);
