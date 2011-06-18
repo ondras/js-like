@@ -150,7 +150,8 @@ RPG.Misc.IProjectile.prototype._initProjectile = function() {
 	
 	this._flight = {
 		index: -1,
-		coords: []
+		coords: [],
+		dirs: []
 	}
 	
 	this._chars = {};
@@ -179,12 +180,14 @@ RPG.Misc.IProjectile.prototype._getFlightVisualProperty = function(name) {
 	
 	/* we are in flight, use special visual representation */
 	var index = this._flight.index;
-	var c = this._flight.coords[index];
-	var prev = this._flight.coords[index-1];
-	var dir = prev.dirTo(c);
+	var dir = this._flight.dirs[index];
 	
 	if (name == "ch") { return this._chars[dir]; }
-	if (name == "image") { return this.getVisualProperty("image") + "-" + this._suffixes[dir]; }
+	if (name == "image") { 
+		var suffix = this._suffixes[dir];
+		if (!suffix) { return null; }
+		return this.getVisualProperty("image") + "-" + suffix; 
+	}
 }
 
 RPG.Misc.IProjectile.prototype.getRange = function() {
@@ -240,14 +243,14 @@ RPG.Misc.IProjectile.prototype._step = function() {
 	
 	if (index == this._flight.coords.length) { 
 		clearInterval(this._interval); 
-		this._done();
+		this._flightDone();
 		return;
 	}
 	
 	this._fly(this._flight.coords[index]);
 }
 
-RPG.Misc.IProjectile.prototype._done = function() {
+RPG.Misc.IProjectile.prototype._flightDone = function() {
 	this._flying = false;
 	RPG.UI.map.removeProjectiles();
 	RPG.Game.getEngine().unlock();
@@ -262,6 +265,7 @@ RPG.Misc.IProjectile.prototype._done = function() {
 RPG.Misc.IProjectile.prototype.computeTrajectory = function(source, target, map) {
 	this._flight.index = 0;
 	this._flight.coords = [];
+	this._flight.dirs = [];
 
 	var coords = map.getCoordsInLine(source, target);
 	var max = Math.min(this.getRange()+1, coords.length);
@@ -269,6 +273,7 @@ RPG.Misc.IProjectile.prototype.computeTrajectory = function(source, target, map)
 	for (var i=0;i<max;i++) {
 		var c = coords[i];
 		this._flight.coords.push(c);
+		this._flight.dirs.push(i ? this._flight.coords[i-1].dirTo(c) : null);
 		if (i && map.blocks(RPG.BLOCKS_MOVEMENT, c)) { break; } /* stop at non-starting blocking cell */
 	}
 	
@@ -280,7 +285,7 @@ RPG.Misc.IProjectile.prototype.computeTrajectory = function(source, target, map)
  * @augments RPG.Visual.IVisual
  */
 RPG.Misc.IProjectile.Mark = OZ.Class().implement(RPG.Visual.IVisual);
-RPG.Misc.IProjectile.Mark.visual = { ch:"*", color:"#fff", image:"crosshair" };
+RPG.Misc.IProjectile.Mark.visual = { ch:"*", color:"#fff", image:"crosshair", path:"misc" };
 RPG.Misc.IProjectile.mark = new RPG.Misc.IProjectile.Mark();
 
 /**
@@ -288,7 +293,7 @@ RPG.Misc.IProjectile.mark = new RPG.Misc.IProjectile.Mark();
  * @augments RPG.Visual.IVisual
  */
 RPG.Misc.IProjectile.EndMark = OZ.Class().implement(RPG.Visual.IVisual);
-RPG.Misc.IProjectile.EndMark.visual = { ch:"X", color:"#fff", image:"crosshair-end" };
+RPG.Misc.IProjectile.EndMark.visual = { ch:"X", color:"#fff", image:"crosshair-end", path:"misc" };
 RPG.Misc.IProjectile.endMark = new RPG.Misc.IProjectile.EndMark();
 
 /**

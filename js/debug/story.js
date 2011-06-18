@@ -21,9 +21,6 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 	var up = new RPG.Features.Staircase.Up();
 	var coords = map.getFreeCoords();
 	map.setFeature(up, coords);
-	
-	var trap = new RPG.Features.Trap.Flash();
-	map.setFeature(trap, coords.neighbor(RPG.W));
 
 	var goblin = new RPG.Beings.Goblin();
 	map.setBeing(goblin, coords.neighbor(RPG.E));
@@ -38,10 +35,13 @@ RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
 	var pc = new RPG.Beings.PC(race, profession);
 	pc.setName(name);
 	
-	var s = new RPG.Items.Scroll(RPG.Spells.Knock);
-	s.setAmount(2);
-	s.setPrice(123);
-	pc.addItem(s);
+	pc.adjustFeat(RPG.FEAT_MAX_MANA, 50);
+
+	pc.addSpell(RPG.Spells.Heal);
+	pc.addSpell(RPG.Spells.MagicBolt);
+	pc.addSpell(RPG.Spells.MagicExplosion);
+	pc.addSpell(RPG.Spells.Fireball);
+	pc.fullStats();
 	
 	return pc;
 }

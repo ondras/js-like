@@ -209,7 +209,7 @@ RPG.Items.Projectile.prototype._fly = function() {
 	this.parent();
 }
 
-RPG.Items.Projectile.prototype._done = function() {
+RPG.Items.Projectile.prototype._flightDone = function() {
 	this._flying = false;
 	var coords = this._flight.coords[this._flight.coords.length-1];
 	var map = this._owner.getMap();

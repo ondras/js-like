@@ -137,6 +137,7 @@ RPG.Spells.Fireball.prototype.init = function(caster) {
 	this._type = RPG.SPELL_TARGET;
 	this._range = 6;
 	this._radius = 2;
+	this._suffixes = {};
 }
 
 RPG.Spells.Fireball.prototype.getImage = function() {
@@ -144,18 +145,15 @@ RPG.Spells.Fireball.prototype.getImage = function() {
 	return this.getVisualProperty("path") + "/fireball-explosion";
 }
 
-RPG.Spells.Fireball.prototype._fly = function(coords) {
-	this.parent(coords);
-
-	if (this._flight.index+1 == this._flight.coords.length) {
-		this.explode(coords, this._radius, false);
-	}
-}
-
 RPG.Spells.Fireball.prototype.getRadius = function() {
 	return this._radius;
 }
 
-RPG.Spells.Fireball.prototype._done = function() {
-	RPG.Game.getEngine().unlock();
+RPG.Spells.Fireball.prototype._flightDone = function() {
+	var engine = RPG.Game.getEngine();
+
+	engine.lock(); /* calling parent method will unlock, so to be safe...*/
+	this.parent(); 
+	this.explode(this._flight.coords[this._flight.coords.length-1], this._radius, false); /* will start explosion timeout */
+	engine.unlock(); /* remove the safety lock created above */
 }

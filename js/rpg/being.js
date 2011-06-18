@@ -98,7 +98,7 @@ RPG.Beings.BaseBeing.prototype.hasDebts = function() {
 }
 
 RPG.Beings.BaseBeing.prototype.addSpell = function(spell) {
-	this._spells.push(spell);
+	if (this._spells.indexOf(spell) == -1) { this._spells.push(spell); }
 	return this;
 }
 

@@ -97,7 +97,8 @@ RPG.Spells.Projectile.prototype.init = function(caster) {
 }
 
 RPG.Spells.Projectile.prototype.getImage = function() {
-	return this._getFlightVisualProperty("image") || this.parent();
+	var fvp = this._getFlightVisualProperty("image");
+	return (fvp ? this.getVisualProperty("path") + "/" + fvp : this.parent());
 }
 
 RPG.Spells.Projectile.prototype.getChar = function() {
@@ -132,12 +133,13 @@ RPG.Spells.Projectile.prototype.computeTrajectory = function(source, target, map
 		
 		this._flight.index = -1;
 		this._flight.coords = [source];
+		this._flight.dirs = [null];
 		this._flight.bounces = [false];
 
 		var dist = 0;
 		while (dist < this._range) {
 			dist++;
-			var prev = (this._flight.coords.length ? this._flight.coords[this._flight.coords.length-1] : source);
+			var prev = this._flight.coords[this._flight.coords.length-1];
 			var coords = prev.neighbor(dir);
 			if (!map.getCell(coords)) { return this._flight; }
 			
@@ -145,6 +147,7 @@ RPG.Spells.Projectile.prototype.computeTrajectory = function(source, target, map
 				/* either free space or non-bouncing end obstacle */
 				this._flight.bounces.push(false);
 				this._flight.coords.push(coords);
+				this._flight.dirs.push(dir);
 				if (map.blocks(RPG.BLOCKS_LIGHT, coords)) { break; }
 			} else {
 				/* bounce! */
@@ -188,6 +191,7 @@ RPG.Spells.Projectile.prototype._computeBounce = function(coords, dir) {
 	
 	this._flight.bounces.push(true);
 	this._flight.coords.push(newCoords);
+	this._flight.dirs.push(newDir);
 	
 	return newDir;
 }
