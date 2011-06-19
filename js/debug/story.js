@@ -36,6 +36,9 @@ RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
 	pc.setName(name);
 	
 	pc.adjustFeat(RPG.FEAT_MAX_MANA, 50);
+	
+	var beer = new RPG.Items.Beer();
+	pc.addItem(beer);
 
 	pc.addSpell(RPG.Spells.Heal);
 	pc.addSpell(RPG.Spells.MagicBolt);

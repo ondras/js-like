@@ -159,7 +159,8 @@ RPG.Items.Projectile.prototype.init = function(hit, damage) {
 }
 
 RPG.Items.Projectile.prototype.getImage = function() {
-	return this._getFlightVisualProperty("image") || this.parent();
+	var fvp = this._getFlightVisualProperty("image");
+	return (fvp ? this.getVisualProperty("path") + "/" + fvp : this.parent());
 }
 
 RPG.Items.Projectile.prototype.getChar = function() {

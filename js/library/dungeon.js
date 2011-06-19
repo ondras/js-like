@@ -206,7 +206,7 @@ RPG.Features.Trap.Pit.prototype.setOff = function(being) {
  * @augments RPG.Features.Trap
  */
 RPG.Features.Trap.Flash = OZ.Class().extend(RPG.Features.Trap);
-RPG.Features.Trap.Flash.visual = { desc:"flash trap", image:"trap-flash FIXME", color:"#ff0" }
+RPG.Features.Trap.Flash.visual = { desc:"flash trap", image:"trap-flash", color:"#ff0" }
 
 RPG.Features.Trap.Flash.prototype.setOff = function(being) {
 	var canSee = RPG.Game.pc.canSee(this._coords);

@@ -197,6 +197,13 @@ RPG.Beings.PC.prototype.updateFromMemory = function() {
 	this.updateVisibility();
 }
 
+RPG.Beings.PC.prototype.clearMemory = function() {
+	this._mapMemory[this._map.getID()] = {};
+	this.updateFromMemory();
+	var s = RPG.Misc.format("%You suddenly do not remember anything about this level.", this);
+	RPG.UI.buffer.message(s);
+}
+
 /**
  * Map notifies PC about a change in coords visuals
  */

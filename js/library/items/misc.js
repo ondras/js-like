@@ -165,6 +165,18 @@ RPG.Items.HealingPotion.prototype.drink = function(being) {
 }
 
 /**
+ * @class Alcohol - causes amnesia
+ * @augments RPG.Items.Potion
+ */
+RPG.Items.Beer = OZ.Class().extend(RPG.Items.Potion);
+RPG.Items.Beer.visual = { image:"potion-beer", desc:"bottle of beer", descPlural:"bottles of beer", color:"#c90" };
+
+RPG.Items.Beer.prototype.drink = function(being) {
+	if (!(being instanceof RPG.Beings.PC)) { return; }
+	being.clearMemory();
+}
+
+/**
  * @class Ring
  * @augments RPG.Items.BaseItem
  */
