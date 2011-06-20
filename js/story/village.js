@@ -604,6 +604,7 @@ RPG.Story.Village.prototype.init = function() {
 	this._necklace = new RPG.Items.WeddingNecklace();
 	
 	this._digger = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
+	this._uniform = new RPG.Generators.Uniform(new RPG.Misc.Coords(60, 20));
 	this._maze1 = new RPG.Generators.DividedMaze(new RPG.Misc.Coords(59, 19));
 	this._maze2 = new RPG.Generators.IceyMaze(new RPG.Misc.Coords(59, 19), null, 10);
 	this._maze3 = new RPG.Generators.Maze(new RPG.Misc.Coords(59, 19));
@@ -664,11 +665,12 @@ RPG.Story.Village.prototype._showMazeStaircase = function() {
 
 RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 	this._elderDepth++;
+	var generator = (this._elderDepth % 2 ? this._uniform : this._digger);
 
 	var rooms = [];
 	var map = null;
 	do {
-		map = this._digger.generate("Dungeon #" + this._elderDepth, this._elderDepth);
+		map = generator.generate("Dungeon #" + this._elderDepth, this._elderDepth);
 		rooms = map.getRooms();
 	} while (rooms.length < 3);
 	
