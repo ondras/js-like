@@ -1,0 +1,87 @@
+<html>
+<head>
+	<style>
+		div.color {
+			width: 30px;
+			height: 30px;
+			float: left;
+			border: 2px solid white;
+		}
+	</style>
+</head>
+<body>
+
+<div id="colors"></div>
+
+
+<div style="clear:both">
+	<input type="text" id="color" autofocus="autofocus" />
+	<br/>
+	<div class="color" id="test"></div>
+</div>
+
+<script>
+var colors = [];
+
+for (var i=0;i<6;i++) {
+	for (var j=0;j<6;j++) {
+		for (var k=0;k<6;k++) {
+			var r = (i*3).toString(16);
+			var g = (j*3).toString(16);
+			var b = (k*3).toString(16);
+			var div = document.createElement("div");
+			div.className = "color"
+			var c = "#"+r+g+b;
+			div.style.backgroundColor = c;
+			div.title = c;
+			
+			r = i*3*17;
+			g = j*3*17;
+			b = k*3*17;
+			colors.push({div:div, r:r, g:g, b:b});
+		}
+	}
+}
+
+var parent = document.getElementById("colors");
+for (var i=0;i<colors.length;i++) {
+	if (!(i%36)) { 
+		var clear = document.createElement("div");
+		clear.style.clear = "both";
+		parent.appendChild(clear);
+	}
+	parent.appendChild(colors[i].div);
+}
+
+
+document.getElementById("color").addEventListener("keyup", function(e) {
+	var value = e.target.value;
+	var test = document.getElementById("test");
+	test.style.backgroundColor = value;
+	test.title = getComputedStyle(test).backgroundColor;
+	var r = getComputedStyle(test).backgroundColor.match(/[0-9]+/g);
+	if (!r) { return; }
+	
+	var bestDistance = Infinity;
+	var bestItem = null;
+	
+	for (var i=0;i<colors.length;i++) {
+		var c = colors[i];
+		var dist = Math.abs(c.r-parseInt(r[0])) + Math.abs(c.g-parseInt(r[1])) + Math.abs(c.b-parseInt(r[2]))
+		colors[i].div.style.borderColor = "";
+		if (dist < bestDistance) {
+			bestDistance = dist;
+			bestItem = c;
+		}
+	}
+	
+	bestItem.div.style.borderColor = "black";
+}, false);
+
+
+</script>
+
+
+
+</body>
+</html>
