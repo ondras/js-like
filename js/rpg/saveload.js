@@ -4,98 +4,110 @@
 RPG.Serializer = OZ.Class();
 
 RPG.Serializer.prototype.init = function() {
-	this._classes = [];
-	this._stacks = [];
-	this._cache = [];
-	this._defaultStack = null;
-	this._phase = 0;
+	this._allClasses = {}; /* all available */
+	this._classes = []; /* class names used in save game data */
+	this._ctors = []; /* instance-constructor mappings */
+	this._instances = [];
+	this._transformedInstances = [];
 }
 
 /**
  * Go!
  */
 RPG.Serializer.prototype.go = function() {
-	this._cache = [];
-
-	this._stacks = [];
+	this._allClasses = {};
 	this._classes = [];
-	var classNames = [];
-	this._scanClasses(RPG, "RPG", this._classes, classNames);
-	
-	this._stacks.push(new RPG.Serializer.Stack(this, RPG.Beings.BaseBeing));
-	this._stacks.push(new RPG.Serializer.Stack(this, RPG.Items.BaseItem));
-	this._stacks.push(new RPG.Serializer.Stack(this, RPG.Map));
-	this._stacks.push(new RPG.Serializer.Stack(this));
+	this._ctors = [];
+	this._instances = [];
+	this._transformedInstances = [];
 
+	this._scanClasses(RPG, "RPG");
+	
 	var result = {};
-	result.classes = classNames;
-	result.game = this.toJSON(RPG.Game);
-	
-	do {
-		var ok = true;
-		for (var i=0; i<this._stacks.length; i++) {
-			var stack = this._stacks[i];
-			if (!stack.isDone()) {
-				ok = false;
-				stack.finalize();
-			}
-		}
-	} while (!ok);
-	
-	for (var i=0; i<this._stacks.length; i++) {
-		var stack = this._stacks[i];
-		result[stack.getID()] = stack.getData();
-	}
-
-	this._stacks = [];
+	result.game = this._valueToJSON(RPG.Game);
+	result.classes = this._classes;
+	result.ctors = this._ctors;
+	result.instances = this._transformedInstances;
 	window.x = result;
 	return JSON.stringify(result/*, null, "  "*/);
 }
 
 /**
- * Return index for a given class
- */
-RPG.Serializer.prototype.classIndex = function(what) {
-	return this._classes.indexOf(what);
-}
-
-/**
- * Generic serializer
+ * External helper, can be used by custom serializators
  */
 RPG.Serializer.prototype.toJSON = function(what, options) {
-	return this._valueToJSON(what, false, options);
+	return this._objectToJSON(what, options);
 }
 
 /**
- * Convert instance to JSON representation
+ * Transform JS value to JSON-compatible format, apply caching and instance transformation
  */
-RPG.Serializer.prototype.finalizeInstance = function(instance) {
-	return this._objectToJSON(instance);
-}
+RPG.Serializer.prototype._valueToJSON = function(value) {
+	if (value === null) { return value; }
+	switch (typeof(value)) {
+		case "number":
+		case "string":
+		case "undefined":
+		case "boolean":
+			return value;
+		break;
+		
+		case "function":
+			return this._ctorToJSON(value);
+		break;
+	}
 
-/**
- * Defer instance serialization by adding it to stack and returning a placeholder
- */
-RPG.Serializer.prototype._deferInstance = function(what) {
-	for (var i=0;i<this._stacks.length;i++) {
-		var stack = this._stacks[i];
-		if (stack.accepts(what)) { return stack.add(what); }
+	if (value instanceof Array) { /* regular array */
+		var arr = [];
+		for (var i=0;i<value.length;i++) {
+			arr.push(this._valueToJSON(value[i])); /* recurse */
+		}
+		return arr;
+	}
+
+	if (value.constructor.extend) {
+		var index = this._instances.indexOf(value);
+		if (index == -1) {
+			index = this._instances.length;
+			var ctorIndex = this._ctorToIndex(value.constructor);
+			this._ctors[ctorIndex].push(index);
+			this._instances.push(value); /* cache */
+			var transformed = (value.toJSON ? value.toJSON(this) : this._objectToJSON(value));
+			this._transformedInstances[index] = transformed;
+		}
+		return "$$"+index;
 	}
 	
-	console.warn("No stack accepted an instance");
-	console.log(what);
+	return (value.toJSON ? value.toJSON(this) : this._objectToJSON(value));
 }
 
 /**
- * JSONify a class by converting it to string with index
+ * JSONify a class (function) by converting it to string with index
  */
-RPG.Serializer.prototype._classToJSON = function(cl) {
-	return "$c"+this.classIndex(cl);
+RPG.Serializer.prototype._ctorToJSON = function(cl) {
+	return "$c"+this._ctorToIndex(cl);
 }
 
-RPG.Serializer.prototype._objectToJSON = function(obj, options) {
-	if (obj.toJSON && !options) { return obj.toJSON(this); }
+/**
+ * Get (or create) an index for a constructor
+ */
+RPG.Serializer.prototype._ctorToIndex = function(cl) {
+	var name = null;
+	for (var p in this._allClasses) { if (this._allClasses[p] == cl) { name = p; } }
+	
+	var index = this._classes.indexOf(name);
+	if (index == -1) {
+		index = this._classes.length;
+		this._classes.push(name);
+		this._ctors.push([]);
+	}
+	return index;
+}
 
+/**
+ * Creates a JSON-compatible variant of an object. Does not perform caching and instance testing.
+ */
+RPG.Serializer.prototype._objectToJSON = function(obj, options) {
 /*
 	var index = this._cache.indexOf(obj);
 	if (index == -1) {
@@ -107,10 +119,6 @@ RPG.Serializer.prototype._objectToJSON = function(obj, options) {
 */
 
 	var result = {};
-
-	if (obj.constructor.extend) {
-		result["$"] = this.classIndex(obj.constructor);
-	}
 
 	var ignore = ["constructor"];
 	
@@ -130,15 +138,12 @@ RPG.Serializer.prototype._objectToJSON = function(obj, options) {
 */
 			continue;
 		} 
-	
-		result[p] = this._valueToJSON(value, true);
+		result[p] = this._valueToJSON(value);
 	}
 	
 	if (options && options.include) {
 		for (var p in options.include) {
-			var value = options.include[p];
-
-			result[p] = this._valueToJSON(value, true);
+			result[p] = this._valueToJSON(options.include[p]);
 		}
 	}
 	
@@ -146,42 +151,9 @@ RPG.Serializer.prototype._objectToJSON = function(obj, options) {
 }
 
 /**
- * Convert generic JS value to JSON
- */
-RPG.Serializer.prototype._valueToJSON = function(value, deferInstances, options) {
-	if (value === null) { return value; }
-	switch (typeof(value)) {
-		case "number":
-		case "string":
-		case "undefined":
-		case "boolean":
-			return value;
-		break;
-		
-		case "function":
-			return this._classToJSON(value);
-		break;
-	}
-	
-	if (value instanceof Array) { /* regular array */
-		var arr = [];
-		for (var i=0;i<value.length;i++) {
-			arr.push(this._valueToJSON(value[i], true)); /* recurse */
-		}
-		return arr;
-	}
-	
-
-	if (value.constructor.extend && deferInstances) { return this._deferInstance(value); }
-	
-	/* object */
-	return this._objectToJSON(value, options);
-}
-
-/**
  * Create a list of all classes
  */
-RPG.Serializer.prototype._scanClasses = function(root, path, result, resultNames) {
+RPG.Serializer.prototype._scanClasses = function(root, path) {
 	var forbidden = ["extend", "_extend", "implement", "_implement"];
 	for (var p in root) {
 		var val = root[p];
@@ -191,81 +163,15 @@ RPG.Serializer.prototype._scanClasses = function(root, path, result, resultNames
 		var path2 = path + "." + p;
 		
 		if (typeof(val) == "function" && val.extend) {
-			result.push(val);
-			resultNames.push(path2);
+			this._allClasses[path2] = val;
 		}
 		
 		if (val.constructor == Object || val.extend) {
 			/* recurse into native objects and OZ classes */
-			arguments.callee.call(this, val, path+"."+p, result, resultNames);
+			arguments.callee.call(this, val, path+"."+p);
 		}
 	}
 }
-
-/**
- * @class Stack of serialized instances of a particular type
- */
-RPG.Serializer.Stack = OZ.Class();
-RPG.Serializer.Stack.prototype.init = function(serializer, ctor) {
-	this._serializer = serializer;
-	this._ctor = ctor || null;
-	this._data = [];
-	this._instances = [];
-	this._index = (ctor ? serializer.classIndex(ctor) : "");
-}
-
-/**
- * Return stack identification
- */
-RPG.Serializer.Stack.prototype.getID = function() {
-	return "$" + this._index;
-}
-
-/**
- * Does this stack accept an instance?
- */
-RPG.Serializer.Stack.prototype.accepts = function(instance) {
-	if (!this._ctor) { return true; }
-	return (instance instanceof this._ctor);
-}
-
-/**
- * Add an instance to stack
- */
-RPG.Serializer.Stack.prototype.add = function(instance) {
-	var index = this._instances.indexOf(instance);
-	if (index == -1) {
-		index = this._instances.length;
-		this._instances.push(instance);
-	}
-	return this.getID() + "$" + index;
-}
-
-/**
- * Finalize this stack by taking all instances and serializing them
- */
-RPG.Serializer.Stack.prototype.finalize = function() {
-	while (!this.isDone()) {
-		var instance = this._instances[this._data.length];
-		var data = this._serializer.finalizeInstance(instance);
-		this._data.push(data);
-	}
-}
-
-/**
- * Is this stack finished?
- */
-RPG.Serializer.Stack.prototype.isDone = function() {
-	return (this._data.length == this._instances.length);
-}
-
-/**
- * Serialized version of this stack
- */
-RPG.Serializer.Stack.prototype.getData = function() {
-	return this._data;
-}
-
 
 /**
  * @class Saved data parser
@@ -274,160 +180,126 @@ RPG.Parser = OZ.Class();
 
 RPG.Parser.prototype.init = function() {
 	this._classes = [];
-	this._instances = {}; /* by id, deserialized json */
-	this._done = {}; /* by id, completed instances */
-	this._later = {}; /* object and properties waiting for delayed deserialization */
 	this._revives = [];
+	this._ctors = [];
+	this._instances = [];
+	this._fixedInstances = [];
 }
 
 RPG.Parser.prototype.go = function(str) {
-	/* contains:
-		- classes
-		- game
-		- stacks
-	*/
-	this._revives = [];
 	var data = JSON.parse(str);
+	/* contains:
+		- game
+		- classes
+		- ctors
+		- instances
+	*/
+
+	this._revives = [];
+	this._classes = [];
+	this._ctors = data.ctors;
+	this._instances = data.instances;
+	this._fixedInstances = [];
 
 	/* retrieve classes */
 	if (!data.classes) { throw new Error("No classes in saved data"); }
-	for (var i=0;i<data.classes.length;i++) {
-		var cl = this._nameToClass(data.classes[i]);
+	while (data.classes.length) {
+		var cl = this._nameToCtor(data.classes.shift());
 		this._classes.push(cl);
 	}
 	
-	/* merge all instances from stacks */
-	this._instances = {};
-	this._done = {};
-	for (var p in data) {
-		if (p.charAt(0) != "$") { continue; }
-		var stack = data[p];
-		for (var i=0;i<stack.length;i++) {
-			var id = p + "$" + i;
-			this._instances[id] = stack[i];
-		}
-	}
-	
-	/* deserialize game */
+	/* fix game */
 	if (!data.game) { throw new Error("No game in saved data"); }
-	this._parse(data.game);
-	
-	/* deserialize instances */
-	for (var p in this._instances) {
-		if (p in this._done) { continue; } /* already done */
-		this._parseInstance(p);
-	}
-	
-
-	this._instances = {};
-	this._done = {};
-	this._later = {};
-	return data.game;
+	return this._fix(data.game);
 }
 
 /* revive all who know how to do it */
 RPG.Parser.prototype.revive = function() {
-	for (var i=0;i<this._revives.length;i++) {
-		this._revives[i].revive();
-	}
-	this._revives = [];
+	while (this._revives.length) { this._revives.pop().revive(); }
 }
 
 /**
- * Parse newly created "instance" and fix string references
+ * Walk through this JS object/array and fix internal string references + build instances
  */
-RPG.Parser.prototype._parse = function(obj) {
-	for (var p in obj) {
-		var v = obj[p];
-		if (v === null) { continue; }
-
-		switch (typeof(v)) {
-			case "string":
-				this._parseString(v, obj, p);
-			break;
-			case "object":
-				arguments.callee.call(this, v);
-			break;
+RPG.Parser.prototype._fix = function(what) {
+	if (what instanceof Array) {
+		for (var i=0;i<what.length;i++) {
+			what[i] = this._fixValue(what[i]);
+		}
+	} else {
+		for (var p in what) {
+			what[p] = this._fixValue(what[p]);
 		}
 	}
+
+	if (what.revive) { this._revives.push(what); }
+	return what;
+}
+
+RPG.Parser.prototype._fixValue = function(value) {
+	if (value === null) { return value; }
+	if (typeof(value) == "string") { return this._fixString(value); }
+	if (value instanceof Array || typeof(value) == "object") { return this._fix(value); }
+	return value;
 }
 
 /**
  * Resolve string reference to constructor/instance
  */
-RPG.Parser.prototype._parseString = function(string, object, property) {
-	var r = string.match(/^\$(c|[0-9]*\$)([0-9]+)$/);
-	if (!r) { return; }
-
-	if (r[1] == "c") {
-		object[property] = this._parseClass(parseInt(r[2]));
-		return;
-	}
+RPG.Parser.prototype._fixString = function(string) {
+	var r = string.match(/^\$([c\$])([0-9]+)$/);
+	if (!r) { return string; }
+	var index = parseInt(r[2]);
 	
-	if (string in this._done) {
-		object[property] = this._done[string];
-		return;
-	}
-		
-	if (!(string in this._instances)) { throw new Error("Non-existent instance '"+string+"'"); }
-
-	if (!(string in this._later)) { this._later[string] = []; }
-	this._later[string].push([object, property]);
+	if (r[1] == "c") { return this._indexToCtor(index); } /* class reference */
+	
+	/* instance */
+	if (this._fixedInstances[index]) { return this._fixedInstances[index]; } /* already done */
+	return this._fixInstance(index);
 }
 
 /**
- * Convert stringified instance to new "instance"
+ * Convert object into a new "instance"
  */
-RPG.Parser.prototype._parseInstance = function(id) {
-	var instance = this._instances[id];
-	var classIndex = instance["$"];
-	var ctor = this._parseClass(classIndex);
-	if (!ctor) { throw new Error("No class available for '"+id+"'"); }
+RPG.Parser.prototype._fixInstance = function(index) {
+	if (!this._instances[index]) { throw new Error("Reference to non-existing instance #"+index); }
+	var data = this._instances[index];
+
+	var ctor = null;
+	for (var i=0;i<this._ctors.length;i++) {
+		var ctors = this._ctors[i];
+		var ctorIndex = ctors.indexOf(index);
+		if (ctorIndex != -1) { ctor = this._indexToCtor(i); }
+	}
+
+	if (!ctor) { throw new Error("No class available for instance #'"+index+"'"); }
 	
 	/* create "instance" */
 	var tmp = function(){};
 	tmp.prototype = ctor.prototype;
 	var result = new tmp();
+	this._fixedInstances[index] = result;
 	
 	/* copy all values */
-	for (var p in instance) {
-		if (p == "$") { continue; }
-		result[p] = instance[p];
-	}
+	for (var p in data) { result[p] = data[p]; }
 	
-	/* mark as done */
-	this._done[id] = result;
-
-	/* are we waiting for this? */
-	if (id in this._later) {
-		var arr = this._later[id];
-		for (var i=0;i<arr.length;i++) {
-			var item = arr[i];
-			item[0][item[1]] = result;
-		}
-		delete this._later[id];
-	}
-	
-	/* sub-parse */
-	this._parse(result);
-	
-	/* revive */
-	if (result.revive) { this._revives.push(result); }
+	/* recurse */
+	return this._fix(result);	
 }
 
 /**
  * Parse a previously serialized class (constructor)
  * @param {number} Class index (created by serializer.serializeClass)
  */
-RPG.Parser.prototype._parseClass = function(index) {
-	if (index < 0 || index >= this._classes.length) { throw new Error("Non-existent class index "+index); }
+RPG.Parser.prototype._indexToCtor = function(index) {
+	if (!this._classes[index]) { throw new Error("Reference to non-existing class #"+index); }
 	return this._classes[index];
 }
 
 /**
  * Convert a dotted string to JS value
  */
-RPG.Parser.prototype._nameToClass = function(str) {
+RPG.Parser.prototype._nameToCtor = function(str) {
 	var arr = str.split(".");
 	var curr = window;
 	while (arr.length) {

@@ -139,8 +139,6 @@ RPG.Map.SmallVillage.prototype._buildPeople = function() {
 	
     for (var i = 0; i < residents; i++) {
         var villager = new RPG.Beings.Villager();
-        //var potion = new RPG.Items.HealingPotion();
-	    //villager.addItem(potion);
 	    var chat = chats.random();
 		villager.getAI().setDialogText(chat[0]);
 		villager.getAI().setDialogSound(chat[1]);
@@ -619,6 +617,7 @@ RPG.Story.Village.prototype._addCallbacks = function() {
 	this._staircaseCallbacks["end"] = this.end;
     this._staircaseCallbacks["elder"] = this._nextElderDungeon;
     this._staircaseCallbacks["maze"] = this._nextMazeDungeon;
+    this._staircaseCallbacks["dungeon"] = this._nextGenericDungeon;
     this._questCallbacks["elder"] = this._showElderStaircase;
     this._questCallbacks["maze"] = this._showMazeStaircase;
 }
@@ -647,6 +646,10 @@ RPG.Story.Village.prototype._villageMap = function() {
 
 	var healer = map.getHealer();
 	this._quests["maze"] = new RPG.Quests.LostNecklace(healer, this._necklace);
+
+    var staircase = new RPG.Features.Staircase.Down();
+    map.setFeature(staircase, new RPG.Misc.Coords(1, 14));
+    this._staircases["dungeon"] = staircase;
 
 	return map;
 }
@@ -770,6 +773,33 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 	
 	/* enemies */
 	var max = 2 + Math.floor(Math.random()*3);
+	RPG.Decorators.Beings.getInstance().decorate(map, max);
+	
+	/* items */
+	var max = 1 + Math.floor(Math.random()*3);
+	RPG.Decorators.Items.getInstance().decorate(map, max);
+
+	/* traps */
+	var max = 1 + Math.floor(Math.random()*2);
+	RPG.Decorators.Traps.getInstance().decorate(map, max);
+	
+	return [map, up.getCoords()];
+}
+
+RPG.Story.Village.prototype._nextGenericDungeon = function(staircase) {
+	var map = this._uniform.generate("Generic dungeon", 1);
+	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);
+	
+	/* stairs up */
+	var room = map.getRooms().random();
+	var up = new RPG.Features.Staircase.Up();
+	map.setFeature(up, room.getCenter());
+	
+	/* bind to previous dungeon */
+	up.setTarget(staircase.getMap(), staircase.getCoords());
+	
+	/* enemies */
+	var max = 4 + Math.floor(Math.random()*6);
 	RPG.Decorators.Beings.getInstance().decorate(map, max);
 	
 	/* items */
