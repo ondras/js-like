@@ -235,23 +235,28 @@ RPG.Features.Staircase.prototype.enter = function(being) {
 	var target = this.getTarget();
 
 	if (target) { /* switch maps */
-		return RPG.Game.setMap(this._target[0], this._target[1]);
+		var map = target.getMap();
+		var coords = target.getCoords();
+		map.setBeing(being, coords);
+		return RPG.ACTION_TIME;
 	} else {
 		return being.wait();
 	}
 }
 
-RPG.Features.Staircase.prototype.setTarget = function(map, coords) {
-	this._target = [map, coords];
+/**
+ * @param {RPG.Features.Staircase} target
+ */
+RPG.Features.Staircase.prototype.setTarget = function(target) {
+	this._target = target;
+	return this;
 }
 
 /**
- * @returns {[RPG.Map, RPG.Misc.Coords]}
+ * @returns {RPG.Features.Staircase || null}
  */
 RPG.Features.Staircase.prototype.getTarget = function() {
-	if (!this._target) { /* ask story to generate some */
-		this._target = RPG.Game.getStory().staircaseCallback(this);
-	}
+	if (!this._target) { RPG.Game.getStory().staircaseCallback(this); }/* ask story to generate some */
 	return this._target;
 }
 

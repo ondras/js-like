@@ -178,7 +178,7 @@ RPG.Quests.BaseQuest = OZ.Class();
 RPG.Quests.BaseQuest.prototype.init = function(giver) {
 	this._phase = null;
 	this._giver = giver;
-	this._task = null;
+	this._task = null; /* textual description */
 	
 	this.setPhase(RPG.QUEST_NEW);
 }

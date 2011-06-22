@@ -601,10 +601,8 @@ RPG.Story.Village.prototype.init = function() {
 	this._village = null;
 	this._necklace = new RPG.Items.WeddingNecklace();
 	
-	this._digger = new RPG.Generators.Digger(new RPG.Misc.Coords(60, 20));
-	this._uniform = new RPG.Generators.Uniform(new RPG.Misc.Coords(60, 20));
 	this._maze1 = new RPG.Generators.DividedMaze(new RPG.Misc.Coords(59, 19));
-	this._maze2 = new RPG.Generators.IceyMaze(new RPG.Misc.Coords(59, 19), null, 10);
+	this._maze2 = new RPG.Generators.IceyMaze(new RPG.Misc.Coords(59, 19), 10);
 	this._maze3 = new RPG.Generators.Maze(new RPG.Misc.Coords(59, 19));
 }
 
@@ -668,7 +666,12 @@ RPG.Story.Village.prototype._showMazeStaircase = function() {
 
 RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 	this._elderDepth++;
-	var generator = (this._elderDepth % 2 ? this._uniform : this._digger);
+	var size = new RPG.Misc.Coords(60, 20);
+	var generator = (
+		this._elderDepth % 2 ? 
+		new RPG.Generators.Uniform(size) : 
+		new RPG.Generators.Digger(size)
+	);
 
 	var rooms = [];
 	var map = null;
@@ -707,7 +710,8 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 	map.setFeature(up, roomUp.getCenter());
 	
 	/* bind to previous dungeon */
-	up.setTarget(staircase.getMap(), staircase.getCoords());
+	up.setTarget(staircase);
+	staircase.setTarget(up);
 	
 	/* stairs down */
 	if (this._elderDepth < this._maxElderDepth) {
@@ -740,14 +744,18 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 		map.setFeature(trap, coords);
 		map.addItem(tmp, coords);
 	}
-
-	return [map, up.getCoords()];
 }
 
 RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 	this._mazeDepth++;
 
-	var generator = this["_maze" + this._mazeDepth];
+	var generator = null;
+	var size = new RPG.Misc.Coords(59, 19);
+	switch (this._mazeDepth) {
+		case 1: generator = new RPG.Generators.DividedMaze(size); break;
+		case 2: generator = new RPG.Generators.IceyMaze(size, 10); break;
+		default: generator = new RPG.Generators.Maze(size); break; 
+	}
 	map = generator.generate("Maze #" + this._mazeDepth, this._mazeDepth);
 	if (this._mazeDepth == 1) { map.setSound("neverhood"); }
 
@@ -760,7 +768,8 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 	map.setFeature(up, corners[0]);
 	
 	/* bind to previous dungeon */
-	up.setTarget(staircase.getMap(), staircase.getCoords());
+	up.setTarget(staircase);
+	staircase.setTarget(up);
 	
 	/* stairs down */
 	if (this._mazeDepth < this._maxMazeDepth) {
@@ -782,12 +791,10 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 	/* traps */
 	var max = 1 + Math.floor(Math.random()*2);
 	RPG.Decorators.Traps.getInstance().decorate(map, max);
-	
-	return [map, up.getCoords()];
 }
 
 RPG.Story.Village.prototype._nextGenericDungeon = function(staircase) {
-	var map = this._uniform.generate("Generic dungeon", 1);
+	var map = new RPG.Generators.Uniform(new RPG.Misc.Coords(60, 20)).generate("Generic dungeon", 1);
 	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);
 	
 	/* stairs up */
@@ -796,7 +803,8 @@ RPG.Story.Village.prototype._nextGenericDungeon = function(staircase) {
 	map.setFeature(up, room.getCenter());
 	
 	/* bind to previous dungeon */
-	up.setTarget(staircase.getMap(), staircase.getCoords());
+	up.setTarget(staircase);
+	staircase.setTarget(up);
 	
 	/* enemies */
 	var max = 4 + Math.floor(Math.random()*6);
@@ -809,8 +817,6 @@ RPG.Story.Village.prototype._nextGenericDungeon = function(staircase) {
 	/* traps */
 	var max = 1 + Math.floor(Math.random()*2);
 	RPG.Decorators.Traps.getInstance().decorate(map, max);
-	
-	return [map, up.getCoords()];
 }
 
 RPG.Story.Village.prototype.computeScore = function() {

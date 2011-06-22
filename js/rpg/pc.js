@@ -90,6 +90,7 @@ RPG.Beings.PC.prototype._updateFeat = function(feat) {
 
 RPG.Beings.PC.prototype.setMap = function(map, coords) {
 	if (this._map) { /* memorize all visible visuals, we are leaving */
+		this._map.setActive(false);
 		var memory = this._mapMemory[this._map.getID()];
 		for (var hash in this._visibleCoordsHash) {
 			var oldCoords = RPG.Misc.Coords.fromString(hash);
@@ -100,10 +101,14 @@ RPG.Beings.PC.prototype.setMap = function(map, coords) {
 	
 	this.parent(map, coords);
 
+	map.setActive(true);
 	var id = map.getID();
+	RPG.UI.status.updateMap(id); /* update statusbar */
 	if (!(id in this._mapMemory)) { this._mapMemory[id] = {}; }
 	
 	this.updateFromMemory();
+
+	RPG.Game.getEngine().useMap(map); /* switch engine to new actorset */
 }
 
 /**

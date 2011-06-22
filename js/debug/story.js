@@ -39,6 +39,10 @@ RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
 	
 	var beer = new RPG.Items.Beer();
 	pc.addItem(beer);
+	
+	var scroll = new RPG.Items.Scroll(RPG.Spells.MagicBolt);
+	scroll.setPrice(123);
+	pc.addItem(scroll);
 
 	pc.addSpell(RPG.Spells.Heal);
 	pc.addSpell(RPG.Spells.MagicBolt);

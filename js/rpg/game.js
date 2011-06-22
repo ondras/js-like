@@ -42,7 +42,7 @@ RPG.Game.getStory = function() {
 }
 
 RPG.Game.startMap = function(map, coords) {
-	this.setMap(map, coords);
+	map.setBeing(this.pc, coords);
 	this._engine.unlock();
 }
 
@@ -58,24 +58,6 @@ RPG.Game.start = function() {
 RPG.Game.end = function() {
 	this._engine.lock();
 	this._story.end();
-}
-
-/**
- * Change to a new map by moving PC onto "coords"
- * @param {RPG.Map} map New map
- * @param {RPG.Misc.Coords} coords PC's coords
- */
-RPG.Game.setMap = function(map, coords) {
-	if (this._map) { this._map.setActive(false); }
-	this._map = map; /* remember where we are */
-	map.setActive(true);
-	
-	RPG.UI.status.updateMap(map.getID()); /* update statusbar */	
-
-	map.setBeing(this.pc, coords);
-
-	this._engine.useMap(map); /* switch engine to new actorset */
-	return RPG.ACTION_TIME;
 }
 
 /**
