@@ -279,7 +279,6 @@ RPG.Beings.VillageSmith.prototype.init = function() {
 	var hammer = new RPG.Items.Hammer();
 	this.equip(RPG.SLOT_WEAPON, hammer);
 	
-	this._ai.setDialogText("Aye! Need some steel?");
 	this.fullStats();
 }
 
@@ -319,6 +318,85 @@ RPG.Items.WeddingNecklace.factory.ignore = true;
 RPG.Items.WeddingNecklace.visual = { desc:"wedding necklace", image:"wedding-necklace", color:"#fc0" };
 
 /**
+ * @class Smith's trophy quest
+ * @augments RPG.Misc.IDialog
+ * @augments RPG.Quests.Kill
+ */
+RPG.Quests.SmithTrophy = OZ.Class()
+							.extend(RPG.Quests.Kill)
+							.implement(RPG.Misc.IDialog);
+
+RPG.Quests.SmithTrophy.prototype.init = function(giver) {
+	var cl = RPG.Factories.npcs.getClass(1); /* FIXME danger 1? */
+	this.parent(giver, cl);
+	giver.getAI().setDialogQuest(this);
+}
+
+RPG.Quests.SmithTrophy.prototype.setPhase = function(phase) {
+	this.parent(phase);
+	if (phase == RPG.QUEST_REWARDED) { new this.constructor(this._giver); }
+}
+
+RPG.Quests.SmithTrophy.prototype.reward = function() {
+	RPG.Game.pc.addItem(new RPG.Items.Gold(100));
+}
+
+RPG.Quests.SmithTrophy.prototype.getDialogText = function(being) {
+	switch (this._phase) {
+		case RPG.QUEST_NEW: 
+			var instance = new this._being();
+			instance.setGender(RPG.GENDER_MALE);
+			var label = instance.describeA();
+			return [
+				"Aye! Need some steel?",
+				"You look skilled enough; let me know if you manage to kill " + label + ", I will give ya a hundred gold for that.",
+				"You might want to look for it in the small dungeon in the south-west part of our village; that strange cave \
+				looks different every time you visit it!"
+			];
+		break;
+		
+		case RPG.QUEST_GIVEN:
+			return [
+				"No need to hurry, just kill it whet it crosses your path."
+			];
+		break;
+		
+		case RPG.QUEST_DONE:
+			return [
+				"Good kill! One day you will become a true master.",
+				"As I promised, take this gold as a reward."
+			];
+		break;
+
+		case RPG.QUEST_REWARDED:
+			return ""; /* can not happen; once the quest reaches REWARDED state, it is automatically replaced by a new quest */
+		break;
+	}
+}
+
+RPG.Quests.SmithTrophy.prototype.advanceDialog = function(optionIndex, being) {
+	switch (this._phase) {
+		case RPG.QUEST_NEW:
+			this.setPhase(RPG.QUEST_GIVEN);
+			return false;
+		break;
+		
+		case RPG.QUEST_GIVEN: 
+			return false;
+		break;
+		
+		case RPG.QUEST_DONE: 
+			this.setPhase(RPG.QUEST_REWARDED);
+			return false;
+		break;
+
+		case RPG.QUEST_REWARDED:
+			return false;
+		break;
+	}
+}
+
+/**
  * @class Elder's enemy quest
  * @augments RPG.Misc.IDialog
  * @augments RPG.Quests.Kill
@@ -339,8 +417,7 @@ RPG.Quests.ElderEnemy.prototype.setPhase = function(phase) {
 }
 
 RPG.Quests.ElderEnemy.prototype.reward = function() {
-	var gold = new RPG.Items.Gold(1000);
-	RPG.Game.pc.addItem(gold);
+	RPG.Game.pc.addItem(new RPG.Items.Gold(1000));
 }
 
 RPG.Quests.ElderEnemy.prototype.getDialogText = function(being) {
@@ -582,6 +659,27 @@ RPG.Quests.LostNecklace.prototype.advanceDialog = function(optionIndex, being) {
 }
 
 /**
+ * @class Dungeon which disappears when left
+ * @augments RPG.Map.Dungeon
+ */
+RPG.Map.RandomDungeon = OZ.Class().extend(RPG.Map.Dungeon);
+
+RPG.Map.RandomDungeon.prototype.leaving = function(being) {
+	this.parent(being);
+	if (being != RPG.Game.pc) { return; }
+	
+	being.clearMemory();
+	
+	var coords = being.getCoords();
+	var feature = this.getFeature(coords);
+	if (!feature) { return; } /* panic; we are not on a staircase? */
+	
+	/* mark the target staircase as empty */
+	var target = feature.getTarget();
+	target.setTarget(null);
+}
+
+/**
  * @class Village-based story
  * @augments RPG.Story
  */
@@ -600,10 +698,6 @@ RPG.Story.Village.prototype.init = function() {
 	this._boss = null;
 	this._village = null;
 	this._necklace = new RPG.Items.WeddingNecklace();
-	
-	this._maze1 = new RPG.Generators.DividedMaze(new RPG.Misc.Coords(59, 19));
-	this._maze2 = new RPG.Generators.IceyMaze(new RPG.Misc.Coords(59, 19), 10);
-	this._maze3 = new RPG.Generators.Maze(new RPG.Misc.Coords(59, 19));
 }
 
 RPG.Story.Village.prototype.revive = function() {
@@ -644,6 +738,8 @@ RPG.Story.Village.prototype._villageMap = function() {
 
 	var healer = map.getHealer();
 	this._quests["maze"] = new RPG.Quests.LostNecklace(healer, this._necklace);
+	
+	new RPG.Quests.SmithTrophy(map.getSmith());
 
     var staircase = new RPG.Features.Staircase.Down();
     map.setFeature(staircase, new RPG.Misc.Coords(1, 14));
@@ -667,16 +763,12 @@ RPG.Story.Village.prototype._showMazeStaircase = function() {
 RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 	this._elderDepth++;
 	var size = new RPG.Misc.Coords(60, 20);
-	var generator = (
-		this._elderDepth % 2 ? 
-		new RPG.Generators.Uniform(size) : 
-		new RPG.Generators.Digger(size)
-	);
+	var generator = (this._elderDepth % 2 ? RPG.Generators.Uniform : RPG.Generators.Digger);
 
 	var rooms = [];
 	var map = null;
 	do {
-		map = generator.generate("Dungeon #" + this._elderDepth, this._elderDepth);
+		map = generator.getInstance().generate("Dungeon #" + this._elderDepth, size, this._elderDepth);
 		rooms = map.getRooms();
 	} while (rooms.length < 3);
 	
@@ -752,11 +844,11 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 	var generator = null;
 	var size = new RPG.Misc.Coords(59, 19);
 	switch (this._mazeDepth) {
-		case 1: generator = new RPG.Generators.DividedMaze(size); break;
-		case 2: generator = new RPG.Generators.IceyMaze(size, 10); break;
-		default: generator = new RPG.Generators.Maze(size); break; 
+		case 1: generator = RPG.Generators.DividedMaze; break;
+		case 2: generator = RPG.Generators.IceyMaze; break;
+		default: generator = RPG.Generators.Maze; break; 
 	}
-	map = generator.generate("Maze #" + this._mazeDepth, this._mazeDepth);
+	map = generator.getInstance().generate("Maze #" + this._mazeDepth, size, this._mazeDepth);
 	if (this._mazeDepth == 1) { map.setSound("neverhood"); }
 
 	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);
@@ -794,7 +886,8 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 }
 
 RPG.Story.Village.prototype._nextGenericDungeon = function(staircase) {
-	var map = new RPG.Generators.Uniform(new RPG.Misc.Coords(60, 20)).generate("Generic dungeon", 1);
+	var gen = RPG.Generators.Uniform.getInstance();
+	var map = gen.generate("Generic dungeon", new RPG.Misc.Coords(60, 20), 1, {ctor:RPG.Map.RandomDungeon});
 	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);
 	
 	/* stairs up */

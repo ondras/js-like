@@ -5,8 +5,7 @@
 RPG.Story.Testbed = OZ.Class().extend(RPG.Story);
 
 RPG.Story.Testbed.prototype._firstMap = function() {
-	var gen = new RPG.Generators.Uniform(new RPG.Misc.Coords(59, 19));
-	var map = gen.generate("testbed", 1);
+	var map = RPG.Generators.Uniform.getInstance().generate("testbed", new RPG.Misc.Coords(59, 19), 1);
 
 	var rooms = map.getRooms();
 	var o = {

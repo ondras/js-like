@@ -2,10 +2,10 @@
  * @class Arena map generator
  * @augments RPG.Generators.BaseGenerator
  */
-RPG.Generators.Arena = OZ.Class().extend(RPG.Generators.BaseGenerator);
+RPG.Generators.Arena = OZ.Singleton().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.Arena.prototype.generate = function(id, danger) {
-	this._blankMap();
+RPG.Generators.Arena.prototype.generate = function(id, size, danger, options) {
+	this.parent(id, size, danger, options);
 	
 	var c1 = new RPG.Misc.Coords(1, 1);
 	var c2 = new RPG.Misc.Coords(this._size.x-2, this._size.y-2);
@@ -18,10 +18,10 @@ RPG.Generators.Arena.prototype.generate = function(id, danger) {
  * @class Random map generator, tries to fill the space evenly. Generates independent rooms and tries to connect them.
  * @augments RPG.Generators.BaseGenerator
  */ 
-RPG.Generators.Uniform = OZ.Class().extend(RPG.Generators.BaseGenerator);
+RPG.Generators.Uniform = OZ.Singleton().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.Uniform.prototype.init = function(size) {
-	this.parent(size);
+RPG.Generators.Uniform.prototype.init = function() {
+	this.parent();
 	
 	this._roomAttempts = 10; /* new room is created N-times until is considered as impossible to generate */
 	this._corridorAttempts = 50; /* corridors are tried N-times until the level is considered as impossible to connect */
@@ -34,7 +34,9 @@ RPG.Generators.Uniform.prototype.init = function(size) {
 	this._unconnected = []; /* list of remaining unconnected rooms */
 }
 
-RPG.Generators.Uniform.prototype.generate = function(id, danger) {
+RPG.Generators.Uniform.prototype.generate = function(id, size, danger, options) {
+	this.parent(id, size, danger, options);
+
 	while (1) {
 		this._blankMap();
 		this._unconnected = [];
@@ -330,10 +332,10 @@ RPG.Generators.Uniform.prototype._roomsWithWall = function(coords) {
  * http://www.roguebasin.roguelikedevelopment.org/index.php?title=Dungeon-Building_Algorithm .
  * @augments RPG.Generators.BaseGenerator
  */
-RPG.Generators.Digger = OZ.Class().extend(RPG.Generators.BaseGenerator);
+RPG.Generators.Digger = OZ.Singleton().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.Digger.prototype.init = function(size) {
-	this.parent(size);
+RPG.Generators.Digger.prototype.init = function() {
+	this.parent();
 	this._features = {
 		room: 2,
 		corridor: 4
@@ -350,11 +352,11 @@ RPG.Generators.Digger.prototype.init = function(size) {
 	this._forcedWalls = []; /* these are forced for digging */
 }
 
-RPG.Generators.Digger.prototype.generate = function(id, danger) {
+RPG.Generators.Digger.prototype.generate = function(id, size, danger, options) {
+	this.parent(id, size, danger, options);
+
 	this._freeWalls = []; /* these are available for digging */
 	this._forcedWalls = []; /* these are forced for digging */
-
-	this._blankMap();
 
 	this._firstRoom();
 	var area = (this._size.x-2) * (this._size.y-2);
@@ -707,15 +709,16 @@ RPG.Generators.Digger.prototype._addSurroundingWalls = function(corner1, corner2
  * @class Divided maze generator
  * @augments RPG.Generators.BaseGenerator
  */
-RPG.Generators.DividedMaze = OZ.Class().extend(RPG.Generators.BaseGenerator);
+RPG.Generators.DividedMaze = OZ.Singleton().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.DividedMaze.prototype.init = function(size) {
-	this.parent(size);
+RPG.Generators.DividedMaze.prototype.init = function() {
+	this.parent();
 	this._stack = [];
 }
 
-RPG.Generators.DividedMaze.prototype.generate = function(id, danger) {
-	this._blankMap();
+RPG.Generators.DividedMaze.prototype.generate = function(id, size, danger, options) {
+	this.parent(id, size, danger, options);
+
 	var w = this._size.x;
 	var h = this._size.y;
 	
@@ -810,15 +813,15 @@ RPG.Generators.DividedMaze.prototype._partitionRoom = function(room) {
  * See http://homepages.cwi.nl/~tromp/maze.html for explanation
  * @augments RPG.Generators.BaseGenerator
  */
-RPG.Generators.Maze = OZ.Class().extend(RPG.Generators.BaseGenerator);
+RPG.Generators.Maze = OZ.Singleton().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.Maze.prototype.init = function(size) {
-	this.parent(size);
+RPG.Generators.Maze.prototype.init = function() {
+	this.parent();
 	this._width = Math.ceil((this._size.x-2)/2);
 }
 
-RPG.Generators.Maze.prototype.generate = function(id, danger) {
-	this._blankMap();
+RPG.Generators.Maze.prototype.generate = function(id, size, danger, options) {
+	this.parent(id, size, danger, options);
 	
 	var w = this._size.x-2;
 	var h = this._size.y-2;
@@ -898,21 +901,20 @@ RPG.Generators.Maze.prototype._addToList = function(i, L, R) {
 	L[i+1] = i;
 }
 
-
 /**
  * @class Maze generator - Icey's algorithm
  * See http://www.roguebasin.roguelikedevelopment.org/index.php?title=Simple_maze for explanation
  * @augments RPG.Generators.BaseGenerator
  */
-RPG.Generators.IceyMaze = OZ.Class().extend(RPG.Generators.BaseGenerator);
+RPG.Generators.IceyMaze = OZ.Singleton().extend(RPG.Generators.BaseGenerator);
 
-RPG.Generators.IceyMaze.prototype.init = function(size, regularity) {
-	this.parent(size);
-	this._regularity = regularity || 0;
+RPG.Generators.IceyMaze.prototype.init = function() {
+	this.parent();
+	this._options.regularity = 0;
 }
 
-RPG.Generators.IceyMaze.prototype.generate = function(id, danger) {
-	this._blankMap();
+RPG.Generators.IceyMaze.prototype.generate = function(id, size, danger, options) {
+	this.parent(id, size, danger, options);
 	
 	var width = this._size.x;
 	var height = this._size.y;

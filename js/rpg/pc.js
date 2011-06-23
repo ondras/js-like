@@ -89,16 +89,7 @@ RPG.Beings.PC.prototype._updateFeat = function(feat) {
 }
 
 RPG.Beings.PC.prototype.setMap = function(map, coords) {
-	if (this._map) { /* memorize all visible visuals, we are leaving */
-		this._map.setActive(false);
-		var memory = this._mapMemory[this._map.getID()];
-		for (var hash in this._visibleCoordsHash) {
-			var oldCoords = RPG.Misc.Coords.fromString(hash);
-			var visuals = this._getVisualsForCoords(oldCoords);
-			memory[hash] = visuals;
-		}
-	}
-	
+	if (this._map) { this._map.setActive(false); }
 	this.parent(map, coords);
 
 	map.setActive(true);
@@ -200,6 +191,18 @@ RPG.Beings.PC.prototype.updateFromMemory = function() {
 		RPG.UI.map.drawAtCoords(coords, memory[hash], true);
 	}
 	this.updateVisibility();
+}
+
+/**
+ * Memorize all visible visuals, we are (probably) leaving 
+ */
+RPG.Beings.PC.prototype.memorizeVisible = function() {
+	var memory = this._mapMemory[this._map.getID()];
+	for (var hash in this._visibleCoordsHash) {
+		var oldCoords = RPG.Misc.Coords.fromString(hash);
+		var visuals = this._getVisualsForCoords(oldCoords);
+		memory[hash] = visuals;
+	}
 }
 
 RPG.Beings.PC.prototype.clearMemory = function() {

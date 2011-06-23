@@ -82,7 +82,7 @@ RPG.Areas.BaseArea.prototype.entering = function(being) {
 }
 
 /**
- * @class Room area
+ * @class Room (rectangular) area
  * @augments RPG.Areas.BaseArea
  */
 RPG.Areas.Room = OZ.Class().extend(RPG.Areas.BaseArea);
@@ -256,6 +256,11 @@ RPG.Map.prototype.entering = function(being) {
 	
 	if (this._sound) { RPG.UI.sound.playBackground(this._sound); }
 	if (this._welcome) { RPG.UI.buffer.message(this._welcome); }
+}
+
+RPG.Map.prototype.leaving = function(being) {
+	this.parent(being);
+	if (being == RPG.Game.pc) { being.memorizeVisible(); }
 }
 
 /**
@@ -767,28 +772,31 @@ RPG.Decorators.BaseDecorator.prototype._freeNeighbors = function(map, center) {
 /**
  * @class Map generator
  */
-RPG.Generators.BaseGenerator = OZ.Class();
+RPG.Generators.BaseGenerator = OZ.Singleton();
 
-RPG.Generators.BaseGenerator.prototype.init = function(size) {
-	this._size = size;
+RPG.Generators.BaseGenerator.prototype.init = function() {
+	this._options = {
+		ctor: RPG.Map.Dungeon
+	}
+	this._size = null;
 
+	/* there are initialized by _blankMap */
 	this._dug = 0;
 	this._bitMap = null;
 	this._rooms = [];
 }
 
-RPG.Generators.BaseGenerator.prototype.generate = function(id, danger) {
+RPG.Generators.BaseGenerator.prototype.generate = function(id, size, danger, options) {
+	for (var p in options) { this._options[p] = options[p]; }
+	this._size = size;
 	this._blankMap();
-	return this._convertToMap(id, danger);
 }
 
 RPG.Generators.BaseGenerator.prototype._convertToMap = function(id, danger) {
-	var map = new RPG.Map.Dungeon(id, this._size, danger);
+	var map = new this._options.ctor(id, this._size, danger);
 	map.fromIntMap(this._bitMap);
 	
-	for (var i=0;i<this._rooms.length;i++) {
-		map.addRoom(this._rooms[i]);
-	}
+	while (this._rooms.length) { map.addRoom(this._rooms.shift()); }
 	this._bitMap = null;
 	return map;
 }
@@ -822,9 +830,7 @@ RPG.Generators.BaseGenerator.prototype._blankMap = function() {
 	
 	for (var i=0;i<this._size.x;i++) {
 		this._bitMap.push([]);
-		for (var j=0;j<this._size.y;j++) {
-			this._bitMap[i].push(1);
-		}
+		for (var j=0;j<this._size.y;j++) { this._bitMap[i].push(1); }
 	}
 }
 
