@@ -817,11 +817,12 @@ RPG.Generators.Maze = OZ.Singleton().extend(RPG.Generators.BaseGenerator);
 
 RPG.Generators.Maze.prototype.init = function() {
 	this.parent();
-	this._width = Math.ceil((this._size.x-2)/2);
+	this._width = null;
 }
 
 RPG.Generators.Maze.prototype.generate = function(id, size, danger, options) {
 	this.parent(id, size, danger, options);
+	this._width = Math.ceil((this._size.x-2)/2);
 	
 	var w = this._size.x-2;
 	var h = this._size.y-2;
@@ -910,7 +911,7 @@ RPG.Generators.IceyMaze = OZ.Singleton().extend(RPG.Generators.BaseGenerator);
 
 RPG.Generators.IceyMaze.prototype.init = function() {
 	this.parent();
-	this._options.regularity = 0;
+	this._options.regularity = 10;
 }
 
 RPG.Generators.IceyMaze.prototype.generate = function(id, size, danger, options) {
