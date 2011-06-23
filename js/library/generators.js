@@ -943,7 +943,7 @@ RPG.Generators.IceyMaze.prototype.generate = function(id, size, danger, options)
 		if (!this._bitMap[cx][cy]) {
 			this._randomize(dirs);
 			do {
-				if (Math.round(Math.random() * this._regularity) == 0) { this._randomize(dirs); }
+				if (Math.round(Math.random() * this._options.regularity) == 0) { this._randomize(dirs); }
 				blocked = true;
 				for (var i=0;i<4;i++) {
 					nx = cx + dirs[i][0]*2;
