@@ -383,8 +383,8 @@ RPG.Map.prototype.setBeing = function(being, coords, ignoreOldPosition) {
 		if (oldMap) { oldMap.leaving(being); }
 		this.entering(being);
 		being.setMap(this, coords);
-	} else if (!ignoreOldPosition) { /* same map - remove being from old coords */
-		delete this._beings[oldCoords.x+","+oldCoords.y];
+	} else { /* same map */
+		if (!ignoreOldPosition) { delete this._beings[oldCoords.x+","+oldCoords.y]; } /* same map - remove being from old coords */
 		being.setCoords(newCoords);
 		if (this._active) { 
 			RPG.Game.pc.coordsChanged(oldCoords); 

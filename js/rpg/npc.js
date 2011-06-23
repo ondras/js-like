@@ -153,7 +153,7 @@ RPG.Beings.NPC.prototype.canSee = function(coords) {
  * Initiate chat with target being
  */
 RPG.Beings.NPC.prototype.chat = function(being) {
-	return RPG.UI.dialog.show(this.getAI(), being);
+	return RPG.UI.dialog.show(this.getAI(), this);
 }
 
 /* ------------------ PRIVATE --------------- */

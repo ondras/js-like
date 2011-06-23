@@ -103,6 +103,7 @@ RPG.UI.Dialog.prototype._redraw = function() {
 RPG.UI.Dialog.prototype._buildOptions = function(options) {
 	this._links = [];
 	var ul = this._dom.options;
+	OZ.DOM.clear(ul);
 	for (var i=0;i<options.length;i++) {
 		var li = OZ.DOM.elm("li");
 		var a = OZ.DOM.elm("a", {href:"#", innerHTML:options[i]});

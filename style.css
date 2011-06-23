@@ -194,5 +194,6 @@ body {
 }
 
 .dialog .chat li a:focus {
-	text-shadow: 0 0 2px #00a;
+	text-shadow: 0px 1px 1px #aaa;
+	font-weight: bold;
 }
