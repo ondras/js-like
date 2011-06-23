@@ -262,7 +262,7 @@ RPG.Beings.PC.prototype._computeVisibleCoords = function() {
 	result[id] = this._coords;
 
 	/* standing in a dark place */
-	if (map.blocks(RPG.BLOCKS_LIGHT, this._coords)) { return; }
+	if (map.blocks(RPG.BLOCKS_LIGHT, this._coords)) { return result; }
 	
 	/* number of cells in current ring */
 	var cellCount = 0;
