@@ -4,7 +4,7 @@
 RPG.UI.Mapswitch = OZ.Class();
 
 RPG.UI.Mapswitch.prototype.init = function(ul) {
-	var def = (OZ.ie ? RPG.UI.ASCIIMap : RPG.UI.CanvasMap);
+	var def = (OZ.DOM.elm("canvas").getContext ? RPG.UI.CanvasMap : RPG.UI.ASCIIMap);
 	this._ul = ul;
 	this._map = {
 		"ASCII": RPG.UI.ASCIIMap,

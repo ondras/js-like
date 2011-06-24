@@ -237,6 +237,7 @@ RPG.UI.SaveLoad.prototype._dataAvailable = function(data) {
 				key = this._prefix + name;
 				if (localStorage.getItem(key)) {
 					if (!confirm("This name already exists, overwrite?")) { key = "";  }
+					window.focus();
 				}
 			}
 			try {

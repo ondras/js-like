@@ -42,6 +42,7 @@ RPG.UI.TextBuffer.prototype.message = function(str) {
 RPG.UI.TextBuffer.prototype.important = function(str) {
 	this.message(str);
 	alert(str);
+	window.focus();
 }
 
 RPG.UI.TextBuffer.prototype.showBacklog = function() {

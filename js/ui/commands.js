@@ -737,6 +737,7 @@ RPG.UI.Command.WeaponStats.prototype.exec = function() {
 	var hit = hand.getHit();
 	var dmg = hand.getDamage();
 	alert("Current weapon hit/damage: "+hit.toString()+"/"+dmg.toString());
+	window.focus();
 }
 
 /**
@@ -756,6 +757,7 @@ RPG.UI.Command.KickStats.prototype.exec = function() {
 	var hit = feet.getHit();
 	var dmg = feet.getDamage();
 	alert("Current kick hit/damage: "+hit.toString()+"/"+dmg.toString());
+	window.focus();
 }
 
 /**
@@ -774,6 +776,7 @@ RPG.UI.Command.KillStats.prototype.exec = function() {
 	var pc = RPG.Game.pc;
 	var kills = pc.getKills();
 	alert("Beings killed so far: "+kills);
+	window.focus();
 }
 
 /**
@@ -1217,5 +1220,6 @@ RPG.UI.Command.Debts.prototype.exec = function() {
 	var debts = RPG.Game.pc.getDebts();
 	var str = "You currently owe " + (debts || "no") + " gold pieces.";
 	alert(str);
+	window.focus();
 }
 

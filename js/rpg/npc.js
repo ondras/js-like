@@ -71,6 +71,7 @@ RPG.Beings.NPC.prototype.setConfirm = function(confirm) {
 RPG.Beings.NPC.prototype.confirmAttack = function() {
 	if (this._confirm == RPG.CONFIRM_ASK) {
 		var result = confirm(RPG.Misc.format("Really attack %d?", this));
+		window.focus();
 		if (!result) { return false; }
 		this.setConfirm(RPG.CONFIRM_DONE);
 	}
