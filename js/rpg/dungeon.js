@@ -120,6 +120,7 @@ RPG.Areas.Room.prototype.getCoords = function() {
 /**
  * @class Dungeon feature
  * @augments RPG.Visual.IVisual
+ * @augments RPG.Misc.IEnterable
  */
 RPG.Features.BaseFeature = OZ.Class()
 							.implement(RPG.Visual.IVisual)
