@@ -154,7 +154,7 @@ RPG.UI.ImageCell.prototype.init = function(owner, coords) {
 	this._dom.nodes = [];
 	
 	for (var i=0;i<2;i++) {
-		var node = OZ.DOM.elm("img", {position:"absolute", left:"0px", top:"0px"});
+		var node = OZ.DOM.elm("img", {position:"absolute", left:"0px", top:"0px", src:"img/empty.gif"});
 		this._dom.nodes.push(node);
 		this._dom.container.appendChild(node);
 	}
