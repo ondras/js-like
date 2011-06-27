@@ -10,7 +10,6 @@ RPG.UI.Dialog.prototype.init = function() {
 		options: OZ.DOM.elm("ul")
 	};
 	this._buttons = [];
-	this._being = null;
 	this._dialog = null;
 	this._buffer = [];
 	this._links = [];
@@ -27,13 +26,13 @@ RPG.UI.Dialog.prototype.init = function() {
 }
 
 RPG.UI.Dialog.prototype.show = function(dialog, being) {
-	this._being = being;
+	var pc = RPG.Game.pc;
 	
-	var text = dialog.getDialogText(this._being);
-	var options = dialog.getDialogOptions(this._being);
+	var text = dialog.getDialogText(pc);
+	var options = dialog.getDialogOptions(pc);
 
 	if (!options.length && !(text instanceof Array)) { /* simple line in case dialog is not array and there are no options */
-		var sound = dialog.getDialogSound(this._being);
+		var sound = dialog.getDialogSound(pc);
 		if (sound) { RPG.UI.sound.play(sound); }
 		RPG.UI.buffer.message('"' + text + '"');
 		return RPG.ACTION_TIME;
@@ -66,14 +65,16 @@ RPG.UI.Dialog.prototype._click = function(e) {
 	if (this._buffer.length) { /* continue */
 		this._redraw();
 	} else { /* answer picked */
-		var cont = this._dialog.advanceDialog(index, this._being);
+		var cont = this._dialog.advanceDialog(index, RPG.Game.pc);
 		if (cont) { this._redraw(); }
 	}
 }
 
 RPG.UI.Dialog.prototype._redraw = function() {
+	var pc = RPG.Game.pc;
+	
 	if (!this._buffer.length) {
-		var text = this._dialog.getDialogText(this._being);
+		var text = this._dialog.getDialogText(pc);
 		if (text instanceof Array) {
 			this._buffer = text;
 		} else {
@@ -89,11 +90,11 @@ RPG.UI.Dialog.prototype._redraw = function() {
 	if (this._buffer.length) { /* "continue" */
 		this._buildOptions(["Continue"]);
 	} else { /* any options ? */
-		var answers = this._dialog.getDialogOptions(this._being);
+		var answers = this._dialog.getDialogOptions(pc);
 		if (answers.length) { 
 			this._buildOptions(answers); 
 		} else {
-			this._dialog.advanceDialog(-1, this._being);
+			this._dialog.advanceDialog(-1, pc);
 		}
 	}
 
