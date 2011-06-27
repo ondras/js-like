@@ -165,6 +165,13 @@ body {
 	cursor: pointer;
 }
 
+.dialog #footer {
+	font-size: small;
+	text-align: center;
+	margin-top: 3em;
+	margin-bottom: 0px;
+}
+
 .dialog .quests {
 	width: 100%;
 }

@@ -40,7 +40,9 @@ RPG.CharGen.prototype.build = function() {
 	
 	OZ.Event.add(t, "click", this.bind(this._click));
 	
-	OZ.DOM.append([d, p1, p2, t]);
+	var footer = OZ.DOM.elm("p", {id:"footer", innerHTML:"This is <a href='http://code.google.com/p/js-like/'>js-like</a>, &copy; <a href='http://ondras.zarovi.cz/'>Ondřej Žára</a>"});
+	
+	OZ.DOM.append([d, p1, p2, t, footer]);
 	return d;
 }
 
