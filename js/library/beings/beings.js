@@ -378,8 +378,8 @@ RPG.Beings.Ogre.prototype.init = function() {
 	this.randomGender();
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
-	this.setFeat(RPG.FEAT_STRENGTH, 14);
-	this.setFeat(RPG.FEAT_TOUGHNESS, 14);
+	this.setFeat(RPG.FEAT_STRENGTH, 16);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 16);
 	this.setFeat(RPG.FEAT_DEXTERITY, 9);
 	this.setFeat(RPG.FEAT_MAGIC, 7);
 	

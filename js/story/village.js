@@ -706,12 +706,21 @@ RPG.Story.Village.prototype.revive = function() {
 }
 
 RPG.Story.Village.prototype._addCallbacks = function() {
-	this._staircaseCallbacks["end"] = this.end;
+	this._staircaseCallbacks["end"] = this._end;
     this._staircaseCallbacks["elder"] = this._nextElderDungeon;
     this._staircaseCallbacks["maze"] = this._nextMazeDungeon;
     this._staircaseCallbacks["dungeon"] = this._nextGenericDungeon;
     this._questCallbacks["elder"] = this._showElderStaircase;
     this._questCallbacks["maze"] = this._showMazeStaircase;
+}
+
+RPG.Story.Village.prototype._end = function(staircase) {
+	if (!confirm("Do you want to leave the village?")) {
+		window.focus();
+		return;
+	}
+	
+	RPG.Game.end();
 }
 
 RPG.Story.Village.prototype._createPC = function(race, profession, name) {

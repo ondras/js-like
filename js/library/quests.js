@@ -61,7 +61,7 @@ RPG.Quests.Retrieve.prototype.revive = function() {
 }
 
 RPG.Quests.Retrieve.prototype._addEvents = function() {
-	this._event = RPG.Game.addEvent(RPG.Game.pc, "pick", this.bind(this._pick));
+	this._event = RPG.Game.addEvent(RPG.Game.pc, "item-pick", this.bind(this._pick));
 }
 
 RPG.Quests.Retrieve.prototype._pick = function(e) {
