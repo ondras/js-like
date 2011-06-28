@@ -432,6 +432,13 @@ RPG.Beings.BaseBeing.prototype.heal = function(amount) {
 
 /* ============================== MISC ==================================== */
 
+RPG.Beings.BaseBeing.prototype._generateCorpse = function() {
+	if (RPG.Rules.isCorpseGenerated(this)) {
+		return new RPG.Items.Corpse(this);
+	}
+	return null;
+}
+
 RPG.Beings.BaseBeing.prototype.isAlive = function() {
 	return this._alive;
 }
@@ -467,10 +474,8 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 
 	this.dropAll();
 	
-	if (RPG.Rules.isCorpseGenerated(this)) {
-		var corpse = new RPG.Items.Corpse().setBeing(this);
-		this._map.addItem(corpse, this._coords);
-	}
+	var corpse = this._generateCorpse();
+	if (corpse) { this._map.addItem(corpse, this._coords); }
 
 	RPG.Game.getEngine().removeActor(this); /* FIXME mozna spis jako posluchac being-death? */
 	

@@ -19,20 +19,20 @@ RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Consumable);
 RPG.Items.Corpse.factory.ignore = true;
 RPG.Items.Corpse.visual = { image:"corpse" };
 
+/**
+ * @param {RPG.Beings.BaseBeing} being The one who died
+ */
+RPG.Items.Corpse.prototype.init = function(being) {
+	this.parent();
+	this._being = being;
+}
+
 RPG.Items.Corpse.prototype.getColor = function() {
 	return this._being.getColor();
 }
 
 RPG.Items.Corpse.prototype.describe = function() {
 	return this._being.describe() + " corpse";
-}
-
-/**
- * @param {RPG.Beings.BaseBeing} being The one who died
- */
-RPG.Items.Corpse.prototype.setBeing = function(being) {
-	this._being = being;
-	return this;
 }
 
 RPG.Items.Corpse.prototype.getBeing = function() {
@@ -68,6 +68,16 @@ RPG.Items.DwarvenSausage.visual = { image:"dwarven-sausage", desc:"dwarven sausa
  */
 RPG.Items.IronRation = OZ.Class().extend(RPG.Items.Consumable);
 RPG.Items.IronRation.visual = { image:"iron-ration", desc:"iron ration", color:"#960" };
+
+/**
+ * @class Bone
+ * @augments RPG.Items.Consumable
+ */
+RPG.Items.Bone = OZ.Class().extend(RPG.Items.Consumable);
+RPG.Items.Bone.visual = { image:"bone", desc:"bone", color:"#fff" };
+
+/** Eating a bone does nothing. */
+RPG.Items.Bone.prototype.eat = function() {}
 
 /**
  * @class Gold, money

@@ -27,6 +27,10 @@ RPG.Beings.Skeleton.prototype.init = function() {
 	this.fullStats();
 }
 
+RPG.Beings.Skeleton.prototype._generateCorpse = function() {
+	return new RPG.Items.Bone();
+}
+
 /**
  * @class Zombie 
  * @augments RPG.Beings.Undead
