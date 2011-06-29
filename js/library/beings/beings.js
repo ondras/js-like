@@ -106,7 +106,7 @@ RPG.Beings.Troll.prototype.init = function() {
  * @augments RPG.Beings.PC
  */
 RPG.Beings.God = OZ.Class().extend(RPG.Beings.PC);
-RPG.Beings.God.prototype.getVisibleCoords = function() {
+RPG.Beings.God.prototype._computeVisibleCoords = function() {
 	var all = {};
 	var size = this._map.getSize();
 	var c = new RPG.Misc.Coords(0, 0);
@@ -119,9 +119,6 @@ RPG.Beings.God.prototype.getVisibleCoords = function() {
 		}
 	}
 	return all;
-}
-
-RPG.Beings.God.prototype.updateVisibility = function() {
 }
 
 RPG.Beings.God.prototype.canSee = function(coords) {
@@ -372,16 +369,22 @@ RPG.Beings.OrcChieftain.prototype.init = function() {
  */
 RPG.Beings.Ogre = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Ogre.factory.frequency = 20;
+RPG.Beings.Ogre.factory.danger = 3;
 RPG.Beings.Ogre.visual = { desc:"ogre", color:"#0f0", image:"ogre", ch:"O" };
 RPG.Beings.Ogre.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
 	this.randomGender();
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);
 	
-	this.setFeat(RPG.FEAT_STRENGTH, 16);
-	this.setFeat(RPG.FEAT_TOUGHNESS, 16);
-	this.setFeat(RPG.FEAT_DEXTERITY, 9);
+	this.setFeat(RPG.FEAT_STRENGTH, 20);
+	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
+	this.setFeat(RPG.FEAT_DEXTERITY, 11);
 	this.setFeat(RPG.FEAT_MAGIC, 7);
+	
+	if (Math.randomPercentage() < 81) {
+		var club = new RPG.Items.Club();
+		this.equip(RPG.SLOT_WEAPON, club);
+	}
 	
 	this.fullStats();
 }

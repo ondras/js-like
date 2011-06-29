@@ -776,7 +776,7 @@ RPG.Decorators.BaseDecorator.prototype._freeNeighbors = function(map, center) {
 RPG.Generators.BaseGenerator = OZ.Singleton();
 
 RPG.Generators.BaseGenerator.prototype.init = function() {
-	this._options = {
+	this._defOptions = {
 		ctor: RPG.Map.Dungeon
 	}
 	this._size = null;
@@ -788,7 +788,10 @@ RPG.Generators.BaseGenerator.prototype.init = function() {
 }
 
 RPG.Generators.BaseGenerator.prototype.generate = function(id, size, danger, options) {
+	this._options = {};
+	for (var p in this._defOptions) { this._options[p] = this._defOptions[p]; }
 	for (var p in options) { this._options[p] = options[p]; }
+
 	this._size = size;
 	this._blankMap();
 }

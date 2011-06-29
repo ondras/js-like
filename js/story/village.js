@@ -725,6 +725,7 @@ RPG.Story.Village.prototype._end = function(staircase) {
 
 RPG.Story.Village.prototype._createPC = function(race, profession, name) {
 	var pc = this.parent(race, profession, name);
+
 	var rocks = new RPG.Items.Rock();
 	rocks.setAmount(5);
 	pc.addItem(rocks);

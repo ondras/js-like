@@ -34,6 +34,7 @@ RPG.Quests.Kill.prototype._addEvents = function() {
 }
 
 RPG.Quests.Kill.prototype._death = function(e) {
+	if (this._phase != RPG.QUEST_GIVEN) { return; }
 	if (typeof(this._being) == "function" && e.target.constructor != this._being) { return; }
 
 	RPG.Game.removeEvent(this._event);
