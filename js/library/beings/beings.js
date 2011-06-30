@@ -83,6 +83,7 @@ RPG.Beings.HobgoblinLeader.prototype.init = function() {
  */
 RPG.Beings.Troll = OZ.Class().extend(RPG.Beings.NPC);
 RPG.Beings.Troll.factory.frequency = 10;
+RPG.Beings.Troll.factory.danger = 2;
 RPG.Beings.Troll.visual = { desc:"troll", color:"#999", image:"troll", ch:"T" };
 RPG.Beings.Troll.prototype.init = function() {
 	/* trolls are above-average humanoids */
@@ -381,6 +382,12 @@ RPG.Beings.Ogre.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DEXTERITY, 11);
 	this.setFeat(RPG.FEAT_MAGIC, 7);
 	
+	this.setFeat(RPG.FEAT_SPEED, 90);
+	this.setFeat(RPG.FEAT_DV, 3);
+	this.setFeat(RPG.FEAT_PV, 3);
+
+	this.getSlot(RPG.SLOT_WEAPON).setHit(new RPG.Misc.RandomValue(10, 5));
+
 	if (Math.randomPercentage() < 81) {
 		var club = new RPG.Items.Club();
 		this.equip(RPG.SLOT_WEAPON, club);

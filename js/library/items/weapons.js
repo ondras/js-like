@@ -70,6 +70,7 @@ RPG.Items.ShortSword.prototype.init = function() {
  */
 RPG.Items.LongSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.LongSword.visual = { desc:"long sword", image:"long-sword", color:"#999" };
+RPG.Items.LongSword.factory.danger = 2;
 RPG.Items.LongSword.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(6, 1), new RPG.Misc.RandomValue(6, 2));
 }
@@ -287,4 +288,16 @@ RPG.Items.ShortBow = OZ.Class().extend(RPG.Items.Bow);
 RPG.Items.ShortBow.visual = { desc:"short bow", image:"short-bow", ch:"}" };
 RPG.Items.ShortBow.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(3, 1), new RPG.Misc.RandomValue(3, 1));
+}
+
+/**
+ * @class Long bow
+ * @augments RPG.Items.Bow
+ */
+RPG.Items.LongBow = OZ.Class().extend(RPG.Items.Bow);
+RPG.Items.LongBow.factory.danger = 2;
+RPG.Items.LongBow.visual = { desc:"long bow", image:"long-bow", ch:"}" };
+RPG.Items.LongBow.prototype.init = function() {
+	this._range = 6;
+	this.parent(new RPG.Misc.RandomValue(4, 2), new RPG.Misc.RandomValue(5, 2));
 }

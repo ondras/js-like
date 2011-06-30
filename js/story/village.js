@@ -142,10 +142,8 @@ RPG.Map.SmallVillage.prototype._buildPeople = function() {
 	    var chat = chats.random();
 		villager.getAI().setDialogText(chat[0]);
 		villager.getAI().setDialogSound(chat[1]);
-
         this.setBeing(villager, this.getFreeCoords());
     }
-	
 }
 
 /**
@@ -715,7 +713,7 @@ RPG.Story.Village.prototype._addCallbacks = function() {
 }
 
 RPG.Story.Village.prototype._end = function(staircase) {
-	if (!confirm("Do you want to leave the village?")) {
+	if (!confirm("Do you want to leave the village (this will end the game)?")) {
 		window.focus();
 		return;
 	}
