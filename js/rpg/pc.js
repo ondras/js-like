@@ -796,7 +796,7 @@ RPG.Beings.PC.prototype._describeDifficulty = function(b) {
 	var better = 0;
 	for (var i=0;i<feats.length;i++) {
 		var feat = feats[i];
-		if (b.getFeat(feat) > this.getFeat(feat)) { better++; }
+		if (b.getFeat(feat) >= this.getFeat(feat)) { better++; }
 	}
 	
 	better /= feats.length; /* 0-1 */

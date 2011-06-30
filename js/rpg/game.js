@@ -169,8 +169,8 @@ RPG.Game.toJSON = function(handler) {
 		engine: this._engine,
 		map: this._map,
 		sound: RPG.UI.sound.getBackground(),
-		status: RPG.UI.status.toJSON(handler),
-		cells: RPG.Factories.cells.toJSON(handler)
+		status: RPG.UI.status,
+		cells: RPG.Factories.cells
 	});
 }
 
