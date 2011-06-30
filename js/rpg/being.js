@@ -65,6 +65,8 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	this._stats = {};
 	this._stats[RPG.STAT_HP] = Infinity;
 	this._stats[RPG.STAT_MANA] = Infinity;
+	this._stats[RPG.STAT_XP] = 0;
+	this._stats[RPG.STAT_LEVEL] = 1;
 	
 	this._feats = {};
 	
@@ -333,10 +335,40 @@ RPG.Beings.BaseBeing.prototype.setStat = function(stat, value) {
 		case RPG.STAT_MANA:
 			this._stats[stat] = Math.min(value, this._feats[RPG.FEAT_MAX_MANA].getValue());
 		break;
+		
+		case RPG.STAT_XP:
+			this._stats[stat] = value;
+			var level = this.getStat(RPG.STAT_LEVEL); /* current */
+			var threshold = this.xpForNextLevel(level);
+			var gained = 0; /* how many levels gained in this XP increase */
+			while (value >= threshold) {
+				level++;
+				threshold = this.xpForNextLevel(level);
+			}
+			var diff = level - this.getStat(RPG.STAT_LEVEL);
+			if (diff > 0) { this.adjustStat(RPG.STAT_LEVEL, diff); }
+		break;
+		
+		case RPG.STAT_LEVEL:
+			var diff = value - this._stats[stat];
+			this._stats[stat] = value;
+			this._gainLevels(diff);
+		break;
+		
+		default:
+			this._stats[stat] = value;
+		break;
 	}
 	
 	if (this._stats[RPG.STAT_HP] <= 0) { this.die(); }
 	return this._stats[stat];
+}
+
+RPG.Beings.BaseBeing.prototype.xpForNextLevel = function(level) {
+	var phi = (1+Math.sqrt(5))/2;
+	var nlevel = level + 1;
+	var val = (Math.pow(phi, nlevel) - Math.pow(-1/phi, nlevel)) / Math.sqrt(5);
+	return Math.round(val);
 }
 
 /**
@@ -863,4 +895,8 @@ RPG.Beings.BaseBeing.prototype._updateFeatsByModifier = function(imodifier) {
 	for (var i=0;i<list.length;i++) {
 		this._updateFeat(list[i]);
 	}
+}
+
+RPG.Beings.BaseBeing.prototype._gainLevels = function(amount) {
+	/* FIXME */
 }
