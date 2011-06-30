@@ -477,8 +477,6 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 	var corpse = this._generateCorpse();
 	if (corpse) { this._map.addItem(corpse, this._coords); }
 
-	RPG.Game.getEngine().removeActor(this); /* FIXME mozna spis jako posluchac being-death? */
-	
 	this.dispatch("being-death");
 }
 

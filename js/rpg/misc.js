@@ -375,6 +375,7 @@ RPG.Misc.Factory.prototype.add = function(ancestor) {
 
 /**
  * Return a random class
+ * @param {int} danger Highest danger available
  */ 
 RPG.Misc.Factory.prototype.getClass = function(danger) {
 	var len = this._classList.length;
@@ -402,6 +403,7 @@ RPG.Misc.Factory.prototype.getClass = function(danger) {
 
 /**
  * Return a random instance
+ * @param {int} danger Highest danger available
  */ 
 RPG.Misc.Factory.prototype.getInstance = function(danger) {
 	var ctor = this.getClass(danger);

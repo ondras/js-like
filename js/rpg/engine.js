@@ -8,22 +8,11 @@ RPG.Engine.prototype.init = function() {
 	this._actionResult = RPG.ACTION_TIME; /* result of current action */
 	this._lock = 1; /* lock level */
 	this._scheduler = new RPG.Misc.Scheduler();
+	this._addEvents();
 }
 
-/**
- * Add new actor
- * @param {RPG.Misc.IActor} actor
- */
-RPG.Engine.prototype.addActor = function(actor) {
-	this._scheduler.addActor(actor);
-}
-
-/**
- * Remove given actor
- * @param {RPG.Misc.IActor} actor
- */
-RPG.Engine.prototype.removeActor = function(actor) {
-	this._scheduler.removeActor(actor);
+RPG.Engine.prototype.revive = function() {
+	this._addEvents();
 }
 
 /**
@@ -35,8 +24,12 @@ RPG.Engine.prototype.useMap = function(map) {
 
 	var beings = map.getBeings();
 	for (var i=0;i<beings.length;i++) { /* get all beings in map and assign them to scheduler */
-		this.addActor(beings[i]);
+		this._scheduler.addActor(beings[i]);
 	}
+}
+
+RPG.Engine.prototype._addEvents = function() {
+	RPG.Game.addEvent(null, "being-death", this._death.bind(this));
 }
 
 /**
@@ -97,4 +90,8 @@ RPG.Engine.prototype._newActor = function() {
 	if (!this._actor) { return; }
 	var effects = this._actor.getEffects();
 	for (var i=0;i<effects.length;i++) { effects[i].go(); }
+}
+
+RPG.Engine.prototype._death = function(e) {
+	this._scheduler.removeActor(e.target);
 }

@@ -869,7 +869,6 @@ RPG.Generators.BaseGenerator.prototype._generateCoords = function(minSize) {
  * @param {int} minSize
  * @param {int} maxWidth
  * @param {int} maxHeight
- * FIXME does it really work right?
  */
 RPG.Generators.BaseGenerator.prototype._generateSecondCorner = function(corner, minSize, maxWidth, maxHeight) {
 	var availX = this._size.x - corner.x - minSize;
@@ -878,9 +877,9 @@ RPG.Generators.BaseGenerator.prototype._generateSecondCorner = function(corner, 
 	availX = Math.min(availX, maxWidth - minSize + 1);
 	availY = Math.min(availY, maxHeight - minSize + 1);
 	
-	var x = Math.floor(Math.random()*availX) + minSize;
-	var y = Math.floor(Math.random()*availY) + minSize;
-	return new RPG.Misc.Coords(corner.x + x - 1, corner.y + y - 1);
+	var width = Math.floor(Math.random()*availX) + minSize;
+	var height = Math.floor(Math.random()*availY) + minSize;
+	return new RPG.Misc.Coords(corner.x + width - 1, corner.y + height - 1);
 }
 
 /**

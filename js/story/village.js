@@ -327,7 +327,7 @@ RPG.Quests.SmithTrophy = OZ.Class()
 							.implement(RPG.Misc.IDialog);
 
 RPG.Quests.SmithTrophy.prototype.init = function(giver) {
-	var cl = RPG.Factories.npcs.getClass(1); /* FIXME danger 1? */
+	var cl = RPG.Factories.npcs.getClass(1);
 	this.parent(giver, cl);
 	giver.getAI().setDialogQuest(this);
 }

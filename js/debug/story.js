@@ -31,7 +31,7 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 }
 
 RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
-	var pc = new RPG.Beings.PC(race, profession);
+	var pc = new RPG.Beings.God(race, profession);
 	pc.setName(name);
 	
 	pc.adjustFeat(RPG.FEAT_MAX_MANA, 50);
