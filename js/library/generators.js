@@ -911,7 +911,7 @@ RPG.Generators.IceyMaze = OZ.Singleton().extend(RPG.Generators.BaseGenerator);
 
 RPG.Generators.IceyMaze.prototype.init = function() {
 	this.parent();
-	this._options.regularity = 10;
+	this._defOptions.regularity = 10;
 }
 
 RPG.Generators.IceyMaze.prototype.generate = function(id, size, danger, options) {
