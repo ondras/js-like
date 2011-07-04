@@ -1,4 +1,10 @@
 /**
+ * Lockpick item, used for opening locked doors
+ */
+RPG.Items.Lockpick = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Lockpick.visual = { ch:"]", color:"#ccc", desc:"lockpick", image:"lockpick" };
+
+/**
  * @class Anything that can be eaten
  * @augments RPG.Items.BaseItem
  */

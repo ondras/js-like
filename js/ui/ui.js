@@ -1,15 +1,26 @@
-RPG.UI.buffer = null; /* text message display */
-RPG.UI.map = null; /* map instance */
-RPG.UI.status = null; /* statusbar */
-RPG.UI.sound = null; /* soundmanager */
-RPG.UI.dialog = null; /* chat */
+RPG.UI.buffer = null;	/* text message display */
+RPG.UI.map = null;		/* map instance */
+RPG.UI.status = null;	/* statusbar */
+RPG.UI.sound = null;	/* soundmanager */
+RPG.UI.dialog = null;	/* chat */
 
-RPG.UI._commands = []; /* avail commands */
+RPG.UI._commands = [];	/* avail commands */
 RPG.UI._pending = null; /* command awaiting specification */
-RPG.UI._dimmer = null; /* dimmer element */
-RPG.UI._dialog = null; /* current dialog */
-RPG.UI._mode = -1; /* current UI mode */
-RPG.UI._target = null; /* targetting coords */
+RPG.UI._dimmer = null;	/* dimmer element */
+RPG.UI._dialog = null;	/* current dialog */
+RPG.UI._mode = -1;		/* current UI mode */
+RPG.UI._target = null;	/* targetting coords */
+
+RPG.UI.alert = function(text) {
+	alert(text);
+	window.focus();
+}
+
+RPG.UI.confirm = function(text) {
+	var result = confirm(text);
+	window.focus();
+	return result;
+}
 
 RPG.UI.setMode = function(mode, command, data) {
 	if (this._mode == mode) { return; }

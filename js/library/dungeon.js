@@ -2,28 +2,28 @@
  * @class Floor
  * @augments RPG.Cells.BaseCell
  */
-RPG.Cells.Corridor = OZ.Class().extend(RPG.Cells.BaseCell);
+RPG.Cells.Corridor = OZ.Singleton().extend(RPG.Cells.BaseCell);
 RPG.Cells.Corridor.visual = { desc:"floor section", ch:".", image:"corridor", color:"#ccc" };
 
 /**
  * @class Grass
  * @augments RPG.Cells.BaseCell
  */
-RPG.Cells.Grass = OZ.Class().extend(RPG.Cells.BaseCell);
+RPG.Cells.Grass = OZ.Singleton().extend(RPG.Cells.BaseCell);
 RPG.Cells.Grass.visual = { desc:"grass", ch:".", image:"grass", color:"#693" };
 
 /**
  * @class Water
  * @augments RPG.Cells.BaseCell
  */
-RPG.Cells.Water = OZ.Class().extend(RPG.Cells.BaseCell);
+RPG.Cells.Water = OZ.Singleton().extend(RPG.Cells.BaseCell);
 RPG.Cells.Water.visual = { desc:"water", ch:"=", image:"water", color:"#009" };
 
 /**
  * @class Wall
  * @augments RPG.Cells.BaseCell
  */
-RPG.Cells.Wall = OZ.Class().extend(RPG.Cells.BaseCell);
+RPG.Cells.Wall = OZ.Singleton().extend(RPG.Cells.BaseCell);
 RPG.Cells.Wall.visual = { desc:"solid wall", ch:"#", image:"wall", color:"#666" };
 RPG.Cells.Wall.prototype.init = function() {
 	this.parent();
@@ -34,7 +34,7 @@ RPG.Cells.Wall.prototype.init = function() {
  * @class Fake wall
  * @augments RPG.Cells.Wall
  */
-RPG.Cells.Wall.Fake = OZ.Class().extend(RPG.Cells.Wall);
+RPG.Cells.Wall.Fake = OZ.Singleton().extend(RPG.Cells.Wall);
 RPG.Cells.Wall.Fake.prototype.init = function() {
 	this.parent();
 	this._fake = true;
@@ -86,6 +86,7 @@ RPG.Features.Door.prototype.getVisualProperty = function(name) {
 RPG.Features.Door.prototype.lock = function() {
 	this.close();
 	this._locked = true;
+	return this;
 }
 
 RPG.Features.Door.prototype.close = function() {
@@ -96,6 +97,7 @@ RPG.Features.Door.prototype.close = function() {
 		RPG.Game.pc.coordsChanged(this._coords);
 		RPG.Game.pc.updateVisibility(); 
 	}
+	return this;
 }
 
 RPG.Features.Door.prototype.open = function() {
@@ -106,10 +108,12 @@ RPG.Features.Door.prototype.open = function() {
 		RPG.Game.pc.coordsChanged(this._coords);
 		RPG.Game.pc.updateVisibility(); 
 	}
+	return this;
 }
 
 RPG.Features.Door.prototype.unlock = function() {
 	this._locked = false;
+	return this;
 }
 
 RPG.Features.Door.prototype.isClosed = function() {
@@ -275,6 +279,52 @@ RPG.Features.Staircase.Up = OZ.Class().extend(RPG.Features.Staircase);
 RPG.Features.Staircase.Up.visual = { desc:"staircase leading up", image:"staircase-up", ch:"<" }
 
 /**
+ * @class Set of cells with tutorial messages
+ */
+RPG.Areas.Tutorial = OZ.Class().extend(RPG.Areas.BaseArea);
+RPG.Areas.Tutorial.prototype._messages = {};
+RPG.Areas.Tutorial.prototype.init = function() {
+	this.parent();
+	this._visited = {};
+}
+RPG.Areas.Tutorial.prototype.getCoords = function() {
+	var all = [];
+	for (var p in this._messages) { 
+		if (p in this._visited) { continue; }
+		all.push(RPG.Misc.Coords.fromString(p)); 
+	}
+	return all;
+}
+
+RPG.Areas.Tutorial.prototype.entering = function(being) {
+	this.parent(being);
+	if (being != RPG.Game.pc) { return; }
+	var id = being.getCoords().toString();
+	
+	if (id in this._visited) { return; } /* already seen */
+	
+	/* showing tutorial for the first time? */
+	var first = true;
+	for (var p in this._visited) { first = false; }
+	
+	if (first) {
+		var text = this._messages[id];
+		text += "\n\n";
+		text += "Do you want to see these tutorial tips?";
+		var result = RPG.UI.confirm(text);
+		if (result) { /* want to see */
+			this._visited[id] = 1;
+		} else { /* do not want to see, mark all as visited */
+			for (var id in this._messages) { this._visited[id] = 1; }
+		}
+		
+	} else {
+		RPG.UI.alert(this._messages[id]);
+		this._visited[id] = 1;
+	}
+}
+
+/**
  * @class Shop area
  * @augments RPG.Areas.Room
  */
@@ -314,3 +364,4 @@ RPG.Areas.Shop.prototype.setShopkeeper = function(being) {
 	var ai = new RPG.AI.Shopkeeper(being, this);
 	being.setAI(ai);
 }
+

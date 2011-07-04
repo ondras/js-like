@@ -131,8 +131,7 @@ RPG.Decorators.Doors.prototype.decorate = function(map, room, options) {
 				if (map.blocks(RPG.BLOCKS_MOVEMENT, after)) { continue; } /* bad layout */
 				
 				/* fake corridor */
-				var cctor = map.getCellTypes()[0];
-				var corridor = RPG.Factories.cells.get(cctor);
+				var corridor = map.getDefaultEmptyCell();
 				map.setCell(corridor, c);
 				var fake = new RPG.Cells.Wall.Fake();
 				map.setCell(fake, c);

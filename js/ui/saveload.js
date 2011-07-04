@@ -236,8 +236,7 @@ RPG.UI.SaveLoad.prototype._dataAvailable = function(data) {
 			while (!key) {
 				key = this._prefix + name;
 				if (localStorage.getItem(key)) {
-					if (!confirm("This name already exists, overwrite?")) { key = "";  }
-					window.focus();
+					if (!RPG.UI.confirm("This name already exists, overwrite?")) { key = "";  }
 				}
 			}
 			try {

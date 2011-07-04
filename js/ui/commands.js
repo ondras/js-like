@@ -23,7 +23,7 @@ RPG.UI.Command.prototype.cancel = function() {
 }
 
 RPG.UI.Command.prototype.exec = function() {
-	alert("Not implemented .)");
+	RPG.UI.alert("Not implemented .)");
 }
 
 RPG.UI.Command.prototype._click = function(e) {
@@ -736,8 +736,7 @@ RPG.UI.Command.WeaponStats.prototype.exec = function() {
 	var hand = pc.getSlot(RPG.SLOT_WEAPON);
 	var hit = hand.getHit();
 	var dmg = hand.getDamage();
-	alert("Current weapon hit/damage: "+hit.toString()+"/"+dmg.toString());
-	window.focus();
+	RPG.UI.alert("Current weapon hit/damage: "+hit.toString()+"/"+dmg.toString());
 }
 
 /**
@@ -756,8 +755,7 @@ RPG.UI.Command.KickStats.prototype.exec = function() {
 	var feet = pc.getSlot(RPG.SLOT_FEET);
 	var hit = feet.getHit();
 	var dmg = feet.getDamage();
-	alert("Current kick hit/damage: "+hit.toString()+"/"+dmg.toString());
-	window.focus();
+	RPG.UI.alert("Current kick hit/damage: "+hit.toString()+"/"+dmg.toString());
 }
 
 /**
@@ -775,8 +773,7 @@ RPG.UI.Command.KillStats.prototype.init = function() {
 RPG.UI.Command.KillStats.prototype.exec = function() {
 	var pc = RPG.Game.pc;
 	var kills = pc.getKills();
-	alert("Beings killed so far: "+kills);
-	window.focus();
+	RPG.UI.alert("Beings killed so far: "+kills);
 }
 
 /**
@@ -1219,7 +1216,6 @@ RPG.UI.Command.Debts.prototype.init = function() {
 RPG.UI.Command.Debts.prototype.exec = function() {
 	var debts = RPG.Game.pc.getDebts();
 	var str = "You currently owe " + (debts || "no") + " gold pieces.";
-	alert(str);
-	window.focus();
+	RPG.UI.alert(str);
 }
 

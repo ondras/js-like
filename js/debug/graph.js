@@ -67,12 +67,12 @@ var Graph = {
 			var node = item.node;
 			if (node._extend) {
 				var name = this.cached(node._extend);
-				if (!name) { alert("wtf."); }
+				if (!name) { throw new Error("wtf."); }
 				this.result += '"'+name + '" -> "' + item.name+'" [constraint=true, color=blue]\n';
 			}
 			for (var j=0;j<node._implement.length;j++) {
 				var name = this.cached(node._implement[j]);
-				if (!name) { alert("wtf."); }
+				if (!name) { throw new Error("wtf."); }
 				this.result += '"'+name + '" -> "' + item.name+'" [constraint=true, color=red, style=dotted]\n';
 			}
 		}

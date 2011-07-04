@@ -5,14 +5,12 @@ RPG.Game = {
 	pc: null,
 	_story: null,
 	_engine: null,
-	_map: null,
 	_events: [],
-	_version: 9
+	_version: 10
 }
 
 RPG.Game.init = function() {
 	this._initFactories();
-
 	this._engine = new RPG.Engine();
 }
 
@@ -155,8 +153,6 @@ RPG.Game._initFactories = function() {
 	RPG.Factories.traps = new RPG.Misc.Factory().add(RPG.Features.Trap);
 	RPG.Factories.spells = new RPG.Misc.Factory().add(RPG.Spells.BaseSpell);
 	RPG.Factories.gold = new RPG.Misc.Factory().add(RPG.Items.Gold);
-
-	RPG.Factories.cells = new RPG.Misc.CellFactory();
 }
 
 /**
@@ -167,10 +163,8 @@ RPG.Game.toJSON = function(handler) {
 		pc: this.pc,
 		story: this._story,
 		engine: this._engine,
-		map: this._map,
 		sound: RPG.UI.sound.getBackground(),
-		status: RPG.UI.status,
-		cells: RPG.Factories.cells
+		status: RPG.UI.status
 	});
 }
 
@@ -181,10 +175,8 @@ RPG.Game.fromJSON = function(data) {
 	this.pc = data.pc;
 	this._story = data.story;
 	this._engine = data.engine;
-	this._map = data.map;
 	RPG.UI.sound.playBackground(data.sound);
 	RPG.UI.status.fromJSON(data.status);
-	RPG.Factories.cells.fromJSON(data.cells);
 	
 	this.pc.updateFromMemory(); 
 }

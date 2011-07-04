@@ -229,9 +229,9 @@ RPG.Generators.Uniform.prototype._placeInWall = function(room, wall) {
 	var result = new RPG.Misc.Coords(x, y);
 	/* check if neighbors are not empty */
 	result[prop] -= 1;
-	if (this._isValid(result) && !this._bitMap[result.x][result.y]) { return null; }
+	if (this._isValid(result) && !this._boolArray[result.x][result.y]) { return null; }
 	result[prop] += 2;
-	if (this._isValid(result) && !this._bitMap[result.x][result.y]) { return null; }
+	if (this._isValid(result) && !this._boolArray[result.x][result.y]) { return null; }
 	result[prop] -= 1;
 
 	return result; 
@@ -294,7 +294,7 @@ RPG.Generators.Uniform.prototype._digLine = function(points) {
 	
 	while (todo.length) { /* do actual digging */
 		var coords = todo.pop();
-		this._bitMap[coords.x][coords.y] = 0;
+		this._boolArray[coords.x][coords.y] = false;
 	}
 }
 
@@ -402,7 +402,7 @@ RPG.Generators.Digger.prototype._findWall = function() {
 		this._forcedWalls.splice(index, 1);
 		return wall;
 	} else {
-		if (!this._freeWalls.length) { alert("PANIC! No suitable wall found."); }
+		if (!this._freeWalls.length) { throw new Error("PANIC! No suitable wall found."); }
 		var index = Math.floor(Math.random()*this._freeWalls.length);
 		return this._freeWalls[index];
 	}
@@ -417,7 +417,7 @@ RPG.Generators.Digger.prototype._findWall = function() {
 RPG.Generators.Digger.prototype._tryFeature = function(wall) {
 	var name = this._getFeature();
 	var func = this["_feature" + name.charAt(0).toUpperCase() + name.substring(1)];
-	if (!func) { alert("PANIC! Non-existant feature '"+name+"'."); }
+	if (!func) { throw new Error("PANIC! Non-existant feature '"+name+"'."); }
 	
 	return func.call(this, wall);
 }
@@ -497,15 +497,15 @@ RPG.Generators.Digger.prototype._featureRoom = function(wall) {
 	
 	/* dig the wall + room */
 	this._dug += 1;
-	this._bitMap[wall.x][wall.y] = 0;
+	this._boolArray[wall.x][wall.y] = false;
 	this._digRoom(corner1, corner2);
 	
 	if (Math.random() > 0.7) {
 		/* remove corners */
-		this._bitMap[corner1.x][corner1.y] = 1;
-		this._bitMap[corner1.x][corner2.y] = 1;
-		this._bitMap[corner2.x][corner1.y] = 1;
-		this._bitMap[corner2.x][corner2.y] = 1;
+		this._boolArray[corner1.x][corner1.y] = true;
+		this._boolArray[corner1.x][corner2.y] = true;
+		this._boolArray[corner2.x][corner1.y] = true;
+		this._boolArray[corner2.x][corner2.y] = true;
 		this._dug -= 4;
 	}
 	
@@ -580,7 +580,7 @@ RPG.Generators.Digger.prototype._featureCorridor = function(wall) {
 	this._dug += length;
 	var c = start.clone();
 	for (var i=0;i<length;i++) {
-		this._bitMap[c.x][c.y] = 0;
+		this._boolArray[c.x][c.y] = false;
 		c.plus(direction);
 	}
 	
@@ -670,7 +670,7 @@ RPG.Generators.Digger.prototype._emptyDirection = function(coords) {
 		
 		if (!this._isValid(c)) { return false; }
 		
-		if (!this._bitMap[c.x][c.y]) { 
+		if (!this._boolArray[c.x][c.y]) { 
 			/* there already is another empty neighbor! */
 			if (empty) { return false; }
 
@@ -725,7 +725,7 @@ RPG.Generators.DividedMaze.prototype.generate = function(id, size, danger, optio
 	for (var i=0;i<w;i++) {
 		for (var j=0;j<h;j++) {
 			if (i == 0 || j == 0 || i+1 == w || j+1 == h) { continue; }
-			this._bitMap[i][j] = 0;
+			this._boolArray[i][j] = false;
 		}
 	}
 	
@@ -749,14 +749,14 @@ RPG.Generators.DividedMaze.prototype._partitionRoom = function(room) {
 	var availY = [];
 	
 	for (var i=room[0]+1;i<room[2];i++) {
-		var top = this._bitMap[i][room[1]-1];
-		var bottom = this._bitMap[i][room[3]+1];
+		var top = this._boolArray[i][room[1]-1];
+		var bottom = this._boolArray[i][room[3]+1];
 		if (top && bottom && !(i % 2)) { availX.push(i); }
 	}
 	
 	for (var j=room[1]+1;j<room[3];j++) {
-		var left = this._bitMap[room[0]-1][j];
-		var right = this._bitMap[room[2]+1][j];
+		var left = this._boolArray[room[0]-1][j];
+		var right = this._boolArray[room[2]+1][j];
 		if (left && right && !(j % 2)) { availY.push(j); }
 	}
 
@@ -765,31 +765,31 @@ RPG.Generators.DividedMaze.prototype._partitionRoom = function(room) {
 	var x = availX.random();
 	var y = availY.random();
 	
-	this._bitMap[x][y] = 1;
+	this._boolArray[x][y] = true;
 	
 	var walls = [];
 	
 	var w = []; walls.push(w); /* left part */
 	for (var i=room[0]; i<x; i++) { 
-		this._bitMap[i][y] = 1;
+		this._boolArray[i][y] = true;
 		w.push([i, y]); 
 	}
 	
 	var w = []; walls.push(w); /* right part */
 	for (var i=x+1; i<=room[2]; i++) { 
-		this._bitMap[i][y] = 1;
+		this._boolArray[i][y] = true;
 		w.push([i, y]); 
 	}
 
 	var w = []; walls.push(w); /* top part */
 	for (var j=room[1]; j<y; j++) { 
-		this._bitMap[x][j] = 1;
+		this._boolArray[x][j] = true;
 		w.push([x, j]); 
 	}
 	
 	var w = []; walls.push(w); /* bottom part */
 	for (var j=y+1; j<=room[3]; j++) { 
-		this._bitMap[x][j] = 1;
+		this._boolArray[x][j] = true;
 		w.push([x, j]); 
 	}
 		
@@ -799,7 +799,7 @@ RPG.Generators.DividedMaze.prototype._partitionRoom = function(room) {
 		if (w == solid) { continue; }
 		
 		var hole = w.random();
-		this._bitMap[hole[0]][hole[1]] = 0;
+		this._boolArray[hole[0]][hole[1]] = false;
 	}
 
 	this._stack.push([room[0], room[1], x-1, y-1]); /* left top */
@@ -843,12 +843,12 @@ RPG.Generators.Maze.prototype.generate = function(id, size, danger, options) {
 			/* cell coords (will be always empty) */
 			var x = 2*i+1;
 			var y = j;
-			this._bitMap[x][y] = 0;
+			this._boolArray[x][y] = false;
 			
 			/* right connection */
 			if (i != L[i+1] && Math.random() > rand) {
 				this._addToList(i, L, R);
-				this._bitMap[x+1][y] = 0;
+				this._boolArray[x+1][y] = false;
 			}
 			
 			/* bottom connection */
@@ -857,7 +857,7 @@ RPG.Generators.Maze.prototype.generate = function(id, size, danger, options) {
 				this._removeFromList(i, L, R);
 			} else {
 				/* create connection */
-				this._bitMap[x][y+1] = 0;
+				this._boolArray[x][y+1] = false;
 			}
 		}
 	}
@@ -867,13 +867,13 @@ RPG.Generators.Maze.prototype.generate = function(id, size, danger, options) {
 		/* cell coords (will be always empty) */
 		var x = 2*i+1;
 		var y = j;
-		this._bitMap[x][y] = 0;
+		this._boolArray[x][y] = false;
 		
 		/* right connection */
 		if (i != L[i+1] && (i == L[i] || Math.random() > rand)) {
 			/* dig right also if the cell is separated, so it gets connected to the rest of maze */
 			this._addToList(i, L, R);
-			this._bitMap[x+1][y] = 0;
+			this._boolArray[x+1][y] = false;
 		}
 		
 		this._removeFromList(i, L, R);
@@ -939,18 +939,18 @@ RPG.Generators.IceyMaze.prototype.generate = function(id, size, danger, options)
 		cx = 1 + 2*Math.floor(Math.random()*(width-1) / 2)
 		cy = 1 + 2*Math.floor(Math.random()*(height-1) / 2)
 
-		if (!done) { this._bitMap[cx][cy] = 0; }
-		if (!this._bitMap[cx][cy]) {
+		if (!done) { this._boolArray[cx][cy] = 0; }
+		if (!this._boolArray[cx][cy]) {
 			this._randomize(dirs);
 			do {
-				if (Math.round(Math.random() * this._options.regularity) == 0) { this._randomize(dirs); }
+				if (Math.round(Math.random() * this._options.regularity) == false) { this._randomize(dirs); }
 				blocked = true;
 				for (var i=0;i<4;i++) {
 					nx = cx + dirs[i][0]*2;
 					ny = cy + dirs[i][1]*2;
 					if (this._isFree(nx, ny, width, height)) {
-						this._bitMap[nx][ny] = 0;
-						this._bitMap[cx + dirs[i][0]][cy + dirs[i][1]] = 0;
+						this._boolArray[nx][ny] = false;
+						this._boolArray[cx + dirs[i][0]][cy + dirs[i][1]] = false;
 						cx = nx;
 						cy = ny;
 						blocked = false;
@@ -993,5 +993,5 @@ RPG.Generators.IceyMaze.prototype._randomize = function(dirs) {
 
 RPG.Generators.IceyMaze.prototype._isFree = function(x, y, width, height) {
 	if (x < 1 || y < 1 || x >= width || y >= height) { return false; }
-	return (this._bitMap[x][y] == 1);
+	return this._boolArray[x][y];
 }

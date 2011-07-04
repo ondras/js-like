@@ -43,7 +43,7 @@ RPG.Misc.Coords.prototype.init = function(x, y) {
 }
 
 RPG.Misc.Coords.prototype.toString = function() {
-	return this.x+", "+this.y;
+	return this.x+","+this.y;
 }
 
 RPG.Misc.Coords.prototype.distance = function(coords) {
@@ -421,29 +421,6 @@ RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {
 		current = current._extend;
 	}
 	return false;
-}
-
-/**
- * @class
- */
-RPG.Misc.CellFactory = OZ.Class();
-RPG.Misc.CellFactory.prototype.init = function() {
-	this._instances = [];
-}
-RPG.Misc.CellFactory.prototype.get = function(ctor) {
-	for (var i=0;i<this._instances.length;i++) {
-		var inst = this._instances[i];
-		if (inst.constructor == ctor) { return inst; }
-	}
-	var inst = new ctor();
-	this._instances.push(inst);
-	return inst;
-}
-RPG.Misc.CellFactory.prototype.toJSON = function(handler) {
-	return this._instances;
-}
-RPG.Misc.CellFactory.prototype.fromJSON = function(instances) {
-	this._instances = instances;
 }
 
 /**
