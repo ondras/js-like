@@ -780,27 +780,6 @@ RPG.UI.Command.KillStats.prototype.exec = function() {
 }
 
 /**
- * @class Show XP statistics
- * @augments RPG.UI.Command
- */
-RPG.UI.Command.XPStats = OZ.Class().extend(RPG.UI.Command);
-
-RPG.UI.Command.XPStats.prototype.init = function() {
-	this.parent("Experience");
-	this._button.setChar("x");
-}
-
-RPG.UI.Command.XPStats.prototype.exec = function() {
-	var pc = RPG.Game.pc;
-	var level = pc.getStat(RPG.STAT_LEVEL);
-	var xp = pc.getStat(RPG.STAT_XP);
-	var xp2 = pc.xpForNextLevel(level);
-	var m = RPG.Misc.format("Experience: %s/%s, current level: %s", xp, xp2, level);
-	alert(m);
-	window.focus();
-}
-
-/**
  * @class Look around
  * @augments RPG.UI.Command
  */

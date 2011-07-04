@@ -153,10 +153,6 @@ RPG.FEAT_SIGHT_RANGE	= 14;
 RPG.STAT_HP				= 0;
 /** @constant */
 RPG.STAT_MANA			= 1;
-/** @constant */
-RPG.STAT_XP				= 2;
-/** @constant */
-RPG.STAT_LEVEL			= 3;
 
 /* Spell types */
 
