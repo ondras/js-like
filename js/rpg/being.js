@@ -204,13 +204,6 @@ RPG.Beings.BaseBeing.prototype.getItems = function() {
 }
 
 /**
- * Return all available slots
- */
-RPG.Beings.BaseBeing.prototype.getSlots = function() {
-	return this._slots;
-}
-
-/**
  * Return slot by its type constant
  */
 RPG.Beings.BaseBeing.prototype.getSlot = function(type) {

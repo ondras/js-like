@@ -433,15 +433,18 @@ RPG.Beings.PC.prototype._visibleCoords2 = function(A, B, blocks, DATA) {
 			index++;
 			count++;
 		}
-		if (!blocks) { return (count != 0); } 
 		
-		if (count % 2) {
-			DATA.splice(index-count, count, B);
-		} else {
-			DATA.splice(index-count, count);
+		if (count == 0) { return false; }
+		
+		if (blocks) { 
+			if (count % 2) {
+				DATA.splice(index-count, count, B);
+			} else {
+				DATA.splice(index-count, count);
+			}
 		}
 		
-		return (count != 0);
+		return true;
 
 	} else { /* this shadow starts outside an existing shadow, or within a starting boundary */
 		while (index < DATA.length && DATA[index] < B) {
@@ -450,7 +453,7 @@ RPG.Beings.PC.prototype._visibleCoords2 = function(A, B, blocks, DATA) {
 		}
 		
 		/* visible when outside an existing shadow, or when overlapping */
-		var result = (A != DATA[index-count] ? true : count > 1);
+		if (A == DATA[index-count] && count == 1) { return false; }
 		
 		if (blocks) { 
 			if (count % 2) {
@@ -460,7 +463,7 @@ RPG.Beings.PC.prototype._visibleCoords2 = function(A, B, blocks, DATA) {
 			}
 		}
 			
-		return result;
+		return true;
 	}
 }
 
@@ -717,8 +720,21 @@ RPG.Beings.PC.prototype.kick = function(coords) {
 RPG.Beings.PC.prototype.open = function(door) {
 	var locked = door.isLocked();
 	if (locked) { 
-		RPG.UI.buffer.message("The door is locked. You do not have the appropriate key."); 
-		return RPG.ACTION_TIME;
+		var lockpick = null;
+		for (var i=0;i<this._items.length;i++) {
+			if (this._items[i] instanceof RPG.Items.Lockpick) { lockpick = this._items[i]; }
+		}
+		if (!lockpick) {
+			RPG.UI.buffer.message("The door is locked. You do not have the appropriate key."); 
+			return RPG.ACTION_TIME;
+		}
+		if (lockpick.getAmount() > 1) {
+			lockpick.setAmount(lockpick.getAmount() - 1);
+		} else {
+			this.removeItem(lockpick);
+		}
+		RPG.UI.buffer.message("You unlock the door with a lockpick.");
+		door.unlock();
 	}
 	
 	var stuck = RPG.Rules.isDoorStuck(this, door);

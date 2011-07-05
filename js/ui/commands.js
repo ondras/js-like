@@ -656,7 +656,7 @@ RPG.UI.Command.Backlog.prototype.exec = function() {
 RPG.UI.Command.Ascend = OZ.Class().extend(RPG.UI.Command);
 
 RPG.UI.Command.Ascend.prototype.init = function() {
-	this.parent("Ascend");
+	this.parent("Ascend / Leave");
 	this._button.setChar("<");
 }
 
@@ -680,7 +680,7 @@ RPG.UI.Command.Ascend.prototype.exec = function() {
 RPG.UI.Command.Descend = OZ.Class().extend(RPG.UI.Command);
 
 RPG.UI.Command.Descend.prototype.init = function() {
-	this.parent("Descend");
+	this.parent("Descend / Enter");
 	this._button.setChar(">");
 }
 

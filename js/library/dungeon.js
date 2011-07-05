@@ -310,7 +310,7 @@ RPG.Areas.Tutorial.prototype.entering = function(being) {
 	if (first) {
 		var text = this._messages[id];
 		text += "\n\n";
-		text += "Do you want to see these tutorial tips?";
+		text += "Do you want to continue seeing these tutorial tips?\n\n";
 		var result = RPG.UI.confirm(text);
 		if (result) { /* want to see */
 			this._visited[id] = 1;
@@ -319,7 +319,7 @@ RPG.Areas.Tutorial.prototype.entering = function(being) {
 		}
 		
 	} else {
-		RPG.UI.alert(this._messages[id]);
+		RPG.UI.alert(this._messages[id] + "\n\n");
 		this._visited[id] = 1;
 	}
 }
