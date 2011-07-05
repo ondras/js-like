@@ -43,7 +43,7 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 	*/
 	
 	/* first closed door */
-	map.setFeature(new RPG.Features.Door().close().lock(), new RPG.Misc.Coords(15, 10));
+	map.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(15, 10));
 	
 	/* gold */
 	map.addItem(new RPG.Items.Gold(10), new RPG.Misc.Coords(3, 5));
@@ -99,7 +99,7 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 		"31,8":		"There are many beings living in the depths of the dungeon. Not all are\n" + 
 					"initially hostile; the safest way to check their attitude is to 'l'ook at them.\n\n" + 
 					"To attack a monster, just try to move to its position.",
-		"45,15":	"Staircases connect various underground levels. To enter a staircase,\n" + 
+		"44,15":	"Staircases connect various underground levels. To enter a staircase,\n" + 
 					"press either '<' (to climb up) or '>' (to climb down)."
 	}
 	map.addArea(new T());
