@@ -301,7 +301,7 @@ RPG.Beings.PC.prototype._computeVisibleCoords = function() {
 }
 
 /**
- * Subroutine for updateVisibility(). For a given coords, checks if it is visible and adjusts arcs it blocks.
+ * Subroutine for _computeVisibleCoords(). For a given coords, checks if it is visible and adjusts arcs it blocks.
  * @param {bool} blocks Does this cell block?
  * @param {float} startArc Floating arc index corresponding to first arc shaded by this cell
  * @param {float} arcsPerCell How many arcs are shaded by this one, >= 1
@@ -362,6 +362,119 @@ RPG.Beings.PC.prototype._visibleCoords = function(blocks, startArc, arcsPerCell,
 	
 	return ok;
 }
+
+/***** NEW shadowcasting here */
+
+RPG.Beings.PC.prototype._computeVisibleCoords2 = function() {
+	var R = this.getFeat(RPG.FEAT_SIGHT_RANGE);
+	var center = this._coords;
+	var map = this._map;
+
+	/* start and end angles */
+	var DATA = [];
+	
+	/* results */
+	var result = {};
+	var id = this._coords.x+","+this._coords.y;
+	result[id] = this._coords;
+
+	/* standing in a dark place */
+	if (map.blocks(RPG.BLOCKS_LIGHT, this._coords)) { return result; }
+	
+	var cellCount = 0;
+	var A = 0;
+	var B = 0;
+	var c = false;
+	var blocks = false;
+	
+	/* analyze surrounding cells in concentric rings, starting from the center */
+	for (var r=1; r<=R; r++) {
+		var coords = map.getCoordsInCircle(center, r, true);
+		cellCount = coords.length;
+		var angle = 360 / cellCount;
+
+		for (var i=0;i<cellCount;i++) {
+			if (!coords[i]) { continue; }
+			c = coords[i];
+			
+			A = angle * (i - 0.5);
+			B = A + angle;
+			blocks = map.blocks(RPG.BLOCKS_LIGHT, c);
+			
+			if (this._visibleCoords2(Math.floor(A), Math.ceil(B), blocks, DATA)) { result[c.x+","+c.y] = c; }
+			
+			/* cutoff? */
+			if (DATA.length == 2 && DATA[0] == 0 && DATA[1] == 360) { return result; }
+		} /* for all cells in this ring */
+	} /* for all rings */
+	
+	return result;
+}
+
+RPG.Beings.PC.prototype._visibleCoords2 = function(A, B, blocks, DATA) {
+	if (A < 0) { 
+		var v1 = arguments.callee(0, B, blocks, DATA);
+		var v2 = arguments.callee(360+A, 360, blocks, DATA);
+		return v1 || v2;
+	}
+	
+	var index = 0;
+	while (index < DATA.length && DATA[index] < A) { index++; }
+	
+	if (index == DATA.length) { /* completely new shadow */
+		if (blocks) { DATA.push(A, B); } 
+		return true;
+	}
+	
+	var count = 0;
+	
+	if (index % 2) { /* this shadow starts in an existing shadow, or within its ending boundary */
+		while (index < DATA.length && DATA[index] < B) {
+			index++;
+			count++;
+		}
+		if (!blocks) { return (count != 0); } 
+		
+		if (count % 2) {
+			DATA.splice(index-count, count, B);
+		} else {
+			DATA.splice(index-count, count);
+		}
+		
+		return (count != 0);
+
+	} else { /* this shadow starts outside an existing shadow, or within a starting boundary */
+		while (index < DATA.length && DATA[index] < B) {
+			index++;
+			count++;
+		}
+		
+		/* visible when outside an existing shadow, or when overlapping */
+		var result = (A != DATA[index-count] ? true : count > 1);
+		
+		if (blocks) { 
+			if (count % 2) {
+				DATA.splice(index-count, count, A);
+			} else {
+				DATA.splice(index-count, count, A, B);
+			}
+		}
+			
+		return result;
+	}
+}
+
+/***** NEW shadowcasting END */
+
+function b() {
+	var t1 = new Date().getTime();
+	for (var i=0;i<100;i++) { RPG.Game.pc._computeVisibleCoords(); }
+	var t2 = new Date().getTime();
+	for (var i=0;i<100;i++) { RPG.Game.pc._computeVisibleCoords2(); }
+	var t3 = new Date().getTime();
+	console.log(t2-t1, t3-t2);
+}
+
 
 RPG.Beings.PC.prototype.yourTurn = function() {
 	return RPG.ACTION_DEFER;

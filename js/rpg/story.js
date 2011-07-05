@@ -89,9 +89,8 @@ RPG.Story.prototype._charPicked = function(e) {
 	RPG.Game.pc = this._pc;
 	
 	RPG.Stats.send(RPG.Stats.NEW);
-	var map = this._firstMap();
-	var coords = map.getFeatures(RPG.Features.Staircase.Up)[0].getCoords();
-	RPG.Game.startMap(map, coords);
+	var first = this._firstMap();
+	RPG.Game.startMap(first[0], first[1]);
 }
 
 RPG.Story.prototype._createPC = function(race, profession, name) {
@@ -112,10 +111,11 @@ RPG.Story.prototype._death = function() {
 }
 
 /**
- * Generate a map
+ * Generate a map + starting coords
+ * @returns {[RPG.Map, RPG.Misc.Coords]}
  */
 RPG.Story.prototype._firstMap = function() {
-	return null;
+	return [null, null];
 }
 
 /**

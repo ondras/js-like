@@ -723,7 +723,7 @@ RPG.Story.Village.prototype._createPC = function(race, profession, name) {
 
 RPG.Story.Village.prototype._firstMap = function() {
 	this._village = this._villageMap();
-	return this._village;
+	return [this._village, this._village.getFeatures(RPG.Features.Staircase.Up)[0].getCoords()];
 }
 
 RPG.Story.Village.prototype._villageMap = function() {

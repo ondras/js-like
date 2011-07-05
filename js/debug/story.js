@@ -57,7 +57,8 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 	*/
 	
 	/* starting position */
-	map.setFeature(new RPG.Features.Staircase.Down(), new RPG.Misc.Coords(7, 17));
+	var start = new RPG.Misc.Coords(7, 17);
+	map.setFeature(new RPG.Features.Staircase.Down(), start);
 	
 	/* first closed door */
 	map.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(15, 10));
@@ -91,11 +92,11 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 	this._staircases["end"] = up;
 	this._staircaseCallbacks["end"] = this.end;
 
-	return map;
+	return [map, start];
 }
 
 RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
-	var pc = new RPG.Beings.God(race, profession);
+	var pc = new RPG.Beings.PC(race, profession);
 	pc.setName(name);
 	
 	pc.adjustFeat(RPG.FEAT_MAX_MANA, 50);
