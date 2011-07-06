@@ -664,11 +664,11 @@ RPG.UI.Command.Ascend.prototype.exec = function() {
 	var pc = RPG.Game.pc;
 	var map = pc.getMap();
 	var f = map.getFeature(pc.getCoords());
-	if (f && f instanceof RPG.Features.Staircase.Up) {
+	if (f && f instanceof RPG.Features.Connector.Exit) {
 		var result = RPG.Game.pc.ascend();
 		RPG.Game.getEngine().actionResult(result);
 	} else {
-		RPG.UI.buffer.message("You don't see any stairs leading upwards.");
+		RPG.UI.buffer.message("You don't see any exit here.");
 	}
 }
 
@@ -688,11 +688,11 @@ RPG.UI.Command.Descend.prototype.exec = function() {
 	var pc = RPG.Game.pc;
 	var map = pc.getMap();
 	var f = map.getFeature(pc.getCoords());
-	if (f && f instanceof RPG.Features.Staircase.Down) {
+	if (f && f instanceof RPG.Features.Connector.Entry) {
 		var result = RPG.Game.pc.descend();
 		RPG.Game.getEngine().actionResult(result);
 	} else {
-		RPG.UI.buffer.message("You don't see any stairs leading downwards.");
+		RPG.UI.buffer.message("You don't see any entry here.");
 	}
 }
 

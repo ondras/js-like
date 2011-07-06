@@ -75,7 +75,7 @@ RPG.Map.SmallVillage.prototype._buildPeople = function() {
     var doors_smith = new RPG.Features.Door();
     var doors_shop = new RPG.Features.Door();
     var doors_townhall = new RPG.Features.Door();
-    var stairs_up = new RPG.Features.Staircase.Up();
+    var stairs_up = new RPG.Features.StaircaseUp();
     doors_healer.close();
     doors_smith.open();
     doors_shop.open();
@@ -723,12 +723,12 @@ RPG.Story.Village.prototype._createPC = function(race, profession, name) {
 
 RPG.Story.Village.prototype._firstMap = function() {
 	this._village = this._villageMap();
-	return [this._village, this._village.getFeatures(RPG.Features.Staircase.Up)[0].getCoords()];
+	return [this._village, this._village.getFeatures(RPG.Features.Connector.Exit)[0].getCoords()];
 }
 
 RPG.Story.Village.prototype._villageMap = function() {
 	var map = new RPG.Map.SmallVillage();
-	var up = map.getFeatures(RPG.Features.Staircase.Up)[0];
+	var up = map.getFeatures(RPG.Features.Connector.Exit)[0];
 	this._staircases["end"] = up;
 
 	this._boss = new RPG.Beings.Troll().setName("Chleba");
@@ -740,7 +740,7 @@ RPG.Story.Village.prototype._villageMap = function() {
 	
 	new RPG.Quests.SmithTrophy(map.getSmith());
 
-    var staircase = new RPG.Features.Staircase.Down();
+    var staircase = new RPG.Features.StaircaseDown();
     map.setFeature(staircase, new RPG.Misc.Coords(1, 14));
     this._staircases["dungeon"] = staircase;
 
@@ -748,13 +748,13 @@ RPG.Story.Village.prototype._villageMap = function() {
 }
 
 RPG.Story.Village.prototype._showElderStaircase = function() {
-    var staircase = new RPG.Features.Staircase.Down();
+    var staircase = new RPG.Features.StaircaseDown();
     this._village.setFeature(staircase, new RPG.Misc.Coords(32, 14));
     this._staircases["elder"] = staircase;
 }
 
 RPG.Story.Village.prototype._showMazeStaircase = function() {
-    var staircase = new RPG.Features.Staircase.Down();
+    var staircase = new RPG.Features.StaircaseDown();
     this._village.setFeature(staircase, new RPG.Misc.Coords(1, 1));
     this._staircases["maze"] = staircase;
 }
@@ -797,7 +797,7 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 	var roomUp = arr.random();
 	var index = arr.indexOf(roomUp);
 	arr.splice(index, 1);
-	var up = new RPG.Features.Staircase.Up();
+	var up = new RPG.Features.StaircaseUp();
 	map.setFeature(up, roomUp.getCenter());
 	
 	/* bind to previous dungeon */
@@ -810,7 +810,7 @@ RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 		var roomDown = arr.random();
 		var index = arr.indexOf(roomDown);
 		arr.splice(index, 1);
-		var down = new RPG.Features.Staircase.Down();
+		var down = new RPG.Features.StaircaseDown();
 		map.setFeature(down, roomDown.getCenter());
 		this._staircases["elder"] = down;
 	} else {
@@ -855,7 +855,7 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 	var corners = map.getCoordsInTwoCorners();
 
 	/* stairs up */
-	var up = new RPG.Features.Staircase.Up();
+	var up = new RPG.Features.StaircaseUp();
 	map.setFeature(up, corners[0]);
 	
 	/* bind to previous dungeon */
@@ -864,7 +864,7 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 	
 	/* stairs down */
 	if (this._mazeDepth < this._maxMazeDepth) {
-		var down = new RPG.Features.Staircase.Down();
+		var down = new RPG.Features.StaircaseDown();
 		map.setFeature(down, corners[1]);
 		this._staircases["maze"] = down;
 	} else {
@@ -891,7 +891,7 @@ RPG.Story.Village.prototype._nextGenericDungeon = function(staircase) {
 	
 	/* stairs up */
 	var room = map.getRooms().random();
-	var up = new RPG.Features.Staircase.Up();
+	var up = new RPG.Features.StaircaseUp();
 	map.setFeature(up, room.getCenter());
 	
 	/* bind to previous dungeon */

@@ -70,7 +70,7 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 	map.setBeing(new RPG.Beings.Rat(), new RPG.Misc.Coords(50, 3));
 
 	/* ending position */
-	var up = new RPG.Features.Staircase.Up();
+	var up = new RPG.Features.StaircaseUp();
 	map.setFeature(up, new RPG.Misc.Coords(49, 15));
 
 	var T = OZ.Class().extend(RPG.Areas.Tutorial);

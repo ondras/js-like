@@ -225,20 +225,20 @@ RPG.Features.Trap.Flash.prototype.setOff = function(being) {
 }
 
 /**
- * @class Staircase leading up/down
+ * @class Basic level connector
  * @augments RPG.Features.BaseFeature
  */
-RPG.Features.Staircase = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Staircase.visual = { color:"#ccc" }
-RPG.Features.Staircase.prototype.init = function() {
+RPG.Features.Connector = OZ.Class().extend(RPG.Features.BaseFeature);
+
+RPG.Features.Connector.prototype.init = function() {
 	this.parent();
 	this._target = null;
 }
 
-RPG.Features.Staircase.prototype.enter = function(being) {
+RPG.Features.Connector.prototype.enter = function(being) {
 	var target = this.getTarget();
 
-	if (target) { /* switch maps */
+	if (target) { /* move being to other map */
 		var map = target.getMap();
 		var coords = target.getCoords();
 		map.setBeing(being, coords);
@@ -249,34 +249,48 @@ RPG.Features.Staircase.prototype.enter = function(being) {
 }
 
 /**
- * @param {RPG.Features.Staircase} target
+ * @param {RPG.Features.Connector} target
  */
-RPG.Features.Staircase.prototype.setTarget = function(target) {
+RPG.Features.Connector.prototype.setTarget = function(target) {
 	this._target = target;
 	return this;
 }
 
 /**
- * @returns {RPG.Features.Staircase || null}
+ * @returns {RPG.Features.Connector || null}
  */
-RPG.Features.Staircase.prototype.getTarget = function() {
+RPG.Features.Connector.prototype.getTarget = function() {
 	if (!this._target) { RPG.Game.getStory().staircaseCallback(this); }/* ask story to generate some */
 	return this._target;
 }
 
 /**
- * Staircase down
- * @augments RPG.Features.Staircase
+ * @class Connector in "down" direction
+ * @augments RPG.Features.Connector
  */
-RPG.Features.Staircase.Down = OZ.Class().extend(RPG.Features.Staircase);
-RPG.Features.Staircase.Down.visual = { desc:"staircase leading down", image:"staircase-down", ch:">" }
+RPG.Features.Connector.Entry = OZ.Class().extend(RPG.Features.Connector);
+RPG.Features.Connector.Entry.visual = { ch:">" };
+
+/**
+ * @class Connector in "up" direction
+ * @augments RPG.Features.Connector
+ */
+RPG.Features.Connector.Exit = OZ.Class().extend(RPG.Features.Connector);
+RPG.Features.Connector.Exit.visual = { ch:"<" };
+
+/**
+ * Staircase down
+ * @augments RPG.Features.Connector.Entry
+ */
+RPG.Features.StaircaseDown = OZ.Class().extend(RPG.Features.Connector.Entry);
+RPG.Features.StaircaseDown.visual = { desc:"staircase leading down", image:"staircase-down", color:"#ccc" }
 
 /**
  * Staircase up
- * @augments RPG.Features.Staircase
+ * @augments RPG.Features.Connector.Exit
  */
-RPG.Features.Staircase.Up = OZ.Class().extend(RPG.Features.Staircase);
-RPG.Features.Staircase.Up.visual = { desc:"staircase leading up", image:"staircase-up", ch:"<" }
+RPG.Features.StaircaseUp = OZ.Class().extend(RPG.Features.Connector.Exit);
+RPG.Features.StaircaseUp.visual = { desc:"staircase leading up", image:"staircase-up", color:"#ccc" }
 
 /**
  * @class Set of cells with tutorial messages
