@@ -23,7 +23,7 @@ RPG.UI.Command.prototype.cancel = function() {
 }
 
 RPG.UI.Command.prototype.exec = function() {
-	RPG.UI.alert("Not implemented .)");
+	RPG.UI.alert("Not implemented .)", "Debug");
 }
 
 RPG.UI.Command.prototype._click = function(e) {
@@ -665,7 +665,7 @@ RPG.UI.Command.Ascend.prototype.exec = function() {
 	var map = pc.getMap();
 	var f = map.getFeature(pc.getCoords());
 	if (f && f instanceof RPG.Features.Connector.Exit) {
-		var result = RPG.Game.pc.ascend();
+		var result = RPG.Game.pc.enterConnector();
 		RPG.Game.getEngine().actionResult(result);
 	} else {
 		RPG.UI.buffer.message("You don't see any exit here.");
@@ -689,7 +689,7 @@ RPG.UI.Command.Descend.prototype.exec = function() {
 	var map = pc.getMap();
 	var f = map.getFeature(pc.getCoords());
 	if (f && f instanceof RPG.Features.Connector.Entry) {
-		var result = RPG.Game.pc.descend();
+		var result = RPG.Game.pc.enterConnector();
 		RPG.Game.getEngine().actionResult(result);
 	} else {
 		RPG.UI.buffer.message("You don't see any entry here.");
@@ -736,7 +736,7 @@ RPG.UI.Command.WeaponStats.prototype.exec = function() {
 	var hand = pc.getSlot(RPG.SLOT_WEAPON);
 	var hit = hand.getHit();
 	var dmg = hand.getDamage();
-	RPG.UI.alert("Current weapon hit/damage: "+hit.toString()+"/"+dmg.toString());
+	RPG.UI.alert("Current weapon hit/damage: "+hit.toString()+"/"+dmg.toString(), "Game info");
 }
 
 /**
@@ -755,7 +755,7 @@ RPG.UI.Command.KickStats.prototype.exec = function() {
 	var feet = pc.getSlot(RPG.SLOT_FEET);
 	var hit = feet.getHit();
 	var dmg = feet.getDamage();
-	RPG.UI.alert("Current kick hit/damage: "+hit.toString()+"/"+dmg.toString());
+	RPG.UI.alert("Current kick hit/damage: "+hit.toString()+"/"+dmg.toString(), "Game info");
 }
 
 /**
@@ -773,7 +773,7 @@ RPG.UI.Command.KillStats.prototype.init = function() {
 RPG.UI.Command.KillStats.prototype.exec = function() {
 	var pc = RPG.Game.pc;
 	var kills = pc.getKills();
-	RPG.UI.alert("Beings killed so far: "+kills);
+	RPG.UI.alert("Beings killed so far: "+kills, "Game info");
 }
 
 /**
@@ -1216,6 +1216,6 @@ RPG.UI.Command.Debts.prototype.init = function() {
 RPG.UI.Command.Debts.prototype.exec = function() {
 	var debts = RPG.Game.pc.getDebts();
 	var str = "You currently owe " + (debts || "no") + " gold pieces.";
-	RPG.UI.alert(str);
+	RPG.UI.alert(str, "Game info");
 }
 

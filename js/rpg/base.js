@@ -166,9 +166,6 @@ RPG.Professions.BaseProfession.prototype.setup = function(being) {
 
 	var tmp = new RPG.Items.IronRation();
 	being.addItem(tmp);
-	
-	var tmp = new RPG.Items.Torch();
-	being.addItem(tmp);
 }
 
 /**

@@ -123,7 +123,7 @@ RPG.Items.Broom.prototype.init = function() {
  * @augments RPG.Items.Weapon
  */
 RPG.Items.Torch = OZ.Class().extend(RPG.Items.Weapon)
-RPG.Items.Torch.visual = { desc:"torch", descPlural:"torches", image:"torch", color:"#999" };
+RPG.Items.Torch.visual = { desc:"torch", descPlural:"torches", image:"torch", color:"#960" };
 RPG.Items.Torch.prototype.init = function() {
 	this.parent(new RPG.Misc.RandomValue(4, 2), new RPG.Misc.RandomValue(4, 3));
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 1;

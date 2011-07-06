@@ -580,25 +580,11 @@ RPG.Beings.PC.prototype.look = function(coords) {
  * Enter staircase or other level-changer
  * @param {RPG.Features.BaseFeature} feature
  */
-RPG.Beings.PC.prototype.enterLocation = function() {
+RPG.Beings.PC.prototype.enterConnector = function() {
 	var f = this._map.getFeature(this._coords);
+	var s = RPG.Misc.format("You enter %the...", f);
+	RPG.UI.buffer.message(s);
 	return f.enter(this);
-}
-
-/**
- * Enter staircase leading upwards
- */
-RPG.Beings.PC.prototype.ascend = function() {
-	RPG.UI.buffer.message("You climb upwards...");
-	return this.enterLocation();
-}
-
-/**
- * Enter staircase leading downwards
- */
-RPG.Beings.PC.prototype.descend = function() {
-	RPG.UI.buffer.message("You climb downwards...");
-	return this.enterLocation();
 }
 
 /**

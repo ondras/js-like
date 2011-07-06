@@ -323,18 +323,22 @@ RPG.Areas.Tutorial.prototype.entering = function(being) {
 	
 	if (first) {
 		var text = this._messages[id];
-		text += "\n\n";
-		text += "Do you want to continue seeing these tutorial tips?\n\n";
-		var result = RPG.UI.confirm(text);
-		if (result) { /* want to see */
+		text += "<br/><br/>";
+		text += "Do you want to continue seeing these tutorial tips?";
+		
+		var yes = function() { /* want to see */
 			this._visited[id] = 1;
-		} else { /* do not want to see, mark all as visited */
+		}
+		
+		var no = function() { /* do not want to see, mark all as visited */
 			for (var id in this._messages) { this._visited[id] = 1; }
 		}
 		
+		RPG.UI.confirmA(text, "Tutorial", yes.bind(this), no.bind(this));
+		
 	} else {
-		RPG.UI.alert(this._messages[id] + "\n\n");
 		this._visited[id] = 1;
+		RPG.UI.alert(this._messages[id], "Tutorial");
 	}
 }
 

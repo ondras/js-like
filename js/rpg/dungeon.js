@@ -15,6 +15,10 @@ RPG.Cells.BaseCell.prototype.init = function() {
 	this._feature = null;
 }
 
+RPG.Cells.BaseCell.prototype.revive = function() {
+	this.constructor._instance = this;
+}
+
 RPG.Cells.BaseCell.prototype.isFake = function() {
 	return this._fake;
 }

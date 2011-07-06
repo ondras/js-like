@@ -11,15 +11,49 @@ RPG.UI._dialog = null;	/* current dialog */
 RPG.UI._mode = -1;		/* current UI mode */
 RPG.UI._target = null;	/* targetting coords */
 
-RPG.UI.alert = function(text) {
-	alert(text);
-	window.focus();
+RPG.UI.alert = function(text, title) {
+	var div = OZ.DOM.elm("div", {innerHTML:"<p>"+text+"</p>"});
+	
+	var b = new RPG.UI.Button("Okay", function() {
+		b.destroy();
+		RPG.UI.hideDialog();
+	});
+	b.setChar("z");
+	
+	div.appendChild(b.getInput());
+	
+	this.showDialog(div, title);
 }
 
 RPG.UI.confirm = function(text) {
 	var result = confirm(text);
 	window.focus();
 	return result;
+}
+
+RPG.UI.confirmA = function(text, title, yesCallback, noCallback) {
+	var div = OZ.DOM.elm("div", {innerHTML:"<p>"+text+"</p>"});
+	
+	var yes = new RPG.UI.Button("Yes", function() {
+		yes.destroy();
+		no.destroy();
+		RPG.UI.hideDialog();
+		yesCallback();
+	});
+	yes.setChar("y");
+	
+	var no = new RPG.UI.Button("No", function() {
+		yes.destroy();
+		no.destroy();
+		RPG.UI.hideDialog();
+		noCallback();
+	});
+	no.setChar("n");
+
+	div.appendChild(yes.getInput());
+	div.appendChild(no.getInput());
+	
+	this.showDialog(div, title);
 }
 
 RPG.UI.setMode = function(mode, command, data) {
@@ -46,7 +80,7 @@ RPG.UI.setMode = function(mode, command, data) {
 		break;
 		case RPG.UI_WAIT_DIALOG:
 			this._adjustButtons({commands:false, cancel:false, dir:false});
-		break;
+		break;	
 	}
 }
 
@@ -176,8 +210,7 @@ RPG.UI.showDialog = function(data, title) {
 	}
 	OZ.DOM.clear(this._dialog);
 	document.body.appendChild(this._dialog);
-	var h = OZ.DOM.elm("h1");
-	h.innerHTML = title;
+	var h = OZ.DOM.elm("h1", {innerHTML:title});
 	this._dialog.appendChild(h);
 	this._dialog.appendChild(data);
 	this.syncDialog();

@@ -52,7 +52,7 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 	map.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(8, 6));
 
 	/* torch */
-	map.addItem(new RPG.Items.Torch(), new RPG.Misc.Coords(15, 2));
+	map.addItem(new RPG.Items.Torch(), new RPG.Misc.Coords(15, 3));
 
 	/* something */
 	map.addItem(new RPG.Items.Clothes(), new RPG.Misc.Coords(20, 2));
@@ -75,31 +75,31 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 
 	var T = OZ.Class().extend(RPG.Areas.Tutorial);
 	T.prototype._messages = {
-		"7,17":		"Welcome to the dungeon! Your character is represented by the @ sign;\n" +
-					"to display all available commands, press '?'.\n\n"  +
-					"To move around, use arrow keys. You can move in eight directions,\n" + 
-					"but your movement is restricted by the walls (#). The only\n" + 
+		"7,17":		"Welcome to the dungeon! Your character is represented by the @ sign; " +
+					"to display all available commands, press '?'.<br/>"  +
+					"To move around, use arrow keys. You can move in eight directions, " + 
+					"but your movement is restricted by the walls (#). The only " + 
 					"way from this room is a corridor, leading eastward...",
-		"13,17":	"You will encounter all types of different objects and beings in this game.\n" +
-					"When unsure, you can always use the 'Look' command (by pressing 'l'), which\n" +
-					"puts you into an observation mode. In observation mode, the game is paused\n" +
-					"and arrow keys move the cursor around the map. The object under cursor is described\n" +
-					"at the top message window.\n\n" +
-					"To exit the observation mode and continue playing, press 'z'.",
-		"15,13":	"Doors are quite common in underground dungeons. Closed doors are\n" + 
-					"represented by '+', open doors by '/'. To open a closed door, stand next\n" +
-					"to it and press 'o'. Similarly, you can 'c'lose an open door.",
-		"15,6":		"You can pick up any items lying around. To do so, step on the tile with\n" +
+		"13,17":	"You will encounter all types of different objects and beings in this game. " +
+					"When unsure, you can always use the 'Look' command (by pressing 'l'), which " +
+					"puts you into an observation mode. In observation mode, the game is paused " +
+					"and arrow keys move the cursor around the map. The object under cursor is described " +
+					"at the top message window.<br/>" +
+					"To exit the observation mode and continue playing, press 'z'. ",
+		"15,13":	"Doors are quite common in underground dungeons. Closed doors are " + 
+					"represented by '+', open doors by '/'. To open a closed door, stand next " +
+					"to it and press 'o' (or just move towards a closed door). Similarly, you can 'c'lose an open door. ",
+		"15,6":		"You can pick up any items lying around. To do so, step on the tile with " +
 					"an item and press the comma (,).",
-		"16,2":		"The items you pick up are stored in your backpack. Certain items (such as\n" + 
-					"the torch), however, can be equipped on your body. To equip stuff, open\n" + 
-					"your 'i'nventory and press the button next to the body slot you want to change.\n" + 
-					"The torch fits as a weapon (slot 'd').\n\n" + 
+		"15,2":		"The items you pick up are stored in your backpack. Certain items (such as " + 
+					"the torch), however, can be equipped on your body. To equip stuff, open " + 
+					"your 'i'nventory and press the button next to the body slot you want to change. " + 
+					"The torch fits as a weapon (slot 'd').<br/>" + 
 					"When you are finished adjusting your equipment, close the dialog by pressing 'z'.",
-		"31,8":		"There are many beings living in the depths of the dungeon. Not all are\n" + 
-					"initially hostile; the safest way to check their attitude is to 'l'ook at them.\n\n" + 
-					"To attack a monster, just try to move to its position.",
-		"44,15":	"Staircases connect various underground levels. To enter a staircase,\n" + 
+		"31,8":		"There are many beings living in the depths of the dungeon. Not all are " + 
+					"initially hostile; the safest way to check their attitude is to 'l'ook at them.<br/>" + 
+					"To attack a monster, just try to move to its position. ",
+		"44,15":	"Staircases connect various underground levels. To enter a staircase, " + 
 					"press either '<' (to climb up) or '>' (to climb down)."
 	}
 	map.addArea(new T());
