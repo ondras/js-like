@@ -108,23 +108,10 @@ RPG.Serializer.prototype._ctorToIndex = function(cl) {
  * Creates a JSON-compatible variant of an object. Does not perform caching and instance testing.
  */
 RPG.Serializer.prototype._objectToJSON = function(obj, options) {
-/*
-	var index = this._cache.indexOf(obj);
-	if (index == -1) {
-		this._cache.push(obj);
-	} else {
-		console.warn("This non-instance object was already encountered!");
-		console.log(obj);
-	}
-*/
-
 	var result = {};
 
-	var ignore = ["constructor"];
-	
 	for (var p in obj) {
 		if (!obj.hasOwnProperty(p)) { continue; } /* inherited */
-		if (ignore.indexOf(p) != -1) { continue; } /* globally forbidden name */
 		if (options && options.exclude.indexOf(p) != -1) { continue; } /* locally forbidden name */
 
 		var value = obj[p];
@@ -228,6 +215,7 @@ RPG.Parser.prototype._fix = function(what) {
 		}
 	} else {
 		for (var p in what) {
+			if (!what.hasOwnProperty(p)) { continue; }
 			what[p] = this._fixValue(what[p]);
 		}
 	}

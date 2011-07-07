@@ -39,7 +39,6 @@ RPG.UI.Dialog.prototype.show = function(dialog, being) {
 	}
 	
 	this._dialog = dialog;
-	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 	
 	var port = OZ.DOM.win();
 	this._dom.container.style.width = Math.round(port[0]/2) + "px";
@@ -119,6 +118,5 @@ RPG.UI.Dialog.prototype._buildOptions = function(options) {
 RPG.UI.Dialog.prototype._close = function() {
 	for (var i=0;i<this._buttons.length;i++) { this._buttons[i].disable(); }
 	RPG.UI.hideDialog();
-	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 	RPG.Game.getEngine().actionResult(RPG.ACTION_TIME);
 }

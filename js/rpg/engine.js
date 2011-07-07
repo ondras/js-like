@@ -61,6 +61,7 @@ RPG.Engine.prototype._run = function() {
  * Asynchronous action result callback; initiates main loop by unlocking.
  */
 RPG.Engine.prototype.actionResult = function(actionResult) {
+	if (actionResult == RPG.ACTION_DEFER) { return; }
 	this._actionResult = actionResult;
 	this.unlock();
 }

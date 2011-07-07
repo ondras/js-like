@@ -276,7 +276,7 @@ RPG.UI.Itemlist.prototype._done = function() {
 	}
 	this._buttons = [];
 	RPG.UI.hideDialog();
-	this._callback(arr);
+	if (this._callback) { this._callback(arr); }
 }
 
 RPG.UI.Itemlist.prototype._keyPress = function(e) {

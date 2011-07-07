@@ -85,9 +85,7 @@ RPG.UI_LOCKED			= 1;
 /** @constant */
 RPG.UI_WAIT_DIRECTION	= 2;
 /** @constant */
-RPG.UI_WAIT_DIALOG		= 3;
-/** @constant */
-RPG.UI_WAIT_TARGET		= 4;
+RPG.UI_WAIT_TARGET		= 3;
 
 /* AI states */
 

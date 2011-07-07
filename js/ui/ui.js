@@ -12,41 +12,49 @@ RPG.UI._mode = -1;		/* current UI mode */
 RPG.UI._target = null;	/* targetting coords */
 
 RPG.UI.alert = function(text, title) {
+	var engine = RPG.Game.getEngine();
 	var div = OZ.DOM.elm("div", {innerHTML:"<p>"+text+"</p>"});
 	
 	var b = new RPG.UI.Button("Okay", function() {
 		b.destroy();
 		RPG.UI.hideDialog();
+		engine.unlock();
 	});
 	b.setChar("z");
 	
 	div.appendChild(b.getInput());
-	
+
 	this.showDialog(div, title);
+	b.getInput().focus();
+	engine.lock();
 }
 
-RPG.UI.confirm = function(text) {
+RPG.UI.confirmS = function(text) {
 	var result = confirm(text);
 	window.focus();
 	return result;
 }
 
-RPG.UI.confirmA = function(text, title, yesCallback, noCallback) {
+RPG.UI.confirm = function(text, title, yesCallback, noCallback) {
+	var engine = RPG.Game.getEngine();
 	var div = OZ.DOM.elm("div", {innerHTML:"<p>"+text+"</p>"});
 	
-	var yes = new RPG.UI.Button("Yes", function() {
+	var done = function() {
 		yes.destroy();
 		no.destroy();
 		RPG.UI.hideDialog();
-		yesCallback();
+	}
+	var yes = new RPG.UI.Button("Yes", function() {
+		done();
+		if (yesCallback) { yesCallback(); }
+		engine.unlock();
 	});
 	yes.setChar("y");
 	
 	var no = new RPG.UI.Button("No", function() {
-		yes.destroy();
-		no.destroy();
-		RPG.UI.hideDialog();
-		noCallback();
+		done();
+		if (noCallback) { noCallback(); }
+		engine.unlock();
 	});
 	no.setChar("n");
 
@@ -54,6 +62,7 @@ RPG.UI.confirmA = function(text, title, yesCallback, noCallback) {
 	div.appendChild(no.getInput());
 	
 	this.showDialog(div, title);
+	engine.lock();
 }
 
 RPG.UI.setMode = function(mode, command, data) {
@@ -78,9 +87,6 @@ RPG.UI.setMode = function(mode, command, data) {
 			this.buffer.message(data+": select target...");
 			this._adjustButtons({commands:false, cancel:true, dir:true, pending:true});
 		break;
-		case RPG.UI_WAIT_DIALOG:
-			this._adjustButtons({commands:false, cancel:false, dir:false});
-		break;	
 	}
 }
 
@@ -107,9 +113,6 @@ RPG.UI.command = function(command) {
 		command.exec();
 		return;
 	} 
-	
-	/* no commands in dialog mode (bar cancel) */
-	if (this._mode == RPG.UI_WAIT_DIALOG) { return; } 
 	
 	/* non-dir when direction is needed */
 	if (this._mode == RPG.UI_WAIT_DIRECTION && !(command instanceof RPG.UI.Command.Direction)) { return; } 
@@ -201,9 +204,13 @@ RPG.UI.build = function() {
 	}
 	d.appendChild(new RPG.UI.Command.Save().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Load().getButton().getInput());
+	
+	OZ.Event.add(window, "scroll", this.syncDialog.bind(this));
+	OZ.Event.add(window, "resize", this.syncDialog.bind(this));
 }
 
 RPG.UI.showDialog = function(data, title) {
+	this.setMode(RPG.UI_LOCKED);
 	this._dim();
 	if (!this._dialog) {
 		this._dialog = OZ.DOM.elm("div", {"class":"dialog", position:"absolute"});
@@ -217,18 +224,34 @@ RPG.UI.showDialog = function(data, title) {
 }
 
 RPG.UI.syncDialog = function() {
+	var d = this._dimmer;
+	if (!d) { return; }
 	var c = this._dialog;
+
+
+	d.style.width = "0px";
+	d.style.height = "0px";
+	c.style.left = "0px";
+	c.style.top = "0px";
+
+	var port = OZ.DOM.win();
+	var scroll = OZ.DOM.scroll();
+
+	d.style.left = scroll[0]+"px";
+	d.style.top = scroll[1]+"px";
+	d.style.width = port[0]+"px";
+	d.style.height = port[1]+"px";
+	
 	var w = c.offsetWidth;
 	var h = c.offsetHeight;
-	var win = OZ.DOM.win();
-	var scroll = OZ.DOM.scroll();
-	c.style.left = (scroll[0] + Math.round((win[0]-w)/2)) + "px";
-	c.style.top = (scroll[1] + Math.round((win[1]-h)/2)) + "px";
+	c.style.left = (scroll[0] + Math.round((port[0]-w)/2)) + "px";
+	c.style.top = (scroll[1] + Math.round((port[1]-h)/2)) + "px";
 }
 
 RPG.UI.hideDialog = function() {
 	this._dialog.parentNode.removeChild(this._dialog);
 	this._undim();
+	this.setMode(RPG.UI_NORMAL);
 }
 
 /**
@@ -267,21 +290,6 @@ RPG.UI._dim = function() {
 	document.body.appendChild(div);
 	this._dimmer = div;
 	
-	var sync = function() {
-		div.style.width = "0px";
-		div.style.height = "0px";
-		var port = OZ.DOM.win();
-		var scroll = OZ.DOM.scroll();
-		div.style.left = scroll[0]+"px";
-		div.style.top = scroll[1]+"px";
-		div.style.width = port[0]+"px";
-		div.style.height = port[1]+"px";
-	}
-	
-	this._ec = [];
-	this._ec.push(OZ.Event.add(window, "scroll", sync));
-	this._ec.push(OZ.Event.add(window, "resize", sync));
-	sync();
 }
 
 /**
@@ -289,7 +297,6 @@ RPG.UI._dim = function() {
  */ 
 RPG.UI._undim = function() {
 	if (!this._dimmer) { return; }
-	this._ec.forEach(OZ.Event.remove);
 	this._dimmer.parentNode.removeChild(this._dimmer);
 	this._dimmer = null;
 }

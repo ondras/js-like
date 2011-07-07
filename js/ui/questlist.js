@@ -85,5 +85,5 @@ RPG.UI.Questlist.prototype._buildBody = function(quests) {
 RPG.UI.Questlist.prototype._done = function() {
 	this._button.destroy();
 	RPG.UI.hideDialog();
-	this._callback();
+	if (this._callback) { this._callback(); }
 }

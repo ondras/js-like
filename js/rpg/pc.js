@@ -672,10 +672,9 @@ RPG.Beings.PC.prototype.kick = function(coords) {
 		return RPG.ACTION_TIME;
 	}
 	
-	if (being) { /* kick being */
-		if (!being.confirmAttack()) { return RPG.ACTION_NO_TIME;  }
-		this.attackMelee(being, this.getSlot(RPG.SLOT_FEET));
-		return RPG.ACTION_TIME;
+	if (being) { /* kick being - async */
+		var yes = function() { return this.attackMelee(being, this.getSlot(RPG.SLOT_FEET)); }
+		return being.confirmAttack(yes.bind(this));
 	}
 
 	if (this._map.blocks(RPG.BLOCKS_MOVEMENT, coords)) {

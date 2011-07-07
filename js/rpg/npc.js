@@ -65,16 +65,21 @@ RPG.Beings.NPC.prototype.setConfirm = function(confirm) {
 
 
 /**
- * Display a prompt asking for confirmation
- * @returns {bool} Whether we can continue
+ * Display a prompt asking for confirmation to attack
+ * @param {function} callback To be executed when user confirms attack
+ * @returns {int} Action result
  */
-RPG.Beings.NPC.prototype.confirmAttack = function() {
-	if (this._confirm == RPG.CONFIRM_ASK) {
-		var result = RPG.UI.confirm(RPG.Misc.format("Really attack %the?", this));
-		if (!result) { return false; }
+RPG.Beings.NPC.prototype.confirmAttack = function(callback) {
+	if (this._confirm != RPG.CONFIRM_ASK) { return callback(); }
+	
+	var yes = function() {
 		this.setConfirm(RPG.CONFIRM_DONE);
+		var result = callback();
+		RPG.Game.getEngine().actionResult(result);
 	}
-	return true;
+	
+	RPG.UI.confirm(RPG.Misc.format("Really attack %the?", this), "Attention!", yes.bind(this));
+	return RPG.ACTION_DEFER;
 }
 
 

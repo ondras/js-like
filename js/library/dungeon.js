@@ -244,7 +244,7 @@ RPG.Features.Connector.prototype.enter = function(being) {
 		map.setBeing(being, coords);
 		return RPG.ACTION_TIME;
 	} else {
-		return being.wait();
+		return RPG.ACTION_NO_TIME;
 	}
 }
 
@@ -334,7 +334,7 @@ RPG.Areas.Tutorial.prototype.entering = function(being) {
 			for (var id in this._messages) { this._visited[id] = 1; }
 		}
 		
-		RPG.UI.confirmA(text, "Tutorial", yes.bind(this), no.bind(this));
+		RPG.UI.confirm(text, "Tutorial", yes.bind(this), no.bind(this));
 		
 	} else {
 		this._visited[id] = 1;

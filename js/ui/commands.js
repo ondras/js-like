@@ -107,9 +107,11 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	/* being there? */
 	var b = map.getBeing(coords);
 	if (b) {
-		if (!b.confirmAttack()) { return; }
-		var hand = pc.getSlot(RPG.SLOT_WEAPON);
-		var result = RPG.Game.pc.attackMelee(b, hand);
+		var yes = function() { 
+			var hand = pc.getSlot(RPG.SLOT_WEAPON);
+			return pc.attackMelee(b, hand);
+		}
+		var result = b.confirmAttack(yes); /* async */
 		RPG.Game.getEngine().actionResult(result);
 		return;
 	} 
@@ -117,14 +119,14 @@ RPG.UI.Command.Direction.prototype.exec = function() {
 	/* closed door there? */
 	var f = map.getFeature(coords);
 	if (f && f instanceof RPG.Features.Door && f.isClosed()) {
-		var result = RPG.Game.pc.open(f);
+		var result = pc.open(f);
 		RPG.Game.getEngine().actionResult(result);
 		return;
 	}
 	
 	/* can we move there? */
 	if (!map.blocks(RPG.BLOCKS_MOVEMENT, coords)) {
-		var result = RPG.Game.pc.move(coords);
+		var result = pc.move(coords);
 		RPG.Game.getEngine().actionResult(result);
 		return;
 	}	
@@ -406,11 +408,9 @@ RPG.UI.Command.Pick.prototype.exec = function() {
 		return;
 	}
 	
-	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 	new RPG.UI.Itemlist(items, "Select items to be picked up", -1, this.bind(this._done));
 }
 RPG.UI.Command.Pick.prototype._done = function(items) {
-	RPG.UI.setMode(RPG.UI_NORMAL);
 	var result = RPG.Game.pc.pick(items);
 	RPG.Game.getEngine().actionResult(result);
 }
@@ -428,14 +428,12 @@ RPG.UI.Command.Drop.prototype.exec = function() {
 	var pc = RPG.Game.pc;
 	var items = pc.getItems();
 	if (items.length) {
-		RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 		new RPG.UI.Itemlist(items, "Select items to be dropped on the ground", -1, this.bind(this._done));
 	} else {
 		RPG.UI.buffer.message("You don't own anything!");
 	}
 }
 RPG.UI.Command.Drop.prototype._done = function(items) {
-	RPG.UI.setMode(RPG.UI_NORMAL);
 	var result = RPG.Game.pc.drop(items);
 	RPG.Game.getEngine().actionResult(result);
 }
@@ -450,12 +448,10 @@ RPG.UI.Command.Inventory.prototype.init = function() {
 	this._button.setChar("i");
 }
 RPG.UI.Command.Inventory.prototype.exec = function() {
-	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 	new RPG.UI.Slots(RPG.Game.pc, this.bind(this._done));
 }
 
 RPG.UI.Command.Inventory.prototype._done = function(changed) {
-	RPG.UI.setMode(RPG.UI_NORMAL);
 	if (changed) { 
 		var result = RPG.Game.pc.equipDone(); 
 		RPG.Game.getEngine().actionResult(result);
@@ -835,7 +831,6 @@ RPG.UI.Command.Consume.prototype.exec = function(itemCtor, listTitle, errorStrin
 		this._container = pc;
 	}
 	
-	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 	new RPG.UI.Itemlist(all, title, 1, this.bind(this._done));
 }
 RPG.UI.Command.Consume.prototype._filter = function(items, itemCtor) {
@@ -847,7 +842,6 @@ RPG.UI.Command.Consume.prototype._filter = function(items, itemCtor) {
 	return arr;
 }
 RPG.UI.Command.Consume.prototype._done = function(items) {
-	RPG.UI.setMode(RPG.UI_NORMAL);
 	if (!items.length) { return; }
 	
 	var item = items[0][0];
@@ -937,7 +931,6 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 	if (!this._spell) { /* list of spells */
 		var spells = RPG.Game.pc.getSpells();
 		if (spells.length) {
-			RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 			new RPG.UI.Spelllist(spells, "Select a spell to cast", this.bind(this._done));
 		} else {
 			RPG.UI.buffer.message("You don't know any spells.");
@@ -980,10 +973,7 @@ RPG.UI.Command.Cast.prototype.cancel = function() {
  * Spell selected
  */
 RPG.UI.Command.Cast.prototype._done = function(spells) {
-	if (!spells.length) {
-		RPG.UI.setMode(RPG.UI_NORMAL);
-		return;
-	}
+	if (!spells.length) { return; }
 	
 	var spell = spells[0][0];
 	spell = new spell(RPG.Game.pc);
@@ -991,7 +981,6 @@ RPG.UI.Command.Cast.prototype._done = function(spells) {
 	
 	if (RPG.Game.pc.getStat(RPG.STAT_MANA) < cost) {
 		RPG.UI.buffer.message("Not enough mana.");
-		RPG.UI.setMode(RPG.UI_NORMAL);
 		return;
 	}
 	
@@ -1079,12 +1068,10 @@ RPG.UI.Command.Read.prototype.exec = function() {
 		return;
 	}
 
-	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
 	new RPG.UI.Itemlist(all, "Select item to read", 1, this.bind(this._done));
 }
 
 RPG.UI.Command.Read.prototype._done = function(items) {
-	RPG.UI.setMode(RPG.UI_NORMAL);
 	if (!items.length) { return; }
 	
 	var item = items[0][0];
@@ -1102,12 +1089,7 @@ RPG.UI.Command.Quests.prototype.init = function() {
 	this._button.setChar("q");
 }
 RPG.UI.Command.Quests.prototype.exec = function() {
-	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
-	new RPG.UI.Questlist(RPG.Game.pc.getQuests(), this.bind(this._done));
-}
-
-RPG.UI.Command.Quests.prototype._done = function() {
-	RPG.UI.setMode(RPG.UI_NORMAL);
+	new RPG.UI.Questlist(RPG.Game.pc.getQuests());
 }
 
 /**
@@ -1174,12 +1156,7 @@ RPG.UI.Command.Save.prototype.init = function() {
 }
 
 RPG.UI.Command.Save.prototype.exec = function() {
-	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
-	RPG.UI.saveload.show(RPG.SAVELOAD_SAVE, this._done.bind(this));
-}
-
-RPG.UI.Command.Save.prototype._done = function() {
-	RPG.UI.setMode(RPG.UI_NORMAL);
+	RPG.UI.saveload.show(RPG.SAVELOAD_SAVE);
 }
 
 /**
@@ -1194,12 +1171,7 @@ RPG.UI.Command.Load.prototype.init = function() {
 }
 
 RPG.UI.Command.Load.prototype.exec = function() {
-	RPG.UI.setMode(RPG.UI_WAIT_DIALOG);
-	RPG.UI.saveload.show(RPG.SAVELOAD_LOAD, this._done.bind(this));
-}
-
-RPG.UI.Command.Load.prototype._done = function() {
-	RPG.UI.setMode(RPG.UI_NORMAL);
+	RPG.UI.saveload.show(RPG.SAVELOAD_LOAD);
 }
 
 /**

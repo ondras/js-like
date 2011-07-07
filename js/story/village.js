@@ -708,8 +708,7 @@ RPG.Story.Village.prototype._addCallbacks = function() {
 }
 
 RPG.Story.Village.prototype._end = function(staircase) {
-	if (!RPG.UI.confirm("Do you want to leave the village (this will end the game)?")) { return; }
-	RPG.Game.end();
+	RPG.UI.confirm("Do you want to leave the village (this will end the game)?", "End game", function() { RPG.Game.end(); });
 }
 
 RPG.Story.Village.prototype._createPC = function(race, profession, name) {

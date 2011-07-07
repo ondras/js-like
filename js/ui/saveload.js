@@ -12,7 +12,6 @@ RPG.UI.SaveLoad.prototype.init = function() {
 	this._prefix = "js-like-";
 	this._savedNames = {};
 	this._titles = {};
-	this._callback = null;
 	this._buttons = [];
 	this._mode = null;
 
@@ -62,9 +61,8 @@ RPG.UI.SaveLoad.prototype.init = function() {
 	for (var i=0;i<this._buttons.length;i++) { this._buttons[i].disable(); }
 }
 
-RPG.UI.SaveLoad.prototype.show = function(mode, callback) {
+RPG.UI.SaveLoad.prototype.show = function(mode) {
 	this._mode = mode;
-	this._callback = callback;
 	for (var i=0;i<this._buttons.length;i++) { this._buttons[i].enable(); }
 	
 	this._dom.ta.readOnly = (mode == RPG.SAVELOAD_SAVE);
@@ -236,7 +234,7 @@ RPG.UI.SaveLoad.prototype._dataAvailable = function(data) {
 			while (!key) {
 				key = this._prefix + name;
 				if (localStorage.getItem(key)) {
-					if (!RPG.UI.confirm("This name already exists, overwrite?")) { key = "";  }
+					if (!RPG.UI.confirmS("This name already exists, overwrite?")) { key = "";  }
 				}
 			}
 			try {
@@ -347,7 +345,6 @@ RPG.UI.SaveLoad.prototype._change = function(e) {
 RPG.UI.SaveLoad.prototype._close = function() {
 	for (var i=0;i<this._buttons.length;i++) { this._buttons[i].disable(); }
 	RPG.UI.hideDialog();
-	this._callback();
 }
 
 RPG.UI.saveload = new RPG.UI.SaveLoad();
