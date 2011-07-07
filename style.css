@@ -27,7 +27,7 @@ body {
 	font-family: monospace;
 }
 
-#map .ascii {
+#map .ascii, #map .tile div {
 	background-color: black;
 }
 
@@ -35,7 +35,12 @@ body {
 	text-decoration: underline;
 }
 
-#map .map .focus {
+#map .tile div {
+	display: inline-block;
+	position: relative;
+}
+
+#map .tile .focus {
 	position: absolute;
 	width: 32px;
 	height: 1px;

@@ -101,88 +101,86 @@ RPG.UI.BaseMap.prototype.removeProjectiles = function() {
  * @augments RPG.UI.BaseMap
  */
 RPG.UI.ImageMap = OZ.Class().extend(RPG.UI.BaseMap);
-RPG.UI.ImageMap.prototype.init = function(parent, options) {
-	this.parent(parent, RPG.UI.ImageCell);
-	OZ.DOM.addClass(this._dom.container, "map");
-	this.options = {
-		tileSize: new RPG.Misc.Coords(32, 32)
-	}
-	for (var p in options) { this.options[p] = options[p]; }
-	this._dom.container.style.position = "relative";
+
+RPG.UI.ImageMap.prototype.blank = OZ.DOM.elm("img", {src:"img/empty.gif", position:"absolute", left:"0px", top:"0px"});
+
+RPG.UI.ImageMap.prototype.init = function(container) {
+	this.parent(container);
+
+	this._dom.container = OZ.DOM.elm("div", {"class":"tile", position:"relative", overflow:"hidden"});
+	this._dom.content = OZ.DOM.elm("div");
 	this._dom.focus = OZ.DOM.elm("div", {className:"focus"});
-}
 
-RPG.UI.ImageMap.prototype._resize = function() {
-	this._dom.container.style.width = (this.options.tileSize.x * this._size.x) + "px";
-	this._dom.container.style.height = (this.options.tileSize.y * this._size.y) + "px";
-}
-
-/**
- * @class Image cell
- * @augments RPG.UI.BaseCell
- */
-RPG.UI.ImageCell = OZ.Class();
-RPG.UI.ImageCell.prototype.init = function(owner, coords) {
-	this.parent(owner);
-
-	this._dom.focus = owner._dom.focus;
-	this._topLayer = null;
-	
-	var ts = owner.options.tileSize;
-	var container = owner._dom.container;
-	var x = coords.x * ts.x;
-	var y = coords.y * ts.y;
-	this._dom.container = OZ.DOM.elm("div", {position:"absolute", left:x+"px", top:y+"px"});
-	this._dom.nodes = [];
-	
-	for (var i=0;i<2;i++) {
-		var node = OZ.DOM.elm("img", {position:"absolute", left:"0px", top:"0px", src:"img/empty.gif"});
-		this._dom.nodes.push(node);
-		this._dom.container.appendChild(node);
-	}
+	this._nodes = [];
+	this._tileSize = new RPG.Misc.Coords(32, 32);
 	container.appendChild(this._dom.container);
+	this._dom.container.appendChild(this._dom.content);
 }
 
-/**
- * @see RPG.UI.BaseCell#update
- */
-RPG.UI.ImageCell.prototype.update = function(visuals, memorized) {
-	this._dom.container.style.opacity = (memorized ? 0.5 : 1);
-
-	for (var i=0;i<this._dom.nodes.length;i++) {
-		var what = (visuals.length > i ? visuals[i] : null);
-		this._updateImage(this._dom.nodes[i], what);
-		if (i == 1) { this._topLayer = what; }
-	}
-}
-
-RPG.UI.ImageCell.prototype.addFocus = function() {
-	this._dom.container.appendChild(this._dom.focus);
-}
-
-RPG.UI.ImageCell.prototype.addProjectile = function(visual) {
-	this._updateImage(this._dom.nodes[1], visual);
-}
-
-RPG.UI.ImageCell.prototype.removeProjectile = function() {
-	this._updateImage(this._dom.nodes[1], this._topLayer);
-}
-
-RPG.UI.ImageCell.prototype._updateImage = function(node, what) {
-	if (!what) {
-		node.style.visibility = "hidden";
-		return;
+RPG.UI.ImageMap.prototype.resize = function(size) {
+	OZ.DOM.clear(this._dom.content);
+	this._nodes = [];
+	
+	/* fill with divs */
+	var count = size.x * size.y;
+	for (var i=0;i<count;i++) {
+		var node = OZ.DOM.elm("div", {width:this._tileSize.x+"px", height:this._tileSize.y+"px"});
+		this._nodes.push(node);
+		this._dom.content.appendChild(node);
 	}
 	
-	node.style.visibility = "visible";
-	var url = "img/" + what.image + ".png";
-	var text = what.desc;
+	this.parent(size);
+}
+
+RPG.UI.ImageMap.prototype.syncSize = function() {
+	var avail = this._getAvailableSize();
+	var size = [this._tileSize.x * this._size.x, this._tileSize.y * this._size.y];
+	this._dom.content.style.width = size[0] + "px";
+	this._dom.container.style.height = avail[1] + "px";
 	
-	if (node.src.indexOf(url) == -1) { 
-		node.src = url; 
+	/* sync position in order to maintain focus centered */
+	
+	
+	var props = ["left", "top"];
+	for (var i=0;i<props.length;i++) {
+		var prop = props[i];
+		
+		if (size[i] <= avail[i]) { /* enough to fit, center */
+			this._dom.content.style[prop] = Math.round((avail[i]-size[i])/2) + "px";
+		}
+		
+		
 	}
-	node.alt = text;
-	node.title = text;
+}
+
+RPG.UI.ImageMap.prototype._coordsToIndex = function(coords) {
+	return coords.y * this._size.x + coords.x;
+}
+
+RPG.UI.ImageMap.prototype.drawAtCoords = function(coords, visuals, memorized) {
+	var index = this._coordsToIndex(coords);
+	var node = this._nodes[index];
+	node.style.opacity = (memorized ? 0.5 : 1);
+
+	var children = Math.min(2, visuals.length);
+	while (node.childNodes.length > children) { node.removeChild(node.lastChild); }
+	while (node.childNodes.length < children) { node.appendChild(this.blank.cloneNode(false)); }
+	
+	for (var i=0;i<children;i++) {
+		var visual = visuals[i];
+		var url = "img/" + visual.image + ".png";
+		var img = node.childNodes[i];
+		if (img.src.indexOf(url) == -1) { img.src = url; }
+		img.title = visual.desc;
+	}
+
+}
+
+RPG.UI.ImageMap.prototype.setFocus = function(coords) {
+	this.parent(coords);
+	var index = this._coordsToIndex(coords);
+	var node = this._nodes[index];
+	node.appendChild(this._dom.focus);
 }
 
 /**
@@ -200,13 +198,13 @@ RPG.UI.ASCIIMap.prototype.entities = {
 RPG.UI.ASCIIMap.prototype.init = function(container) {
 	this.parent(container);
 	this._dom.container = OZ.DOM.elm("div", {"class":"ascii", position:"relative"});
-	this._spans = [];
+	this._nodes = [];
 	container.appendChild(this._dom.container);
 }
 
 RPG.UI.ASCIIMap.prototype.resize = function(size) {
 	OZ.DOM.clear(this._dom.container);
-	this._spans = [];
+	this._nodes = [];
 	
 	/* fill with spans */
 	var count = size.x * size.y;
@@ -214,7 +212,7 @@ RPG.UI.ASCIIMap.prototype.resize = function(size) {
 		if (i && !(i % size.x)) { this._dom.container.appendChild(OZ.DOM.elm("br")); }
 
 		var span = OZ.DOM.elm("span", {innerHTML:"&nbsp;", color:"white"});
-		this._spans.push(span);
+		this._nodes.push(span);
 		this._dom.container.appendChild(span);
 	}
 	
@@ -226,6 +224,7 @@ RPG.UI.ASCIIMap.prototype.syncSize = function() {
 	var avail = this._getAvailableSize();
 	var charSize = this._getAvailableCharSize();
 	this._dom.container.style.fontSize = charSize[0] + "px";
+	this._dom.container.style.lineHeight = charSize[2] + "px";
 	var w = charSize[1] * this._size.x;
 	this._dom.container.style.width = w + "px";
 
@@ -235,7 +234,7 @@ RPG.UI.ASCIIMap.prototype.syncSize = function() {
 
 RPG.UI.ASCIIMap.prototype.drawAtCoords = function(coords, visuals, memorized) {
 	var index = this._coordsToIndex(coords);
-	var span = this._spans[index];
+	var span = this._nodes[index];
 
 	span.style.opacity = (memorized ? 0.5 : 1);
 	
@@ -259,19 +258,19 @@ RPG.UI.ASCIIMap.prototype.drawAtCoords = function(coords, visuals, memorized) {
 RPG.UI.ASCIIMap.prototype.setFocus = function(coords) {
 	if (this._focus) { 
 		var index = this._coordsToIndex(this._focus);
-		OZ.DOM.removeClass(this._spans[index], "focus");
+		OZ.DOM.removeClass(this._nodes[index], "focus");
 	}
 	
 	this.parent(coords);
 
 	var index = this._coordsToIndex(this._focus);
-	OZ.DOM.addClass(this._spans[index], "focus");
+	OZ.DOM.addClass(this._nodes[index], "focus");
 }
 
 
 RPG.UI.ASCIIMap.prototype.addProjectile = function(coords, projectile) {
 	var index = this._coordsToIndex(coords);
-	var span = this._spans[index];
+	var span = this._nodes[index];
 
 	var id = coords.x+","+coords.y;
 	
@@ -288,7 +287,7 @@ RPG.UI.ASCIIMap.prototype.removeProjectiles = function() {
 	for (var id in this._projectiles) {
 		var coords = RPG.Misc.Coords.fromString(id);
 		var index = this._coordsToIndex(coords);
-		var span = this._spans[index];
+		var span = this._nodes[index];
 		
 		var vis = this._projectiles[id];
 		span.innerHTML = vis[0];
@@ -296,7 +295,6 @@ RPG.UI.ASCIIMap.prototype.removeProjectiles = function() {
 	}
 	this._projectiles = {};
 }
-
 
 RPG.UI.ASCIIMap.prototype._coordsToIndex = function(coords) {
 	return coords.y * this._size.x + coords.x;
