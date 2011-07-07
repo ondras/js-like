@@ -36,13 +36,10 @@ RPG.UI.Mapswitch.prototype._use = function(target) {
 	var ctor = this._map[target.innerHTML];
 
 	/* clear old */
-	var c = OZ.$("map");
-	OZ.DOM.clear(c);
+	if (RPG.UI.map) { RPG.UI.map.destroy(); }
 	
 	/* create new */
-	var div = OZ.DOM.elm("div");
-	c.appendChild(div);
-	RPG.UI.map = new ctor(div);
+	RPG.UI.map = new ctor(OZ.$("map"));
 
 	/* adjust */
 	if (RPG.Game.pc) { RPG.Game.pc.updateFromMemory(); }

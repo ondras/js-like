@@ -191,6 +191,7 @@ RPG.Beings.PC.prototype.updateFromMemory = function() {
 		RPG.UI.map.drawAtCoords(coords, memory[hash], true);
 	}
 	this.updateVisibility();
+	RPG.UI.refocus();
 }
 
 /**
