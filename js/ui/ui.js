@@ -205,9 +205,6 @@ RPG.UI.build = function() {
 	d.appendChild(new RPG.UI.Command.Save().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Load().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.ToggleButtons().getButton().getInput());
-	
-	OZ.Event.add(window, "scroll", this.syncDialog.bind(this));
-	OZ.Event.add(window, "resize", this.syncDialog.bind(this));
 }
 
 RPG.UI.showDialog = function(data, title) {
@@ -302,3 +299,5 @@ RPG.UI._undim = function() {
 	this._dimmer = null;
 }
 
+OZ.Event.add(window, "scroll", RPG.UI.syncDialog.bind(RPG.UI));
+OZ.Event.add(window, "resize", RPG.UI.syncDialog.bind(RPG.UI));

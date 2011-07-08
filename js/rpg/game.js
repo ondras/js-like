@@ -3,10 +3,11 @@
  */
 RPG.Game = {
 	pc: null,
+	version: "0.2dev",
 	_story: null,
 	_engine: null,
 	_events: [],
-	_version: 10
+	_saveFormat: 11
 }
 
 RPG.Game.init = function() {
@@ -65,7 +66,7 @@ RPG.Game.end = function() {
 RPG.Game.save = function(readyStateChange) {
 	var stack = [];
 	var data = "";
-	var header = [this._version, 0];
+	var header = [this._saveFormat, 0];
 	
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "JSONifying...");
@@ -99,7 +100,7 @@ RPG.Game.load = function(data, readyStateChange) {
 	stack.push(function() {
 		readyStateChange(RPG.SAVELOAD_PROCESS, "Uncompressing...");
 		var header = [data.shift(), data.shift()];
-		if (header[0] != this._version) { throw new Error("Incompatible save data"); }
+		if (header[0] != this._saveFormat) { throw new Error("Incompatible save data"); }
 		data = Compress.iLZW(data);
 	});
 	

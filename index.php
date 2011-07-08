@@ -4,7 +4,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="stylesheet" type="text/css" href="style.css" />
 		
-		<?php $ver = 2; ?>
+		<?php $ver = 3; ?>
 
 		<script type="text/javascript" src="js/oz.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/oop.oz.js?<?php echo $ver; ?>"></script>
