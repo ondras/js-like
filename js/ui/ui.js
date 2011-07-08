@@ -204,6 +204,7 @@ RPG.UI.build = function() {
 	}
 	d.appendChild(new RPG.UI.Command.Save().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Load().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.ToggleButtons().getButton().getInput());
 	
 	OZ.Event.add(window, "scroll", this.syncDialog.bind(this));
 	OZ.Event.add(window, "resize", this.syncDialog.bind(this));

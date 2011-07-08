@@ -937,8 +937,8 @@ RPG.UI.Command.Cast.prototype.exec = function(coords) {
 		}
 		
 	} else { /* we have spell and optionally a direction/target */
-		RPG.UI.refocus();
 		RPG.UI.map.removeProjectiles();
+		RPG.UI.refocus();
 
 		var type = this._spell.getType();
 		
@@ -1189,5 +1189,24 @@ RPG.UI.Command.Debts.prototype.exec = function() {
 	var debts = RPG.Game.pc.getDebts();
 	var str = "You currently owe " + (debts || "no") + " gold pieces.";
 	RPG.UI.alert(str, "Game info");
+}
+
+/**
+ * @class Toggle buttons
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.ToggleButtons = OZ.Class().extend(RPG.UI.Command);
+
+RPG.UI.Command.ToggleButtons.prototype.init = function() {
+	this.parent("Toggle command buttons");
+	this._button.setChar("?");
+	this._state = true;
+}
+
+RPG.UI.Command.ToggleButtons.prototype.exec = function() {
+	this._state = !this._state;
+	OZ.$("keypad").style.display = (this._state ? "" : "none");
+	OZ.$("commands").style.display = (this._state ? "" : "none");
+	RPG.UI.map.syncSize();
 }
 

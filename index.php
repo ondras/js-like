@@ -68,7 +68,6 @@
 			<ul id="mapswitch"></ul>
 		</div>
 		<div id="map"></div>
-		<div style="clear:both"></div>
 		
 		<div id="keypad"></div>
 		<div id="commands"></div>

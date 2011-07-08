@@ -137,24 +137,7 @@ RPG.UI.ImageMap.prototype.syncSize = function() {
 	var size = [this._tileSize.x * this._size.x, this._tileSize.y * this._size.y];
 	this._dom.content.style.width = size[0] + "px";
 	this._dom.container.style.height = avail[1] + "px";
-	
-	/* sync position in order to maintain focus centered */
-	
-	
-	var props = ["left", "top"];
-	for (var i=0;i<props.length;i++) {
-		var prop = props[i];
-		
-		if (size[i] <= avail[i]) { /* enough to fit, center */
-			this._dom.content.style[prop] = Math.round((avail[i]-size[i])/2) + "px";
-		}
-		
-		
-	}
-}
-
-RPG.UI.ImageMap.prototype._coordsToIndex = function(coords) {
-	return coords.y * this._size.x + coords.x;
+	this._center();
 }
 
 RPG.UI.ImageMap.prototype.drawAtCoords = function(coords, visuals, memorized) {
@@ -181,6 +164,83 @@ RPG.UI.ImageMap.prototype.setFocus = function(coords) {
 	var index = this._coordsToIndex(coords);
 	var node = this._nodes[index];
 	node.appendChild(this._dom.focus);
+	this._center();
+}
+
+RPG.UI.ImageMap.prototype.addProjectile = function(coords, projectile) {
+	var index = this._coordsToIndex(coords);
+	var node = this._nodes[index];
+
+	var id = coords.x+","+coords.y;
+	
+	var newImage = this.blank.cloneNode(false);
+	var oldImage = node.lastChild; /* false: empty; true: non-empty or focus */
+	if (oldImage == this._dom.focus) { oldImage = oldImage.previousSibling; } /* false: empty; true: non-empty */
+	if (!oldImage.previousSibling) { oldImage = false; } /* true only when two images are present */
+
+	if (oldImage) { 
+		node.replaceChild(newImage, oldImage);
+	} else {
+		node.appendChild(newImage); 
+	}
+	
+	if (!(id in this._projectiles)) { 
+		this._projectiles[id] = [oldImage, newImage];
+	}
+	
+	var visual = RPG.Visual.getVisual(projectile);
+	var url = "img/" + visual.image + ".png";
+	newImage.src = url;
+	newImage.title = visual.desc;
+}
+
+RPG.UI.ImageMap.prototype.removeProjectiles = function() {
+	for (var id in this._projectiles) {
+		var coords = RPG.Misc.Coords.fromString(id);
+		var index = this._coordsToIndex(coords);
+		var node = this._nodes[index];
+		var oldImage = this._projectiles[id][0];
+		var newImage = this._projectiles[id][1];
+		
+		if (oldImage) {
+			node.replaceChild(oldImage, newImage);
+		} else {
+			node.removeChild(newImage);
+		}
+	}
+	this._projectiles = {};
+}
+
+/**
+ * Sync position in order to maintain focus centered
+ */
+RPG.UI.ImageMap.prototype._center = function() {
+	if (!this._focus) { return; }
+	var avail = this._getAvailableSize();
+	var size = [this._tileSize.x * this._size.x, this._tileSize.y * this._size.y];
+
+	var props = ["left", "top"];
+	var coordsProps = ["x", "y"];
+	for (var i=0;i<props.length;i++) {
+		var prop = props[i];
+		
+		if (size[i] <= avail[i]) { /* enough to fit, center */
+			this._dom.content.style[prop] = Math.round((avail[i]-size[i])/2) + "px";
+		} else {
+			var coordsProp = coordsProps[i];
+			var focusPosition = this._tileSize[coordsProp] * (this._focus[coordsProp] + 0.5);
+			var val = avail[i]/2 - focusPosition;
+			val = Math.min(val, 0);
+			val = Math.max(val, avail[i]-size[i]);
+			this._dom.content.style[prop] = Math.round(val) + "px";
+		}
+		
+		
+	}
+}
+
+RPG.UI.ImageMap.prototype._coordsToIndex = function(coords) {
+	return coords.y * this._size.x + coords.x;
 }
 
 /**
@@ -226,10 +286,13 @@ RPG.UI.ASCIIMap.prototype.syncSize = function() {
 	this._dom.container.style.fontSize = charSize[0] + "px";
 	this._dom.container.style.lineHeight = charSize[2] + "px";
 	var w = charSize[1] * this._size.x;
+	var h = charSize[2] * this._size.y;
 	this._dom.container.style.width = w + "px";
 
 	/* adjust container position */
-	this._dom.container.style.left = ((avail[0]-w)/2) + "px";
+	this._dom.container.style.marginLeft = Math.round((avail[0]-w)/2) + "px";
+	this._dom.container.style.marginTop = Math.floor((avail[1]-h)/2) + "px";
+	this._dom.container.style.marginBottom = Math.ceil((avail[1]-h)/2) + "px";
 }
 
 RPG.UI.ASCIIMap.prototype.drawAtCoords = function(coords, visuals, memorized) {
@@ -266,7 +329,6 @@ RPG.UI.ASCIIMap.prototype.setFocus = function(coords) {
 	var index = this._coordsToIndex(this._focus);
 	OZ.DOM.addClass(this._nodes[index], "focus");
 }
-
 
 RPG.UI.ASCIIMap.prototype.addProjectile = function(coords, projectile) {
 	var index = this._coordsToIndex(coords);
@@ -317,7 +379,7 @@ RPG.UI.CanvasMap.prototype.init = function(container) {
 	this._cache = {};
 	
 	/* create canvas + context */
-	this._dom.container = OZ.DOM.elm("canvas", {position:"relative"});
+	this._dom.container = OZ.DOM.elm("canvas");
 	container.appendChild(this._dom.container);
 	this._ctx = this._dom.container.getContext("2d");
 }
@@ -346,7 +408,9 @@ RPG.UI.CanvasMap.prototype.syncSize = function() {
 	this._ctx.lineCap = "butt";
 	
 	/* adjust canvas position */
-	this._dom.container.style.left = ((avail[0]-w)/2) + "px";
+	this._dom.container.style.marginLeft = Math.round((avail[0]-w)/2) + "px";
+	this._dom.container.style.marginTop = Math.floor((avail[1]-h)/2) + "px";
+	this._dom.container.style.marginBottom = Math.ceil((avail[1]-h)/2) + "px";
 
 	/* draw from cache */
 	for (var id in this._cache) { this._drawCache(RPG.Misc.Coords.fromString(id)); }
