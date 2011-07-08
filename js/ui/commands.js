@@ -643,6 +643,7 @@ RPG.UI.Command.Backlog.prototype.exec = function() {
 		RPG.UI.buffer.showBacklog();
 		this._visible = true;
 	}
+	RPG.UI.map.syncSize();
 }
 
 /**
@@ -1201,12 +1202,25 @@ RPG.UI.Command.ToggleButtons.prototype.init = function() {
 	this.parent("Toggle command buttons");
 	this._button.setChar("?");
 	this._state = true;
+	this.exec();
 }
 
 RPG.UI.Command.ToggleButtons.prototype.exec = function() {
 	this._state = !this._state;
 	OZ.$("keypad").style.display = (this._state ? "" : "none");
 	OZ.$("commands").style.display = (this._state ? "" : "none");
-	RPG.UI.map.syncSize();
+	if (RPG.UI.map) { RPG.UI.map.syncSize(); }
 }
 
+/**
+ * @class Attributes
+ * @augments RPG.UI.Command
+ */
+RPG.UI.Command.Attributes = OZ.Class().extend(RPG.UI.Command);
+RPG.UI.Command.Attributes.prototype.init = function() {
+	this.parent("Attributes");
+	this._button.setChar("x");
+}
+RPG.UI.Command.Attributes.prototype.exec = function() {
+	new RPG.UI.Attributes(RPG.Game.pc);
+}

@@ -57,6 +57,7 @@
 		<script type="text/javascript" src="js/ui/questlist.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/ui/sound.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/ui/status.js?<?php echo $ver; ?>"></script>
+		<script type="text/javascript" src="js/ui/attributes.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/ui/slots.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/ui/saveload.js?<?php echo $ver; ?>"></script>
 
@@ -64,15 +65,14 @@
 	</head>
 
 	<body>
-		<div id="buffer">
-			<ul id="mapswitch"></ul>
-		</div>
+		<div id="buffer"></div>
 		<div id="map"></div>
 		
 		<div id="keypad"></div>
 		<div id="commands"></div>
 		
-		<div id="status"></div>
+		<ul id="misc"></ul>
+		<ul id="status"></ul>
 		
 		<script type="text/javascript" src="js/debug/graph.js"></script>
 		<script type="text/javascript" src="js/debug/story.js"></script>

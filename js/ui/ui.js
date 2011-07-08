@@ -149,9 +149,6 @@ RPG.UI.build = function() {
 	new RPG.UI.Command.Table(keypad);
 	keypad.appendChild(new RPG.UI.Command.Cancel().getButton().getInput());
 	
-	var mapswitch = OZ.$("mapswitch");
-	new RPG.UI.Mapswitch(mapswitch);
-	
 	var status = OZ.$("status");
 	this.status = new RPG.UI.Status(status);
 	
@@ -196,6 +193,7 @@ RPG.UI.build = function() {
 	d.appendChild(new RPG.UI.Command.KillStats().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Quests().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Debts().getButton().getInput());
+	d.appendChild(new RPG.UI.Command.Attributes().getButton().getInput());
 
 	var d = OZ.DOM.elm("div", {innerHTML:"Miscellaneous: "});
 	c.appendChild(d);
@@ -204,7 +202,21 @@ RPG.UI.build = function() {
 	}
 	d.appendChild(new RPG.UI.Command.Save().getButton().getInput());
 	d.appendChild(new RPG.UI.Command.Load().getButton().getInput());
-	d.appendChild(new RPG.UI.Command.ToggleButtons().getButton().getInput());
+	var toggle = new RPG.UI.Command.ToggleButtons();
+	d.appendChild(toggle.getButton().getInput());
+	
+	var misc = OZ.$("misc");
+
+	var li = OZ.DOM.elm("li");
+	var link = OZ.DOM.elm("a", {href:"#", innerHTML:"<strong>Help (?)</strong>"});
+	OZ.DOM.append([misc, li], [li, link]);
+	OZ.Event.add(link, "click", function(e) {
+		OZ.Event.prevent(e);
+		link.blur();
+		toggle.exec();
+	});
+
+	new RPG.UI.Mapswitch(misc);
 }
 
 RPG.UI.showDialog = function(data, title) {

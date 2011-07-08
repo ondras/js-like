@@ -342,7 +342,7 @@ RPG.Beings.BaseBeing.prototype._updateFeat = function(feat) {
 	for (var i=0;i<this._modifierList.length;i++) {
 		modifier += this._modifierList[i].getModifier(feat);
 	}
-	f.setModified(modifier);
+	f.setModifier(modifier);
 	
 	if (feat == RPG.FEAT_MAX_HP) { this.adjustStat(RPG.STAT_HP, 0); }
 	if (feat == RPG.FEAT_MAX_MANA) { this.adjustStat(RPG.STAT_MANA, 0); }
@@ -363,6 +363,14 @@ RPG.Beings.BaseBeing.prototype._updateFeat = function(feat) {
 */
 RPG.Beings.BaseBeing.prototype.getFeat = function(feat) {
 	return this._feats[feat].getValue();
+}
+
+/**
+ * Get feat instance
+ * @param {int} feat
+*/
+RPG.Beings.BaseBeing.prototype.getFeatInstance = function(feat) {
+	return this._feats[feat];
 }
 
 /**

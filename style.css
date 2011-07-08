@@ -1,11 +1,10 @@
 body {
 	margin: 0px;
-	font-family: georgia;
+	font-family: "deja vu sans", verdana, sans-serif; 
 	background-image: url(img/scroll.jpg);
 }
 
 #buffer {
-	position: relative;
 	height: 50px;
 	opacity: 0.7;
 	z-index: 1;
@@ -73,38 +72,68 @@ body {
 	font-weight: bold;
 }
 
-#mapswitch {
-	position: absolute;
+#status, #misc {
+	position: fixed;
 	bottom: 0px;
-	right: 0px;
+	background-color: white;
+	opacity: 0.8;
+	list-style-type: none;
 	margin: 0px;
 	padding: 0px;
+	line-height: 26px;
 }
 
-#mapswitch li {
-	list-style-type: none;
-	float: left;
-	margin-right: 1em;
-	padding: 0px;
+#status li, #misc li {
+	display: inline-block;  
+	padding: 0px 10px;
+}
+
+
+#status {
+	left: 0px;
+	border-top-right-radius: 10px;
+}
+
+#status li {
+	padding-right: 50px;
+}
+
+#misc {
+	right: 0px;
+	border-top-left-radius: 10px;
+}
+
+#misc a {
+	color: black;
+	text-decoration: none;
+}
+
+#misc a:hover {
+	text-decoration: underline;
+}
+
+#mapswitch div {
+	position: absolute;
+	right: 0px;
+	bottom: 26px;
+	display: none;
+	text-align: right;
+	background-color: white;
+	border-top-left-radius: 10px;
+	padding: 3px 8px;
+}
+
+#mapswitch a {
+	display: block;
+}
+
+#mapswitch:hover div {
+	display: block;
 }
 
 #mapswitch a.active {
-	color: black;
-	text-decoration: none;
+	font-weight: bold;
 	cursor: default;
-}
-
-#status {
-	background-color: white;
-	position: fixed;
-	bottom: 0px;
-	left: 0px;
-	width: 100%;
-	opacity:0.8;
-}
-
-#status table {
-	width: 100%;
 }
 
 .dialog {
@@ -112,8 +141,9 @@ body {
 	border: 2px solid brown;
 	padding: 0.5em;
 	opacity: 0.95;
-	min-width:40%; 
-	max-width:80%; 
+	min-width: 40%; 
+	max-width: 80%; 
+	text-shadow: 0px 1px 1px #ccc;
 }
 
 .dialog td {
@@ -171,6 +201,15 @@ body {
 
 .dialog .quests {
 	width: 100%;
+}
+
+.dialog .attributes {
+	width: 100%;
+	text-align: center;
+}
+
+.dialog .attributes .left {
+	text-align: left;
 }
 
 .dialog .quests .active {

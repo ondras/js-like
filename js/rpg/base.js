@@ -5,7 +5,7 @@ RPG.Feats.BaseFeat = OZ.Class();
 RPG.Feats.BaseFeat.prototype.init = function(baseValue) {
 	this._value = null;
 	this._base = 0;
-	this._modified = 0;
+	this._modifier = 0;
 	
 	this.setBase(baseValue);
 }
@@ -18,14 +18,18 @@ RPG.Feats.BaseFeat.prototype.getBase = function() {
 	return this._base;
 }
 
+RPG.Feats.BaseFeat.prototype.getTotalModifier = function() {
+	return this._modifier;
+}
+
 RPG.Feats.BaseFeat.prototype.setBase = function(base) {
 	this._base = base;
-	this._value = Math.max(0, base + this._modified);
+	this._value = Math.max(0, base + this._modifier);
 	return this._value;
 }
 
-RPG.Feats.BaseFeat.prototype.setModified = function(value) {
-	this._modified = value;
+RPG.Feats.BaseFeat.prototype.setModifier = function(value) {
+	this._modifier = value;
 	this._value = Math.max(0, this._base + value);
 	return this._value;
 }
