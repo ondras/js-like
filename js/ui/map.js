@@ -403,7 +403,7 @@ RPG.UI.CanvasMap.prototype.syncSize = function() {
 	this._dom.container.height = h;
 	this._ctx.fillStyle = "black";
 	this._ctx.fillRect(0, 0, w, h);
-	this._ctx.font = size + "px monospace";
+	this._ctx.font = size + "px " + RPG.UI.font;
 	this._ctx.textBaseline = "bottom";
 	this._ctx.lineCap = "butt";
 	

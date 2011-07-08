@@ -40,10 +40,11 @@ RPG.CharGen.prototype.build = function() {
 	
 	OZ.Event.add(t, "click", this.bind(this._click));
 	
+	/* custom font used here so it gets preloaded before canvas is drawn */
 	var copy = "This is <a href='http://code.google.com/p/js-like/'>js-like</a> v";
 	copy += RPG.Game.version;
 	copy += ", &copy; <a href='http://ondras.zarovi.cz/'>Ondřej Žára</a>"
-	var footer = OZ.DOM.elm("p", {id:"footer", innerHTML:copy});
+	var footer = OZ.DOM.elm("p", {id:"footer", fontFamily:RPG.UI.font, innerHTML:copy});
 	
 	OZ.DOM.append([d, p1, p2, t, footer]);
 	return d;

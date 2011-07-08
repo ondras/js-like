@@ -89,7 +89,7 @@ RPG.Story.Testbed.prototype._firstMap = function() {
 		"15,13":	"Doors are quite common in underground dungeons. Closed doors are " + 
 					"represented by '<strong>+</strong>', open doors by '<strong>/</strong>'. To open a closed door, stand next " +
 					"to it and press '<strong>o</strong>' (or just move towards a closed door). Similarly, you can '<strong>c</strong>'lose an open door. ",
-		"15,6":		"You can pick up any items lying around. To do so, step on the tile with " +
+		"15,6":		"You can pick up any items lying around. To do so, step on a tile with " +
 					"an item and press the comma (<strong>,</strong>).",
 		"15,2":		"The items you pick up are stored in your backpack. Certain items (such as " + 
 					"the torch), however, can be equipped on your body. To equip stuff, open " + 

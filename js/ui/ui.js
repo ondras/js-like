@@ -1,8 +1,9 @@
-RPG.UI.buffer = null;	/* text message display */
-RPG.UI.map = null;		/* map instance */
-RPG.UI.status = null;	/* statusbar */
-RPG.UI.sound = null;	/* soundmanager */
-RPG.UI.dialog = null;	/* chat */
+RPG.UI.buffer = null;			/* text message display */
+RPG.UI.map = null;				/* map instance */
+RPG.UI.status = null;			/* statusbar */
+RPG.UI.sound = null;			/* soundmanager */
+RPG.UI.dialog = null;			/* chat */
+RPG.UI.font = "inconsolata";	/* chat */
 
 RPG.UI._commands = [];	/* avail commands */
 RPG.UI._pending = null; /* command awaiting specification */

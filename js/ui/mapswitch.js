@@ -4,13 +4,14 @@
 RPG.UI.Mapswitch = OZ.Class();
 
 RPG.UI.Mapswitch.prototype.init = function(ul) {
+	OZ.$("map").style.fontFamily = RPG.UI.font;
+	
 	var def = (OZ.DOM.elm("canvas").getContext ? RPG.UI.CanvasMap : RPG.UI.ASCIIMap);
 	this._map = {
 		"ASCII": RPG.UI.ASCIIMap,
 		"Graphics": RPG.UI.ImageMap,
 		"Canvas": RPG.UI.CanvasMap
 	}
-	
 	
 	var li = OZ.DOM.elm("li", {id:"mapswitch", innerHTML: "Map style"});
 	this._content = OZ.DOM.elm("div");

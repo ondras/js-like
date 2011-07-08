@@ -1,6 +1,13 @@
+@font-face {
+	font-family: "Inconsolata";
+	font-style: normal;
+	font-weight: normal;
+	src: local("Inconsolata"), url("ttf/Inconsolata.ttf") format("truetype");
+}
+
 body {
 	margin: 0px;
-	font-family: "deja vu sans", verdana, sans-serif; 
+	font-family: "dejavu sans", sans-serif; 
 	background-image: url(img/scroll.jpg);
 }
 
@@ -20,10 +27,6 @@ body {
 
 #buffer.backlog {
 	height: 250px;
-}
-
-#map {
-	font-family: monospace;
 }
 
 #map .ascii, #map .tile div {
