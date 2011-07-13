@@ -77,15 +77,14 @@ RPG.Beings.PC.prototype.setName = function(name) {
 }
 
 RPG.Beings.PC.prototype.setStat = function(stat, value) {
-	var value = this.parent(stat, value);
 	RPG.UI.status.updateStat(stat, value);
-	return value;
+	return this.parent(stat, value);
 }
 
-RPG.Beings.PC.prototype._updateFeat = function(feat) {
-	var value = this.parent(feat);
-	RPG.UI.status.updateFeat(feat, value);
-	return value;
+RPG.Beings.PC.prototype.setFeat = function(feat, value) {
+	this.parent(feat, value);
+	RPG.UI.status.updateFeat(feat, this.getFeat(feat));
+	return this;
 }
 
 RPG.Beings.PC.prototype.setMap = function(map, coords) {
@@ -898,6 +897,9 @@ RPG.Beings.PC.prototype._describeBeing = function(b) {
 		s = RPG.Misc.format("%The does not seem to be hostile.", b);
 	}
 	RPG.UI.buffer.message(s);
+	
+	var rating = b.computeRating();
+	RPG.UI.buffer.message("Rating: "+rating);
 }
 
 RPG.Beings.PC.prototype._describeDifficulty = function(b) {

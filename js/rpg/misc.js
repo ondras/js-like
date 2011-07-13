@@ -107,20 +107,10 @@ RPG.DIR[RPG.CENTER] =  new RPG.Misc.Coords( 0,  0);
 RPG.Misc.IModifier = OZ.Class();
 
 /**
- * Return modifier for a given feat
- * @param {int} feat The feat we wish to modify, specified by its constant
+ * Return modifiers for all feats
  */
-RPG.Misc.IModifier.prototype.getModifier = function(feat) {
-	return this._modifiers[feat] || 0;
-}
-
-/**
- * Return all modified feats
- */
-RPG.Misc.IModifier.prototype.getModified = function() {
-	var arr = [];
-	for (var p in this._modifiers) { arr.push(1*p); } /* 1*p converts to int to comply with RPG.FEAT_* constants */
-	return arr;
+RPG.Misc.IModifier.prototype.getModifiers = function() {
+	return this._modifiers;
 }
 
 /**
@@ -482,6 +472,25 @@ RPG.Misc.Scheduler.prototype.scheduleActor = function() {
 	
 	minActor.bucket += 1/minActor.actor.getSpeed();
 	return minActor.actor;
+}
+
+RPG.Misc.Feat = OZ.Class();
+
+RPG.Misc.Feat.prototype.init = function(name, description) {
+	this.name = name;
+	this.description = description;
+	this.parentModifiers = {};
+}
+
+RPG.Misc.Feat.prototype._drd = function(value) {
+	return (-11*10/21 + (value * 10/21));
+}
+
+RPG.Misc.Feat.prototype.computeRating = function(level) {
+	var phi = (1+Math.sqrt(5))/2;
+	var nlevel = level + 1;
+	var val = (Math.pow(phi, nlevel) - Math.pow(-1/phi, nlevel)) / Math.sqrt(5);
+	return Math.round(val);
 }
 
 /**

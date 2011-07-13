@@ -152,8 +152,7 @@ RPG.Beings.GiantRat.visual = { desc:"giant rat", color:"#930", image:"giant-rat"
 RPG.Beings.GiantRat.prototype.init = function() {
 	this.parent();
 	
-	var f = this._feats[RPG.FEAT_MAX_HP];
-	this.setFeat(RPG.FEAT_MAX_HP, Math.round(f.getBase() * 1.5));
+	this.setFeat(RPG.FEAT_MAX_HP, Math.round(this._feats[RPG.FEAT_MAX_HP] * 1.5));
 
 	this.fullStats();
 }
@@ -186,7 +185,7 @@ RPG.Beings.GiantBat.prototype.init = function() {
 	this.parent();
 	
 	var f = this._feats[RPG.FEAT_MAX_HP];
-	this.setFeat(RPG.FEAT_MAX_HP, Math.round(f.getBase() * 1.5));
+	this.setFeat(RPG.FEAT_MAX_HP, Math.round(this._feats[RPG.FEAT_MAX_HP] * 1.5));
 
 	this.fullStats();
 }

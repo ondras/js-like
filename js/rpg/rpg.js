@@ -19,8 +19,7 @@ RPG.Effects = {};
 /** @namespace */
 RPG.Factories = {};
 
-/** @namespace */
-RPG.Feats = {};
+RPG.Feats = [];
 
 /** @namespace */
 RPG.Features = {};

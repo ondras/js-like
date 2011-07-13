@@ -1,64 +1,35 @@
-/**
- * @class Strength attribute
- * @augments RPG.Feats.AdvancedFeat
- */
-RPG.Feats[RPG.FEAT_STRENGTH] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
-RPG.Feats[RPG.FEAT_STRENGTH].label = "strength";
-RPG.Feats[RPG.FEAT_STRENGTH].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	this._modifiers[RPG.FEAT_DAMAGE] = this._drd();
-}
+RPG.Feats[RPG.FEAT_STRENGTH] = new RPG.Misc.Feat("Strength", "Physical strength");
+RPG.Feats[RPG.FEAT_TOUGHNESS] = new RPG.Misc.Feat("Toughness", "Physical resistance");
+RPG.Feats[RPG.FEAT_MAGIC] = new RPG.Misc.Feat("Magic", "Attunement to magic");
+RPG.Feats[RPG.FEAT_DEXTERITY] = new RPG.Misc.Feat("Dexterity", "Physical agility");
+RPG.Feats[RPG.FEAT_LUCK] = new RPG.Misc.Feat("Luck", "Luckiness");
 
-/**
- * @class Toughness attribute
- * @augments RPG.Feats.AdvancedFeat
- */
-RPG.Feats[RPG.FEAT_TOUGHNESS] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
-RPG.Feats[RPG.FEAT_TOUGHNESS].label = "toughness";
-RPG.Feats[RPG.FEAT_TOUGHNESS].prototype.init = function(baseValue) {
-	this.parent(baseValue);
+RPG.Feats[RPG.FEAT_DAMAGE] = new RPG.Misc.Feat("Damage", "Damage dealt by physical attacks");
+RPG.Feats[RPG.FEAT_DAMAGE].parentModifiers[RPG.FEAT_STRENGTH] = RPG.Feats[RPG.FEAT_DAMAGE]._drd;
 
-	this._modifiers[RPG.FEAT_MAX_HP] = this._drd();
-	this._modifiers[RPG.FEAT_REGEN_HP] = this._drd();
-	this._modifiers[RPG.FEAT_PV] = this._drd();
-}
+RPG.Feats[RPG.FEAT_MAX_HP] = new RPG.Misc.Feat("HP", "Hit points");
+RPG.Feats[RPG.FEAT_MAX_HP].parentModifiers[RPG.FEAT_TOUGHNESS] = RPG.Feats[RPG.FEAT_MAX_HP]._drd;
 
-/**
- * @class Magic attribute
- * @augments RPG.Feats.AdvancedFeat
- */
-RPG.Feats[RPG.FEAT_MAGIC] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
-RPG.Feats[RPG.FEAT_MAGIC].label = "magic";
-RPG.Feats[RPG.FEAT_MAGIC].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	var arr = this._drd();
-	arr[0] = (arr[0]*3).round(3);
-	arr[1] = (arr[1]*3).round(3);
-	
-	this._modifiers[RPG.FEAT_MAX_MANA] = arr;
-	this._modifiers[RPG.FEAT_REGEN_MANA] = this._drd();
-}
+RPG.Feats[RPG.FEAT_REGEN_HP] = new RPG.Misc.Feat("HP regen", "Hit point regeneration rate");
+RPG.Feats[RPG.FEAT_REGEN_HP].parentModifiers[RPG.FEAT_TOUGHNESS] = RPG.Feats[RPG.FEAT_REGEN_HP]._drd;
 
-/**
- * @class Dexterity attribute
- * @augments RPG.Feats.AdvancedFeat
- */
-RPG.Feats[RPG.FEAT_DEXTERITY] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
-RPG.Feats[RPG.FEAT_DEXTERITY].label = "dexterity";
-RPG.Feats[RPG.FEAT_DEXTERITY].prototype.init = function(baseValue) {
-	this.parent(baseValue);
-	
-	var arr = this._drd();
-	arr[0] *= 5;
-	arr[1] *= 5;
-	this._modifiers[RPG.FEAT_SPEED] = arr;
-	this._modifiers[RPG.FEAT_HIT] = this._drd();
-	this._modifiers[RPG.FEAT_DV] = this._drd();
-}
+RPG.Feats[RPG.FEAT_PV] = new RPG.Misc.Feat("PV", "Protection value - damage reduced from taken hits");
+RPG.Feats[RPG.FEAT_PV].parentModifiers[RPG.FEAT_TOUGHNESS] = RPG.Feats[RPG.FEAT_PV]._drd;
 
-/**
- * @class Luck attribute
- * @augments RPG.Feats.BaseFeat
- */
-RPG.Feats[RPG.FEAT_LUCK] = OZ.Class().extend(RPG.Feats.AdvancedFeat);
-RPG.Feats[RPG.FEAT_LUCK].label = "luck";
+RPG.Feats[RPG.FEAT_MAX_MANA] = new RPG.Misc.Feat("Mana", "Magical energy");
+RPG.Feats[RPG.FEAT_MAX_MANA].parentModifiers[RPG.FEAT_MAGIC] = function(value) { return 3*RPG.Feats[RPG.FEAT_MAX_MANA]._drd(value); };
+
+RPG.Feats[RPG.FEAT_REGEN_MANA] = new RPG.Misc.Feat("Mana regen", "Mana regeneration rate");
+RPG.Feats[RPG.FEAT_REGEN_MANA].parentModifiers[RPG.FEAT_MAGIC] = RPG.Feats[RPG.FEAT_REGEN_MANA]._drd;
+
+RPG.Feats[RPG.FEAT_SPEED] = new RPG.Misc.Feat("Speed", "Speed of movement");
+RPG.Feats[RPG.FEAT_SPEED].parentModifiers[RPG.FEAT_DEXTERITY] = function(value) { return 5*RPG.Feats[RPG.FEAT_SPEED]._drd(value); };
+
+RPG.Feats[RPG.FEAT_HIT] = new RPG.Misc.Feat("Hit", "Chance to hit");
+RPG.Feats[RPG.FEAT_HIT].parentModifiers[RPG.FEAT_DEXTERITY] = RPG.Feats[RPG.FEAT_HIT]._drd;
+
+RPG.Feats[RPG.FEAT_DV] = new RPG.Misc.Feat("DV", "Defense value - chance to evade hits");
+RPG.Feats[RPG.FEAT_DV].parentModifiers[RPG.FEAT_DEXTERITY] = RPG.Feats[RPG.FEAT_DV]._drd;
+
+RPG.Feats[RPG.FEAT_SIGHT_RANGE] = new RPG.Misc.Feat("Sight", "Sight range");
+RPG.Feats[RPG.FEAT_SIGHT_RANGE].parentModifiers[RPG.FEAT_LUCK] = RPG.Feats[RPG.FEAT_SIGHT_RANGE]._drd;

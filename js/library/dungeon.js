@@ -225,6 +225,20 @@ RPG.Features.Trap.Flash.prototype.setOff = function(being) {
 }
 
 /**
+ * @class Altar feature
+ * @augments RPG.Features.BaseFeature
+ */
+RPG.Features.Altar = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.Altar.visual = { desc:"altar", image:"altar FIXME", ch:"_", color:"#fff"};
+
+/**
+ * @class Bench feature
+ * @augments RPG.Features.BaseFeature
+ */
+RPG.Features.Bench = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.Bench.visual = { desc:"bench", image:"altar FIXME", ch:"|", color:"#963"};
+
+/**
  * @class Basic level connector
  * @augments RPG.Features.BaseFeature
  */

@@ -215,6 +215,15 @@ body {
 	text-align: left;
 }
 
+.dialog .attributes .parent td {
+	font-weight: bold;
+	border-top: 1px solid black;
+}
+
+.dialog .attributes .child td:first-child {
+	padding-left: 20px;
+}
+
 .dialog .quests .active {
 	font-style: italic;
 }

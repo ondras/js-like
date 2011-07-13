@@ -133,27 +133,23 @@ RPG.Items.BaseItem.prototype.describeA = function() {
 }
 
 RPG.Items.BaseItem.prototype._describeModifiers = function() {
-	var mods = this.getModified();
-	var dv = null;
-	var pv = null;
+	var dvpv = false;
 	var arr = [];
-
-	for (var i=0;i<mods.length;i++) {
-		var c = mods[i];
-		if (c == RPG.FEAT_DV) { dv = c; }
-		if (c == RPG.FEAT_PV) { pv = c; }
-		if (RPG.ATTRIBUTES.indexOf(c) != -1) {
-			var a = RPG.Feats[c];
-			var str = a.label.capitalize().substring(0, 3);
-			var num = this.getModifier(c);
-			if (num >= 0) { num = "+"+num; }
-			arr.push("{"+str+num+"}");
-		}
-	}
 	
-	if (dv || pv) {
-		dv = this.getModifier(RPG.FEAT_DV);
-		pv = this.getModifier(RPG.FEAT_PV);
+	for (var feat in this._modifiers) {
+		if (feat == RPG.FEAT_DV || feat == RPG.FEAT_PV) { 
+			dvpv = true; continue; 
+		}
+		var f = RPG.Feats[feat];
+		var str = a.name;
+		var num = this._modifiers[feat];
+		if (num >= 0) { num = "+"+num; }
+		arr.push("{"+str+num+"}");
+	}
+
+	if (dvpv) {
+		var dv = this._modifiers[RPG.FEAT_DV] || 0;
+		var pv = this._modifiers[RPG.FEAT_PV] || 0;
 		if (dv >= 0) { dv = "+"+dv; }
 		if (pv >= 0) { pv = "+"+pv; }
 		arr.unshift("["+dv+","+pv+"]");

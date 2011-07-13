@@ -21,29 +21,43 @@ RPG.UI.Attributes.prototype._build = function() {
 	this._dom.container = OZ.DOM.elm("div");
 	var table = OZ.DOM.elm("table", {"class":"attributes"});
 	
-	var th1 = OZ.DOM.elm("thead");
-	var th2 = OZ.DOM.elm("thead");
-	var tb1 = OZ.DOM.elm("tbody");
-	var tb2 = OZ.DOM.elm("tbody");
-	OZ.DOM.append([this._dom.container, table], [table, th1, tb1, th2, tb2]);
+	var th = OZ.DOM.elm("thead");
+	var tr = OZ.DOM.elm("tr");
+	var tb = OZ.DOM.elm("tbody");
+	tr.innerHTML = "<td class='left'><strong>"+name+"</strong></td><td>Base</td><td>Modifier</td><td>Total</td>";
+
+	OZ.DOM.append([this._dom.container, table], [table, th, tb], [th, tr]);
 	
-	OZ.DOM.append([th1, this._buildInfoRow("Primary attributes")]);
-	
-	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
-		var a = RPG.ATTRIBUTES[i];
-		var label = RPG.Feats[a].label.capitalize();
-		var tr = this._buildFeatRow(label, a);
-		tb1.appendChild(tr);
+	var parents = [];
+	var children = [];
+
+	for (var i=0;i<RPG.Feats.length;i++) {
+		var feat = RPG.Feats[i];
+		var parent = -1;
+		for (var p in feat.parentModifiers) { parent = parseInt(p); }
+		
+		if (parent != -1) {
+			var index = parents.indexOf(parent);
+			children[index].push(i);
+		} else {
+			parents.push(i);
+			children.push([]);
+		}
 	}
 	
-	OZ.DOM.append([th2, this._buildInfoRow("Secondary attributes")]);
-	
-	var secondary = [RPG.FEAT_SPEED, RPG.FEAT_MAX_HP, RPG.FEAT_MAX_MANA, RPG.FEAT_DV, RPG.FEAT_PV];
-	var labels = ["Speed", "Max HP", "Max mana", "DV", "PV"];
-	for (var i=0;i<secondary.length;i++) {
-		var tr = this._buildFeatRow(labels[i], secondary[i]);
-		tb2.appendChild(tr);
+	for (var i=0;i<parents.length;i++) {
+		var line = this._buildFeatRow(i);
+		OZ.DOM.addClass(line, "parent");
+		tb.appendChild(line);
+		if (!children[i].length) { continue; }
+		
+		for (var j=0;j<children[i].length;j++) {
+			var line = this._buildFeatRow(children[i][j]);
+			OZ.DOM.addClass(line, "child");
+			tb.appendChild(line);
+		}
 	}
+	
 }
 
 RPG.UI.Attributes.prototype._buildBottom = function() {
@@ -64,29 +78,23 @@ RPG.UI.Attributes.prototype._done = function() {
 	RPG.UI.hideDialog();
 }
 
-RPG.UI.Attributes.prototype._buildFeatRow = function(label, feat) {
+RPG.UI.Attributes.prototype._buildFeatRow = function(feat) {
 	var tr = OZ.DOM.elm("tr");
-	var inst = this._being.getFeatInstance(feat);
+	var pc = RPG.Game.pc;
 
-	var name = OZ.DOM.elm("td", {innerHTML:label, "class":"left"});
+	var name = OZ.DOM.elm("td", {innerHTML:RPG.Feats[feat].name, "class":"left"});
 	tr.appendChild(name);
 	
-	var base = OZ.DOM.elm("td", {innerHTML:inst.getBase()});
+	var base = OZ.DOM.elm("td", {innerHTML:pc.getFeatBase(feat)});
 	tr.appendChild(base);
 
-	var m = inst.getTotalModifier();
+	var m = pc.getFeatModifier(feat);
 	if (m > 0) { m = "+" + m; }
 	var modifier = OZ.DOM.elm("td", {innerHTML:m});
 	tr.appendChild(modifier);
 
-	var total = OZ.DOM.elm("td", {innerHTML:"<strong>"+inst.getValue()+"</strong>"});
+	var total = OZ.DOM.elm("td", {innerHTML:"<strong>"+pc.getFeat(feat)+"</strong>"});
 	tr.appendChild(total);
 
-	return tr;
-}
-
-RPG.UI.Attributes.prototype._buildInfoRow = function(name) {
-	var tr = OZ.DOM.elm("tr");
-	tr.innerHTML = "<td class='left'><strong>"+name+"</strong></td><td>Base</td><td>Modifier</td><td>Total</td>";
 	return tr;
 }

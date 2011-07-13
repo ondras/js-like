@@ -18,10 +18,10 @@ RPG.Beings.BaseBeing.prototype.init = function(race) {
 	this._gender = RPG.GENDER_NEUTER;
 	this._items = [];
 	this._stats = {};
-	this._feats = {};
 	this._alive = true;
 	this._effects = [];
-	this._modifierList = [];
+	this._feats = [];
+	this._featModifiers = {};
 	this._spells = [];
 	this._knownFeatures = [];
 
@@ -42,52 +42,18 @@ RPG.Beings.BaseBeing.prototype.toString = function() {
 	return this.describe();
 }
 
+RPG.Beings.BaseBeing.prototype.computeRating = function() {
+	var rating = 0;
+	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
+		var value = this.getFeat(RPG.ATTRIBUTES[i]);
+		rating += RPG.Feats[i].computeRating(value);
+	}
+	return rating;
+}
+
 RPG.Beings.BaseBeing.prototype.knowsFeature = function(feature) {
 	if (!(feature instanceof RPG.Features.Trap)) { return true; }
 	return this._knownFeatures.indexOf(feature) != -1;
-}
-
-/**
- * Prepare the being-race binding
- */
-RPG.Beings.BaseBeing.prototype._initSlots = function() {
-	/* bind all slots to a particular being */
-	this._slots = new this._race().getSlots();
-	for (var p in this._slots) { this._slots[p].setBeing(this); }
-}
-
-/**
- * Initialize stats (HP, ...) and feats (Max HP, DV, PV, ...)
- */
-RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
-	var defaults = new this._race().getDefaults();
-	
-	this._stats = {};
-	this._stats[RPG.STAT_HP] = Infinity;
-	this._stats[RPG.STAT_MANA] = Infinity;
-	
-	this._feats = {};
-	
-	/* advanced feats aka attributes */
-	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
-		var attr = RPG.ATTRIBUTES[i];
-		var rv = new RPG.Misc.RandomValue(defaults[attr], 2);
-		var f = new RPG.Feats[attr](rv.roll());
-		this._feats[attr] = f;
-		this._modifierList.push(f);
-	}
-
-	/* base feats */
-	var misc = [RPG.FEAT_MAX_HP, RPG.FEAT_MAX_MANA, RPG.FEAT_DV, RPG.FEAT_PV, 
-				RPG.FEAT_SPEED, RPG.FEAT_HIT, RPG.FEAT_DAMAGE, 
-				RPG.FEAT_REGEN_HP, RPG.FEAT_REGEN_MANA,	RPG.FEAT_SIGHT_RANGE
-				];
-	for (var i=0;i<misc.length;i++) {
-		var name = misc[i];
-		this._feats[name] = new RPG.Feats.BaseFeat(defaults[name] || 0);
-	}
-	
-	for (var p in this._feats) { this._updateFeat(p); }
 }
 
 RPG.Beings.BaseBeing.prototype.hasDebts = function() {
@@ -320,57 +286,39 @@ RPG.Beings.BaseBeing.prototype.adjustStat = function(stat, diff) {
 RPG.Beings.BaseBeing.prototype.setStat = function(stat, value) {
 	switch (stat) {
 		case RPG.STAT_HP:
-			this._stats[stat] = Math.min(value, this._feats[RPG.FEAT_MAX_HP].getValue());
+			this._stats[stat] = Math.min(value, this.getFeat(RPG.FEAT_MAX_HP));
 		break;
 
 		case RPG.STAT_MANA:
-			this._stats[stat] = Math.min(value, this._feats[RPG.FEAT_MAX_MANA].getValue());
+			this._stats[stat] = Math.min(value, this.getFeat(RPG.FEAT_MAX_MANA));
 		break;
 	}
 	
 	if (this._stats[RPG.STAT_HP] <= 0) { this.die(); }
-	return this._stats[stat];
+	
+	return this;
 }
 
-/**
- * Recompute modifiers and modified value for a given feat
- * @param {int} feat
- */
-RPG.Beings.BaseBeing.prototype._updateFeat = function(feat) {
-	var f = this._feats[feat];
-	var modifier = 0;
-	for (var i=0;i<this._modifierList.length;i++) {
-		modifier += this._modifierList[i].getModifier(feat);
+RPG.Beings.BaseBeing.prototype.getFeatBase = function(feat) {
+	return this._feats[feat];
+}
+
+RPG.Beings.BaseBeing.prototype.getFeatModifier = function(feat) {
+	var modifier = this._featModifiers[feat] || 0;
+	var f = RPG.Feats[feat];
+	for (var parent in f.parentModifiers) {
+		var val = this.getFeat(parent);
+		modifier += f.parentModifiers[parent](val);
 	}
-	f.setModifier(modifier);
-	
-	if (feat == RPG.FEAT_MAX_HP) { this.adjustStat(RPG.STAT_HP, 0); }
-	if (feat == RPG.FEAT_MAX_MANA) { this.adjustStat(RPG.STAT_MANA, 0); }
-	
-	if (f instanceof RPG.Feats.AdvancedFeat) {
-		var modified = f.getModified();
-		for (var i=0;i<modified.length;i++) {
-			this._updateFeat(modified[i]);
-		}
-	}
-	
-	return f.getValue();
+	return Math.round(modifier);
 }
 
 /**
  * Get final feat value
  * @param {int} feat
-*/
+ */
 RPG.Beings.BaseBeing.prototype.getFeat = function(feat) {
-	return this._feats[feat].getValue();
-}
-
-/**
- * Get feat instance
- * @param {int} feat
-*/
-RPG.Beings.BaseBeing.prototype.getFeatInstance = function(feat) {
-	return this._feats[feat];
+	return Math.max(0, this.getFeatBase(feat) + this.getFeatModifier(feat));
 }
 
 /**
@@ -378,8 +326,10 @@ RPG.Beings.BaseBeing.prototype.getFeatInstance = function(feat) {
  * @param {int} feat
  */
 RPG.Beings.BaseBeing.prototype.setFeat = function(feat, value) {
-	this._feats[feat].setBase(value);
-	return this._updateFeat(feat);
+	this._feats[feat] = value;
+	
+	this._syncStatsAndFeats();
+	return this;
 }
 
 /**
@@ -388,7 +338,7 @@ RPG.Beings.BaseBeing.prototype.setFeat = function(feat, value) {
  * @param {int} diff
  */
 RPG.Beings.BaseBeing.prototype.adjustFeat = function(feat, diff) {
-	return this.setFeat(feat, this._feats[feat].getBase() + diff);
+	return this.setFeat(feat, this._feats[feat] + diff);
 }
 
 RPG.Beings.BaseBeing.prototype.setGender = function(gender) {
@@ -433,13 +383,6 @@ RPG.Beings.BaseBeing.prototype.heal = function(amount) {
 
 /* ============================== MISC ==================================== */
 
-RPG.Beings.BaseBeing.prototype._generateCorpse = function() {
-	if (RPG.Rules.isCorpseGenerated(this)) {
-		return new RPG.Items.Corpse(this);
-	}
-	return null;
-}
-
 RPG.Beings.BaseBeing.prototype.isAlive = function() {
 	return this._alive;
 }
@@ -448,8 +391,8 @@ RPG.Beings.BaseBeing.prototype.isAlive = function() {
  * Fully recovers all stats to maximum
  */
 RPG.Beings.BaseBeing.prototype.fullStats = function() {
-	this.setStat(RPG.STAT_HP, this._feats[RPG.FEAT_MAX_HP].getValue());
-	this.setStat(RPG.STAT_MANA, this._feats[RPG.FEAT_MAX_MANA].getValue());
+	this.setStat(RPG.STAT_HP, this.getFeat(RPG.FEAT_MAX_HP));
+	this.setStat(RPG.STAT_MANA, this.getFeat(RPG.FEAT_MAX_MANA));
 }
 
 /**
@@ -493,7 +436,7 @@ RPG.Beings.BaseBeing.prototype.canSee = function(coords) {
 RPG.Beings.BaseBeing.prototype.woundedState = function() {
 	var def = ["slightly", "moderately", "severely", "critically"];
 	var hp = this._stats[RPG.STAT_HP];
-	var max = this._feats[RPG.FEAT_MAX_HP].getValue();
+	var max = this.getFeat(RPG.FEAT_MAX_HP);
 	if (hp == max) { return "not"; }
 	var frac = 1 - hp/max;
 	var index = Math.floor(frac * def.length);
@@ -578,33 +521,6 @@ RPG.Beings.BaseBeing.prototype.cast = function(spell, target) {
 	RPG.UI.buffer.message(str);
 	
 	spell.cast(target);	
-	return RPG.ACTION_TIME;
-}
-
-/**
- * Abstract consumption
- * @param {RPG.Items.BaseItem} item
- * @param {?} owner
- * @param {string} consumption verb
- * @param {function} consumption method
- */
-RPG.Beings.BaseBeing.prototype._consume = function(item, owner, verb, method) {
-	/* remove item from inventory / ground */
-	var i = item;
-	var amount = i.getAmount();
-	
-	if (amount == 1) {
-		owner.removeItem(i);
-	} else {
-		i = i.subtract(1);
-	}
-
-	var v = RPG.Misc.verb(verb, this);
-	var s = RPG.Misc.format("%A %s %a.", this, v, i);
-	RPG.UI.buffer.message(s);
-	
-	method.call(item, this);
-	
 	return RPG.ACTION_TIME;
 }
 
@@ -837,15 +753,24 @@ RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
 }
 
 RPG.Beings.BaseBeing.prototype.addModifiers = function(imodifier) {
-	this._modifierList.push(imodifier);
-	this._updateFeatsByModifier(imodifier);
+	var modifiers = imodifier.getModifiers();
+	for (var feat in modifiers) {
+		if (!(feat in this._featModifiers)) { this._featModifiers[feat] = 0; }
+		this._featModifiers[feat] += modifiers[feat];
+	}
+	
+	this._syncStatsAndFeats();
 }
 
 RPG.Beings.BaseBeing.prototype.removeModifiers = function(imodifier) {
-	var index = this._modifierList.indexOf(imodifier);
-	if (index == -1) { throw new Error("Cannot find imodifier '"+imodifier+"'"); }
-	this._modifierList.splice(index, 1);
-	this._updateFeatsByModifier(imodifier);
+	var modifiers = imodifier.getModifiers();
+	for (var feat in modifiers) {
+		if (!(feat in this._featModifiers)) { throw new Error("Feat "+feat+" not modified, cannot remove modifier"); }
+		this._featModifiers[feat] -= modifiers[feat];
+		if (this._featModifiers[feat] == 0) { delete this._featModifiers[feat]; }
+	}
+	
+	this._syncStatsAndFeats();
 }
 
 /* -------------------- PRIVATE --------------- */
@@ -856,12 +781,71 @@ RPG.Beings.BaseBeing.prototype._describeLaunch = function(projectile, target) {
 RPG.Beings.BaseBeing.prototype._describeAttack = function(hit, damage, kill, being, slot) {
 }
 
-/**
- * Update all feats modified by this IModifier
- */
-RPG.Beings.BaseBeing.prototype._updateFeatsByModifier = function(imodifier) {
-	var list = imodifier.getModified();
-	for (var i=0;i<list.length;i++) {
-		this._updateFeat(list[i]);
-	}
+RPG.Beings.BaseBeing.prototype._syncStatsAndFeats = function() {
+	this.adjustStat(RPG.STAT_HP, 0);
+	this.adjustStat(RPG.STAT_MANA, 0);
 }
+
+/**
+ * Prepare the being-race binding
+ */
+RPG.Beings.BaseBeing.prototype._initSlots = function() {
+	/* bind all slots to a particular being */
+	this._slots = new this._race().getSlots();
+	for (var p in this._slots) { this._slots[p].setBeing(this); }
+}
+
+/**
+ * Initialize stats (HP, ...) and feats (Max HP, DV, PV, ...)
+ */
+RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
+	var defaults = new this._race().getDefaults();
+	
+	/* init all feats from defaults or zero */
+	for (var i=0;i<RPG.Feats.length;i++) {  
+		this._feats[i] = defaults[i] || 0; 
+	}
+	
+	/* advanced feats aka attributes have randomized value */
+	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
+		var attr = RPG.ATTRIBUTES[i];
+		var rv = new RPG.Misc.RandomValue(defaults[attr], 2);
+		this._feats[attr] = rv.roll();
+	}
+
+}
+
+RPG.Beings.BaseBeing.prototype._generateCorpse = function() {
+	if (RPG.Rules.isCorpseGenerated(this)) {
+		return new RPG.Items.Corpse(this);
+	}
+	return null;
+}
+
+/**
+ * Abstract consumption
+ * @param {RPG.Items.BaseItem} item
+ * @param {?} owner
+ * @param {string} consumption verb
+ * @param {function} consumption method
+ */
+RPG.Beings.BaseBeing.prototype._consume = function(item, owner, verb, method) {
+	/* remove item from inventory / ground */
+	var i = item;
+	var amount = i.getAmount();
+	
+	if (amount == 1) {
+		owner.removeItem(i);
+	} else {
+		i = i.subtract(1);
+	}
+
+	var v = RPG.Misc.verb(verb, this);
+	var s = RPG.Misc.format("%A %s %a.", this, v, i);
+	RPG.UI.buffer.message(s);
+	
+	method.call(item, this);
+	
+	return RPG.ACTION_TIME;
+}
+

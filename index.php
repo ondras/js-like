@@ -62,6 +62,7 @@
 		<script type="text/javascript" src="js/ui/saveload.js?<?php echo $ver; ?>"></script>
 
 		<script type="text/javascript" src="js/story/village.js?<?php echo $ver; ?>"></script>
+		<script type="text/javascript" src="js/story/tutorial.js?<?php echo $ver; ?>"></script>
 	</head>
 
 	<body>
@@ -76,6 +77,7 @@
 		
 		<script type="text/javascript" src="js/debug/graph.js"></script>
 		<script type="text/javascript" src="js/debug/story.js"></script>
+		<script type="text/javascript" src="js/debug/church.js"></script>
 		<script type="text/javascript">
 //			RPG.Stats.server = "http://192.168.1.6/js-like-server/";
 			RPG.Game.init();
