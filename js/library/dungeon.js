@@ -6,6 +6,13 @@ RPG.Cells.Corridor = OZ.Singleton().extend(RPG.Cells.BaseCell);
 RPG.Cells.Corridor.visual = { desc:"floor section", ch:".", image:"corridor", color:"#ccc" };
 
 /**
+ * @class Road
+ * @augments RPG.Cells.BaseCell
+ */
+RPG.Cells.Road = OZ.Singleton().extend(RPG.Cells.BaseCell);
+RPG.Cells.Road.visual = { desc:"road", ch:".", image:"corridor FIXME", color:"#963" };
+
+/**
  * @class Grass
  * @augments RPG.Cells.BaseCell
  */
@@ -237,6 +244,20 @@ RPG.Features.Altar.visual = { desc:"altar", image:"altar FIXME", ch:"_", color:"
  */
 RPG.Features.Bench = OZ.Class().extend(RPG.Features.BaseFeature);
 RPG.Features.Bench.visual = { desc:"bench", image:"altar FIXME", ch:"|", color:"#963"};
+
+/**
+ * @class Stained glass window, random shiny color
+ * @augments RPG.Features.BaseFeature
+ */
+RPG.Features.StainedGlassWindow = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.StainedGlassWindow.visual = { desc:"stained glass window", image:"fixme", ch:"=" };
+RPG.Features.StainedGlassWindow.prototype.init = function() { 
+	this.parent();
+	this._color = ["red","green","blue","yellow","magenta","cyan"].random(); 
+}
+RPG.Features.StainedGlassWindow.prototype.getColor = function() { 
+	return this._color;
+}
 
 /**
  * @class Basic level connector

@@ -61,8 +61,12 @@
 		<script type="text/javascript" src="js/ui/slots.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/ui/saveload.js?<?php echo $ver; ?>"></script>
 
+		<script type="text/javascript" src="js/story/beings.js?<?php echo $ver; ?>"></script>
+		<script type="text/javascript" src="js/story/items.js?<?php echo $ver; ?>"></script>
+		<script type="text/javascript" src="js/story/quests.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/story/village.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/story/tutorial.js?<?php echo $ver; ?>"></script>
+		<script type="text/javascript" src="js/story/story.js?<?php echo $ver; ?>"></script>
 	</head>
 
 	<body>

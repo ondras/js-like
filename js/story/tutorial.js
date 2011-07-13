@@ -4,7 +4,7 @@
  */
 RPG.Map.Tutorial = OZ.Class().extend(RPG.Map.Dungeon);
 
-RPG.Map.Tutorial.prototype.$constructor = function() {
+RPG.Map.Tutorial.prototype.init = function() {
 	var str =	"                  #####                                     " +
 				"              #####...#                        ######       " +
 				"              #.......#                        #....#       " +
@@ -25,7 +25,6 @@ RPG.Map.Tutorial.prototype.$constructor = function() {
 				"    #.........#                               #######       " +
 				"    #....######                                             " +
 				"    ######                                                  ";
-
 	this.parent("Beginner's dungeon", new RPG.Misc.Coords(60,20), 1);
 	this.fromString(str);
 	
@@ -55,10 +54,6 @@ RPG.Map.Tutorial.prototype.$constructor = function() {
 
 	/* rat */
 	this.setBeing(new RPG.Beings.Rat(), new RPG.Misc.Coords(50, 3));
-
-	/* ending position */
-	var up = new RPG.Features.StaircaseUp();
-	map.setFeature(up, new RPG.Misc.Coords(49, 15));
 
 	var T = OZ.Class().extend(RPG.Areas.Tutorial);
 	T.prototype._messages = {
@@ -90,9 +85,4 @@ RPG.Map.Tutorial.prototype.$constructor = function() {
 					"press either '<strong>&lt;</strong>' (to climb up) or '<strong>&gt;</strong>' (to climb down)."
 	}
 	this.addArea(new T());
-
-	this._staircases["end"] = up;
-	this._staircaseCallbacks["end"] = this.end;
-
-	return [map, new RPG.Misc.Coords(7, 17)];
 }

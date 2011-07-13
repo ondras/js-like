@@ -294,7 +294,7 @@ RPG.Beings.BaseBeing.prototype.setStat = function(stat, value) {
 		break;
 	}
 	
-	if (this._stats[RPG.STAT_HP] <= 0) { this.die(); }
+	if (this._stats[RPG.STAT_HP] <= 0 && this._alive) { this.die(); }
 	
 	return this;
 }

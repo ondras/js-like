@@ -5,7 +5,7 @@
 RPG.Story.Testbed = OZ.Class().extend(RPG.Story);
 
 RPG.Story.Testbed.prototype._firstMap = function() {
-	return [new RPG.Map.Church, new RPG.Misc.Coords(2, 10)];
+	return [new RPG.Map.Church, new RPG.Misc.Coords(3, 11)];
 }
 
 RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {

@@ -37,7 +37,7 @@ RPG.Story.prototype.end = function() {
 		str += " managed to finish the game alive!";
 		RPG.Stats.send(RPG.Stats.END);
 	} else {
-		str += " was unable to surive in the dangerous dungeon.";
+		str += " was unable to surive this dangerous adventure.";
 		RPG.Stats.send(RPG.Stats.DEATH);
 	}
 	p1.innerHTML = str;
