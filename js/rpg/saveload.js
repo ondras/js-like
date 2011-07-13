@@ -94,7 +94,7 @@ RPG.Serializer.prototype._ctorToJSON = function(cl) {
 RPG.Serializer.prototype._ctorToIndex = function(cl) {
 	var name = null;
 	for (var p in this._allClasses) { if (this._allClasses[p] == cl) { name = p; } }
-	
+
 	var index = this._classes.indexOf(name);
 	if (index == -1) {
 		index = this._classes.length;
