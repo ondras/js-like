@@ -26,7 +26,6 @@ RPG.Rules.isCorpseGenerated = function(being) {
 }
 
 /**
-
  * Luck check
  */
 RPG.Rules.isLucky = function(being) {
@@ -47,20 +46,6 @@ RPG.Rules.isProjectileRecovered = function(projectile) {
  */
 RPG.Rules.getTrapDamage = function(being, trap) {
 	return trap.getDamage().roll();
-}
-
-/**
- * Does this attacker hit its target?
- */
-RPG.Rules.isMeleeHit = function(attacker, defender, weapon) {
-	var hit = weapon.getHit().roll();
-	var dv = defender.getFeat(RPG.FEAT_DV);
-	/* console.log("hit("+hit+") vs. dv("+dv+")"); */
-	if (hit >= dv) { 
-		return !RPG.Rules.isLucky(defender);
-	} else {
-		return RPG.Rules.isLucky(attacker);
-	}
 }
 
 /**
@@ -93,20 +78,8 @@ RPG.Rules.isItemDropped = function(being, item) {
  * @param {RPG.Beings.BaseBeing} caster
  * @param {RPG.Beings.BaseBeing} target
  */
-RPG.Rules.getHealingAmount = function(cater, target) {
+RPG.Rules.getHealingAmount = function(caster, target) {
 	return 5;
-}
-
-/**
- * How much damage does this attacker with a given weapon to a defender
- */
-RPG.Rules.getMeleeDamage = function(attacker, defender, weapon, isCritical) {
-	var damage = weapon.getDamage().roll();
-	if (isCritical) { damage *= 2; }
-
-	var pv = defender.getFeat(RPG.FEAT_PV);
-	/* console.log("damage("+damage+") vs. pv("+pv+")"); */
-	return Math.max(0, damage - pv);
 }
 
 /**

@@ -78,6 +78,7 @@ OZ.Class = function() {
 		var owner = caller.owner || this.constructor; /* class which owns calling method */
 		for (var p in owner.prototype) { /* find the name of called method */
 			if (owner.prototype[p] != caller) { continue; }
+			/* p is the name of method */
 			var candidates = [owner._extend].concat(owner._implement); /* find extended/implemented class which has this method */
 			while (candidates.length) {
 				var candidate = candidates.shift();

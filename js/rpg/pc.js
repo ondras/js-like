@@ -57,10 +57,6 @@ RPG.Beings.PC.prototype.getKills = function() {
 	return this._kills;
 }
 
-RPG.Beings.PC.prototype.addKill = function(being) {
-	this._kills++;
-}
-
 RPG.Beings.PC.prototype.getVisibleCoords = function() {
 	return this._visibleCoordsHash;
 }
@@ -244,7 +240,7 @@ RPG.Beings.PC.prototype._getVisualsForCoords = function(coords) {
 	return visuals;
 }
 
-RPG.Beings.PC.prototype._computeVisibleCoords = function() {
+RPG.Beings.PC.prototype._computeVisibleCoordsOLD = function() {
 	var R = this.getFeat(RPG.FEAT_SIGHT_RANGE);
 	var center = this._coords;
 	var current = new RPG.Misc.Coords(0, 0);
@@ -280,7 +276,7 @@ RPG.Beings.PC.prototype._computeVisibleCoords = function() {
 			c = coords[i];
 
 			var startArc = (i-0.5) * arcsPerCell + 0.5;
-			if (this._visibleCoords(map.blocks(RPG.BLOCKS_LIGHT, c), startArc, arcsPerCell, arcs)) { 
+			if (this._visibleCoordsOLD(map.blocks(RPG.BLOCKS_LIGHT, c), startArc, arcsPerCell, arcs)) { 
 				result[c.x+","+c.y] = c; 
 			}
 
@@ -306,7 +302,7 @@ RPG.Beings.PC.prototype._computeVisibleCoords = function() {
  * @param {float} arcsPerCell How many arcs are shaded by this one, >= 1
  * @param {arc[]} array of available arcs
  */
-RPG.Beings.PC.prototype._visibleCoords = function(blocks, startArc, arcsPerCell, arcs) {
+RPG.Beings.PC.prototype._visibleCoordsOLD = function(blocks, startArc, arcsPerCell, arcs) {
 	var eps = 1e-4;
 	var startIndex = Math.floor(startArc);
 	var arcCount = arcs.length;
@@ -364,7 +360,7 @@ RPG.Beings.PC.prototype._visibleCoords = function(blocks, startArc, arcsPerCell,
 
 /***** NEW shadowcasting here */
 
-RPG.Beings.PC.prototype._computeVisibleCoords2 = function() {
+RPG.Beings.PC.prototype._computeVisibleCoords = function() {
 	var R = this.getFeat(RPG.FEAT_SIGHT_RANGE);
 	var center = this._coords;
 	var map = this._map;
@@ -400,7 +396,7 @@ RPG.Beings.PC.prototype._computeVisibleCoords2 = function() {
 			B = A + angle;
 			blocks = map.blocks(RPG.BLOCKS_LIGHT, c);
 			
-			if (this._visibleCoords2(Math.floor(A), Math.ceil(B), blocks, DATA)) { result[c.x+","+c.y] = c; }
+			if (this._visibleCoords(Math.floor(A), Math.ceil(B), blocks, DATA)) { result[c.x+","+c.y] = c; }
 			
 			/* cutoff? */
 			if (DATA.length == 2 && DATA[0] == 0 && DATA[1] == 360) { return result; }
@@ -410,7 +406,7 @@ RPG.Beings.PC.prototype._computeVisibleCoords2 = function() {
 	return result;
 }
 
-RPG.Beings.PC.prototype._visibleCoords2 = function(A, B, blocks, DATA) {
+RPG.Beings.PC.prototype._visibleCoords = function(A, B, blocks, DATA) {
 	if (A < 0) { 
 		var v1 = arguments.callee(0, B, blocks, DATA);
 		var v2 = arguments.callee(360+A, 360, blocks, DATA);
@@ -470,9 +466,9 @@ RPG.Beings.PC.prototype._visibleCoords2 = function(A, B, blocks, DATA) {
 
 function b() {
 	var t1 = new Date().getTime();
-	for (var i=0;i<100;i++) { RPG.Game.pc._computeVisibleCoords(); }
+	for (var i=0;i<100;i++) { RPG.Game.pc._computeVisibleCoordsOLD(); }
 	var t2 = new Date().getTime();
-	for (var i=0;i<100;i++) { RPG.Game.pc._computeVisibleCoords2(); }
+	for (var i=0;i<100;i++) { RPG.Game.pc._computeVisibleCoords(); }
 	var t3 = new Date().getTime();
 	console.log(t2-t1, t3-t2);
 }
@@ -768,40 +764,47 @@ RPG.Beings.PC.prototype.close = function(door) {
 
 RPG.Beings.PC.prototype.attackMagic = function(being, spell) {
 	var result = this.parent(being, spell);
-	if (!being.isAlive()) { this.addKill(being); }
+	if (!being.isAlive()) { this._kills++; }
 	return result;
 }
 
 RPG.Beings.PC.prototype.attackMelee = function(being, slot) {
 	var result = this.parent(being, slot);
-	if (!being.isAlive()) { this.addKill(being); }
+	if (!being.isAlive()) { this._kills++; }
+	return result;
+}
+
+RPG.Beings.PC.prototype.attackRanged = function(being, projectile) {
+	var result = this.parent(being, projectile);
+	if (!being.isAlive()) { this._kills++; }
 	return result;
 }
 
 /* ------------------- PRIVATE --------------- */
 
-RPG.Beings.PC.prototype._describeAttack = function(hit, damage, kill, being, slot) {
-	var killVerb = ["kill", "slay"].random();
-	var hitVerb = (slot instanceof RPG.Slots.Kick ? "kick" : "hit");
-
-	if (!hit) {
-		var s = RPG.Misc.format("You miss %the.", being);
+RPG.Beings.PC.prototype._describeAttack = function(combat) {
+	var defender = combat.getDefender();
+	
+	if (!combat.wasHit()) {
+		var s = RPG.Misc.format("You miss %the.", defender);
 		RPG.UI.buffer.message(s);
 		return;
 	}
 	
-	var s = RPG.Misc.format("You %s %the", hitVerb, being);
-	if (!damage) {
-		s += RPG.Misc.format(", but do not manage to harm %him.", being);
+	var hitVerb = (combat.getAttacker() instanceof RPG.Slots.Kick ? "kick" : "hit");
+	var s = RPG.Misc.format("You %s %the", hitVerb, defender);
+	if (!combat.getDamage()) {
+		s += RPG.Misc.format(", but do not manage to harm %him.", defender);
 		RPG.UI.buffer.message(s);
 		return;
 	}
 	
-	if (kill) {
-		s += RPG.Misc.format(" and %s %him!", killVerb, being);
+	if (combat.wasKill()) {
+		var killVerb = ["kill", "slay"].random();
+		s += RPG.Misc.format(" and %s %him!", killVerb, defender);
 		RPG.UI.buffer.message(s);
 	} else {
-		s += RPG.Misc.format(" and %s wound %him.", being.woundedState(), being);
+		s += RPG.Misc.format(" and %s wound %him.", defender.woundedState(), defender);
 		RPG.UI.buffer.message(s);
 	}
 }

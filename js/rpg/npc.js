@@ -176,27 +176,29 @@ RPG.Beings.NPC.prototype._describeLaunch = function(projectile, target) {
 	RPG.UI.buffer.message(s);
 }
 
-RPG.Beings.NPC.prototype._describeAttack = function(hit, damage, kill, being, slot) {
-	if (!hit) {
-		var s = RPG.Misc.format("%The misses %a.", this, being);
+RPG.Beings.NPC.prototype._describeAttack = function(combat) {
+	var defender = combat.getDefender();
+
+	if (!combat.wasHit()) {
+		var s = RPG.Misc.format("%The misses %a.", this, defender);
 		RPG.UI.buffer.message(s);
 		return;
 	}
 	
-	if (!damage) {
-		var s = RPG.Misc.format("%The fails to hurt %a.", this, being);
+	if (!combat.getDamage()) {
+		var s = RPG.Misc.format("%The fails to hurt %a.", this, defender);
 		RPG.UI.buffer.message(s);
 		return;
 	}
 	
-	var s = RPG.Misc.format("%The hits %a", this, being);
-	if (kill) {
-		s += RPG.Misc.format(" and kills %him.", being);
+	var s = RPG.Misc.format("%The hits %a", this, defender);
+	if (combat.wasKill()) {
+		s += RPG.Misc.format(" and kills %him.", defender);
 	} else {
-		if (being == RPG.Game.pc) {
+		if (defender == RPG.Game.pc) {
 			s += ".";
 		} else {
-			s+= RPG.Misc.format(" and %s wounds %him.", being.woundedState(), being);
+			s+= RPG.Misc.format(" and %s wounds %him.", defender.woundedState(), defender);
 		}
 	}
 	

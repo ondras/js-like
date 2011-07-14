@@ -1,39 +1,67 @@
 /**
- * @class Kick slot
+ * @class Damaging slot
  * @augments RPG.Slots.BaseSlot
- * @augments RPG.Misc.IWeapon
+ * @augments RPG.Misc.IDamageDealer
  */
-RPG.Slots.Kick = OZ.Class()
+RPG.Slots.Damage = OZ.Class()
 					.extend(RPG.Slots.BaseSlot)
-					.implement(RPG.Misc.IWeapon);
-RPG.Slots.Kick.prototype.init = function(name) {
-	this.parent(name, RPG.Items.Boots);
+					.implement(RPG.Misc.IDamageDealer);
+RPG.Slots.Damage.prototype.init = function(name, allowed) {
+	this.parent(name, allowed);
 	this._hit = null;
 	this._damage = null;
-}
-
-RPG.Slots.Kick.prototype.getHit = function() {
-	var addedHit = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_HIT), 0);
-	return this._hit.add(addedHit);
-}
-
-RPG.Slots.Kick.prototype.getDamage = function() {
-	var addedDamage = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_DAMAGE), 0);
-	return this._damage.add(addedDamage);
 }
 
 /**
- * @class Weapon-based slot
- * @augments RPG.Slots.BaseSlot
- * @augments RPG.Misc.IWeapon
+ * @see RPG.Misc.IDamageDealer#getLuck
  */
-RPG.Slots.Weapon = OZ.Class()
-					.extend(RPG.Slots.BaseSlot)
-					.implement(RPG.Misc.IWeapon);
+RPG.Slots.Damage.prototype.getLuck = function() {
+	return this._being.getFeat(RPG.FEAT_LUCK);
+}
+
+/**
+ * @see RPG.Misc.IDamageDealer#getHit
+ */
+RPG.Slots.Damage.prototype.getHit = function() {
+	var addedHit = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_HIT), 0); /* FIXME random value or wtf */
+	return this._hit.add(addedHit);
+}
+
+/**
+ * @see RPG.Misc.IDamageDealer#getDamage
+ */
+RPG.Slots.Damage.prototype.getDamage = function() {
+	var addedDamage = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_DAMAGE), 0); /* FIXME random value or wtf */
+	return this._damage.add(addedDamage);
+}
+
+RPG.Slots.Damage.prototype.setHit = function(hit) {
+	this._hit = hit;
+	return this;
+}
+
+RPG.Slots.Damage.prototype.setDamage = function(damage) {
+	this._damage = damage;
+	return this;
+}
+
+/**
+ * @class Kick slot
+ * @augments RPG.Slots.Damage
+ */
+RPG.Slots.Kick = OZ.Class().extend(RPG.Slots.Damage);
+
+RPG.Slots.Kick.prototype.init = function(name) {
+	this.parent(name, RPG.Items.Boots);
+}
+
+/**
+ * @class Weapon-based slot. Deals damage itself, but when equipped with a weapon, deals damage with that weapon.
+ * @augments RPG.Slots.Damage
+ */
+RPG.Slots.Weapon = OZ.Class().extend(RPG.Slots.Damage)
 RPG.Slots.Weapon.prototype.init = function(name) {
 	this.parent(name, RPG.Items.Weapon);
-	this._hit = null;
-	this._damage = null;
 }
 
 RPG.Slots.Weapon.prototype.setItem = function(item) {
@@ -76,10 +104,8 @@ RPG.Slots.Shield.prototype.setItem = function(item) {
  * @class Projectile slot (rocks, arrows, ...)
  * This slot holds the whole heap of items, no subtracting is done.
  * @augments RPG.Slots.BaseSlot
- * @augments RPG.Misc.IWeapon
  */
-RPG.Slots.Projectile = OZ.Class()
-						.extend(RPG.Slots.BaseSlot);
+RPG.Slots.Projectile = OZ.Class().extend(RPG.Slots.BaseSlot);
 RPG.Slots.Projectile.prototype.init = function(name) {
 	this.parent(name, RPG.Items.Projectile);
 }

@@ -2,11 +2,13 @@
  * @class Basic being
  * @augments RPG.Visual.IVisual
  * @augments RPG.Misc.IActor
+ * @augments RPG.Misc.IDamageReceiver
  */
 RPG.Beings.BaseBeing = OZ.Class()
 						.implement(RPG.Visual.IVisual)
+						.implement(RPG.Misc.IDamageReceiver)
 						.implement(RPG.Misc.IActor);
-						
+
 /**
  * @param {function} race Race constructor
  */
@@ -358,6 +360,41 @@ RPG.Beings.BaseBeing.prototype.getSpeed = function() {
 }
 
 /**
+ * @see RPG.Misc.IDamageReceiver#getLuck
+ */
+RPG.Beings.BaseBeing.prototype.getLuck = function() {
+	return this.getFeat(RPG.FEAT_LUCK);
+}
+
+/**
+ * @see RPG.Misc.IDamageReceiver#getDV
+ */
+RPG.Beings.BaseBeing.prototype.getDV = function() {
+	return this.getFeat(RPG.FEAT_DV);
+}
+
+/**
+ * @see RPG.Misc.IDamageReceiver#getPV
+ */
+RPG.Beings.BaseBeing.prototype.getPV = function() {
+	return this.getFeat(RPG.FEAT_PV);
+}
+
+/**
+ * @see RPG.Misc.IDamageReceiver#isAlive
+ */
+RPG.Beings.BaseBeing.prototype.isAlive = function() {
+	return this._alive;
+}
+
+/**
+ * @see RPG.Misc.IDamageReceiver#damage
+ */
+RPG.Beings.BaseBeing.prototype.damage = function(amount) {
+	this.adjustStat(RPG.STAT_HP, -amount);
+}
+
+/**
  * Heal wounds
  * @param {int} amount
  */
@@ -382,10 +419,6 @@ RPG.Beings.BaseBeing.prototype.heal = function(amount) {
 }
 
 /* ============================== MISC ==================================== */
-
-RPG.Beings.BaseBeing.prototype.isAlive = function() {
-	return this._alive;
-}
 
 /**
  * Fully recovers all stats to maximum
@@ -699,24 +732,12 @@ RPG.Beings.BaseBeing.prototype.attackMagic = function(being, spell) {
 	return RPG.ACTION_NO_TIME;
 }
 
+/**
+ * Attack target being with a given slot
+ */
 RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
-	var hit = false;
-	var damage = false;
-	var kill = false;
-	
-	/* hit? */
-	hit = RPG.Rules.isMeleeHit(this, being, slot);
-	if (hit) { 
-		/* damage? */
-		var crit = RPG.Rules.isLucky(this);
-		damage = RPG.Rules.getMeleeDamage(this, being, slot, crit);
-		if (damage) {
-			being.adjustStat(RPG.STAT_HP, -damage);
-			kill = !being.isAlive();
-		}
-	}
-	
-	this._describeAttack(hit, damage, kill, being, slot);
+	var combat = new RPG.Misc.Combat(slot, being).execute();
+	this._describeAttack(combat);
 	
 	this.dispatch("attack-melee", {being:being});
 	return RPG.ACTION_TIME;
@@ -778,7 +799,10 @@ RPG.Beings.BaseBeing.prototype.removeModifiers = function(imodifier) {
 RPG.Beings.BaseBeing.prototype._describeLaunch = function(projectile, target) {
 }
 
-RPG.Beings.BaseBeing.prototype._describeAttack = function(hit, damage, kill, being, slot) {
+/**
+ * @param {RPG.Misc.Combat}
+ */
+RPG.Beings.BaseBeing.prototype._describeAttack = function(combat) {
 }
 
 RPG.Beings.BaseBeing.prototype._syncStatsAndFeats = function() {

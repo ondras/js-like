@@ -474,6 +474,9 @@ RPG.Misc.Scheduler.prototype.scheduleActor = function() {
 	return minActor.actor;
 }
 
+/**
+ * @class Feat
+ */
 RPG.Misc.Feat = OZ.Class();
 
 RPG.Misc.Feat.prototype.init = function(name, description) {
@@ -491,6 +494,112 @@ RPG.Misc.Feat.prototype.computeRating = function(level) {
 	var nlevel = level + 1;
 	var val = (Math.pow(phi, nlevel) - Math.pow(-1/phi, nlevel)) / Math.sqrt(5);
 	return Math.round(val);
+}
+
+/**
+ * @class Combat context
+ */
+RPG.Misc.Combat = OZ.Class();
+
+/**
+ * @param {RPG.Misc.IDamageDealer} attacker
+ * @param {RPG.Misc.IDamageReceiver} defender
+ */
+RPG.Misc.Combat.prototype.init = function(attacker, defender) {
+	this._attacker = attacker;
+	this._defender = defender;
+	
+	this._hit = false;
+	this._kill = false;
+	this._damage = 0;
+}
+
+RPG.Misc.Combat.prototype.getAttacker = function() {
+	return this._attacker;
+}
+
+RPG.Misc.Combat.prototype.getDefender = function() {
+	return this._defender;
+}
+
+RPG.Misc.Combat.prototype.wasHit = function() {
+	return this._hit;
+}
+
+RPG.Misc.Combat.prototype.wasKill = function() {
+	return this._kill;
+}
+
+RPG.Misc.Combat.prototype.getDamage = function() {
+	return this._damage;
+}
+
+RPG.Misc.Combat.prototype._luckCheck = function(who) {
+	return (Math.random()*200 < who.getLuck());
+}
+
+RPG.Misc.Combat.prototype.execute = function() {
+	/* check hit */
+	var hit = this._attacker.getHit().roll();
+	var dv = this._defender.getDV();
+	
+	if (hit >= dv) { /* hit */
+		if (this._luckCheck(this._defender)) { return this; } /* lucky, evaded */
+	} else { /* missed */
+		if (!this._luckCheck(this._attacker)) { return this; }/* no luck, miss */
+	}
+	this._hit = true;
+
+	/* compute damage */
+	var damage = this._attacker.getDamage().roll();
+	if (this._luckCheck(this._attacker)) { damage *= 2; }
+	this._damage = Math.max(0, damage - this._defender.getPV());
+	if (!this._damage) { return this; }
+	
+	/* deal damage */
+	this._defender.damage(this._damage);
+	this._kill = !this._defender.isAlive();
+	return this;
+}
+
+/**
+ * @class Damage dealer interface - everything which deals damage
+ */
+RPG.Misc.IDamageDealer = OZ.Class();
+
+/**
+ * @returns {RPG.Misc.RandomValue}
+ */
+RPG.Misc.IDamageDealer.prototype.getHit = function() {
+	return this._hit;
+}
+/**
+ * @returns {RPG.Misc.RandomValue}
+ */
+RPG.Misc.IDamageDealer.prototype.getDamage = function() {
+	return this._damage;
+}
+RPG.Misc.IDamageDealer.prototype.getLuck = function() {
+	return 0;
+}
+
+/**
+ * @class Damage receiver interface - everything which receives damage
+ */
+RPG.Misc.IDamageReceiver = OZ.Class();
+RPG.Misc.IDamageReceiver.prototype.getDV = function() {
+	return 0;
+}
+RPG.Misc.IDamageReceiver.prototype.getPV = function() {
+	return 0;
+}
+RPG.Misc.IDamageReceiver.prototype.getLuck = function() {
+	return 0;
+}
+RPG.Misc.IDamageReceiver.prototype.damage = function(amount) {
+}
+RPG.Misc.IDamageReceiver.prototype.isAlive = function() {
+	return false;
 }
 
 /**
