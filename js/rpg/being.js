@@ -674,7 +674,7 @@ RPG.Beings.BaseBeing.prototype.launch = function(projectile, coords) {
 /**
  * Magical attack
  * @param {RPG.Beings.BaseBeing} being
- * @param {RPG.Spells.BaseSpell} spell
+ * @param {RPG.Spells.Attack} spell
  */
 RPG.Beings.BaseBeing.prototype.attackMagic = function(being, spell) {
 	var hit = RPG.Rules.isSpellHit(this, being, spell);

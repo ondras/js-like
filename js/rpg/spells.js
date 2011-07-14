@@ -6,10 +6,9 @@ RPG.Spells.BaseSpell = OZ.Class()
 						.implement(RPG.Visual.IVisual);
 RPG.Spells.BaseSpell.factory.ignore = true;
 RPG.Spells.BaseSpell.cost = null;
-RPG.Spells.BaseSpell.damage = null;
 RPG.Spells.BaseSpell.visual = { path:"spells" };
+RPG.Spells.BaseSpell.prototype._type = RPG.SPELL_SELF;
 RPG.Spells.BaseSpell.prototype.init = function(caster) {
-	this._type = RPG.SPELL_SELF;
 	this._caster = caster;
 }
 
@@ -38,10 +37,10 @@ RPG.Spells.Attack = OZ.Class()
 					.implement(RPG.Misc.IWeapon);
 RPG.Spells.Attack.factory.ignore = true;
 RPG.Spells.Attack.visual = { ch:"*" };
+RPG.Spells.Attack.prototype._hit = null;
+RPG.Spells.Attack.prototype._damage = null;
 RPG.Spells.Attack.prototype.init = function(caster) {
 	this.parent(caster);
-	this._hit = null;
-	this._damage = null;
 	this._exploded = false;
 }
 

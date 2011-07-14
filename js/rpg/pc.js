@@ -208,8 +208,7 @@ RPG.Beings.PC.prototype.memorizeVisible = function() {
 RPG.Beings.PC.prototype.clearMemory = function() {
 	this._mapMemory[this._map.getID()] = {};
 	this.updateFromMemory();
-	var s = RPG.Misc.format("%You suddenly do not remember anything about this level.", this);
-	RPG.UI.buffer.message(s);
+	RPG.UI.buffer.message("You suddenly do not remember anything about this level.");
 }
 
 /**
@@ -660,14 +659,13 @@ RPG.Beings.PC.prototype.kick = function(coords) {
 		return RPG.ACTION_NO_TIME;
 	}
 	
-	if (feature && feature instanceof RPG.Features.Door && feature.isClosed()) { /* kick door */
+	if (feature && feature.blocks(RPG.BLOCKS_MOVEMENT) && feature.isDestroyable()) {
 		var feet = this.getSlot(RPG.SLOT_FEET);
 		var dmg = feet.getDamage().roll();
-		var result = feature.damage(dmg);
+		var result = feature.damage(this, dmg);
 		if (result) {
-			RPG.UI.buffer.message("You kick the door, but it does not budge.");
-		} else {
-			RPG.UI.buffer.message("You shatter the door with a mighty kick!");
+			var s = RPG.Misc.format("You kick %the, but it still holds.", feature);
+			RPG.UI.buffer.message(s);
 		}
 		return RPG.ACTION_TIME;
 	}

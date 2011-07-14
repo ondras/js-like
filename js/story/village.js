@@ -27,7 +27,7 @@ RPG.Map.SmallVillage.prototype.init = function() {
 	var size = new RPG.Misc.Coords(width, height);
 	this.parent("A small village", size, 1);
 
-	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 2;
+	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 3;
 	this._sound = "tristram";
 	
 	this.fromString(str, {"=":RPG.Cells.Water.getInstance(), "_":RPG.Cells.Corridor.getInstance()});

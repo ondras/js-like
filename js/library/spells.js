@@ -5,10 +5,7 @@
 RPG.Spells.Heal = OZ.Class().extend(RPG.Spells.BaseSpell);
 RPG.Spells.Heal.visual = { desc:"heal" };
 RPG.Spells.Heal.cost = 4;
-RPG.Spells.Heal.prototype.init = function(caster) {
-	this.parent(caster);
-	this._type = RPG.SPELL_TOUCH;
-}
+RPG.Spells.Heal.prototype._type = RPG.SPELL_TOUCH;
 
 RPG.Spells.Heal.prototype.cast = function(dir) {
 	var map = this._caster.getMap();
@@ -31,10 +28,7 @@ RPG.Spells.Heal.prototype.cast = function(dir) {
 RPG.Spells.Teleport = OZ.Class().extend(RPG.Spells.BaseSpell);
 RPG.Spells.Teleport.visual = { desc:"teleport" };
 RPG.Spells.Teleport.cost = 7;
-RPG.Spells.Teleport.prototype.init = function(caster) {
-	this.parent(caster);
-	this._type = RPG.SPELL_REMOTE;
-}
+RPG.Spells.Teleport.prototype._type = RPG.SPELL_REMOTE;
 
 RPG.Spells.Teleport.prototype.cast = function(coords) {
 	var map = this._caster.getMap();
@@ -54,10 +48,7 @@ RPG.Spells.Teleport.prototype.cast = function(coords) {
 RPG.Spells.Knock = OZ.Class().extend(RPG.Spells.BaseSpell);
 RPG.Spells.Knock.visual = { desc:"knock" };
 RPG.Spells.Knock.cost = 3;
-RPG.Spells.Knock.prototype.init = function(caster) {
-	this.parent(caster);
-	this._type = RPG.SPELL_TOUCH;
-}
+RPG.Spells.Knock.prototype._type = RPG.SPELL_TOUCH;
 
 RPG.Spells.Knock.prototype.cast = function(dir) {
 	var map = this._caster.getMap();
@@ -80,10 +71,9 @@ RPG.Spells.Knock.prototype.cast = function(dir) {
 RPG.Spells.MagicExplosion = OZ.Class().extend(RPG.Spells.Attack);
 RPG.Spells.MagicExplosion.visual = { color:"#ff0", desc:"magic explosion", image:"magic-explosion" };
 RPG.Spells.MagicExplosion.cost = 11;
-RPG.Spells.MagicExplosion.damage = new RPG.Misc.RandomValue(5, 3);
+RPG.Spells.MagicExplosion.prototype._damage = new RPG.Misc.RandomValue(5, 3);
 RPG.Spells.MagicExplosion.prototype.init = function(caster) {
 	this.parent(caster);
-	this._type = RPG.SPELL_SELF;
 	this._radius = 2;
 }
 
@@ -102,10 +92,10 @@ RPG.Spells.MagicExplosion.prototype.cast = function() {
 RPG.Spells.MagicBolt = OZ.Class().extend(RPG.Spells.Projectile);
 RPG.Spells.MagicBolt.visual = { color:"#93c", desc:"magic bolt", image:"magic-bolt" };
 RPG.Spells.MagicBolt.cost = 8;
-RPG.Spells.MagicBolt.damage = new RPG.Misc.RandomValue(4, 1);
+RPG.Spells.MagicBolt.prototype._type = RPG.SPELL_DIRECTION;
+RPG.Spells.MagicBolt.prototype._damage = new RPG.Misc.RandomValue(4, 1);
 RPG.Spells.MagicBolt.prototype.init = function(caster) {
 	this.parent(caster);
-	this._type = RPG.SPELL_DIRECTION;
 	this._range = 5;
 }
 
@@ -131,10 +121,10 @@ RPG.Spells.MagicBolt.prototype._fly = function(coords) {
 RPG.Spells.Fireball = OZ.Class().extend(RPG.Spells.Projectile);
 RPG.Spells.Fireball.visual = { desc:"fireball", color:"#f00", image:"fireball" };
 RPG.Spells.Fireball.cost = 12;
-RPG.Spells.Fireball.damage = new RPG.Misc.RandomValue(5, 3);
+RPG.Spells.Fireball.prototype._type = RPG.SPELL_TARGET;
+RPG.Spells.Fireball.prototype._damage = new RPG.Misc.RandomValue(5, 3);
 RPG.Spells.Fireball.prototype.init = function(caster) {
 	this.parent(caster);
-	this._type = RPG.SPELL_TARGET;
 	this._range = 6;
 	this._radius = 2;
 	this._suffixes = {};

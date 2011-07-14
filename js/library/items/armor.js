@@ -82,9 +82,9 @@ RPG.Items.MetalCap.prototype.init = function() {
  */
 RPG.Items.LeatherBoots = OZ.Class().extend(RPG.Items.Boots);
 RPG.Items.LeatherBoots.visual = { desc:"leather boots", image:"leather-boots", descPlural:"pairs of leather boots" };
+RPG.Items.LeatherBoots.prototype._uncountable = true;
 RPG.Items.LeatherBoots.prototype.init = function() {
 	this.parent();
-	this._uncountable = true;
 	this._modifiers[RPG.FEAT_DV] = 1;
 }
 
@@ -95,9 +95,9 @@ RPG.Items.LeatherBoots.prototype.init = function() {
 RPG.Items.Clothes = OZ.Class().extend(RPG.Items.Armor);
 RPG.Items.Clothes.factory.frequency = 125;
 RPG.Items.Clothes.visual = { desc:"clothes", image:"clothes", color:"#0f0" };
+RPG.Items.Clothes.prototype._uncountable = true;
 RPG.Items.Clothes.prototype.init = function() {
 	this.parent();
-	this._uncountable = true;
 	this._modifiers[RPG.FEAT_PV] = 1;
 }
 

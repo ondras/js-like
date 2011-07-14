@@ -32,10 +32,7 @@ RPG.Cells.Water.visual = { desc:"water", ch:"=", image:"water", color:"#009" };
  */
 RPG.Cells.Wall = OZ.Singleton().extend(RPG.Cells.BaseCell);
 RPG.Cells.Wall.visual = { desc:"solid wall", ch:"#", image:"wall", color:"#666" };
-RPG.Cells.Wall.prototype.init = function() {
-	this.parent();
-	this._blocks = RPG.BLOCKS_LIGHT;
-}
+RPG.Cells.Wall.prototype._blocks = RPG.BLOCKS_LIGHT;
 
 /**
  * @class Fake wall
@@ -53,10 +50,7 @@ RPG.Cells.Wall.Fake.prototype.init = function() {
  */
 RPG.Features.Tree = OZ.Class().extend(RPG.Features.BaseFeature);
 RPG.Features.Tree.visual = { desc:"tree", ch:"T", image:"tree", color:"#093" }
-RPG.Features.Tree.prototype.init = function() {
-	this.parent();
-	this._blocks = RPG.BLOCKS_MOVEMENT;
-}
+RPG.Features.Tree.prototype._blocks = RPG.BLOCKS_MOVEMENT;
 
 /**
  * @class Door
@@ -64,6 +58,7 @@ RPG.Features.Tree.prototype.init = function() {
  */
 RPG.Features.Door = OZ.Class().extend(RPG.Features.BaseFeature);
 RPG.Features.Door.visual = { color:"#963" }
+RPG.Features.Door.prototype._destroyable = true;
 RPG.Features.Door.prototype.init = function() {
 	this.parent();
 	this._hp = 4;
@@ -132,17 +127,11 @@ RPG.Features.Door.prototype.isLocked = function() {
 }
 
 /**
- * Do a damage to this door. 
- * @param {int} amount
- * @returns {bool} Whether this door still stands
+ * @see RPG.Features.BaseFeature#destroy
  */
-RPG.Features.Door.prototype.damage = function(amount) {
-	this._hp -= amount;
-	if (this._hp <= 0) { 
-		this._map.setFeature(null, this._coords); 
-		if (this._map.isActive() && RPG.Game.pc.canSee(this._coords)) { RPG.Game.pc.updateVisibility(); }
-	}
-	return (this._hp > 0);
+RPG.Features.Door.prototype.destroy = function(being) {
+	this.parent(being);
+	if (RPG.Game.pc.canSee(this._coords)) { RPG.Game.pc.updateVisibility(); }
 }
 
 /**
@@ -186,7 +175,7 @@ RPG.Features.Trap.Teleport.prototype.setOff = function(being) {
  * @augments RPG.Features.Trap
  */
 RPG.Features.Trap.Pit = OZ.Class().extend(RPG.Features.Trap);
-RPG.Features.Trap.Teleport.visual = { desc:"pit trap", image:"trap-pit", color:"#963" }
+RPG.Features.Trap.Pit.visual = { desc:"pit trap", image:"trap-pit", color:"#963" }
 
 RPG.Features.Trap.Pit.prototype.init = function() {
 	this.parent();
@@ -244,6 +233,15 @@ RPG.Features.Altar.visual = { desc:"altar", image:"altar FIXME", ch:"_", color:"
  */
 RPG.Features.Bench = OZ.Class().extend(RPG.Features.BaseFeature);
 RPG.Features.Bench.visual = { desc:"bench", image:"altar FIXME", ch:"|", color:"#963"};
+RPG.Features.Bench.prototype._blocks = RPG.BLOCKS_MOVEMENT;
+
+/**
+ * @class Tombstone feature
+ * @augments RPG.Features.BaseFeature
+ */
+RPG.Features.Tombstone = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.Tombstone.visual = { desc:"tombstone", image:"tombstone FIXME", ch:"+", color:"#666"};
+RPG.Features.Tombstone.prototype._blocks = RPG.BLOCKS_MOVEMENT;
 
 /**
  * @class Stained glass window, random shiny color
@@ -251,12 +249,22 @@ RPG.Features.Bench.visual = { desc:"bench", image:"altar FIXME", ch:"|", color:"
  */
 RPG.Features.StainedGlassWindow = OZ.Class().extend(RPG.Features.BaseFeature);
 RPG.Features.StainedGlassWindow.visual = { desc:"stained glass window", image:"fixme", ch:"=" };
+RPG.Features.StainedGlassWindow.prototype._blocks = RPG.BLOCKS_MOVEMENT;
+RPG.Features.StainedGlassWindow.prototype._destroyable = true;
 RPG.Features.StainedGlassWindow.prototype.init = function() { 
 	this.parent();
+	this._hp = 3;
 	this._color = ["red","green","blue","yellow","magenta","cyan"].random(); 
 }
 RPG.Features.StainedGlassWindow.prototype.getColor = function() { 
 	return this._color;
+}
+RPG.Features.StainedGlassWindow.prototype.destroy = function(being) {
+	this.parent(being);
+	var dmg = 1+Math.floor(Math.random()*3);
+	var s = RPG.Misc.format("%The %is wounded by the falling glass!", being, being);
+	RPG.UI.buffer.message(s);
+	being.adjustStat(RPG.STAT_HP, -dmg);
 }
 
 /**

@@ -8,10 +8,10 @@ RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Misc.IEnterable); /* "entering" an item means equipping it */
 RPG.Items.BaseItem.factory.ignore = true;
 RPG.Items.BaseItem.visual = { path:"items" };
+RPG.Items.BaseItem.prototype._uncountable = false;
 RPG.Items.BaseItem.prototype.init = function() {
 	this._modifiers = {};
 	this._amount = 1;
-	this._uncountable = false;
 	this._remembered = false;
 	this._price = 0;
 	this._owner = null; /* being having this */
@@ -141,7 +141,7 @@ RPG.Items.BaseItem.prototype._describeModifiers = function() {
 			dvpv = true; continue; 
 		}
 		var f = RPG.Feats[feat];
-		var str = a.name;
+		var str = f.name;
 		var num = this._modifiers[feat];
 		if (num >= 0) { num = "+"+num; }
 		arr.push("{"+str+num+"}");
