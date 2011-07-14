@@ -10,7 +10,7 @@ RPG.Cells.Corridor.visual = { desc:"floor section", ch:".", image:"corridor", co
  * @augments RPG.Cells.BaseCell
  */
 RPG.Cells.Road = OZ.Singleton().extend(RPG.Cells.BaseCell);
-RPG.Cells.Road.visual = { desc:"road", ch:".", image:"corridor FIXME", color:"#963" };
+RPG.Cells.Road.visual = { desc:"road", ch:".", image:"road", color:"#963" };
 
 /**
  * @class Grass
@@ -225,7 +225,7 @@ RPG.Features.Trap.Flash.prototype.setOff = function(being) {
  * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Altar = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Altar.visual = { desc:"altar", image:"altar FIXME", ch:"_", color:"#fff"};
+RPG.Features.Altar.visual = { desc:"altar", image:"altar", ch:"_", color:"#fff"};
 
 /**
  * @class Bench feature
@@ -240,7 +240,7 @@ RPG.Features.Bench.prototype._blocks = RPG.BLOCKS_MOVEMENT;
  * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Tombstone = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Tombstone.visual = { desc:"tombstone", image:"tombstone FIXME", ch:"+", color:"#666"};
+RPG.Features.Tombstone.visual = { desc:"tombstone", image:"tombstone", ch:"+", color:"#666"};
 RPG.Features.Tombstone.prototype._blocks = RPG.BLOCKS_MOVEMENT;
 
 /**
