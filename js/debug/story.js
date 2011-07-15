@@ -22,8 +22,9 @@ RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
 	/*
 	var scroll = new RPG.Items.Scroll(RPG.Spells.MagicBolt);
 	scroll.setPrice(123);
-	pc.addItem(scroll);
 	*/
+
+	pc.addItem(new RPG.Items.Rock().setAmount(5));
 
 	pc.addSpell(RPG.Spells.Heal);
 	pc.addSpell(RPG.Spells.MagicBolt);

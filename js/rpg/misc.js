@@ -280,6 +280,9 @@ RPG.Misc.IActor.prototype.getSpeed = function() {};
 RPG.Misc.IActor.prototype.yourTurn = function() {
 	return RPG.ACTION_TIME;
 }
+RPG.Misc.IActor.prototype.getEffects = function() {
+	return [];
+}
 
 /**
  * @class Dialog interface
@@ -440,6 +443,8 @@ RPG.Misc.Scheduler.prototype.scheduleActor = function() {
 		var actor = this._actors[i];
 		if (actor.bucket < minBucket) {
 			minBucket = actor.bucket;
+			minActor = actor;
+		} else if (actor.bucket == minBucket && actor.actor.getSpeed() > minActor.actor.getSpeed()) {
 			minActor = actor;
 		}
 	}

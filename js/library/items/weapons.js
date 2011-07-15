@@ -138,6 +138,38 @@ RPG.Items.KlingonSword.prototype.init = function() {
 }
 
 /**
+ * @class Bow
+ * @augments RPG.Items.Weapon
+ */
+RPG.Items.Bow = OZ.Class().extend(RPG.Items.Weapon);
+RPG.Items.Bow.factory.frequency = 0;
+RPG.Items.Bow.prototype._range = 4;
+RPG.Items.Bow.prototype.getRange = function() {
+	return this._range;
+}
+
+/**
+ * @class Short bow
+ * @augments RPG.Items.Bow
+ */
+RPG.Items.ShortBow = OZ.Class().extend(RPG.Items.Bow);
+RPG.Items.ShortBow.visual = { desc:"short bow", image:"short-bow", ch:"}" };
+RPG.Items.ShortBow.prototype._hit = new RPG.Misc.RandomValue(3, 1);
+RPG.Items.ShortBow.prototype._damage = new RPG.Misc.RandomValue(3, 1);
+
+/**
+ * @class Long bow
+ * @augments RPG.Items.Bow
+ */
+RPG.Items.LongBow = OZ.Class().extend(RPG.Items.Bow);
+RPG.Items.LongBow.factory.danger = 2;
+RPG.Items.LongBow.visual = { desc:"long bow", image:"long-bow", ch:"}" };
+RPG.Items.LongBow.prototype._range = 6;
+RPG.Items.LongBow.prototype._hit = new RPG.Misc.RandomValue(4, 2);
+RPG.Items.LongBow.prototype._damage = new RPG.Misc.RandomValue(5, 2);
+
+
+/**
  * @class Projectile weapon (arrow, rock, ...)
  * @augments RPG.Items.Weapon
  * @augments RPG.Misc.IProjectile
@@ -218,18 +250,15 @@ RPG.Items.Projectile.prototype._flightDone = function() {
 	var coords = this._flight.coords[this._flight.coords.length-1];
 	var map = this._owner.getMap();
 	var b = map.getBeing(coords);
-	var f = map.getFeature(coords);
 	
-	if (b) {
+	if (b) { /* being; attack it */
 		this._owner.attackRanged(b, this);
-	} else {
-		if (!map.blocks(RPG.BLOCKS_MOVEMENT, coords)) { 
-			if (RPG.Rules.isProjectileRecovered(this)) { map.addItem(this, coords); }
-		} else {
-			var f = (map.getFeature(coords) || map.getCell(coords));
-			var s = RPG.Misc.format("%A hits %a.", this, f);
-			RPG.UI.buffer.message(s);
-		}
+	} else if (!map.blocks(RPG.BLOCKS_MOVEMENT, coords)) { /* free space */
+		if (RPG.Rules.isProjectileRecovered(this)) { map.addItem(this, coords); }
+	} else { /* something here */
+		var obstacle = (map.getFeature(coords) || map.getCell(coords));
+		var s = RPG.Misc.format("%A hits %a.", this, obstacle);
+		RPG.UI.buffer.message(s);
 	}
 	
 	this.parent();
@@ -270,34 +299,3 @@ RPG.Items.Arrow.prototype.init = function(amount) {
 	this.parent();
 	this._amount = amount;
 }
-
-/**
- * @class Bow
- * @augments RPG.Items.Weapon
- */
-RPG.Items.Bow = OZ.Class().extend(RPG.Items.Weapon);
-RPG.Items.Bow.factory.frequency = 0;
-RPG.Items.Bow.prototype._range = 4;
-RPG.Items.Bow.prototype.getRange = function() {
-	return this._range;
-}
-
-/**
- * @class Short bow
- * @augments RPG.Items.Bow
- */
-RPG.Items.ShortBow = OZ.Class().extend(RPG.Items.Bow);
-RPG.Items.ShortBow.visual = { desc:"short bow", image:"short-bow", ch:"}" };
-RPG.Items.ShortBow.prototype._hit = new RPG.Misc.RandomValue(3, 1);
-RPG.Items.ShortBow.prototype._damage = new RPG.Misc.RandomValue(3, 1);
-
-/**
- * @class Long bow
- * @augments RPG.Items.Bow
- */
-RPG.Items.LongBow = OZ.Class().extend(RPG.Items.Bow);
-RPG.Items.LongBow.factory.danger = 2;
-RPG.Items.LongBow.visual = { desc:"long bow", image:"long-bow", ch:"}" };
-RPG.Items.LongBow.prototype._range = 6;
-RPG.Items.LongBow.prototype._hit = new RPG.Misc.RandomValue(4, 2);
-RPG.Items.LongBow.prototype._damage = new RPG.Misc.RandomValue(5, 2);

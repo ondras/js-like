@@ -23,9 +23,17 @@ RPG.Engine.prototype.useMap = function(map) {
 	this._scheduler.clearActors();
 
 	var beings = map.getBeings();
-	for (var i=0;i<beings.length;i++) { /* get all beings in map and assign them to scheduler */
-		this._scheduler.addActor(beings[i]);
-	}
+	for (var i=0;i<beings.length;i++) { this.addActor(beings[i]); } /* get all beings in map and assign them to scheduler */
+}
+
+RPG.Engine.prototype.addActor = function(actor) {
+	this._scheduler.addActor(actor);
+	return this;
+}
+
+RPG.Engine.prototype.removeActor = function(actor) {
+	this._scheduler.removeActor(actor);
+	return this;
 }
 
 RPG.Engine.prototype._addEvents = function() {

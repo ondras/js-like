@@ -7,7 +7,6 @@ OZ.Class = function() {
 	c.factory = {
 		danger: 1,
 		frequency: 100,
-		ignore: false,
 		method: null
 	}
 	arguments.callee.all.push(c);

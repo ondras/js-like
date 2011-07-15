@@ -53,12 +53,36 @@ RPG.Features.Tree.visual = { desc:"tree", ch:"T", image:"tree", color:"#093" }
 RPG.Features.Tree.prototype._blocks = RPG.BLOCKS_MOVEMENT;
 
 /**
- * @class Door
+ * @class Abstract destroyable feature
  * @augments RPG.Features.BaseFeature
+ * @augments RPG.Features.IDamageReceiver
  */
-RPG.Features.Door = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.Destroyable = OZ.Class()
+							.extend(RPG.Features.BaseFeature)
+							.implement(RPG.Misc.IDamageReceiver);
+RPG.Features.Destroyable.factory.frequency = 0;
+RPG.Features.Destroyable.prototype.damage = function(amount) {
+	this._hp -= amount;
+	if (!this.isAlive()) { this._destroy(); }
+}
+RPG.Features.Destroyable.prototype.isAlive = function() {
+	return this._hp > 0;
+}
+
+/**
+ * This being just destroyed this feature
+ * @param {RPG.Beings.BaseBeing} being
+ */
+RPG.Features.Destroyable.prototype._destroy = function() {
+	this._map.setFeature(null, this._coords); 
+}
+
+/**
+ * @class Door
+ * @augments RPG.Features.Destroyable
+ */
+RPG.Features.Door = OZ.Class().extend(RPG.Features.Destroyable);
 RPG.Features.Door.visual = { color:"#963" }
-RPG.Features.Door.prototype._destroyable = true;
 RPG.Features.Door.prototype.init = function() {
 	this.parent();
 	this._hp = 4;
@@ -125,12 +149,8 @@ RPG.Features.Door.prototype.isClosed = function() {
 RPG.Features.Door.prototype.isLocked = function() {
 	return this._locked;
 }
-
-/**
- * @see RPG.Features.BaseFeature#destroy
- */
-RPG.Features.Door.prototype.destroy = function(being) {
-	this.parent(being);
+RPG.Features.Door.prototype._destroy = function() {
+	this.parent();
 	if (RPG.Game.pc.canSee(this._coords)) { RPG.Game.pc.updateVisibility(); }
 }
 
@@ -244,13 +264,19 @@ RPG.Features.Tombstone.visual = { desc:"tombstone", image:"tombstone", ch:"+", c
 RPG.Features.Tombstone.prototype._blocks = RPG.BLOCKS_MOVEMENT;
 
 /**
- * @class Stained glass window, random shiny color
- * @augments RPG.Features.BaseFeature
+ * @class Stained glass window, random shiny color. When destroyed, damages stuff around.
+ * @augments RPG.Features.Destroyable
+ * @augments RPG.Features.IActor
+ * @augments RPG.Features.IDamageDealer
  */
-RPG.Features.StainedGlassWindow = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.StainedGlassWindow = OZ.Class()
+									.extend(RPG.Features.Destroyable)
+									.implement(RPG.Misc.IActor)
+									.implement(RPG.Misc.IDamageDealer);
 RPG.Features.StainedGlassWindow.visual = { desc:"stained glass window", image:"fixme", ch:"=" };
 RPG.Features.StainedGlassWindow.prototype._blocks = RPG.BLOCKS_MOVEMENT;
-RPG.Features.StainedGlassWindow.prototype._destroyable = true;
+RPG.Features.StainedGlassWindow.prototype._hit = new RPG.Misc.RandomValue(8, 5);
+RPG.Features.StainedGlassWindow.prototype._damage = new RPG.Misc.RandomValue(2, 1);
 RPG.Features.StainedGlassWindow.prototype.init = function() { 
 	this.parent();
 	this._hp = 3;
@@ -259,13 +285,43 @@ RPG.Features.StainedGlassWindow.prototype.init = function() {
 RPG.Features.StainedGlassWindow.prototype.getColor = function() { 
 	return this._color;
 }
-RPG.Features.StainedGlassWindow.prototype.destroy = function(being) {
-	this.parent(being);
-	var dmg = 1+Math.floor(Math.random()*3);
-	var s = RPG.Misc.format("%The %is wounded by the falling glass!", being, being);
-	RPG.UI.buffer.message(s);
-	being.adjustStat(RPG.STAT_HP, -dmg);
+RPG.Features.StainedGlassWindow.prototype._destroy = function() {
+	this.parent();
+	RPG.Game.getEngine().addActor(this);
 }
+/**
+ * @see RPG.Misc.IActor#getSpeed
+ */
+RPG.Features.StainedGlassWindow.prototype.getSpeed = function() {
+	return 1/0;
+}
+/**
+ * @see RPG.Misc.IActor#yourTurn
+ * Damage surrounding beings
+ */
+RPG.Features.StainedGlassWindow.prototype.yourTurn = function() {
+	var coords = this._map.getCoordsInCircle(this._coords, 1);
+	for (var i=0;i<coords.length;i++) {
+		var b = this._map.getBeing(coords[i]);
+		if (!b) { continue; }
+		var combat = new RPG.Misc.Combat(this, b).execute();
+		
+		if (!combat.wasHit()) {
+			var verb = RPG.Misc.verb("evade", b);
+			var s = RPG.Misc.format("%The %s the falling glass.", b, verb);
+			RPG.UI.buffer.message(s);
+			continue;
+		}
+		
+		var verb = (combat.wasKill() ? "killed" : "wounded");
+		var s = RPG.Misc.format("%The %is %s by the falling glass!", b, b, verb);
+		RPG.UI.buffer.message(s);
+	}
+
+	RPG.Game.getEngine().removeActor(this);
+	return RPG.ACTION_TIME;
+}
+
 
 /**
  * @class Basic level connector

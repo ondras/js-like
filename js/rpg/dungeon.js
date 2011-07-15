@@ -131,7 +131,6 @@ RPG.Features.BaseFeature = OZ.Class()
 							.implement(RPG.Misc.IEnterable);
 RPG.Features.BaseFeature.visual = { path:"features" };
 RPG.Features.BaseFeature.prototype._blocks = RPG.BLOCKS_NOTHING;
-RPG.Features.BaseFeature.prototype._destroyable = false;
 RPG.Features.BaseFeature.prototype.init = function() {
 	this._coords = null;
 	this._map = null;
@@ -157,33 +156,6 @@ RPG.Features.BaseFeature.prototype.getMap = function() {
 
 RPG.Features.BaseFeature.prototype.blocks = function(what) {
 	return (this._blocks >= what);
-}
-
-RPG.Features.BaseFeature.prototype.isDestroyable = function() {
-	return this._destroyable;
-}
-
-/**
- * Do a damage to this feature
- * @param {RPG.Beings.BaseBeing} being
- * @param {int} amount
- * @returns {bool} Whether this feature still stands
- */
-RPG.Features.BaseFeature.prototype.damage = function(being, amount) {
-	this._hp -= amount;
-	if (this._hp <= 0) { this.destroy(being); }
-	return (this._hp > 0);
-}
-
-/**
- * This being just destroyed this feature
- * @param {RPG.Beings.BaseBeing} being
- */
-RPG.Features.BaseFeature.prototype.destroy = function(being) {
-	var verb = RPG.Misc.verb("shatter", being);
-	var s = RPG.Misc.format("%The %s %the!", being, verb, this);
-	RPG.UI.buffer.message(s);
-	this._map.setFeature(null, this._coords); 
 }
 
 
