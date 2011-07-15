@@ -64,6 +64,9 @@ RPG.Slots.Weapon.prototype.init = function(name) {
 	this.parent(name, RPG.Items.Weapon);
 }
 
+/**
+ * @param {RPG.Items.Weapon}
+ */
 RPG.Slots.Weapon.prototype.setItem = function(item) {
 	/* remove shield for dual-handed weapons */
 	if (item && item.isDualHand()) { this._being.unequip(RPG.SLOT_SHIELD); }

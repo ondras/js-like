@@ -114,28 +114,11 @@ RPG.Misc.IModifier.prototype.getModifiers = function() {
 }
 
 /**
- * @class Weapon interface. Weapon items implement this, as well as some slots and spells.
- */
-RPG.Misc.IWeapon = OZ.Class();
-RPG.Misc.IWeapon.prototype.setHit = function(rv) {
-	this._hit = rv;
-}
-RPG.Misc.IWeapon.prototype.setDamage = function(rv) {
-	this._damage = rv;
-}
-RPG.Misc.IWeapon.prototype.getHit = function() {
-	return this._hit;
-}
-RPG.Misc.IWeapon.prototype.getDamage = function() {
-	return this._damage;
-}
-
-/**
  * @class Interface for flying objects
  */
 RPG.Misc.IProjectile = OZ.Class();
+RPG.Misc.IProjectile.prototype._range = 5;
 RPG.Misc.IProjectile.prototype._initProjectile = function() {
-	this._range = 5;
 	this._flying = false;
 	
 	this._flight = {
@@ -355,10 +338,8 @@ RPG.Misc.Factory.prototype.init = function() {
 RPG.Misc.Factory.prototype.add = function(ancestor) {
 	for (var i=0;i<OZ.Class.all.length;i++) {
 		var ctor = OZ.Class.all[i];
-		if (ctor.factory.ignore) { continue; }
-		if (this._hasAncestor(ctor, ancestor)) { 
-			this._classList.push(ctor); 
-		}
+		if (!ctor.factory.frequency) { continue; }
+		if (this._hasAncestor(ctor, ancestor)) { this._classList.push(ctor); }
 	}
 	return this;
 }
@@ -553,7 +534,10 @@ RPG.Misc.Combat.prototype.execute = function() {
 	/* compute damage */
 	var damage = this._attacker.getDamage().roll();
 	if (this._luckCheck(this._attacker)) { damage *= 2; }
-	this._damage = Math.max(0, damage - this._defender.getPV());
+	
+	/* spells ignore pv */
+	var pv = (this._attacker instanceof RPG.Spells.Attack ? 0 : this._defender.getPV());
+	this._damage = Math.max(0, damage - pv);
 	if (!this._damage) { return this; }
 	
 	/* deal damage */
@@ -563,7 +547,7 @@ RPG.Misc.Combat.prototype.execute = function() {
 }
 
 /**
- * @class Damage dealer interface - everything which deals damage
+ * @class Damage dealer interface - everything which deals damage (damaging slots, projectiles, attack spells)
  */
 RPG.Misc.IDamageDealer = OZ.Class();
 

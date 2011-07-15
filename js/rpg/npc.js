@@ -3,7 +3,7 @@
  * @augments RPG.Beings.BaseBeing
  */
 RPG.Beings.NPC = OZ.Class().extend(RPG.Beings.BaseBeing);
-RPG.Beings.NPC.factory.ignore = true;
+RPG.Beings.NPC.factory.frequency = 0;
 RPG.Beings.NPC.visual = { path:"beings" };
 RPG.Beings.NPC.prototype.init = function(race) {
 	this.parent(race);
@@ -176,7 +176,7 @@ RPG.Beings.NPC.prototype._describeLaunch = function(projectile, target) {
 	RPG.UI.buffer.message(s);
 }
 
-RPG.Beings.NPC.prototype._describeAttack = function(combat) {
+RPG.Beings.NPC.prototype._describeMeleeCombat = function(combat) {
 	var defender = combat.getDefender();
 
 	if (!combat.wasHit()) {

@@ -312,11 +312,14 @@ RPG.UI.Spelllist.prototype.init = function(data, label, callback) {
 }
 
 RPG.UI.Spelllist.prototype._format = function(item) {
-	var str = "(" + item.cost + ") ";
 	/* FIXME instantialize? */
-	str += item.visual.desc.capitalize();
-	if (item.implements(RPG.Misc.IProjectile)) {
-		str += " (" + item.damage.toString() + ")";
+	var str = "(" + item.cost + ") ";
+	
+	var spell = new item();
+	str += spell.describe().capitalize();
+	
+	if (spell instanceof RPG.Spells.Attack) {
+		str += " (" + spell.getDamage().toString() + ")";
 	}
 	return str;
 }

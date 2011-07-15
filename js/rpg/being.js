@@ -696,12 +696,38 @@ RPG.Beings.BaseBeing.prototype.launch = function(projectile, coords) {
 		p = projectile.subtract(1);
 	}
 
-	if (RPG.Game.pc.canSee(this._coords)) {
-		this._describeLaunch(p, coords);
-	}
+	if (RPG.Game.pc.canSee(this._coords)) { this._describeLaunch(p, coords); }
 	
 	p.launch(this._coords, coords, this._map);
 	return RPG.ACTION_TIME;
+}
+
+/**
+ * Attack target being with a given slot
+ */
+RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
+	var combat = new RPG.Misc.Combat(slot, being).execute();
+	this._describeMeleeCombat(combat);
+	
+	this.dispatch("attack-melee", {being:being});
+	return RPG.ACTION_TIME;
+}
+
+RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
+	var combat = new RPG.Misc.Combat(projectile, being).execute();
+	this._describeRangedCombat(combat);
+
+	var recovered = RPG.Rules.isProjectileRecovered(projectile);
+	if (recovered) {
+		if (combat.wasHit() && !combat.wasKill()) {
+			being.addItem(projectile);
+		} else {
+			this._map.addItem(projectile, being.getCoords());
+		}
+	}
+
+	this.dispatch("attack-ranged", {being:being});
+	return RPG.ACTION_NO_TIME;
 }
 
 /**
@@ -710,66 +736,10 @@ RPG.Beings.BaseBeing.prototype.launch = function(projectile, coords) {
  * @param {RPG.Spells.Attack} spell
  */
 RPG.Beings.BaseBeing.prototype.attackMagic = function(being, spell) {
-	var hit = RPG.Rules.isSpellHit(this, being, spell);
-	if (!hit) {
-		var verb = RPG.Misc.verb("evade", being);
-		var s = RPG.Misc.format("%A barely %s %a!", being, verb, spell);
-		RPG.UI.buffer.message(s);
-	} else {
-		var s = RPG.Misc.format("%A %is hit by %the.", being, being, spell);
-		RPG.UI.buffer.message(s);
-
-		var dmg = RPG.Rules.getSpellDamage(being, spell);
-		being.adjustStat(RPG.STAT_HP, -dmg);
-
-		if (!being.isAlive()) {
-			var str = RPG.Misc.format("%The %is killed!", being, being);
-			RPG.UI.buffer.message(str);
-		}
-	}
+	var combat = new RPG.Misc.Combat(spell, being).execute();
+	this._describeMagicCombat(combat);
 
 	this.dispatch("attack-magic", {being:being});
-	return RPG.ACTION_NO_TIME;
-}
-
-/**
- * Attack target being with a given slot
- */
-RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
-	var combat = new RPG.Misc.Combat(slot, being).execute();
-	this._describeAttack(combat);
-	
-	this.dispatch("attack-melee", {being:being});
-	return RPG.ACTION_TIME;
-}
-
-RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
-	var hit = RPG.Rules.isRangedHit(this, being, projectile);
-	var recovered = RPG.Rules.isProjectileRecovered(projectile);
-	
-	if (!hit) {
-		var verb = RPG.Misc.verb("evade", being);
-		var s = RPG.Misc.format("%A %s %a.", being, verb, projectile);
-		RPG.UI.buffer.message(s);
-		
-		if (recovered) { this._map.addItem(projectile, being.getCoords()); }
-	} else {
-		var s = RPG.Misc.format("%A %is hit.", being, being);
-		RPG.UI.buffer.message(s);
-
-		if (recovered) { being.addItem(projectile); }
-	
-		var crit = RPG.Rules.isLucky(this);
-		var dmg = RPG.Rules.getRangedDamage(this, being, projectile, crit);
-		being.adjustStat(RPG.STAT_HP, -dmg);
-
-		if (!being.isAlive()) {
-			var str = RPG.Misc.format("%The %is killed!", being, being);
-			RPG.UI.buffer.message(str);
-		}
-	}
-		
-	this.dispatch("attack-ranged", {being:being});
 	return RPG.ACTION_NO_TIME;
 }
 
@@ -802,7 +772,46 @@ RPG.Beings.BaseBeing.prototype._describeLaunch = function(projectile, target) {
 /**
  * @param {RPG.Misc.Combat}
  */
-RPG.Beings.BaseBeing.prototype._describeAttack = function(combat) {
+RPG.Beings.BaseBeing.prototype._describeMeleeCombat = function(combat) {
+}
+
+/**
+ * @param {RPG.Misc.Combat}
+ */
+RPG.Beings.BaseBeing.prototype._describeRangedCombat = function(combat) {
+	var defender = combat.getDefender();
+	
+	if (!combat.wasHit()) {
+		var verb = RPG.Misc.verb("evade", defender);
+		var s = RPG.Misc.format("%A %s %a.", defender, verb, combat.getAttacker());
+		RPG.UI.buffer.message(s);
+	} else {
+		var s = RPG.Misc.format("%A %is hit.", defender, defender);
+		RPG.UI.buffer.message(s);
+		if (combat.wasKill()) {
+			var s = RPG.Misc.format("%The %is killed!", defender, defender);
+			RPG.UI.buffer.message(s);
+		}
+	}
+}
+
+RPG.Beings.BaseBeing.prototype._describeMagicCombat = function(combat) {
+	var attacker = combat.getAttacker();
+	var defender = combat.getDefender();
+	
+	if (!combat.wasHit()) {
+		var verb = RPG.Misc.verb("evade", defender);
+		var s = RPG.Misc.format("%A barely %s %a!", defender, verb, attacker);
+		RPG.UI.buffer.message(s);
+	} else {
+		var s = RPG.Misc.format("%A %is hit by %the.", defender, defender, attacker);
+		RPG.UI.buffer.message(s);
+
+		if (combat.wasKill()) {
+			var str = RPG.Misc.format("%The %is killed!", defender, defender);
+			RPG.UI.buffer.message(str);
+		}
+	}
 }
 
 RPG.Beings.BaseBeing.prototype._syncStatsAndFeats = function() {

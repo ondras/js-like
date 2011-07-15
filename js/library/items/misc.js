@@ -16,7 +16,7 @@ RPG.Items.Lockpick.visual = { ch:"]", color:"#ccc", desc:"lockpick", image:"lock
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Consumable = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Consumable.factory.ignore = true;
+RPG.Items.Consumable.factory.frequency = 0;
 RPG.Items.Consumable.visual = { ch:"%" };
 RPG.Items.Consumable.prototype.eat = function(being) {
 	var max = being.getFeat(RPG.FEAT_MAX_HP);
@@ -29,7 +29,7 @@ RPG.Items.Consumable.prototype.eat = function(being) {
  * @augments RPG.Items.Consumable
  */
 RPG.Items.Corpse = OZ.Class().extend(RPG.Items.Consumable);
-RPG.Items.Corpse.factory.ignore = true;
+RPG.Items.Corpse.factory.frequency = 0;
 RPG.Items.Corpse.visual = { image:"corpse" };
 
 /**
@@ -121,7 +121,7 @@ RPG.Items.Gold.prototype.describe = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Gem = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Gem.factory.ignore = true;
+RPG.Items.Gem.factory.frequency = 0;
 RPG.Items.Gem.visual = { ch:"*" };
 
 /**
@@ -169,7 +169,7 @@ RPG.Items.Turquoise.visual = { image:"turquoise", desc:"turquoise", color:"#3cc"
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Potion = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Potion.factory.ignore = true;
+RPG.Items.Potion.factory.frequency = 0;
 RPG.Items.Potion.visual = { ch:"!" };
 RPG.Items.Potion.prototype.drink = function(being) {
 }
@@ -204,7 +204,7 @@ RPG.Items.Beer.prototype.drink = function(being) {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Ring = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Ring.factory.ignore = true;
+RPG.Items.Ring.factory.frequency = 0;
 RPG.Items.Ring.visual = { ch:"=", desc:"ring" };
 
 /**
@@ -212,7 +212,7 @@ RPG.Items.Ring.visual = { ch:"=", desc:"ring" };
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Necklace = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Necklace.factory.ignore = true;
+RPG.Items.Necklace.factory.frequency = 0;
 RPG.Items.Necklace.visual = { ch:"'" };
 
 /**
@@ -259,7 +259,7 @@ RPG.Items.RingOfAttribute.prototype.clone = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Readable = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Readable.factory.ignore = true;
+RPG.Items.Readable.factory.frequency = 0;
 RPG.Items.Readable.prototype.read = function(being) {
 }
 

@@ -3,7 +3,7 @@
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Undead = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Undead.factory.ignore = true;
+RPG.Beings.Undead.factory.frequency = 0;
 RPG.Beings.Undead.prototype.init = function(race) {
 	this.parent(race);
 	this.setAlignment(RPG.ALIGNMENT_CHAOTIC);

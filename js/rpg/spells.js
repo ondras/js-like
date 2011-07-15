@@ -4,7 +4,7 @@
  */
 RPG.Spells.BaseSpell = OZ.Class()
 						.implement(RPG.Visual.IVisual);
-RPG.Spells.BaseSpell.factory.ignore = true;
+RPG.Spells.BaseSpell.factory.frequency = 0;
 RPG.Spells.BaseSpell.cost = null;
 RPG.Spells.BaseSpell.visual = { path:"spells" };
 RPG.Spells.BaseSpell.prototype._type = RPG.SPELL_SELF;
@@ -30,18 +30,30 @@ RPG.Spells.BaseSpell.prototype.getCaster = function() {
 /**
  * @class Abstract attack spell
  * @augments RPG.Spells.BaseSpell
- * @augments RPG.Misc.IWeapon
+ * @augments RPG.Misc.IDamageDealer
  */
 RPG.Spells.Attack = OZ.Class()
 					.extend(RPG.Spells.BaseSpell)
-					.implement(RPG.Misc.IWeapon);
-RPG.Spells.Attack.factory.ignore = true;
+					.implement(RPG.Misc.IDamageDealer);
+RPG.Spells.Attack.factory.frequency = 0;
 RPG.Spells.Attack.visual = { ch:"*" };
-RPG.Spells.Attack.prototype._hit = null;
 RPG.Spells.Attack.prototype._damage = null;
 RPG.Spells.Attack.prototype.init = function(caster) {
 	this.parent(caster);
 	this._exploded = false;
+}
+/**
+ * @see RPG.Misc.IDamageDealer#getLuck
+ */
+RPG.Spells.Attack.prototype.getLuck = function() {
+	return this._caster.getFeat(RPG.FEAT_LUCK);
+}
+/**
+ * @see RPG.Misc.IDamageDealer#getHit
+ * Spells always hit (evasion possible due to luck)
+ */
+RPG.Spells.Attack.prototype.getHit = function() {
+	return new RPG.Misc.RandomValue(1/0, 0);
 }
 
 /**
@@ -86,7 +98,7 @@ RPG.Spells.Attack.prototype._afterExplosion = function(coords) {
 RPG.Spells.Projectile = OZ.Class()
 						.extend(RPG.Spells.Attack)
 						.implement(RPG.Misc.IProjectile);
-RPG.Spells.Projectile.factory.ignore = true;
+RPG.Spells.Projectile.factory.frequency = 0;
 RPG.Spells.Projectile.prototype.init = function(caster) {
 	this.parent(caster);
 	this._initProjectile();

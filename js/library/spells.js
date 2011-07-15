@@ -94,10 +94,7 @@ RPG.Spells.MagicBolt.visual = { color:"#93c", desc:"magic bolt", image:"magic-bo
 RPG.Spells.MagicBolt.cost = 8;
 RPG.Spells.MagicBolt.prototype._type = RPG.SPELL_DIRECTION;
 RPG.Spells.MagicBolt.prototype._damage = new RPG.Misc.RandomValue(4, 1);
-RPG.Spells.MagicBolt.prototype.init = function(caster) {
-	this.parent(caster);
-	this._range = 5;
-}
+RPG.Spells.MagicBolt.prototype._range = 5;
 
 RPG.Spells.MagicBolt.prototype._fly = function(coords) {
 	this.parent(coords);
@@ -123,9 +120,9 @@ RPG.Spells.Fireball.visual = { desc:"fireball", color:"#f00", image:"fireball" }
 RPG.Spells.Fireball.cost = 12;
 RPG.Spells.Fireball.prototype._type = RPG.SPELL_TARGET;
 RPG.Spells.Fireball.prototype._damage = new RPG.Misc.RandomValue(5, 3);
+RPG.Spells.Fireball.prototype._range = 6;
 RPG.Spells.Fireball.prototype.init = function(caster) {
 	this.parent(caster);
-	this._range = 6;
 	this._radius = 2;
 	this._suffixes = {};
 }

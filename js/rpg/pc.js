@@ -782,7 +782,7 @@ RPG.Beings.PC.prototype.attackRanged = function(being, projectile) {
 
 /* ------------------- PRIVATE --------------- */
 
-RPG.Beings.PC.prototype._describeAttack = function(combat) {
+RPG.Beings.PC.prototype._describeMeleeCombat = function(combat) {
 	var defender = combat.getDefender();
 	
 	if (!combat.wasHit()) {

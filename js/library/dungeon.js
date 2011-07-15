@@ -139,7 +139,7 @@ RPG.Features.Door.prototype.destroy = function(being) {
  * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Trap = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Trap.factory.ignore = true;
+RPG.Features.Trap.factory.frequency = 0;
 RPG.Features.Trap.visual = { ch:"^" }
 RPG.Features.Trap.prototype.init = function() {
 	this.parent();

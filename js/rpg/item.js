@@ -6,7 +6,7 @@
 RPG.Items.BaseItem = OZ.Class()
 						.implement(RPG.Visual.IVisual)
 						.implement(RPG.Misc.IEnterable); /* "entering" an item means equipping it */
-RPG.Items.BaseItem.factory.ignore = true;
+RPG.Items.BaseItem.factory.frequency = 0;
 RPG.Items.BaseItem.visual = { path:"items" };
 RPG.Items.BaseItem.prototype._uncountable = false;
 RPG.Items.BaseItem.prototype.init = function() {

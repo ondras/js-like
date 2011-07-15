@@ -3,7 +3,7 @@
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.VillageHealer = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.VillageHealer.factory.ignore = true;
+RPG.Beings.VillageHealer.factory.frequency = 0;
 RPG.Beings.VillageHealer.visual = { desc:"village healer", color:"#f00", image:"village-healer" };
 RPG.Beings.VillageHealer.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
@@ -25,7 +25,7 @@ RPG.Beings.VillageHealer.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.VillageShopkeeper = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.VillageShopkeeper.factory.ignore = true;
+RPG.Beings.VillageShopkeeper.factory.frequency = 0;
 RPG.Beings.VillageShopkeeper.visual = { desc:"shopkeeper", color:"#f00", image:"village-shopkeeper" };
 RPG.Beings.VillageShopkeeper.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
@@ -47,7 +47,7 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.VillageWitch = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.VillageWitch.factory.ignore = true;
+RPG.Beings.VillageWitch.factory.frequency = 0;
 RPG.Beings.VillageWitch.visual = { desc:"witch", color:"#00f", image:"village-witch" };
 RPG.Beings.VillageWitch.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
@@ -75,7 +75,7 @@ RPG.Beings.VillageWitch.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.VillageGuard = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.VillageGuard.factory.ignore = true;
+RPG.Beings.VillageGuard.factory.frequency = 0;
 RPG.Beings.VillageGuard.visual = { desc:"elder's guard", color:"#f00", image:"village-guard" };
 RPG.Beings.VillageGuard.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
@@ -110,7 +110,7 @@ RPG.Beings.VillageGuard.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.VillageSmith = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.VillageSmith.factory.ignore = true;
+RPG.Beings.VillageSmith.factory.frequency = 0;
 RPG.Beings.VillageSmith.visual = { desc:"dwarven smith", color:"#999", ch:"h", image:"village-smith" };
 RPG.Beings.VillageSmith.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
@@ -137,7 +137,7 @@ RPG.Beings.VillageSmith.prototype.init = function() {
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.VillageElder = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.VillageElder.factory.ignore = true;
+RPG.Beings.VillageElder.factory.frequency = 0;
 RPG.Beings.VillageElder.visual = { desc:"village elder", color:"#960", image:"village-elder" };
 RPG.Beings.VillageElder.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);

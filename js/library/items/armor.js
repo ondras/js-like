@@ -3,7 +3,7 @@
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Shield = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Shield.factory.ignore = true;
+RPG.Items.Shield.factory.frequency = 0;
 RPG.Items.Shield.visual = { ch:"[", color:"#999" };
 
 /**
@@ -46,7 +46,7 @@ RPG.Items.LargeShield.prototype.init = function() {
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.HeadGear = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.HeadGear.factory.ignore = true;
+RPG.Items.HeadGear.factory.frequency = 0;
 RPG.Items.HeadGear.visual = { ch:"[", color:"#ccc" };
 
 /**
@@ -54,7 +54,7 @@ RPG.Items.HeadGear.visual = { ch:"[", color:"#ccc" };
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Boots = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Boots.factory.ignore = true;
+RPG.Items.Boots.factory.frequency = 0;
 RPG.Items.Boots.visual = { ch:"[", color:"#960" };
 
 /**
@@ -62,7 +62,7 @@ RPG.Items.Boots.visual = { ch:"[", color:"#960" };
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Armor = OZ.Class().extend(RPG.Items.BaseItem);
-RPG.Items.Armor.factory.ignore = true;
+RPG.Items.Armor.factory.frequency = 0;
 RPG.Items.Armor.visual = { ch:"]", color:"#960" };
 
 /**

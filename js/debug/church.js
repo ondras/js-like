@@ -3,7 +3,7 @@
  * @augments RPG.Beings.NPC
  */
 RPG.Beings.Priest = OZ.Class().extend(RPG.Beings.NPC);
-RPG.Beings.Priest.factory.ignore = true;
+RPG.Beings.Priest.factory.frequency = 0;
 RPG.Beings.Priest.visual = { color:"#909", desc:"priest", image:"fixme" };
 RPG.Beings.Priest.prototype.init = function() {
 	this.parent(RPG.Races.Humanoid);
