@@ -270,7 +270,7 @@ RPG.UI.hideDialog = function() {
  * @param {bool} [data.cancel]
  * @param {bool} [data.dir]
  * @param {bool} [data.pending]
- */ 
+ */
 RPG.UI._adjustButtons = function(data) {
 	for (var i=0;i<this._commands.length;i++) {
 		var c = this._commands[i];
