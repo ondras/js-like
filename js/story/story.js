@@ -51,9 +51,9 @@ RPG.Story.Village.prototype._buildMaps = function() {
 	this._buildVillage();
 	
 	/* connect village with tutorial */
-	var c1 = new RPG.Misc.Coords(20,2);
+	var c1 = new RPG.Misc.Coords(19, 0);
 	var c2 = new RPG.Misc.Coords(49, 15);
-	var up1 = new RPG.Features.StaircaseUp();
+	var up1 = new RPG.Features.RoadExit();
 	var up2 = new RPG.Features.StaircaseUp();
 	up1.setTarget(up2);
 	up2.setTarget(up1);

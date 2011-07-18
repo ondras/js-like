@@ -3,6 +3,7 @@
  * @augments RPG.Items.BaseItem
  */
 RPG.Items.Tool = OZ.Class().extend(RPG.Items.BaseItem);
+RPG.Items.Tool.factory.frequency = 0;
 
 /**
  * @class Lockpick item, used for opening locked doors

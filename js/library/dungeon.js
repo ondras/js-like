@@ -53,6 +53,115 @@ RPG.Features.Tree.visual = { desc:"tree", ch:"T", image:"tree", color:"#093" }
 RPG.Features.Tree.prototype._blocks = RPG.BLOCKS_MOVEMENT;
 
 /**
+ * @class Altar feature
+ * @augments RPG.Features.BaseFeature
+ */
+RPG.Features.Altar = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.Altar.visual = { desc:"altar", image:"altar", ch:"_", color:"#fff"};
+
+/**
+ * @class Bench feature
+ * @augments RPG.Features.BaseFeature
+ */
+RPG.Features.Bench = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.Bench.visual = { desc:"bench", image:"altar FIXME", ch:"|", color:"#963"};
+RPG.Features.Bench.prototype._blocks = RPG.BLOCKS_MOVEMENT;
+
+/**
+ * @class Tombstone feature
+ * @augments RPG.Features.BaseFeature
+ */
+RPG.Features.Tombstone = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.Tombstone.visual = { desc:"tombstone", image:"tombstone", ch:"+", color:"#666"};
+RPG.Features.Tombstone.prototype._blocks = RPG.BLOCKS_MOVEMENT;
+
+/**
+ * @class Generic trap
+ * @augments RPG.Features.BaseFeature
+ */
+RPG.Features.Trap = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.Trap.factory.frequency = 0;
+RPG.Features.Trap.visual = { ch:"^" }
+RPG.Features.Trap.prototype.init = function() {
+	this.parent();
+	this._damage = null;
+}
+
+RPG.Features.Trap.prototype.entering = function(being) {
+	this.parent(being);
+	being.trapEncounter(this);
+}
+
+RPG.Features.Trap.prototype.setOff = function(being) {
+}
+
+RPG.Features.Trap.prototype.getDamage = function() {
+	return this._damage;
+}
+
+/**
+ * @class Teleport trap
+ * @augments RPG.Features.Trap
+ */
+RPG.Features.Trap.Teleport = OZ.Class().extend(RPG.Features.Trap);
+RPG.Features.Trap.Teleport.visual = { desc:"teleport trap", image:"trap-teleport", color:"#3c3" }
+
+RPG.Features.Trap.Teleport.prototype.setOff = function(being) {
+	var c = this._map.getFreeCoords();
+	being.teleport(c);
+}
+
+/**
+ * @class Pit trap
+ * @augments RPG.Features.Trap
+ */
+RPG.Features.Trap.Pit = OZ.Class().extend(RPG.Features.Trap);
+RPG.Features.Trap.Pit.visual = { desc:"pit trap", image:"trap-pit", color:"#963" }
+
+RPG.Features.Trap.Pit.prototype.init = function() {
+	this.parent();
+	this._damage = new RPG.Misc.RandomValue(3, 1);
+}
+
+RPG.Features.Trap.Pit.prototype.setOff = function(being) {
+	var canSee = RPG.Game.pc.canSee(this._coords);
+
+	if (canSee) {
+		var verb = RPG.Misc.verb("fall", being);
+		var s = RPG.Misc.format("%A %s into a pit!", being, verb);
+		RPG.UI.buffer.message(s);
+	}
+
+	var dmg = RPG.Rules.getTrapDamage(being, this);
+	being.adjustStat(RPG.STAT_HP, -dmg);
+	
+	if (!being.isAlive() && canSee && being != RPG.Game.pc) {
+		var s = RPG.Misc.format("%The suddenly collapses!", being);
+		RPG.UI.buffer.message(s);
+	}
+
+}
+
+/**
+ * @class Flash trap
+ * @augments RPG.Features.Trap
+ */
+RPG.Features.Trap.Flash = OZ.Class().extend(RPG.Features.Trap);
+RPG.Features.Trap.Flash.visual = { desc:"flash trap", image:"trap-flash", color:"#ff0" }
+
+RPG.Features.Trap.Flash.prototype.setOff = function(being) {
+	var canSee = RPG.Game.pc.canSee(this._coords);
+
+	var blindness = new RPG.Effects.Blindness(5);
+	being.addEffect(blindness);
+
+	if (canSee) {
+		var s = RPG.Misc.format("%A %is blinded by a light flash!", being);
+		RPG.UI.buffer.message(s);
+	}
+}
+
+/**
  * @class Abstract destroyable feature
  * @augments RPG.Features.BaseFeature
  * @augments RPG.Features.IDamageReceiver
@@ -153,115 +262,6 @@ RPG.Features.Door.prototype._destroy = function() {
 	this.parent();
 	if (RPG.Game.pc.canSee(this._coords)) { RPG.Game.pc.updateVisibility(); }
 }
-
-/**
- * @class Generic trap
- * @augments RPG.Features.BaseFeature
- */
-RPG.Features.Trap = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Trap.factory.frequency = 0;
-RPG.Features.Trap.visual = { ch:"^" }
-RPG.Features.Trap.prototype.init = function() {
-	this.parent();
-	this._damage = null;
-}
-
-RPG.Features.Trap.prototype.entering = function(being) {
-	this.parent(being);
-	being.trapEncounter(this);
-}
-
-RPG.Features.Trap.prototype.setOff = function(being) {
-}
-
-RPG.Features.Trap.prototype.getDamage = function() {
-	return this._damage;
-}
-
-/**
- * @class Teleport trap
- * @augments RPG.Features.Trap
- */
-RPG.Features.Trap.Teleport = OZ.Class().extend(RPG.Features.Trap);
-RPG.Features.Trap.Teleport.visual = { desc:"teleport trap", image:"trap-teleport", color:"#3c3" }
-
-RPG.Features.Trap.Teleport.prototype.setOff = function(being) {
-	var c = this._map.getFreeCoords();
-	being.teleport(c);
-}
-
-/**
- * @class Pit trap
- * @augments RPG.Features.Trap
- */
-RPG.Features.Trap.Pit = OZ.Class().extend(RPG.Features.Trap);
-RPG.Features.Trap.Pit.visual = { desc:"pit trap", image:"trap-pit", color:"#963" }
-
-RPG.Features.Trap.Pit.prototype.init = function() {
-	this.parent();
-	this._damage = new RPG.Misc.RandomValue(3, 1);
-}
-
-RPG.Features.Trap.Pit.prototype.setOff = function(being) {
-	var canSee = RPG.Game.pc.canSee(this._coords);
-
-	if (canSee) {
-		var verb = RPG.Misc.verb("fall", being);
-		var s = RPG.Misc.format("%A %s into a pit!", being, verb);
-		RPG.UI.buffer.message(s);
-	}
-
-	var dmg = RPG.Rules.getTrapDamage(being, this);
-	being.adjustStat(RPG.STAT_HP, -dmg);
-	
-	if (!being.isAlive() && canSee && being != RPG.Game.pc) {
-		var s = RPG.Misc.format("%The suddenly collapses!", being);
-		RPG.UI.buffer.message(s);
-	}
-
-}
-
-/**
- * @class Flash trap
- * @augments RPG.Features.Trap
- */
-RPG.Features.Trap.Flash = OZ.Class().extend(RPG.Features.Trap);
-RPG.Features.Trap.Flash.visual = { desc:"flash trap", image:"trap-flash", color:"#ff0" }
-
-RPG.Features.Trap.Flash.prototype.setOff = function(being) {
-	var canSee = RPG.Game.pc.canSee(this._coords);
-
-	var blindness = new RPG.Effects.Blindness(5);
-	being.addEffect(blindness);
-
-	if (canSee) {
-		var s = RPG.Misc.format("%A %is blinded by a light flash!", being);
-		RPG.UI.buffer.message(s);
-	}
-}
-
-/**
- * @class Altar feature
- * @augments RPG.Features.BaseFeature
- */
-RPG.Features.Altar = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Altar.visual = { desc:"altar", image:"altar", ch:"_", color:"#fff"};
-
-/**
- * @class Bench feature
- * @augments RPG.Features.BaseFeature
- */
-RPG.Features.Bench = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Bench.visual = { desc:"bench", image:"altar FIXME", ch:"|", color:"#963"};
-RPG.Features.Bench.prototype._blocks = RPG.BLOCKS_MOVEMENT;
-
-/**
- * @class Tombstone feature
- * @augments RPG.Features.BaseFeature
- */
-RPG.Features.Tombstone = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Tombstone.visual = { desc:"tombstone", image:"tombstone", ch:"+", color:"#666"};
-RPG.Features.Tombstone.prototype._blocks = RPG.BLOCKS_MOVEMENT;
 
 /**
  * @class Stained glass window, random shiny color. When destroyed, damages stuff around.
@@ -378,21 +378,36 @@ RPG.Features.Connector.Exit = OZ.Class().extend(RPG.Features.Connector);
 RPG.Features.Connector.Exit.visual = { ch:"<" };
 
 /**
- * Staircase down
+ * @class Staircase down
  * @augments RPG.Features.Connector.Entry
  */
 RPG.Features.StaircaseDown = OZ.Class().extend(RPG.Features.Connector.Entry);
 RPG.Features.StaircaseDown.visual = { desc:"staircase leading down", image:"staircase-down", color:"#ccc" }
 
 /**
- * Staircase up
+ * @class Staircase up
  * @augments RPG.Features.Connector.Exit
  */
 RPG.Features.StaircaseUp = OZ.Class().extend(RPG.Features.Connector.Exit);
 RPG.Features.StaircaseUp.visual = { desc:"staircase leading up", image:"staircase-up", color:"#ccc" }
 
 /**
+ * @class Road in "up" direction
+ * @augments RPG.Features.Connector
+ */
+RPG.Features.RoadExit = OZ.Class().extend(RPG.Features.Connector.Exit);
+RPG.Features.RoadExit.visual = { desc:"road leading away", image:"fixme", color:"#963" };
+
+/**
+ * @class Road in "down" direction
+ * @augments RPG.Features.Connector
+ */
+RPG.Features.RoadEntry = OZ.Class().extend(RPG.Features.Connector.Entry);
+RPG.Features.RoadEntry.visual = { desc:"road leading further", image:"fixme", color:"#963" };
+
+/**
  * @class Set of cells with tutorial messages
+ * @augments RPG.Areas.BaseArea
  */
 RPG.Areas.Tutorial = OZ.Class().extend(RPG.Areas.BaseArea);
 RPG.Areas.Tutorial.prototype._messages = {};

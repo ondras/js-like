@@ -6,7 +6,6 @@ RPG.Story.Testbed = OZ.Class().extend(RPG.Story);
 
 RPG.Story.Testbed.prototype._firstMap = function() {
 	var church = new RPG.Map.Church();
-	church.setBeing(new RPG.Beings.Goblin(), new RPG.Misc.Coords(5, 9));
 	return [church, new RPG.Misc.Coords(3, 9)];
 }
 

@@ -5,13 +5,13 @@
 RPG.Map.SmallVillage = OZ.Class().extend(RPG.Map.Village);
 
 RPG.Map.SmallVillage.prototype.init = function() {
-    var str = 	"...===............................." +
-				"...===...####......................" +
-				"....===..#__#......................" +
-				".....===.#___......................" +
-				"......===#__#.....#####.....#####.." +
-				"......===####.....#___#.....#___#.." +
-				".###...==.........#___#.....#___#.." +
+    var str = 	"...===............--..............." +
+				"...===...####.....--..............." +
+				"....===..#__#....----.............." +
+				".....===.#___...--..---............" +
+				"......===#__#..--.#####-....#####.." +
+				"......===####.-...#___#.-...#___#.." +
+				".###...==.........#___#..-..#___#.." +
 				".#.#....=.###.....###_#.....____#.." +
 				".#.#...==.#_#...............#___#.." +
 				".#.....===###...............#___#.." +
@@ -30,7 +30,12 @@ RPG.Map.SmallVillage.prototype.init = function() {
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 3;
 	this._sound = "tristram";
 	
-	this.fromString(str, {"=":RPG.Cells.Water.getInstance(), "_":RPG.Cells.Corridor.getInstance()});
+	var cells = {
+		"=":RPG.Cells.Water.getInstance(), 
+		"_":RPG.Cells.Corridor.getInstance(),
+		"-":RPG.Cells.Road.getInstance()
+	};
+	this.fromString(str, cells);
 	this.setWelcome("You come to a small peaceful village.");
 
 	this._buildFeatures();
@@ -46,7 +51,6 @@ RPG.Map.SmallVillage.prototype._buildFeatures = function() {
     this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(12,3));
     this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(21,7));
     this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(28,7));
-    this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(20,2));
 
     var trees = 8;
 	while (trees--) {

@@ -418,6 +418,7 @@ RPG.AI.TeleportAway.prototype.go = function() {
 
 /**
  * @class Specialized shopkeeper AI
+ * @augments RPG.AI
  */
 RPG.AI.Shopkeeper = OZ.Class().extend(RPG.AI);
 RPG.AI.Shopkeeper.prototype.init = function(being, shop) {
