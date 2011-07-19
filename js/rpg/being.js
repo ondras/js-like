@@ -45,11 +45,15 @@ RPG.Beings.BaseBeing.prototype.toString = function() {
 }
 
 RPG.Beings.BaseBeing.prototype.computeRating = function() {
+	var ratedFeats = [RPG.FEAT_DV, RPG.FEAT_PV].concat(RPG.ATTRIBUTES);
 	var rating = 0;
-	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
-		var value = this.getFeat(RPG.ATTRIBUTES[i]);
-		rating += RPG.Feats[i].computeRating(value);
+	for (var i=0;i<ratedFeats.length;i++) {
+		var id = ratedFeats[i];
+		var value = this.getFeat(id);
+		var feat = RPG.Feats[id];
+		rating += feat.normalize(value);
 	}
+
 	return rating;
 }
 
@@ -835,9 +839,7 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	var defaults = new this._race().getDefaults();
 	
 	/* init all feats from defaults or zero */
-	for (var i=0;i<RPG.Feats.length;i++) {  
-		this._feats[i] = defaults[i] || 0; 
-	}
+	for (var i=0;i<RPG.Feats.length;i++) { this._feats[i] = defaults[i]; }
 	
 	/* advanced feats aka attributes have randomized value */
 	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {

@@ -5,6 +5,7 @@ RPG.UI.Attributes = OZ.Class();
 
 RPG.UI.Attributes.prototype.init = function(being) {
 	this._being = being;
+	this._upgradable = [].concat(RPG.ATTRIBUTES);
 
 	this._dom = {
 		container: null
@@ -24,7 +25,7 @@ RPG.UI.Attributes.prototype._build = function() {
 	var th = OZ.DOM.elm("thead");
 	var tr = OZ.DOM.elm("tr");
 	var tb = OZ.DOM.elm("tbody");
-	tr.innerHTML = "<td class='left'><strong>"+name+"</strong></td><td>Base</td><td>Modifier</td><td>Total</td>";
+	tr.innerHTML = "<td class='left'><strong>"+name+"</strong></td><td>Base</td><td>Modifier</td><td>Total</td><td>Upgrade</td>";
 
 	OZ.DOM.append([this._dom.container, table], [table, th, tb], [th, tr]);
 	
@@ -78,23 +79,38 @@ RPG.UI.Attributes.prototype._done = function() {
 	RPG.UI.hideDialog();
 }
 
-RPG.UI.Attributes.prototype._buildFeatRow = function(feat) {
+RPG.UI.Attributes.prototype._buildFeatRow = function(id) {
 	var tr = OZ.DOM.elm("tr");
 	var pc = RPG.Game.pc;
+	var feat = RPG.Feats[id];
 
-	var name = OZ.DOM.elm("td", {innerHTML:RPG.Feats[feat].name, "class":"left"});
+	var name = OZ.DOM.elm("td", {innerHTML:feat.getName(), title:feat.getDescription(), "class":"left"});
 	tr.appendChild(name);
 	
-	var base = OZ.DOM.elm("td", {innerHTML:pc.getFeatBase(feat)});
+	var baseValue = pc.getFeatBase(id)
+	var base = OZ.DOM.elm("td", {innerHTML:baseValue});
 	tr.appendChild(base);
 
-	var m = pc.getFeatModifier(feat);
+	var m = pc.getFeatModifier(id);
 	if (m > 0) { m = "+" + m; }
 	var modifier = OZ.DOM.elm("td", {innerHTML:m});
 	tr.appendChild(modifier);
 
-	var total = OZ.DOM.elm("td", {innerHTML:"<strong>"+pc.getFeat(feat)+"</strong>"});
+	var total = OZ.DOM.elm("td", {innerHTML:pc.getFeat(id)});
 	tr.appendChild(total);
+	
+	var str = "";
+	
+	if (this._upgradable.indexOf(id) != -1) {
+		str += "+"+feat.getUpgrade()
+		/* compute fibonacci rating */
+		var phi = (1+Math.sqrt(5))/2;
+		var newlevel = feat.normalize(baseValue) + 1;
+		var val = (Math.pow(phi, newlevel) - Math.pow(-1/phi, newlevel)) / Math.sqrt(5);
+		str += " for " + Math.round(val) + " gold";
+	}
+	var upgrade = OZ.DOM.elm("td", {innerHTML:str});
+	tr.appendChild(upgrade);
 
 	return tr;
 }

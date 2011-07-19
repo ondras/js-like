@@ -7,16 +7,7 @@ RPG.Races.Humanoid.visual = { ch:"@" };
 RPG.Races.Humanoid.prototype.init = function() {
 	this.parent();
 	
-	this._defaults[RPG.FEAT_SPEED] = 100;
-	this._defaults[RPG.FEAT_MAX_HP] = 5;
-	this._defaults[RPG.FEAT_DV] = 0;
-	this._defaults[RPG.FEAT_PV] = 0;
-	this._defaults[RPG.FEAT_HIT] = 4;
-	this._defaults[RPG.FEAT_STRENGTH] = 11;
-	this._defaults[RPG.FEAT_TOUGHNESS] = 11;
-	this._defaults[RPG.FEAT_DEXTERITY] = 11;
-	this._defaults[RPG.FEAT_MAGIC] = 11;
-	this._defaults[RPG.FEAT_LUCK] = 11;
+	/* humanoids are average beings; their defaults are not altered */
 
 	this._slots[RPG.SLOT_HEAD] = new RPG.Slots.BaseSlot("Head", RPG.Items.HeadGear);
 	this._slots[RPG.SLOT_ARMOR] = new RPG.Slots.BaseSlot("Armor", RPG.Items.Armor);
@@ -100,14 +91,10 @@ RPG.Races.Animal = OZ.Class().extend(RPG.Races.BaseRace);
 RPG.Races.Animal.prototype.init = function() {
 	this.parent();
 	
-	this._defaults[RPG.FEAT_SPEED] = 100;
-	this._defaults[RPG.FEAT_MAX_HP] = 5;
-	this._defaults[RPG.FEAT_DV] = 0;
-	this._defaults[RPG.FEAT_PV] = 0;
-	this._defaults[RPG.FEAT_STRENGTH] = 9;
-	this._defaults[RPG.FEAT_TOUGHNESS] = 9;
-	this._defaults[RPG.FEAT_DEXTERITY] = 12;
-	this._defaults[RPG.FEAT_MAGIC] = 7;
+	this._defaults[RPG.FEAT_STRENGTH] -= 2;
+	this._defaults[RPG.FEAT_TOUGHNESS] -= 2;
+	this._defaults[RPG.FEAT_DEXTERITY] += 1;
+	this._defaults[RPG.FEAT_MAGIC] -= 4;
 
 	var teeth = new RPG.Slots.Weapon("Teeth");
 	teeth.setHit(new RPG.Misc.RandomValue(5, 4));

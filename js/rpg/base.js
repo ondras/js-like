@@ -5,10 +5,8 @@
 RPG.Races.BaseRace = OZ.Class().implement(RPG.Visual.IVisual);
 RPG.Races.BaseRace.prototype.init = function() {
 	this._slots = {};
-	this._defaults = {};
-	this._defaults[RPG.FEAT_REGEN_HP] = 10; /* per 100 turns */
-	this._defaults[RPG.FEAT_REGEN_MANA] = 10; /* per 100 turns */
-	this._defaults[RPG.FEAT_SIGHT_RANGE] = 4;
+	this._defaults = [];
+	for (var i=0;i<RPG.Feats.length;i++) { this._defaults.push(RPG.Feats[i].getAverage()); }
 }
 
 RPG.Races.BaseRace.prototype.getDefaults = function() {

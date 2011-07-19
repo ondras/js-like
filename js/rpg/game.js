@@ -151,6 +151,7 @@ RPG.Game._initFactories = function() {
 	RPG.Factories.items = new RPG.Misc.Factory().add(RPG.Items.BaseItem);
 	RPG.Factories.gems = new RPG.Misc.Factory().add(RPG.Items.Gem);
 	RPG.Factories.npcs = new RPG.Misc.Factory().add(RPG.Beings.NPC);
+	RPG.Factories.undead = new RPG.Misc.Factory().add(RPG.Beings.Undead);
 	RPG.Factories.traps = new RPG.Misc.Factory().add(RPG.Features.Trap);
 	RPG.Factories.spells = new RPG.Misc.Factory().add(RPG.Spells.BaseSpell);
 	RPG.Factories.gold = new RPG.Misc.Factory().add(RPG.Items.Gold);

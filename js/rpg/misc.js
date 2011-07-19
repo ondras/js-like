@@ -388,6 +388,26 @@ RPG.Misc.Factory.prototype.getInstance = function(danger) {
 	}
 }
 
+/**
+ * Create all available instances
+ */
+RPG.Misc.Factory.prototype.getAllInstances = function(danger) {
+	var result = [];
+	
+	for (var i=0;i<this._classList.length;i++) {
+		ctor = this._classList[i];
+		if (ctor.factory.danger > danger) { continue; } 
+		if (ctor.factory.method) {
+			var inst = ctor.factory.method.call(ctor, danger);
+		} else {
+			var inst = new ctor(); 
+		}
+		result.push(inst);
+	}
+	
+	return result;
+}
+
 RPG.Misc.Factory.prototype._hasAncestor = function(ctor, ancestor) {
 	var current = ctor;
 	while (current) {
@@ -465,9 +485,14 @@ RPG.Misc.Scheduler.prototype.scheduleActor = function() {
  */
 RPG.Misc.Feat = OZ.Class();
 
-RPG.Misc.Feat.prototype.init = function(name, description) {
-	this.name = name;
-	this.description = description;
+RPG.Misc.Feat.prototype.init = function(name, description, options) {
+	this._options = {
+		average: 11,
+		upgrade: 1
+	}
+	for (var p in options) { this._options[p] = options[p]; }
+	this._name = name;
+	this._description = description;
 	this.parentModifiers = {};
 }
 
@@ -475,11 +500,27 @@ RPG.Misc.Feat.prototype._drd = function(value) {
 	return (-11*10/21 + (value * 10/21));
 }
 
-RPG.Misc.Feat.prototype.computeRating = function(level) {
-	var phi = (1+Math.sqrt(5))/2;
-	var nlevel = level + 1;
-	var val = (Math.pow(phi, nlevel) - Math.pow(-1/phi, nlevel)) / Math.sqrt(5);
-	return Math.round(val);
+RPG.Misc.Feat.prototype.getName = function() {
+	return this._name;
+}
+
+RPG.Misc.Feat.prototype.getDescription = function() {
+	return this._description;
+}
+
+RPG.Misc.Feat.prototype.getAverage = function() {
+	return this._options.average;
+}
+
+RPG.Misc.Feat.prototype.getUpgrade = function() {
+	return this._options.upgrade;
+}
+
+/**
+ * normalize to average=11, upgrade=1 
+ */
+RPG.Misc.Feat.prototype.normalize = function(value) {
+	return Math.round(11 + (value-this._options.average) / this._options.upgrade);
 }
 
 /**
