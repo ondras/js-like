@@ -141,7 +141,7 @@ RPG.Items.BaseItem.prototype._describeModifiers = function() {
 			dvpv = true; continue; 
 		}
 		var f = RPG.Feats[feat];
-		var str = f.name;
+		var str = f.getName();
 		var num = this._modifiers[feat];
 		if (num >= 0) { num = "+"+num; }
 		arr.push("{"+str+num+"}");
