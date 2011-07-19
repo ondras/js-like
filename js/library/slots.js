@@ -23,16 +23,14 @@ RPG.Slots.Damage.prototype.getLuck = function() {
  * @see RPG.Misc.IDamageDealer#getHit
  */
 RPG.Slots.Damage.prototype.getHit = function() {
-	var addedHit = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_HIT), 0); /* FIXME random value or wtf */
-	return this._hit.add(addedHit);
+	return this._hit.add(this._being.getFeat(RPG.FEAT_HIT));
 }
 
 /**
  * @see RPG.Misc.IDamageDealer#getDamage
  */
 RPG.Slots.Damage.prototype.getDamage = function() {
-	var addedDamage = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_DAMAGE), 0); /* FIXME random value or wtf */
-	return this._damage.add(addedDamage);
+	return this._damage.add(this._being.getFeat(RPG.FEAT_DAMAGE));
 }
 
 RPG.Slots.Damage.prototype.setHit = function(hit) {

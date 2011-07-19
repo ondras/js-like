@@ -312,7 +312,6 @@ RPG.UI.Spelllist.prototype.init = function(data, label, callback) {
 }
 
 RPG.UI.Spelllist.prototype._format = function(item) {
-	/* FIXME instantialize? */
 	var str = "(" + item.cost + ") ";
 	
 	var spell = new item();

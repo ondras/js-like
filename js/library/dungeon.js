@@ -283,7 +283,7 @@ RPG.Features.StainedGlassWindow = OZ.Class()
 									.extend(RPG.Features.Destroyable)
 									.implement(RPG.Misc.IActor)
 									.implement(RPG.Misc.IDamageDealer);
-RPG.Features.StainedGlassWindow.visual = { desc:"stained glass window", image:"fixme", ch:"=" };
+RPG.Features.StainedGlassWindow.visual = { desc:"stained glass window", image:"stained-glass-window", ch:"=" };
 RPG.Features.StainedGlassWindow.prototype._blocks = RPG.BLOCKS_MOVEMENT;
 RPG.Features.StainedGlassWindow.prototype._hit = new RPG.Misc.RandomValue(8, 5);
 RPG.Features.StainedGlassWindow.prototype._damage = new RPG.Misc.RandomValue(2, 1);

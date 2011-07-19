@@ -281,8 +281,10 @@ RPG.Items.Scroll.prototype.init = function(spell) {
 }
 
 RPG.Items.Scroll.prototype.getVisualProperty = function(name) {
-	/* FIXME instantialize? */
-	if (name == "descPlural" || name == "desc") { return this.parent(name) + " of " + this._spell.visual.desc.capitalize(); }
+	if (name == "descPlural" || name == "desc") { 
+		var spell = new this._spell();
+		return this.parent(name) + " of " + spell.describe().capitalize(); 
+	}
 	return this.parent(name);
 }
 
@@ -310,8 +312,8 @@ RPG.Items.Scroll.prototype.read = function(being) {
 	being.addSpell(this._spell);
 	being.removeItem(this);
 	if (being == RPG.Game.pc) { 
-		/* FIXME instantialize? */
-		var s = RPG.Misc.format("You learn the '%S' spell.", this._spell.visual.desc);
+		var spell = new this._spell();
+		var s = RPG.Misc.format("You learn the '%S' spell.", spell.describe());
 		RPG.UI.buffer.message(s); 
 	}
 }

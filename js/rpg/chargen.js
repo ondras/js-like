@@ -64,30 +64,28 @@ RPG.CharGen.prototype._buildMatrix = function(tb) {
 	}
 	
 	for (var i=0;i<this.professions.length;i++) {
-		var profCtor = this.professions[i];
+		var prof = new this.professions[i]();
 		
 		tr = OZ.DOM.elm("tr");
 		tb.appendChild(tr);
 		
 		/* profession label */
 		var td = OZ.DOM.elm("td");
-		/* FIXME instantialize? */
-		td.innerHTML = profCtor.visual.desc.capitalize();
+		td.innerHTML = prof.describe().capitalize();
 		tr.appendChild(td);
 		
 		for (var j=0;j<this.races.length;j++) {
-			var raceCtor = this.races[j];
+			var race = new this.races[j]();
 			
 			/* cell */
 			var td = OZ.DOM.elm("td");
 			tr.appendChild(td);
 
 			var img = OZ.DOM.elm("img");
-			/* FIXME instantialize? */
-			img.src = "img/pc/" + raceCtor.visual.image + "-" + profCtor.visual.image + ".png";
+			img.src = "img/pc/" + race.getVisualProperty("image") + "-" + prof.getVisualProperty("image") + ".png";
 			td.appendChild(img);
 			
-			this._list.push([img, raceCtor, profCtor]);
+			this._list.push([img, this.races[j], this.professions[i]]);
 		}
 	}
 }

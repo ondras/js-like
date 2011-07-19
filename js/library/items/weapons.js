@@ -199,21 +199,21 @@ RPG.Items.Projectile.prototype.getChar = function() {
 RPG.Items.Projectile.prototype.getHit = function() {
 	if (!this._flying) { return this._hit; } /* normal weapon, not a damagedealer */
 
-	var addedHit = new RPG.Misc.RandomValue(this._owner.getFeat(RPG.FEAT_HIT), 0); /* FIXME wtf zero */
+	var hit = this._hit.add(this._owner.getFeat(RPG.FEAT_HIT));
 	var launcher = this.getLauncher();
-	if (launcher) { addedHit = addedHit.add(launcher.getHit()); } /* launched with a launcher */
+	if (launcher) { hit = hit.add(launcher.getHit()); } /* launched with a launcher */
 	
-	return this._hit.add(addedHit);
+	return hit;
 }
 
 RPG.Items.Projectile.prototype.getDamage = function() {
 	if (!this._flying) { return this._damage; } /* normal weapon, not a damagedealer */
 	
-	var addedDamage = new RPG.Misc.RandomValue(this._owner.getFeat(RPG.FEAT_DAMAGE), 0);
+	var damage = this._damage.add(this._owner.getFeat(RPG.FEAT_DAMAGE));
 	var launcher = this.getLauncher();
-	if (launcher) { addedDamage = addedDamage.add(launcher.getDamage()); } /* launched with a launcher */
+	if (launcher) { damage = damage.add(launcher.getDamage()); } /* launched with a launcher */
 	
-	return this._damage.add(addedDamage);
+	return damage;
 }
 
 /**

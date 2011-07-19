@@ -20,9 +20,12 @@ RPG.Misc.RandomValue.prototype.roll = function() {
 }
 
 /**
- * Add another random value
+ * Add another random value or a number
+ * @param {RPG.Misc.RandomValue || number}
  */
 RPG.Misc.RandomValue.prototype.add = function(rv) {
+	if (typeof(rv) == "number") { return new this.constructor(this.mean+rv, this.twosigma); }
+
 	var m = this.mean + rv.mean;
 	var ts = Math.sqrt(this.twosigma*this.twosigma + rv.twosigma*rv.twosigma);
 	return new this.constructor(m, ts);
