@@ -57,7 +57,7 @@ RPG.Features.Tree.prototype._blocks = RPG.BLOCKS_MOVEMENT;
  * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Altar = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Altar.visual = { desc:"altar", image:"altar", ch:"_", color:"#fff"};
+RPG.Features.Altar.visual = { desc:"altar", image:"altar", ch:"±", color:"#fff"};
 
 /**
  * @class Bench feature
@@ -66,14 +66,6 @@ RPG.Features.Altar.visual = { desc:"altar", image:"altar", ch:"_", color:"#fff"}
 RPG.Features.Bench = OZ.Class().extend(RPG.Features.BaseFeature);
 RPG.Features.Bench.visual = { desc:"bench", image:"altar FIXME", ch:"|", color:"#963"};
 RPG.Features.Bench.prototype._blocks = RPG.BLOCKS_MOVEMENT;
-
-/**
- * @class Tombstone feature
- * @augments RPG.Features.BaseFeature
- */
-RPG.Features.Tombstone = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Tombstone.visual = { desc:"tombstone", image:"tombstone", ch:"+", color:"#666"};
-RPG.Features.Tombstone.prototype._blocks = RPG.BLOCKS_MOVEMENT;
 
 /**
  * @class Generic trap
@@ -184,6 +176,24 @@ RPG.Features.Destroyable.prototype.isAlive = function() {
  */
 RPG.Features.Destroyable.prototype._destroy = function() {
 	this._map.setFeature(null, this._coords); 
+}
+
+/**
+ * @class Tombstone feature
+ * @augments RPG.Features.Destroyable
+ */
+RPG.Features.Tombstone = OZ.Class().extend(RPG.Features.Destroyable);
+RPG.Features.Tombstone.visual = { desc:"tombstone", image:"tombstone", ch:"+", color:"#666"};
+RPG.Features.Tombstone.prototype._blocks = RPG.BLOCKS_MOVEMENT;
+RPG.Features.Tombstone.prototype.init = function() {
+	this.parent();
+	this._hp = 4;
+}
+RPG.Features.Tombstone.prototype._destroy = function() {
+	this.parent();
+	var undead = RPG.Factories.undead.getInstance(this._map.getDanger());
+	RPG.Game.getEngine().addActor(undead);
+	this._map.setBeing(undead, this._coords);
 }
 
 /**

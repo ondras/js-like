@@ -211,8 +211,16 @@ body {
 	text-align: center;
 }
 
+.dialog .attributes td {
+	padding: 0px;
+}
+
 .dialog .attributes .left {
 	text-align: left;
+}
+
+.dialog .attributes .right {
+	text-align: right;
 }
 
 .dialog .attributes .parent td {

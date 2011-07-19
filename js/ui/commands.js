@@ -1222,5 +1222,7 @@ RPG.UI.Command.Attributes.prototype.init = function() {
 	this._button.setChar("x");
 }
 RPG.UI.Command.Attributes.prototype.exec = function() {
-	new RPG.UI.Attributes(RPG.Game.pc);
+	var feature = RPG.Game.pc.getMap().getFeature(RPG.Game.pc.getCoords());
+	var allow = (feature && feature instanceof RPG.Features.Altar);
+	new RPG.UI.Attributes(RPG.Game.pc, allow);
 }

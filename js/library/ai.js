@@ -165,7 +165,7 @@ RPG.AI.AttackMagic.prototype.go = function() {
 			var trajectory = spell.computeTrajectory(coords, i, being.getMap());
 			var selfHit = false;
 			var targetHit = false;
-			for (var j=0;j<trajectory.coords.length;j++) { /* check if target is hit and we are not */
+			for (var j=1;j<trajectory.coords.length;j++) { /* check if target is hit and we are not */
 				var test = trajectory.coords[j];
 				if (test.equals(target)) { targetHit = true; }
 				if (test.equals(coords)) { selfHit = true; }
@@ -483,7 +483,6 @@ RPG.AI.Shopkeeper.prototype.getDialogText = function(being) {
 	var text = ["You owe me " + debt + " gold pieces."];
 	
 	var avail = being.getGold();
-	avail = avail ? avail.getAmount() : 0;
 	
 	if (avail >= debt) {
 		text.push("Do you want to pay for everything?");
@@ -499,7 +498,6 @@ RPG.AI.Shopkeeper.prototype.getDialogOptions = function(being) {
 	if (!debt) { return []; }
 
 	var avail = being.getGold();
-	avail = avail ? avail.getAmount() : 0;
 	if (debt > avail) { return []; }
 	return ["Yes", "No"];
 }
@@ -509,7 +507,8 @@ RPG.AI.Shopkeeper.prototype.advanceDialog = function(optionIndex, being) {
 	
 	if (optionIndex == 0) { /* yes */
 		var amount = being.getDebts(this._being);
-		being.getGold().subtract(amount);
+		var gold = being.getGold();
+		being.setGold(gold-amount);
 		
 		var items = being.getItems(); /* mark all items as paid */
 		for (var i=0;i<items.length;i++) {

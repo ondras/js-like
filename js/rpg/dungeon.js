@@ -426,10 +426,11 @@ RPG.Map.prototype.setBeing = function(being, coords, ignoreOldPosition) {
 	} else { /* same map */
 		if (!ignoreOldPosition) { delete this._beings[oldCoords.x+","+oldCoords.y]; } /* same map - remove being from old coords */
 		being.setCoords(newCoords);
-		if (this._active) { 
-			RPG.Game.pc.coordsChanged(oldCoords); 
-			RPG.Game.pc.coordsChanged(newCoords); 
-		}
+	}
+
+	if (this._active) { 
+		if (oldCoords) { RPG.Game.pc.coordsChanged(oldCoords); }
+		RPG.Game.pc.coordsChanged(newCoords); 
 	}
 	
 	if (oldArea != newArea) { /* area change */

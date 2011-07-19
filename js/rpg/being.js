@@ -188,9 +188,30 @@ RPG.Beings.BaseBeing.prototype.getSlot = function(type) {
 RPG.Beings.BaseBeing.prototype.getGold = function() {
 	for (var i=0;i<this._items.length;i++) {
 		var it = this._items[i];
-		if (it instanceof RPG.Items.Gold) { return it; }
+		if (it instanceof RPG.Items.Gold) { return it.getAmount(); }
 	}
-	return null;
+	return 0;
+}
+
+RPG.Beings.BaseBeing.prototype.setGold = function(gold) {
+	var item = null;
+	for (var i=0;i<this._items.length;i++) {
+		var it = this._items[i];
+		if (it instanceof RPG.Items.Gold) { item = it; }
+	}
+	
+	if (item) {
+		if (gold) {
+			item.setAmount(gold);
+		} else { /* remove */
+			this.removeItem(item);
+		}
+	} else {
+		if (!gold) { return; } /* no gold avail, no gold needed */
+		this.addItem(new RPG.Items.Gold(gold)); /* add new item */
+	}
+	
+	return this;
 }
 
 /**

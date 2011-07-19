@@ -110,5 +110,7 @@ RPG.Map.Church.prototype.init = function() {
 		}
 	}
 	
-	this.setBeing(new RPG.Beings.Priest(), new RPG.Misc.Coords(52, 7));
+	var priest = new RPG.Beings.Priest();
+	priest.getAI().setDialogText("Do you know that you can upgrade your attributes when standing on an altar? Just bring enough money and press 'x'...");
+	this.setBeing(priest, new RPG.Misc.Coords(52, 7));
 }

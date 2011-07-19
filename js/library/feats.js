@@ -16,7 +16,7 @@ RPG.Feats[RPG.FEAT_REGEN_HP].parentModifiers[RPG.FEAT_TOUGHNESS] = RPG.Feats[RPG
 RPG.Feats[RPG.FEAT_PV] = new RPG.Misc.Feat("PV", "Protection value – damage reduced from taken hits", {average:0});
 RPG.Feats[RPG.FEAT_PV].parentModifiers[RPG.FEAT_TOUGHNESS] = RPG.Feats[RPG.FEAT_PV]._drd;
 
-RPG.Feats[RPG.FEAT_MAX_MANA] = new RPG.Misc.Feat("Mana", "Magical energy", {average:5, upgrade:3});
+RPG.Feats[RPG.FEAT_MAX_MANA] = new RPG.Misc.Feat("Mana", "Magical energy", {average:8, upgrade:4});
 RPG.Feats[RPG.FEAT_MAX_MANA].parentModifiers[RPG.FEAT_MAGIC] = function(value) { return 3*RPG.Feats[RPG.FEAT_MAX_MANA]._drd(value); };
 
 RPG.Feats[RPG.FEAT_REGEN_MANA] = new RPG.Misc.Feat("Mana regen", "Mana regeneration rate", {average:10, upgrade:5});
