@@ -1,16 +1,47 @@
 /**
- * @class Testbed story
+ * @class Debug story
  * @augments RPG.Story
  */
-RPG.Story.Testbed = OZ.Class().extend(RPG.Story);
+RPG.Story.Debug = OZ.Class().extend(RPG.Story);
 
-RPG.Story.Testbed.prototype._firstMap = function() {
-	var church = new RPG.Map.Church();
-	return [church, new RPG.Misc.Coords(3, 9)];
+RPG.Story.Debug.prototype._firstMap = function() {
+	var r = document.location.search.match(/debug\/(.*)/) || [];
+	
+	if (r[1] == "church") {
+		var church = new RPG.Map.Church();
+		return [church, new RPG.Misc.Coords(3, 9)];
+	}
+
+	if (r[1] == "items") {
+		var arena = RPG.Generators.Arena.getInstance().generate("debug", new RPG.Misc.Coords(60, 20), 1);
+		var items = RPG.Factories.items.getAllInstances();
+		for (var i=0;i<items.length;i++) {
+			var coords = this._indexToCoords(i);
+			coords.x++;
+			coords.y++;
+			arena.addItem(items[i], coords);
+		}
+		return [arena, new RPG.Misc.Coords(1, 18)];
+	}
+	
+	if (r[1] == "beings") {
+		var arena = RPG.Generators.Arena.getInstance().generate("debug", new RPG.Misc.Coords(60, 20), 1);
+		var npcs = RPG.Factories.npcs.getAllInstances();
+		for (var i=0;i<npcs.length;i++) {
+			var coords = this._indexToCoords(i);
+			coords.x++;
+			coords.y++;
+			arena.setBeing(npcs[i], coords);
+		}
+		return [arena, new RPG.Misc.Coords(1, 18)];
+	}
+
+	var map = RPG.Generators.Uniform.getInstance().generate("debug", new RPG.Misc.Coords(60, 20), 1);
+	return [map, map.getFreeCoords()];
 }
 
-RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
-	var pc = new RPG.Beings.PC(race, profession);
+RPG.Story.Debug.prototype._createPC = function(race, profession, name) {
+	var pc = new RPG.Beings.God(race, profession);
 	pc.setName(name);
 
 	var beer = new RPG.Items.Beer();
@@ -32,4 +63,13 @@ RPG.Story.Testbed.prototype._createPC = function(race, profession, name) {
 	pc.fullStats();
 	
 	return pc;
+}
+
+RPG.Story.Debug.prototype._indexToCoords = function(index) {
+	var result = new RPG.Misc.Coords(0, 0);
+	var num = Math.floor((-1 + Math.sqrt(1 + 8*(index)))/2); /* which diagonal (starting from 0) */
+	var maxPrev = num*(num+1)/2; /* first number on this diagonal */
+	result.x = index-maxPrev;
+	result.y = num-result.x;
+	return result;
 }

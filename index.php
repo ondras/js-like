@@ -85,8 +85,8 @@
 		<script type="text/javascript">
 //			RPG.Stats.server = "http://192.168.1.6/js-like-server/";
 			RPG.Game.init();
-			var index = document.location.search.indexOf("testbed");
-			var story = (index == -1 ? RPG.Story.Village : RPG.Story.Testbed);
+			var index = document.location.search.indexOf("debug");
+			var story = (index == -1 ? RPG.Story.Village : RPG.Story.Debug);
 			var s = new story();
 
 			RPG.Game.setStory(s);
