@@ -5,8 +5,8 @@
  * every AI is able to do at least *something*.
  * When AI is asked to do something, it tries to pick topmost task and execute it. Three things can happen:
  * a) task is already done - remove it from queue, repeat
- * b) task cannot be done - repeat
- * c) task was executed, finish.
+ * b) task cannot be done - continue to next task in stack
+ * c) task was executed, finish (leave the task in stack)
  * @augments RPG.Misc.IDialog
  */
 RPG.AI = OZ.Class().implement(RPG.Misc.IDialog);
@@ -130,7 +130,7 @@ RPG.AI.prototype.yourTurn = function() {
 		var task = (taskPtr == -1 ? this._defaultTask : this._tasks[taskPtr]);
 		var result = task.go();
 		switch (result) {
-			case RPG.AI_IMPOSSIBLE: /* task cannot be done at this moment */
+			case RPG.AI_IMPOSSIBLE: /* task cannot be done at this moment, go to next task */
 			break;
 			case RPG.AI_ALREADY_DONE: /* task is no longer valid */
 				if (task != this._defaultTask) { this.removeTask(task); }
@@ -210,16 +210,14 @@ RPG.AI.prototype._attack = function(e) {
 		if (task instanceof RPG.AI.ActDefensively) { defense = true; }
 	}
 	
-	if (!kill) {
-		/* let's kill the bastard! */
+	if (!kill) { /* let's kill the bastard! */
 		var str = RPG.Misc.format("%The gets very angry!", this._being);
 		RPG.UI.buffer.message(str);
 		var task = new RPG.AI.Kill(source);
 		this.addTask(task);
 	}
 	
-	if (!defense && RPG.Rules.isWoundedToRetreat(this._being)) {
-		/* too much damage, run for your life! */
+	if (!defense && RPG.Rules.isWoundedToRetreat(this._being)) { /* too much damage, run for your life! */
 		var str = RPG.Misc.format("%The looks frightened!", this._being);
 		RPG.UI.buffer.message(str);
 		var task = new RPG.AI.ActDefensively(source);

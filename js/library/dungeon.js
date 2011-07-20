@@ -420,14 +420,14 @@ RPG.Features.StaircaseUp.visual = { desc:"staircase leading up", image:"staircas
  * @augments RPG.Features.Connector
  */
 RPG.Features.RoadExit = OZ.Class().extend(RPG.Features.Connector.Exit);
-RPG.Features.RoadExit.visual = { desc:"road leading away", image:"fixme", color:"#963" };
+RPG.Features.RoadExit.visual = { desc:"road leading away", image:"road-away", color:"#963" };
 
 /**
  * @class Road in "down" direction
  * @augments RPG.Features.Connector
  */
 RPG.Features.RoadEntry = OZ.Class().extend(RPG.Features.Connector.Entry);
-RPG.Features.RoadEntry.visual = { desc:"road leading further", image:"fixme", color:"#963" };
+RPG.Features.RoadEntry.visual = { desc:"road leading further", image:"road-further", color:"#963" };
 
 /**
  * @class Set of cells with tutorial messages

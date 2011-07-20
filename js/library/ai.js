@@ -283,7 +283,7 @@ RPG.AI.Retreat = OZ.Class().extend(RPG.AI.Task);
 RPG.AI.Retreat.prototype.init = function(being) {
 	this.parent();
 	this._being = being;
-	this._subtasks.teleport = new RPG.AI.TeleportAway();
+	this._subtasks.teleport = new RPG.AI.TeleportAway(being);
 }
 
 RPG.AI.Retreat.prototype.go = function() {
@@ -296,7 +296,6 @@ RPG.AI.Retreat.prototype.go = function() {
 	var c1 = being.getCoords();
 	var c2 = this._being.getCoords();
 
-	/* FIXME: the logic for stopping teleport spree stinks here */
 	/* we see target - we need and know how to get away */
 	if (being.canSee(c2)) {
 		/* try to teleport away */
@@ -368,15 +367,16 @@ RPG.AI.HealOther.prototype.go = function() {
 
 	/* dunno how to heal or haven't got enough mana */
 	var heal = RPG.Spells.Heal;
-	if (!being.hasSpell(heal,true)) {
-		return RPG.AI_IMPOSSIBLE;
-	}
+	if (!being.hasSpell(heal, true)) { return RPG.AI_IMPOSSIBLE; }
 
 	/* check distance */
 	var c1 = being.getCoords();
 	var c2 = this._being.getCoords();
 
 	if (c1.distance(c2) > 1) { /* too distant, approach */
+		var approach = new RPG.AI.Approach(this._being);
+		var result = approach.go();
+		
 		/* FIXME refactor */
 		this._ai.addTask(new RPG.AI.Approach(this._being));
 		this._ai.addTask(new RPG.AI.HealOther(this._being));
@@ -384,7 +384,7 @@ RPG.AI.HealOther.prototype.go = function() {
 	} else { /* okay, cast */
 		heal = new heal(being);
 		being.cast(heal, c1.dirTo(c2)); 
-		return RPG.AI_OK;	
+		return RPG.AI_OK;
 	}
 }
 
@@ -393,19 +393,22 @@ RPG.AI.HealOther.prototype.go = function() {
  * @augments RPG.AI.Task
  */
 RPG.AI.TeleportAway = OZ.Class().extend(RPG.AI.Task);
+RPG.AI.TeleportAway.prototype.init = function(being) {
+	this.parent();
+	this._being = being;
+}
 
 RPG.AI.TeleportAway.prototype.go = function() {
 	var being = this._ai.getBeing();
 
-	/* dunno how to teleport or haven't got enough mana */
 	var teleport = RPG.Spells.Teleport;
-	if (!being.hasSpell(teleport,true)) {
-		return RPG.AI_IMPOSSIBLE;
-	}
+	if (!being.hasSpell(teleport, true)) { return RPG.AI_IMPOSSIBLE; } /* dunno how to teleport or haven't got enough mana */
 
-	var c = being.getCoords();
-	var map = being.getMap();
+	var c = this._being.getCoords();
+	var map = this._being.getMap();
 	var target = map.getFurthestFreeCoords(c);
+	
+	if (target.equals(being.getCoords())) { return RPG.AI_IMPOSSIBLE; } /* already standing on that spot */
 
 	/* no free cell anywhere! */
 	if (!target) { return RPG.AI_IMPOSSIBLE; }
