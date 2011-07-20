@@ -12,6 +12,11 @@ RPG.Story.Debug.prototype._firstMap = function() {
 		return [church, new RPG.Misc.Coords(3, 9)];
 	}
 
+	if (r[1] == "crossroads") {
+		var crossroads = new RPG.Map.Crossroads();
+		return [crossroads, new RPG.Misc.Coords(3, 9)];
+	}
+
 	if (r[1] == "items") {
 		var arena = RPG.Generators.Arena.getInstance().generate("debug", new RPG.Misc.Coords(60, 20), 1);
 		var items = RPG.Factories.items.getAllInstances();

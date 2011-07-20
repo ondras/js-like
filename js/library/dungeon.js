@@ -64,8 +64,22 @@ RPG.Features.Altar.visual = { desc:"altar", image:"altar", ch:"±", color:"#fff"
  * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Bench = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Bench.visual = { desc:"bench", image:"altar FIXME", ch:"|", color:"#963"};
+RPG.Features.Bench.visual = { desc:"bench", image:"bench FIXME", ch:"|", color:"#963"};
 RPG.Features.Bench.prototype._blocks = RPG.BLOCKS_MOVEMENT;
+
+/**
+ * @class Signpost feature
+ * @augments RPG.Features.BaseFeature
+ */
+RPG.Features.Signpost = OZ.Class().extend(RPG.Features.BaseFeature);
+RPG.Features.Signpost.visual = { image:"signpost", ch:"T", color:"#666"};
+RPG.Features.Signpost.prototype.init = function(label) {
+	this.parent();
+	this._label = label;
+}
+RPG.Features.Signpost.prototype.describe = function() {
+	return "signpost labeled '" + this._label + "'";
+}
 
 /**
  * @class Generic trap

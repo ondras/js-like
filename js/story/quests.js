@@ -31,8 +31,8 @@ RPG.Quests.SmithTrophy.prototype.getDialogText = function(being) {
 			return [
 				"Aye! Need some steel?",
 				"You look skilled enough; let me know if you manage to kill " + label + ", I will give ya a hundred gold for that.",
-				"You might want to look for it in the small dungeon in the south-west part of our village; that strange cave \
-				looks different every time you visit it!"
+				"You might want to look for it in underground caves located in the nothern part of the crossroads. Those strange caves \
+				look different every time you visit them!"
 			];
 		break;
 		

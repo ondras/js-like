@@ -65,6 +65,8 @@
 		<script type="text/javascript" src="js/story/items.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/story/quests.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/story/village.js?<?php echo $ver; ?>"></script>
+		<script type="text/javascript" src="js/story/crossroads.js?<?php echo $ver; ?>"></script>
+		<script type="text/javascript" src="js/story/church.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/story/tutorial.js?<?php echo $ver; ?>"></script>
 		<script type="text/javascript" src="js/story/story.js?<?php echo $ver; ?>"></script>
 	</head>
@@ -81,7 +83,6 @@
 		
 		<script type="text/javascript" src="js/debug/graph.js"></script>
 		<script type="text/javascript" src="js/debug/story.js"></script>
-		<script type="text/javascript" src="js/debug/church.js"></script>
 		<script type="text/javascript">
 //			RPG.Stats.server = "http://192.168.1.6/js-like-server/";
 			RPG.Game.init();

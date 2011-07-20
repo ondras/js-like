@@ -50,15 +50,47 @@ RPG.Story.Village.prototype._buildMaps = function() {
 	this._tutorial = new RPG.Map.Tutorial();
 	this._buildVillage();
 	
-	/* connect village with tutorial */
-	var c1 = new RPG.Misc.Coords(19, 0);
-	var c2 = new RPG.Misc.Coords(49, 15);
-	var up1 = new RPG.Features.RoadExit();
-	var up2 = new RPG.Features.StaircaseUp();
-	up1.setTarget(up2);
-	up2.setTarget(up1);
-	this._village.setFeature(up1, c1);
-	this._tutorial.setFeature(up2, c2);
+	var cross = new RPG.Map.Crossroads();
+	
+	/* connect crossroads with tutorial */
+	var down = new RPG.Features.StaircaseDown();
+	var up = new RPG.Features.StaircaseUp();
+	down.setTarget(up);
+	up.setTarget(down);
+	cross.setFeature(down, new RPG.Misc.Coords(1, 6));
+	this._tutorial.setFeature(up, new RPG.Misc.Coords(49, 15));
+	cross.setFeature(new RPG.Features.Signpost("To beginner's cave"), down.getCoords().neighbor(RPG.S));
+
+	/* connect crossroads with village */
+	var down = new RPG.Features.RoadEntry();
+	var up = new RPG.Features.RoadExit();
+	down.setTarget(up);
+	up.setTarget(down);
+	cross.setFeature(down, new RPG.Misc.Coords(7, 12));
+	this._village.setFeature(up, new RPG.Misc.Coords(19, 1));
+	cross.setFeature(new RPG.Features.Signpost("To village"), down.getCoords().neighbor(RPG.NW)); 
+
+	/* connect crossroads with church */
+	var church = new RPG.Map.Church();
+	var down = new RPG.Features.RoadEntry();
+	var up = new RPG.Features.RoadExit();
+	down.setTarget(up);
+	up.setTarget(down);
+	cross.setFeature(down, new RPG.Misc.Coords(28, 1));
+	church.setFeature(up, new RPG.Misc.Coords(3, 9));
+	cross.setFeature(new RPG.Features.Signpost("To the church"), down.getCoords().neighbor(RPG.N)); 
+
+	/* infinite dungeon */
+	var down = new RPG.Features.StaircaseDown();
+	cross.setFeature(down, new RPG.Misc.Coords(18, 1));
+    this._staircases["dungeon"] = down;
+	cross.setFeature(new RPG.Features.Signpost("To underground caves"), down.getCoords().neighbor(RPG.E)); 
+	
+	/* end game */
+	var away = new RPG.Features.RoadExit();
+	cross.setFeature(away, new RPG.Misc.Coords(28, 12));
+    this._staircases["end"] = away;
+	cross.setFeature(new RPG.Features.Signpost("Leave the game"), away.getCoords().neighbor(RPG.N)); 
 }
 
 RPG.Story.Village.prototype._addCallbacks = function() {
@@ -71,7 +103,7 @@ RPG.Story.Village.prototype._addCallbacks = function() {
 }
 
 RPG.Story.Village.prototype._end = function(staircase) {
-	RPG.UI.confirm("Do you want to leave the village (this will end the game)?", "End game", function() { RPG.Game.end(); });
+	RPG.UI.confirm("Do you want to end the game?", "End game", function() { RPG.Game.end(); });
 }
 
 RPG.Story.Village.prototype._createPC = function(race, profession, name) {
@@ -154,11 +186,6 @@ RPG.Story.Village.prototype._buildVillage = function() {
 		villager.getAI().setDialogSound(chat[1]);
         this._village.setBeing(villager, this._village.getFreeCoords());
     }
-
-	/* staircase down */
-    var staircase = new RPG.Features.StaircaseDown();
-    this._village.setFeature(staircase, new RPG.Misc.Coords(1, 14));
-    this._staircases["dungeon"] = staircase;
 }
 
 RPG.Story.Village.prototype._showElderStaircase = function() {

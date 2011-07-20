@@ -308,6 +308,10 @@ RPG.Map.prototype.entering = function(being) {
 
 RPG.Map.prototype.leaving = function(being) {
 	this.parent(being);
+
+	var coords = being.getCoords();
+	delete this._beings[coords.x+","+coords.y];
+	
 	if (being == RPG.Game.pc) { being.memorizeVisible(); }
 }
 
