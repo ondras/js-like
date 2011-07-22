@@ -325,8 +325,9 @@ RPG.UI.Spelllist.prototype._format = function(item) {
 
 RPG.UI.Spelllist.prototype._sortData = function(items) {
 	var arr = items.clone();
-	/* FIXME instantialize? */
-	arr.sort(function(a,b) { return a.visual.desc.localeCompare(b.visual.desc); });
+	arr.sort(function(a,b) { 
+		return new a().describe().localeCompare(new b().describe()); 
+	});
 	return arr;
 }
 

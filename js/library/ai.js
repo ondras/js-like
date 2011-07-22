@@ -375,12 +375,7 @@ RPG.AI.HealOther.prototype.go = function() {
 
 	if (c1.distance(c2) > 1) { /* too distant, approach */
 		var approach = new RPG.AI.Approach(this._being);
-		var result = approach.go();
-		
-		/* FIXME refactor */
-		this._ai.addTask(new RPG.AI.Approach(this._being));
-		this._ai.addTask(new RPG.AI.HealOther(this._being));
-		return RPG.AI_OK;
+		return approach.go();
 	} else { /* okay, cast */
 		heal = new heal(being);
 		being.cast(heal, c1.dirTo(c2)); 

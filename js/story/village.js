@@ -51,11 +51,19 @@ RPG.Map.SmallVillage.prototype._buildFeatures = function() {
     this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(12,3));
     this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(21,7));
     this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(28,7));
+    
+    /* define areas for buildings - to prevent trees inside them */
+    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(1, 6), new RPG.Misc.Coords(3, 10)));
+    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(9, 1), new RPG.Misc.Coords(12, 5)));
+    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(10, 7), new RPG.Misc.Coords(12, 9)));
+    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(18, 4), new RPG.Misc.Coords(22, 7)));
+    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(17, 10), new RPG.Misc.Coords(21, 14)));
+    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(28, 4), new RPG.Misc.Coords(32, 10)));
 
     var trees = 8;
 	while (trees--) {
 		var coords = this.getFreeCoords();
-		if (this.getArea(coords)) { continue; } /* FIXME buildings should be defined as areas, will contain trees otherwise */
+		if (this.getArea(coords)) { continue; }
 		this.setFeature(new RPG.Features.Tree(), coords);
 	}
 }
