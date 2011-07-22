@@ -64,7 +64,7 @@ RPG.Features.Altar.visual = { desc:"altar", image:"altar", ch:"±", color:"#fff"
  * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Bench = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Bench.visual = { desc:"bench", image:"bench FIXME", ch:"|", color:"#963"};
+RPG.Features.Bench.visual = { desc:"bench", image:"bench", ch:"|", color:"#963"};
 RPG.Features.Bench.prototype._blocks = RPG.BLOCKS_MOVEMENT;
 
 /**
