@@ -476,6 +476,10 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 
 	this.dropAll();
 	
+	/* drop money */
+	var gold = Math.ceil(Math.random()*2*this.computeRating());
+	this._map.addItem(new RPG.Items.Gold(gold), this._coords);
+	
 	var corpse = this._generateCorpse();
 	if (corpse) { this._map.addItem(corpse, this._coords); }
 

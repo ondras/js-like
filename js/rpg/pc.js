@@ -904,29 +904,20 @@ RPG.Beings.PC.prototype._describeBeing = function(b) {
 		s = RPG.Misc.format("%The does not seem to be hostile.", b);
 	}
 	RPG.UI.buffer.message(s);
-	
-	var rating = b.computeRating();
-	RPG.UI.buffer.message("Rating: "+rating);
 }
 
 RPG.Beings.PC.prototype._describeDifficulty = function(b) {
-	var feats = RPG.ATTRIBUTES.clone();
-	feats.push(RPG.FEAT_DV);
-	feats.push(RPG.FEAT_PV);
-	feats.push(RPG.FEAT_MAX_HP);
-	feats.push(RPG.FEAT_MAX_MANA);
-	feats.push(RPG.FEAT_SPEED);
+	var r1 = this.computeRating();
+	var r2 = b.computeRating();
+	var ratio = r2/r1 - 1;
+	ratio *= 3;
+
+	var list = ["a trivial", "an easy", "a moderate", "a tough", "a difficult"];
+	var index = Math.round(ratio + list.length/2 - 1/2);
+	index = Math.max(index, 0);
+	index = Math.min(index, list.length-1);
 	
-	var better = 0;
-	for (var i=0;i<feats.length;i++) {
-		var feat = feats[i];
-		if (b.getFeat(feat) >= this.getFeat(feat)) { better++; }
-	}
-	
-	better /= feats.length; /* 0-1 */
-	var list = ["trivial", "easy", "moderate", "tough", "difficult"];
-	var index = Math.round(better*(list.length-1));
-	var s = RPG.Misc.format("%He %is a %s opponent.", b, b, list[index]);
+	var s = RPG.Misc.format("%He seems to be %s opponent.", b, list[index]);
 	RPG.UI.buffer.message(s);
 }
 
