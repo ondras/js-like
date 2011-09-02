@@ -98,6 +98,8 @@ RPG.Story.Village.prototype._addCallbacks = function() {
     this._staircaseCallbacks["elder"] = this._nextElderDungeon;
     this._staircaseCallbacks["maze"] = this._nextMazeDungeon;
     this._staircaseCallbacks["dungeon"] = this._nextGenericDungeon;
+    this._staircaseCallbacks["dungeon-up"] = this._nextGenericDungeon;
+    this._staircaseCallbacks["dungeon-down"] = this._nextGenericDungeon;
     this._questCallbacks["elder"] = this._showElderStaircase;
     this._questCallbacks["maze"] = this._showMazeStaircase;
 }
@@ -326,30 +328,56 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 }
 
 RPG.Story.Village.prototype._nextGenericDungeon = function(staircase) {
-	var gen = RPG.Generators.Uniform.getInstance();
-	var map = gen.generate("Generic dungeon", new RPG.Misc.Coords(60, 20), 1, {ctor:RPG.Map.RandomDungeon});
-	RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);
-	
-	/* stairs up */
-	var room = map.getRooms().random();
-	var up = new RPG.Features.StaircaseUp();
-	map.setFeature(up, room.getCenter());
-	
-	/* bind to previous dungeon */
-	up.setTarget(staircase);
-	staircase.setTarget(up);
-	
-	/* enemies */
-	var max = 4 + Math.floor(Math.random()*6);
-	RPG.Decorators.Beings.getInstance().decorate(map, max);
-	
-	/* items */
-	var max = 1 + Math.floor(Math.random()*3);
-	RPG.Decorators.Items.getInstance().decorate(map, max);
+	var map = staircase.getMap();
+	var level = map.getDanger();
 
-	/* traps */
-	var max = 1 + Math.floor(Math.random()*2);
-	RPG.Decorators.Traps.getInstance().decorate(map, max);
+	if (map instanceof RPG.Map.RandomDungeon && level == 1 && staircase instanceof RPG.Features.Connector.Exit) { /* leave */
+		staircase.setTarget(this._staircases["dungeon"]);
+	} else { /* create a dungeon */
+		if (map instanceof RPG.Map.RandomDungeon) {
+			level += (staircase instanceof RPG.Features.Connector.Exit ? -1 : 1);
+		} else {
+			level = 1;
+		}
+		var gen = RPG.Generators.Uniform.getInstance();
+		var map = gen.generate("Generic dungeon #" + level, new RPG.Misc.Coords(60, 20), level, {ctor:RPG.Map.RandomDungeon});
+		RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);
+		
+		/* enemies */
+		var max = 3 + Math.floor(Math.random()*6) + level;
+		RPG.Decorators.Beings.getInstance().decorate(map, max);
+		
+		/* items */
+		var max = 1 + Math.floor(Math.random()*3);
+		RPG.Decorators.Items.getInstance().decorate(map, max);
+
+		/* traps */
+		var max = 1 + Math.floor(Math.random()*2);
+		RPG.Decorators.Traps.getInstance().decorate(map, max);
+		
+		/* stairs up */
+		var rooms = map.getRooms().clone();
+		var index = Math.floor(Math.random()*rooms.length);
+		var roomUp = rooms.splice(index, 1)[0];
+		var up = new RPG.Features.StaircaseUp();
+		map.setFeature(up, roomUp.getCenter());
+		this._staircases["dungeon-up"] = up;
+		
+		/* stairs down */
+		var roomDown = rooms.random();
+		var down = new RPG.Features.StaircaseDown();
+		map.setFeature(down, roomDown.getCenter());
+		this._staircases["dungeon-down"] = down;
+		
+		/* bind to staircase */
+		if (staircase instanceof RPG.Features.Connector.Exit) { /* bind to down staircase */
+			staircase.setTarget(down);
+		} else { /* bind to up staircase */
+			staircase.setTarget(up);
+		}
+
+	}
+	
 }
 
 RPG.Story.Village.prototype.computeScore = function() {
