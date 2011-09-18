@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<script type="text/javascript" src="js/oz.js"></script>
+		<script type="text/javascript" src="js/loader.js"></script>
+	</head>
+
+	<body>
+		<div id="buffer"></div>
+		<div id="map"></div>
+		
+		<div id="keypad"></div>
+		<div id="commands"></div>
+		
+		<ul id="misc"></ul>
+		<ul id="status"></ul>
+		
+		<script type="text/javascript">
+			function go() {
+				
+	//			RPG.Stats.server = "http://192.168.1.6/js-like-server/";
+				RPG.Game.init();
+				var index = document.location.search.indexOf("debug");
+				var story = (index == -1 ? RPG.Story.Village : RPG.Story.Debug);
+				var s = new story();
+
+				RPG.Game.setStory(s);
+				RPG.Game.start();
+			}
+			
+			Loader.load(go);
+		</script>
+	</body>
+</html>
