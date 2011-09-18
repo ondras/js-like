@@ -17,9 +17,13 @@
 		<ul id="misc"></ul>
 		<ul id="status"></ul>
 		
+		<div id="loading">Please wait, loading&hellip;</div>
+		
 		<script type="text/javascript">
 			function go() {
-				
+				var l = OZ.$("loading");
+				l.parentNode.removeChild(l);
+
 	//			RPG.Stats.server = "http://192.168.1.6/js-like-server/";
 				RPG.Game.init();
 				var index = document.location.search.indexOf("debug");

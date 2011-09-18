@@ -11,6 +11,11 @@ body {
 	background-image: url(img/scroll.jpg);
 }
 
+#loading {
+	text-align: center;
+	font-size: 300%;
+}
+
 #buffer {
 	height: 50px;
 	opacity: 0.7;
