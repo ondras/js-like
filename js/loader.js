@@ -1,6 +1,6 @@
 var Loader = {
 	_callback: null,
-	_version: "",
+	version: "",
 	_queue: [
 		"js/oop.oz.js",
 		"js/compress.js",
@@ -69,7 +69,7 @@ var Loader = {
 	],
 	
 	_responseVersion: function(data) {
-		this._version = data.split("\n").shift();
+		this.version = data.split("\n").shift();
 		this._processQueue();
 	},
 	
@@ -83,7 +83,7 @@ var Loader = {
 			return;
 		}
 		
-		var item = this._queue.shift() + "?v=" + this._version;
+		var item = this._queue.shift() + "?v=" + this.version;
 		var script = OZ.DOM.elm("script", {src:item});
 		var loaded = this._responseScript.bind(this);
 		if (script.addEventListener) {

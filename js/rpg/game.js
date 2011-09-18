@@ -3,7 +3,6 @@
  */
 RPG.Game = {
 	pc: null,
-	version: "0.2dev",
 	_story: null,
 	_engine: null,
 	_events: [],

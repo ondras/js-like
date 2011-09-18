@@ -42,7 +42,7 @@ RPG.CharGen.prototype.build = function() {
 	
 	/* custom font used here so it gets preloaded before canvas is drawn */
 	var copy = "This is <a href='http://code.google.com/p/js-like/'>js-like</a> v";
-	copy += RPG.Game.version;
+	copy += Loader.version;
 	copy += ", &copy; <a href='http://ondras.zarovi.cz/'>Ondřej Žára</a>"
 	var footer = OZ.DOM.elm("p", {id:"footer", fontFamily:RPG.UI.font, innerHTML:copy});
 	
