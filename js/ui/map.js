@@ -184,7 +184,9 @@ RPG.UI.ImageMap.prototype.addProjectile = function(coords, projectile) {
 		node.appendChild(newImage); 
 	}
 	
-	if (!(id in this._projectiles)) { 
+	if (id in this._projectiles) { 
+		this._projectiles[id][1] = newImage;
+	} else {
 		this._projectiles[id] = [oldImage, newImage];
 	}
 	
