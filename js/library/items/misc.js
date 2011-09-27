@@ -245,7 +245,7 @@ RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 }
 
 RPG.Items.RingOfAttribute.prototype.getVisualProperty = function(name) {
-	if (name == "descPlural" || name == "desc") { return this.parent(name) + " of " + RPG.Feats[this._attribute].label; }
+	if (name == "descPlural" || name == "desc") { return this.parent(name) + " of " + RPG.Feats[this._attribute].getName(); }
 	return this.parent(name);
 }
 
