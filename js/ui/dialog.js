@@ -15,7 +15,7 @@ RPG.UI.Dialog.prototype.init = function() {
 	this._links = [];
 	
 	var close = new RPG.UI.Button("Close", this._close.bind(this));
-	close.setChar("z");
+	close.setChars("z\u001B");
 	close.disable();
 	this._buttons.push(close);
 

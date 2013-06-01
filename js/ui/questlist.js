@@ -29,7 +29,7 @@ RPG.UI.Questlist.prototype._build = function(quests) {
 	}
 	
 	var b = new RPG.UI.Button("Done", this.bind(this._done));
-	b.setChar("z");
+	b.setChars("z\u001B");
 	this._button = b;
 	this._dom.container.appendChild(b.getInput());
 	

@@ -100,7 +100,7 @@ RPG.UI.Attributes.prototype._build = function() {
 
 RPG.UI.Attributes.prototype._buildBottom = function() {
 	var b = new RPG.UI.Button("Done", this._done.bind(this));
-	b.setChar("z");
+	b.setChars("z\u001B");
 	this._dom.container.appendChild(b.getInput());
 	this._buttons.push(b);
 }

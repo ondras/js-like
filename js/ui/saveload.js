@@ -82,7 +82,7 @@ RPG.UI.SaveLoad.prototype._build = function() {
 	this._buttons.push(go);
 	
 	var close = new RPG.UI.Button("Close", this._close.bind(this));
-	close.setChar("z");
+	close.setChars("z\u001B");
 	this._buttons.push(close);
 
 	var d = OZ.DOM.elm("div", {innerHTML: "<strong>Method: </strong>"});

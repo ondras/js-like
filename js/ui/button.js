@@ -122,6 +122,17 @@ RPG.UI.Button.prototype.setChar = function(ch) {
 	return this;
 }
 
+RPG.UI.Button.prototype.setChars = function(s) {
+	this._char = s[0];
+	this._charCodes = [];
+	for(var i=0;i<s.length;i++)
+	{
+		this.addCharCode(s.charCodeAt(i));
+	}
+	this._setLabel();
+	return this;
+}
+
 RPG.UI.Button.prototype.enable = function() {
 	this._input.disabled = false;
 }

@@ -67,7 +67,7 @@ RPG.UI.Slots.prototype._build = function() {
 
 RPG.UI.Slots.prototype._buildBottom = function() {
 	var b = new RPG.UI.Button("Done", this.bind(this._done));
-	b.setChar("z");
+	b.setChars("z\u001B");
 	this._dom.container.appendChild(b.getInput());
 	this._buttons.push(b);
 	

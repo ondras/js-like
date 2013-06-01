@@ -21,7 +21,7 @@ RPG.UI.alert = function(text, title) {
 		RPG.UI.hideDialog();
 		engine.unlock();
 	});
-	b.setChar("z");
+	b.setChars("z\u001B");
 	
 	div.appendChild(b.getInput());
 

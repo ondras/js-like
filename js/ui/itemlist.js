@@ -34,7 +34,7 @@ RPG.UI.Itemlist.prototype.init = function(data, label, pick, callback) {
 	this._buttons = [];
 	
 	this._index = 0;
-	this._pageSize = 15;
+	this._pageSize = 10;
 	this._page = 0;
 	this._dom = {
 		container: null,
@@ -59,8 +59,9 @@ RPG.UI.Itemlist.prototype._prepare = function(items) {
 	for (var i=0;i<arr.length;i++) {
 		var obj = {
 			item: arr[i],
-			checkbox: OZ.DOM.elm("input", {type:"checkbox", id:"item_"+i}),
-			button: OZ.DOM.elm("input", {type:"button"}),
+			checkbox:   OZ.DOM.elm("input", {type:"checkbox", id:"item_"+i}),
+			buttonMax:  OZ.DOM.elm("input", {type:"button"}),
+			buttonSome: OZ.DOM.elm("input", {type:"button"}),
 			amount: 0,
 			label: OZ.DOM.elm("label", {htmlFor:"item_"+i})
 		}
@@ -96,7 +97,8 @@ RPG.UI.Itemlist.prototype._click = function(e) {
 	var elm = OZ.Event.target(e);
 	for (var i=0;i<this._data.length;i++) {
 		var obj = this._data[i];
-		if (obj.button == elm) { this._toggle(obj); }
+		if (obj.buttonMax == elm)  { this._toggleMax(obj); }
+		if (obj.buttonSome == elm) { this._toggle(obj); }
 	}
 }
 
@@ -104,9 +106,9 @@ RPG.UI.Itemlist.prototype._change = function(e) {
 	var elm = OZ.Event.target(e);
 	for (var i=0;i<this._data.length;i++) {
 		var obj = this._data[i];
-		if (obj.checkbox == elm) { 
+		if (obj.checkbox == elm) { 		
 			if (elm.checked) {
-				this._toggleOn(obj); 
+				this._toggleOnMax(obj); 
 			} else {
 				this._toggleOff(obj);
 			}
@@ -142,20 +144,28 @@ RPG.UI.Itemlist.prototype._update = function(page) {
 	RPG.UI.syncDialog();
 }
 
+
 RPG.UI.Itemlist.prototype._buildBottom = function() {
 	var b = new RPG.UI.Button("Done", this.bind(this._done));
-	b.setChar("z");
+	b.setChars("z\u001B");
 	this._buttons.push(b);
 	this._dom.container.appendChild(b.getInput());
 
+	if( this._pick == -1) {
+		var b = new RPG.UI.Button("All", this.bind(this._all));
+		b.setChars(",");
+		this._buttons.push(b);
+		this._dom.container.appendChild(b.getInput());
+	}
+
 	var b = new RPG.UI.Button("Previous page", this.bind(this._prev));
-	b.setChar("-");
+	b.setChars("-_");
 	this._buttons.push(b);
 	this._dom.prev = b;
 	this._dom.container.appendChild(b.getInput());
 
 	var b = new RPG.UI.Button("Next page", this.bind(this._next));
-	b.setChar("+");
+	b.setChars("+=");
 	this._buttons.push(b);
 	this._dom.next = b;
 	this._dom.container.appendChild(b.getInput());
@@ -203,16 +213,21 @@ RPG.UI.Itemlist.prototype._buildItem = function(item) {
 		var td = OZ.DOM.elm("td");
 		tr.appendChild(td);
 		
-		var btn = item.button;
+		var btn = item.buttonMax;
 		var code = "a".charCodeAt(0) + localIndex;
 		var label = String.fromCharCode(code);
 		btn.value = label;
 		td.appendChild(btn);
 
+		if (item.item.getAmount() > 1) {
+			var btn2 = item.buttonSome;
+			btn2.value = label.toUpperCase();
+			td.appendChild(btn2);
+		}
+
 		if (this._pick == -1) {
 			var td = OZ.DOM.elm("td");
-			tr.appendChild(td);
-			
+			tr.appendChild(td);			
 			td.appendChild(item.checkbox);
 		}
 	}
@@ -233,12 +248,30 @@ RPG.UI.Itemlist.prototype._toggle = function(obj) {
 	}
 }
 
+RPG.UI.Itemlist.prototype._toggleMax = function(obj) {
+	if (obj.checkbox.checked) {
+		this._toggleOff(obj);
+	} else {
+		this._toggleOnMax(obj);
+	}
+}
+
+RPG.UI.Itemlist.prototype._toggleOnMax = function(obj) {
+	var max = obj.item.getAmount();
+	obj.amount = max;
+	obj.checkbox.checked = true;
+	obj.checkbox.indeterminate = false;
+	if (this._pick == 1) {
+		/* only one to pick, finish */
+		this._done();
+	}
+}
+
 RPG.UI.Itemlist.prototype._toggleOn = function(obj) {
 	var amount = 1;
-	if (this._pick == -1) {
+	var max = obj.item.getAmount();
+	if (!obj.checkbox.checked && this._pick == -1) {
 		/* ask for amount */
-		var max = obj.item.getAmount();
-		var amount = 0;
 		if (max > 1) {
 			amount = prompt("How many?", obj.item.getAmount());
 			if (amount == null || amount < 1 || amount > obj.item.getAmount()) { return; }
@@ -246,9 +279,10 @@ RPG.UI.Itemlist.prototype._toggleOn = function(obj) {
 			amount = max;
 		}
 	}
-	
+	obj.amount = parseInt(amount, 10);	
 	obj.checkbox.checked = true;
-	obj.amount = parseInt(amount, 10);
+
+	if (amount!=max) obj.checkbox.indeterminate = true;
 	
 	if (this._pick == 1) {
 		/* only one to pick, finish */
@@ -258,6 +292,7 @@ RPG.UI.Itemlist.prototype._toggleOn = function(obj) {
 
 RPG.UI.Itemlist.prototype._toggleOff = function(obj) {
 	obj.checkbox.checked = false;
+	obj.checkbox.indeterminate = false;
 	obj.amount = 0;
 }
 
@@ -279,13 +314,46 @@ RPG.UI.Itemlist.prototype._done = function() {
 	if (this._callback) { this._callback(arr); }
 }
 
+RPG.UI.Itemlist.prototype._all = function() {
+	var arr = [];
+	var uncheckedFound = false;
+	for (var i=0;i<this._data.length;i++) {
+		var obj = this._data[i];
+		if(!obj.checkbox.checked || obj.checkbox.indeterminate) {
+			uncheckedFound = true;
+			break;
+		}
+	}
+	if (uncheckedFound) {
+		for (var i=0;i<this._data.length;i++) {
+			var obj = this._data[i];
+			this._toggleOnMax(obj);
+		}
+	}
+	else {
+		for (var i=0;i<this._data.length;i++) {
+			var obj = this._data[i];
+			this._toggleOff(obj);
+		}
+	}
+}
+
 RPG.UI.Itemlist.prototype._keyPress = function(e) {
 	var ch = e.charCode;
 	var index = ch - "a".charCodeAt(0);
 	index += this._page * this._pageSize;
 	if (index >= 0 && index < this._data.length) {
 		OZ.Event.prevent(e);
+		this._toggleMax(this._data[index]);
+		return;
+	}
+
+	var index = ch - "A".charCodeAt(0);
+	index += this._page * this._pageSize;
+	if (index >= 0 && index < this._data.length) {
+		OZ.Event.prevent(e);
 		this._toggle(this._data[index]);
+		return;
 	}
 }
 
