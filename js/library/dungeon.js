@@ -57,7 +57,7 @@ RPG.Features.Tree.prototype._blocks = RPG.BLOCKS_MOVEMENT;
  * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Altar = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Altar.visual = { desc:"altar", image:"altar", ch:"±", color:"#fff"};
+RPG.Features.Altar.visual = { desc:"altar", image:"altar", ch:"\u00B1", color:"#fff"};
 
 /**
  * @class Bench feature
@@ -72,7 +72,7 @@ RPG.Features.Bench.prototype._blocks = RPG.BLOCKS_MOVEMENT;
  * @augments RPG.Features.BaseFeature
  */
 RPG.Features.Signpost = OZ.Class().extend(RPG.Features.BaseFeature);
-RPG.Features.Signpost.visual = { image:"signpost", ch:"T", color:"#666"};
+RPG.Features.Signpost.visual = { image:"signpost", ch:"\u2142", color:"#666"};
 RPG.Features.Signpost.prototype.init = function(label) {
 	this.parent();
 	this._label = label;
@@ -197,7 +197,7 @@ RPG.Features.Destroyable.prototype._destroy = function() {
  * @augments RPG.Features.Destroyable
  */
 RPG.Features.Tombstone = OZ.Class().extend(RPG.Features.Destroyable);
-RPG.Features.Tombstone.visual = { desc:"tombstone", image:"tombstone", ch:"+", color:"#666"};
+RPG.Features.Tombstone.visual = { desc:"tombstone", image:"tombstone", ch:"\u2020", color:"#666"};
 RPG.Features.Tombstone.prototype._blocks = RPG.BLOCKS_MOVEMENT;
 RPG.Features.Tombstone.prototype.init = function() {
 	this.parent();

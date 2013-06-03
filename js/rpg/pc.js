@@ -515,7 +515,7 @@ RPG.Beings.PC.prototype.flirt = function(coords) {
 	}
 	
 	if (!being) {
-		RPG.UI.buffer.message("There is noone to flirt with!");
+		RPG.UI.buffer.message("There is no one to flirt with!");
 		return RPG.ACTION_TIME;
 	}
 
@@ -532,7 +532,7 @@ RPG.Beings.PC.prototype.switchPosition = function(coords) {
 	var being = this._map.getBeing(coords);
 	
 	if (!being) {
-		RPG.UI.buffer.message("There is noone to switch position with.");
+		RPG.UI.buffer.message("There is no one to switch position with.");
 		return RPG.ACTION_TIME;
 	}
 	

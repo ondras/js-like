@@ -215,7 +215,7 @@ RPG.UI.Command.Table.prototype.init = function(container) {
 RPG.UI.Command.Cancel = OZ.Class().extend(RPG.UI.Command);
 RPG.UI.Command.Cancel.prototype.init = function() {
 	this.parent("Cancel");
-	this._button.setChar("z");
+	this._button.setChars("z\u001B");
 }
 RPG.UI.Command.Cancel.prototype.exec = function() {
 	RPG.UI.setMode(RPG.UI_NORMAL);
@@ -338,7 +338,7 @@ RPG.UI.Command.Chat.prototype.init = function() {
 	this._button.setChar("C");
 }
 RPG.UI.Command.Chat.prototype.exec = function(cmd) {
-	var errMsg = "There is noone to chat with.";
+	var errMsg = "There is no one to chat with.";
 	var pc = RPG.Game.pc;
 	var map = pc.getMap();
 
@@ -1013,7 +1013,6 @@ RPG.UI.Command.Cast.prototype._done = function(spells) {
 RPG.UI.Command.Flirt = OZ.Class().extend(RPG.UI.Command);
 RPG.UI.Command.Flirt.prototype.init = function() {
 	this.parent("Flirt");
-	this._button.setChar("j");
 	this._button.setChar("f");
 }
 RPG.UI.Command.Flirt.prototype.exec = function(cmd) {
