@@ -38,7 +38,7 @@ RPG.Quests.SmithTrophy.prototype.getDialogText = function(being) {
 		
 		case RPG.QUEST_GIVEN:
 			return [
-				"No need to hurry, just kill it whet it crosses your path."
+				"No need to hurry, just kill it when it crosses your path."
 			];
 		break;
 		

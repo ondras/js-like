@@ -13,7 +13,7 @@ RPG.Feats[RPG.FEAT_MAX_HP].parentModifiers[RPG.FEAT_TOUGHNESS] = RPG.Feats[RPG.F
 RPG.Feats[RPG.FEAT_REGEN_HP] = new RPG.Misc.Feat("HP regen", "Hit point regeneration rate", {average:10, upgrade:5});
 RPG.Feats[RPG.FEAT_REGEN_HP].parentModifiers[RPG.FEAT_TOUGHNESS] = RPG.Feats[RPG.FEAT_REGEN_HP]._drd;
 
-RPG.Feats[RPG.FEAT_PV] = new RPG.Misc.Feat("PV", "Protection value – damage reduced from taken hits", {average:0});
+RPG.Feats[RPG.FEAT_PV] = new RPG.Misc.Feat("PV", "Protection value - damage reduced from taken hits", {average:0});
 RPG.Feats[RPG.FEAT_PV].parentModifiers[RPG.FEAT_TOUGHNESS] = RPG.Feats[RPG.FEAT_PV]._drd;
 
 RPG.Feats[RPG.FEAT_MAX_MANA] = new RPG.Misc.Feat("Mana", "Magical energy", {average:8, upgrade:4});
@@ -28,7 +28,7 @@ RPG.Feats[RPG.FEAT_SPEED].parentModifiers[RPG.FEAT_DEXTERITY] = function(value) 
 RPG.Feats[RPG.FEAT_HIT] = new RPG.Misc.Feat("Hit", "Chance to hit", {average:3});
 RPG.Feats[RPG.FEAT_HIT].parentModifiers[RPG.FEAT_DEXTERITY] = RPG.Feats[RPG.FEAT_HIT]._drd;
 
-RPG.Feats[RPG.FEAT_DV] = new RPG.Misc.Feat("DV", "Defense value – chance to evade hits", {average:3});
+RPG.Feats[RPG.FEAT_DV] = new RPG.Misc.Feat("DV", "Defense value - chance to evade hits", {average:3});
 RPG.Feats[RPG.FEAT_DV].parentModifiers[RPG.FEAT_DEXTERITY] = RPG.Feats[RPG.FEAT_DV]._drd;
 
 RPG.Feats[RPG.FEAT_SIGHT_RANGE] = new RPG.Misc.Feat("Sight", "Sight range", {average:4});
