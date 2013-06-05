@@ -4,7 +4,7 @@
  */
 RPG.Decorators.Hidden = OZ.Singleton().extend(RPG.Decorators.BaseDecorator);
 RPG.Decorators.Hidden.prototype.decorate = function(map, percentage) {
-	var c = new RPG.Misc.Coords(0, 0);
+	var c = new RPG.Coords(0, 0);
 	var size = map.getSize();
 	for (var i=0;i<size.x;i++) {
 		for (var j=0;j<size.y;j++) {
@@ -96,12 +96,12 @@ RPG.Decorators.Doors.prototype.decorate = function(map, room, options) {
 	var top = corner1.y-1;
 	var bottom = corner2.y+1;
 	
-	var north = new RPG.Misc.Coords(0, -1);
-	var south = new RPG.Misc.Coords(0, 1);
-	var east = new RPG.Misc.Coords(1, 0);
-	var west = new RPG.Misc.Coords(-1, 0);
+	var north = new RPG.Coords(0, -1);
+	var south = new RPG.Coords(0, 1);
+	var east = new RPG.Coords(1, 0);
+	var west = new RPG.Coords(-1, 0);
 
-	var c = new RPG.Misc.Coords(0, 0);
+	var c = new RPG.Coords(0, 0);
 	var dir = false;
 	for (var i=left;i<=right;i++) {
 		for (var j=top;j<=bottom;j++) {
@@ -176,7 +176,7 @@ RPG.Decorators.Treasure.prototype.decorate = function(map, room, options) {
 	var c2 = room.getCorner2();
 	for (var i=c1.x;i<=c2.x;i++) {
 		for (var j=c1.y;j<=c2.y;j++) {
-			var c = new RPG.Misc.Coords(i, j);
+			var c = new RPG.Coords(i, j);
 			if (map.blocks(RPG.BLOCKS_MOVEMENT, c)) { continue; }
 
 			if (Math.random() < o.treasure) {

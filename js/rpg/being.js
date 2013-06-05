@@ -1,13 +1,12 @@
 /**
  * @class Basic being
  * @augments RPG.Visual.IVisual
- * @augments RPG.Misc.IActor
+ * @augments RPG.IActor
  * @augments RPG.Misc.IDamageReceiver
  */
-RPG.Beings.BaseBeing = OZ.Class()
-						.implement(RPG.Visual.IVisual)
-						.implement(RPG.Misc.IDamageReceiver)
-						.implement(RPG.Misc.IActor);
+RPG.Beings.BaseBeing = OZ.Class().implement(RPG.Visual.IVisual)
+				 .implement(RPG.Misc.IDamageReceiver)
+				 .implement(RPG.IActor);
 
 /**
  * @param {function} race Race constructor
@@ -92,7 +91,7 @@ RPG.Beings.BaseBeing.prototype.hasSpell = function(spell, castable) {
 
 /**
  * This being is located on a new coords. 
- * @param {RPG.Misc.Coords} coords
+ * @param {RPG.Coords} coords
  */
 RPG.Beings.BaseBeing.prototype.setCoords = function(coords) {
 	this._coords = coords.clone();
@@ -378,7 +377,7 @@ RPG.Beings.BaseBeing.prototype.getGender = function() {
 }
 
 /**
- * @see RPG.Misc.IActor#getSpeed
+ * @see RPG.IActor#getSpeed
  */
 RPG.Beings.BaseBeing.prototype.getSpeed = function() {
 	return this.getFeat(RPG.FEAT_SPEED);
@@ -488,7 +487,7 @@ RPG.Beings.BaseBeing.prototype.die = function() {
 
 /**
  * Can this being see target coords?
- * @param {RPG.Misc.Coords} coords
+ * @param {RPG.Coords} coords
  * @returns {bool}
  */
 RPG.Beings.BaseBeing.prototype.canSee = function(coords) {
@@ -534,7 +533,7 @@ RPG.Beings.BaseBeing.prototype.trapEncounter = function(trap) {
 
 /**
  * Teleporting to a given coords
- * @param {RPG.Misc.Coords} coords
+ * @param {RPG.Coords} coords
  */
 RPG.Beings.BaseBeing.prototype.teleport = function(coords) {
 	this.move(coords);
@@ -548,7 +547,7 @@ RPG.Beings.BaseBeing.prototype.wait = function() {
 
 /**
  * Moving being to a given coords
- * @param {RPG.Misc.Coords} target
+ * @param {RPG.Coords} target
  * @param {bool} [ignoreOldCoords]
  */
 RPG.Beings.BaseBeing.prototype.move = function(target, ignoreOldCoords) {
@@ -869,7 +868,7 @@ RPG.Beings.BaseBeing.prototype._initStatsAndFeats = function() {
 	/* advanced feats aka attributes have randomized value */
 	for (var i=0;i<RPG.ATTRIBUTES.length;i++) {
 		var attr = RPG.ATTRIBUTES[i];
-		var rv = new RPG.Misc.RandomValue(defaults[attr], 2);
+		var rv = new RPG.RandomValue(defaults[attr], 2);
 		this._feats[attr] = rv.roll();
 	}
 

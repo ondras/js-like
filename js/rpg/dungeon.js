@@ -1,11 +1,11 @@
 /**
  * @class Map cell
- * @augments RPG.Misc.IEnterable
+ * @augments RPG.IEnterable
  * @augments RPG.Visual.IVisual
  */
 RPG.Cells.BaseCell = OZ.Singleton()
 						.implement(RPG.Visual.IVisual)
-						.implement(RPG.Misc.IEnterable);
+						.implement(RPG.IEnterable);
 RPG.Cells.BaseCell.visual = { path:"cells" };
 RPG.Cells.BaseCell.prototype._blocks = RPG.BLOCKS_NOTHING;
 RPG.Cells.BaseCell.prototype.init = function() {
@@ -45,10 +45,10 @@ RPG.Cells.BaseCell.prototype.reveal = function(map, coords) {
 
 /**
  * @class Area, a logical subset of map
- * @augments RPG.Misc.IEnterable
+ * @augments RPG.IEnterable
  */
 RPG.Areas.BaseArea = OZ.Class()
-						.implement(RPG.Misc.IEnterable);
+						.implement(RPG.IEnterable);
 
 RPG.Areas.BaseArea.prototype.init = function() {
 	this._map = null;
@@ -58,7 +58,7 @@ RPG.Areas.BaseArea.prototype.init = function() {
 
 /**
  * Area occupies all these coordinates
- * @returns {RPG.Misc.Coords[]} 
+ * @returns {RPG.Coords[]} 
  */
 RPG.Areas.BaseArea.prototype.getCoords = function() {
 	return [];
@@ -78,7 +78,7 @@ RPG.Areas.BaseArea.prototype.getMap = function() {
 }
 
 /**
- * @see RPG.Misc.IEnterable#entering
+ * @see RPG.IEnterable#entering
  */
 RPG.Areas.BaseArea.prototype.entering = function(being) {
 	this.parent(being);
@@ -108,14 +108,14 @@ RPG.Areas.Room.prototype.getCorner2 = function() {
 RPG.Areas.Room.prototype.getCenter = function() {
 	var x = Math.round((this._corner1.x + this._corner2.x)/2);
 	var y = Math.round((this._corner1.y + this._corner2.y)/2);
-	return new RPG.Misc.Coords(x, y);
+	return new RPG.Coords(x, y);
 }
 
 RPG.Areas.Room.prototype.getCoords = function() {
 	var arr = [];
 	for (var i=this._corner1.x; i<=this._corner2.x; i++) {
 		for (var j=this._corner1.y; j<=this._corner2.y; j++) {
-			arr.push(new RPG.Misc.Coords(i, j));
+			arr.push(new RPG.Coords(i, j));
 		}
 	}
 	return arr;
@@ -124,11 +124,11 @@ RPG.Areas.Room.prototype.getCoords = function() {
 /**
  * @class Dungeon feature
  * @augments RPG.Visual.IVisual
- * @augments RPG.Misc.IEnterable
+ * @augments RPG.IEnterable
  */
 RPG.Features.BaseFeature = OZ.Class()
 							.implement(RPG.Visual.IVisual)
-							.implement(RPG.Misc.IEnterable);
+							.implement(RPG.IEnterable);
 RPG.Features.BaseFeature.visual = { path:"features" };
 RPG.Features.BaseFeature.prototype._blocks = RPG.BLOCKS_NOTHING;
 RPG.Features.BaseFeature.prototype.init = function() {
@@ -161,9 +161,9 @@ RPG.Features.BaseFeature.prototype.blocks = function(what) {
 
 /**
  * @class Dungeon map
- * @augments RPG.Misc.IEnterable
+ * @augments RPG.IEnterable
  */
-RPG.Map = OZ.Class().implement(RPG.Misc.IEnterable);
+RPG.Map = OZ.Class().implement(RPG.IEnterable);
 
 RPG.Map.prototype.init = function(id, size, danger) {
 	this._modifiers = {};
@@ -232,7 +232,7 @@ RPG.Map.prototype.fromBoolArray = function(boolArray) {
 	var h = this._size.y;
 
 	/* second, decide which should be included in this map */
-	var coords = new RPG.Misc.Coords(0, 0);
+	var coords = new RPG.Coords(0, 0);
 	for (var x=0;x<w;x++) { 
 		for (var y=0;y<h;y++) {
 			coords.x = x;
@@ -280,7 +280,7 @@ RPG.Map.prototype.fromString = function(str, cellMap) {
 	
 	var width = this._size.x;
 	var height = this._size.y;
-	var coords = new RPG.Misc.Coords(0, 0);
+	var coords = new RPG.Coords(0, 0);
 	for (var i=0;i<width;i++) {
 		for (var j=0;j<height;j++) {
 			var char = str.charAt(width*j + i);
@@ -296,7 +296,7 @@ RPG.Map.prototype.fromString = function(str, cellMap) {
 }
 
 /**
- * @see RPG.Misc.IEnterable#entering
+ * @see RPG.IEnterable#entering
  */
 RPG.Map.prototype.entering = function(being) {
 	this.parent(being);
@@ -372,7 +372,7 @@ RPG.Map.prototype.removeItem = function(item) {
 		
 		list.splice(index, 1);
 		if (!list.length) { delete this._items[hash]; }
-		if (this._active) { RPG.Game.pc.coordsChanged(RPG.Misc.Coords.fromString(hash)); }
+		if (this._active) { RPG.Game.pc.coordsChanged(RPG.Coords.fromString(hash)); }
 		return;
 	}
 	throw new Error("Cannot remove item '"+item+"'");
@@ -518,7 +518,7 @@ RPG.Map.prototype.getArea = function(coords) {
 
 RPG.Map.prototype.getFreeCoords = function(noItems) {
 	var all = [];
-	var c = new RPG.Misc.Coords();
+	var c = new RPG.Coords();
 	for (var i=0;i<this._size.x;i++) {
 		for (var j=0;j<this._size.y;j++) {
 			c.x = i;
@@ -541,16 +541,16 @@ RPG.Map.prototype.getFreeCoords = function(noItems) {
 
 /**
  * Return array of coords forming a "circle", e.g. having constant radius from a center point
- * @param {RPG.Misc.Coords} center
+ * @param {RPG.Coords} center
  * @param {int} radius
  * @param {bool} includeInvalid Include "null" value where a cell does not exist?
- * @returns {RPG.Misc.Coords[]}
+ * @returns {RPG.Coords[]}
  */
 RPG.Map.prototype.getCoordsInCircle = function(center, radius, includeInvalid) {
 	var arr = [];
 	var W = this._size.x;
 	var H = this._size.y;
-	var c = center.clone().plus(new RPG.Misc.Coords(radius, radius));
+	var c = center.clone().plus(new RPG.Coords(radius, radius));
 	
 	var dirs = [RPG.N, RPG.W, RPG.S, RPG.E];
 	
@@ -574,9 +574,9 @@ RPG.Map.prototype.getCoordsInCircle = function(center, radius, includeInvalid) {
 
 /**
  * Line connecting two coords
- * @param {RPG.Misc.Coords} c1
- * @param {RPG.Misc.Coords} c2
- * @returns {RPG.Misc.Coords[]}
+ * @param {RPG.Coords} c1
+ * @param {RPG.Coords} c2
+ * @returns {RPG.Coords[]}
  */
 RPG.Map.prototype.getCoordsInLine = function(c1, c2) {
 	var result = [c1.clone()];
@@ -613,7 +613,7 @@ RPG.Map.prototype.getCoordsInLine = function(c1, c2) {
 
 /**
  * Returns coords in a flood-filled area
- * @param {RPG.Misc.Coords} center
+ * @param {RPG.Coords} center
  * @param {int} radius
  */
 RPG.Map.prototype.getCoordsInArea = function(center, radius) {
@@ -660,7 +660,7 @@ RPG.Map.prototype.getCoordsInArea = function(center, radius) {
 
 /**
  * Returns first free coords closest to a coordinate
- * @param {RPG.Misc.Coords} center
+ * @param {RPG.Coords} center
  * @param {int} max radius
  */
 RPG.Map.prototype.getClosestRandomFreeCoords = function(center, radius) {
@@ -710,7 +710,7 @@ RPG.Map.prototype.getCoordsInTwoCorners = function() {
 
 /**
  * Returns free coords most distant to a given coords
- * @param {RPG.Misc.Coords} coords Source, we want to get as far as possible
+ * @param {RPG.Coords} coords Source, we want to get as far as possible
  */
 RPG.Map.prototype.getFurthestFreeCoords = function(coords) {
 	var corners = this._getCorners();
@@ -744,14 +744,14 @@ RPG.Map.prototype.blocks = function(what, coords) {
 
 /**
  * Returns map corner coordinates
- * @returns {RPG.Misc.Coords[]}
+ * @returns {RPG.Coords[]}
  */
 RPG.Map.prototype._getCorners = function() {
 	return [
-		new RPG.Misc.Coords(0, 0),
-		new RPG.Misc.Coords(this._size.x-1, 0),
-		new RPG.Misc.Coords(this._size.x-1, this._size.y-1),
-		new RPG.Misc.Coords(0, this._size.y-1)
+		new RPG.Coords(0, 0),
+		new RPG.Coords(this._size.x-1, 0),
+		new RPG.Coords(this._size.x-1, this._size.y-1),
+		new RPG.Coords(0, this._size.y-1)
 	];
 }
 
@@ -859,7 +859,7 @@ RPG.Generators.BaseGenerator.prototype._freeNeighbors = function(center) {
 	for (var i=-1;i<=1;i++) {
 		for (var j=-1;j<=1;j++) {
 			if (!i && !j) { continue; }
-			var coords = new RPG.Misc.Coords(i, j).plus(center);
+			var coords = new RPG.Coords(i, j).plus(center);
 			if (!this._isValid(coords)) { continue; }
 			if (!this._boolArray[coords.x][coords.y]) { result++; }
 		}
@@ -900,12 +900,12 @@ RPG.Generators.BaseGenerator.prototype._generateCoords = function(minSize) {
 	var padding = 2 + minSize - 1;
 	var x = Math.floor(Math.random()*(this._size.x-padding)) + 1;
 	var y = Math.floor(Math.random()*(this._size.y-padding)) + 1;
-	return new RPG.Misc.Coords(x, y);
+	return new RPG.Coords(x, y);
 }
 
 /**
  * Randomly picked bottom-right corner
- * @param {RPG.Misc.Coords} corner top-left corner
+ * @param {RPG.Coords} corner top-left corner
  * @param {int} minSize
  * @param {int} maxWidth
  * @param {int} maxHeight
@@ -919,14 +919,14 @@ RPG.Generators.BaseGenerator.prototype._generateSecondCorner = function(corner, 
 	
 	var width = Math.floor(Math.random()*availX) + minSize;
 	var height = Math.floor(Math.random()*availY) + minSize;
-	return new RPG.Misc.Coords(corner.x + width - 1, corner.y + height - 1);
+	return new RPG.Coords(corner.x + width - 1, corner.y + height - 1);
 }
 
 /**
  * Can a given rectangle fit in a map?
  */
 RPG.Generators.BaseGenerator.prototype._freeSpace = function(corner1, corner2) {
-	var c = new RPG.Misc.Coords(0, 0);
+	var c = new RPG.Coords(0, 0);
 	for (var i=corner1.x; i<=corner2.x; i++) {
 		for (var j=corner1.y; j<=corner2.y; j++) {
 			c.x = i;

@@ -73,12 +73,12 @@ RPG.Slots.Weapon.prototype.setItem = function(item) {
 }
 
 RPG.Slots.Weapon.prototype.getHit = function() {
-	var addedHit = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_HIT), 0);
+	var addedHit = new RPG.RandomValue(this._being.getFeat(RPG.FEAT_HIT), 0);
 	return addedHit.add(this._item ? this._item.getHit() : this._hit);
 }
 
 RPG.Slots.Weapon.prototype.getDamage = function() {
-	var addedDamage = new RPG.Misc.RandomValue(this._being.getFeat(RPG.FEAT_DAMAGE), 0);
+	var addedDamage = new RPG.RandomValue(this._being.getFeat(RPG.FEAT_DAMAGE), 0);
 	return addedDamage.add(this._item ? this._item.getDamage() : this._damage);
 }
 

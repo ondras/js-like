@@ -182,7 +182,7 @@ RPG.Beings.PC.prototype.updateFromMemory = function() {
 	var memory = this._mapMemory[this._map.getID()];
 	this._visibleCoordsHash = {};
 	for (var hash in memory) {
-		var coords = RPG.Misc.Coords.fromString(hash);
+		var coords = RPG.Coords.fromString(hash);
 		RPG.UI.map.drawAtCoords(coords, memory[hash], true);
 	}
 	this.updateVisibility();
@@ -195,7 +195,7 @@ RPG.Beings.PC.prototype.updateFromMemory = function() {
 RPG.Beings.PC.prototype.memorizeVisible = function() {
 	var memory = this._mapMemory[this._map.getID()];
 	for (var hash in this._visibleCoordsHash) {
-		var oldCoords = RPG.Misc.Coords.fromString(hash);
+		var oldCoords = RPG.Coords.fromString(hash);
 		var visuals = this._getVisualsForCoords(oldCoords);
 		memory[hash] = visuals;
 	}
@@ -243,7 +243,7 @@ RPG.Beings.PC.prototype._getVisualsForCoords = function(coords) {
 RPG.Beings.PC.prototype._computeVisibleCoordsOLD = function() {
 	var R = this.getFeat(RPG.FEAT_SIGHT_RANGE);
 	var center = this._coords;
-	var current = new RPG.Misc.Coords(0, 0);
+	var current = new RPG.Coords(0, 0);
 	var map = this._map;
 	var eps = 1e-4;
 	var c = false;
@@ -504,7 +504,7 @@ RPG.Beings.PC.prototype.move = function(target, ignoreOldCoords) {
 
 /**
  * Flirt with someone
- * @param {RPG.Misc.Coords} coords
+ * @param {RPG.Coords} coords
  */
 RPG.Beings.PC.prototype.flirt = function(coords) {
 	var being = this._map.getBeing(coords);
@@ -526,7 +526,7 @@ RPG.Beings.PC.prototype.flirt = function(coords) {
 
 /**
  * Switch position
- * @param {RPG.Misc.Coords} coords
+ * @param {RPG.Coords} coords
  */
 RPG.Beings.PC.prototype.switchPosition = function(coords) {
 	var being = this._map.getBeing(coords);
@@ -564,7 +564,7 @@ RPG.Beings.PC.prototype.equipDone = function() {
 
 /**
  * Looking around
- * @param {RPG.Misc.Coords} coords
+ * @param {RPG.Coords} coords
  */
 RPG.Beings.PC.prototype.look = function(coords) {
 	this._describeRemote(coords);
@@ -643,7 +643,7 @@ RPG.Beings.PC.prototype.chat = function(being) {
 
 /**
  * Kick something
- * @param {RPG.Misc.Coords} coords
+ * @param {RPG.Coords} coords
  */
 RPG.Beings.PC.prototype.kick = function(coords) {
 	var feature = this._map.getFeature(coords);

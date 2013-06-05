@@ -7,9 +7,9 @@
  * a) task is already done - remove it from queue, repeat
  * b) task cannot be done - continue to next task in stack
  * c) task was executed, finish (leave the task in stack)
- * @augments RPG.Misc.IDialog
+ * @augments RPG.IDialog
  */
-RPG.AI = OZ.Class().implement(RPG.Misc.IDialog);
+RPG.AI = OZ.Class().implement(RPG.IDialog);
 
 RPG.AI.prototype.init = function(being) {
 	this._being = being;
@@ -229,8 +229,8 @@ RPG.AI.prototype._attack = function(e) {
 
 /**
  * Static pathfinder method 
- * @param {RPG.Misc.Coords} source Where are we now
- * @param {RPG.Misc.Coords} target Target coords
+ * @param {RPG.Coords} source Where are we now
+ * @param {RPG.Coords} target Target coords
  * @param {int} distance
  * @param {RPG.Map} map
  */

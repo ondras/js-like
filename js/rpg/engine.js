@@ -7,7 +7,7 @@ RPG.Engine.prototype.init = function() {
 	this._actor = null; /* current actor */
 	this._actionResult = RPG.ACTION_TIME; /* result of current action */
 	this._lock = 1; /* lock level */
-	this._scheduler = new RPG.Misc.Scheduler();
+	this._scheduler = new RPG.Scheduler();
 	this._addEvents();
 }
 

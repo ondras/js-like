@@ -25,35 +25,35 @@ RPG.Map.Tutorial.prototype.init = function() {
 				"    #.........#                               #######       " +
 				"    #....######                                             " +
 				"    ######                                                  ";
-	this.parent("Beginner's dungeon", new RPG.Misc.Coords(60,20), 1);
+	this.parent("Beginner's dungeon", new RPG.Coords(60,20), 1);
 	this.fromString(str);
 	
 	/* first closed door */
-	this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(15, 10));
+	this.setFeature(new RPG.Features.Door().close(), new RPG.Coords(15, 10));
 	
 	/* gold */
-	this.addItem(new RPG.Items.Gold(10), new RPG.Misc.Coords(3, 5));
+	this.addItem(new RPG.Items.Gold(10), new RPG.Coords(3, 5));
 
 	/* closed door at gold */
-	this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(8, 6));
+	this.setFeature(new RPG.Features.Door().close(), new RPG.Coords(8, 6));
 
 	/* torch */
-	this.addItem(new RPG.Items.Torch(), new RPG.Misc.Coords(15, 3));
+	this.addItem(new RPG.Items.Torch(), new RPG.Coords(15, 3));
 
 	/* something */
-	this.addItem(new RPG.Items.Clothes(), new RPG.Misc.Coords(20, 2));
+	this.addItem(new RPG.Items.Clothes(), new RPG.Coords(20, 2));
 
 	/* goblin */
 	var g = new RPG.Beings.Goblin();
 	g.unequip(RPG.SLOT_WEAPON);
-	this.setBeing(g, new RPG.Misc.Coords(39, 8));
+	this.setBeing(g, new RPG.Coords(39, 8));
 
 	/* goblin doors */
-	this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(42, 8));
-	this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(39, 11));
+	this.setFeature(new RPG.Features.Door().close(), new RPG.Coords(42, 8));
+	this.setFeature(new RPG.Features.Door().close(), new RPG.Coords(39, 11));
 
 	/* rat */
-	this.setBeing(new RPG.Beings.Rat(), new RPG.Misc.Coords(50, 3));
+	this.setBeing(new RPG.Beings.Rat(), new RPG.Coords(50, 3));
 
 	this.addArea(new RPG.Areas.StoryTutorial());
 }

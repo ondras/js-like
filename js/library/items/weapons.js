@@ -28,8 +28,8 @@ RPG.Items.Weapon.prototype._describeModifiers = function() {
  */
 RPG.Items.Dagger = OZ.Class().extend(RPG.Items.Weapon);
 RPG.Items.Dagger.visual = { desc:"dagger", image:"dagger" };
-RPG.Items.Dagger.prototype._hit = new RPG.Misc.RandomValue(4, 1);
-RPG.Items.Dagger.prototype._damage = new RPG.Misc.RandomValue(5, 3);
+RPG.Items.Dagger.prototype._hit = new RPG.RandomValue(4, 1);
+RPG.Items.Dagger.prototype._damage = new RPG.RandomValue(5, 3);
 
 /**
  * @class Dagger
@@ -37,8 +37,8 @@ RPG.Items.Dagger.prototype._damage = new RPG.Misc.RandomValue(5, 3);
  */
 RPG.Items.OrcishDagger = OZ.Class().extend(RPG.Items.Weapon);
 RPG.Items.OrcishDagger.visual = { desc:"orcish dagger", image:"orcish-dagger" };
-RPG.Items.OrcishDagger.prototype._hit = new RPG.Misc.RandomValue(6, 1);
-RPG.Items.OrcishDagger.prototype._damage = new RPG.Misc.RandomValue(5, 3);
+RPG.Items.OrcishDagger.prototype._hit = new RPG.RandomValue(6, 1);
+RPG.Items.OrcishDagger.prototype._damage = new RPG.RandomValue(5, 3);
 
 /**
  * @class Club
@@ -46,8 +46,8 @@ RPG.Items.OrcishDagger.prototype._damage = new RPG.Misc.RandomValue(5, 3);
  */
 RPG.Items.Club = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Club.visual = { desc:"club", image:"club", color:"#960" };
-RPG.Items.Club.prototype._hit = new RPG.Misc.RandomValue(4, 1);
-RPG.Items.Club.prototype._damage = new RPG.Misc.RandomValue(7, 3);
+RPG.Items.Club.prototype._hit = new RPG.RandomValue(4, 1);
+RPG.Items.Club.prototype._damage = new RPG.RandomValue(7, 3);
 
 /**
  * @class Short sword
@@ -55,8 +55,8 @@ RPG.Items.Club.prototype._damage = new RPG.Misc.RandomValue(7, 3);
  */
 RPG.Items.ShortSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.ShortSword.visual = { desc:"short sword", image:"short-sword", color:"#999" };
-RPG.Items.ShortSword.prototype._hit = new RPG.Misc.RandomValue(6, 1);
-RPG.Items.ShortSword.prototype._damage = new RPG.Misc.RandomValue(4, 2);
+RPG.Items.ShortSword.prototype._hit = new RPG.RandomValue(6, 1);
+RPG.Items.ShortSword.prototype._damage = new RPG.RandomValue(4, 2);
 
 /**
  * @class Long sword
@@ -65,8 +65,8 @@ RPG.Items.ShortSword.prototype._damage = new RPG.Misc.RandomValue(4, 2);
 RPG.Items.LongSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.LongSword.visual = { desc:"long sword", image:"long-sword", color:"#999" };
 RPG.Items.LongSword.factory.danger = 2;
-RPG.Items.LongSword.prototype._hit = new RPG.Misc.RandomValue(6, 1);
-RPG.Items.LongSword.prototype._damage = new RPG.Misc.RandomValue(6, 2);
+RPG.Items.LongSword.prototype._hit = new RPG.RandomValue(6, 1);
+RPG.Items.LongSword.prototype._damage = new RPG.RandomValue(6, 2);
 
 /**
  * @class Axe
@@ -74,8 +74,8 @@ RPG.Items.LongSword.prototype._damage = new RPG.Misc.RandomValue(6, 2);
  */
 RPG.Items.Axe = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Axe.visual = { desc:"axe", image:"axe", color:"#960" };
-RPG.Items.Axe.prototype._hit = new RPG.Misc.RandomValue(6, 1);
-RPG.Items.Axe.prototype._damage = new RPG.Misc.RandomValue(6, 2);
+RPG.Items.Axe.prototype._hit = new RPG.RandomValue(6, 1);
+RPG.Items.Axe.prototype._damage = new RPG.RandomValue(6, 2);
 
 /**
  * @class Hammer
@@ -84,8 +84,8 @@ RPG.Items.Axe.prototype._damage = new RPG.Misc.RandomValue(6, 2);
 RPG.Items.Hammer = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Hammer.visual = { desc:"hammer", image:"hammer", color:"#999" };
 RPG.Items.Hammer.prototype._dualHand = true;
-RPG.Items.Hammer.prototype._hit = new RPG.Misc.RandomValue(6, 1);
-RPG.Items.Hammer.prototype._damage = new RPG.Misc.RandomValue(7, 1);
+RPG.Items.Hammer.prototype._hit = new RPG.RandomValue(6, 1);
+RPG.Items.Hammer.prototype._damage = new RPG.RandomValue(7, 1);
 
 /**
  * @class Staff
@@ -94,8 +94,8 @@ RPG.Items.Hammer.prototype._damage = new RPG.Misc.RandomValue(7, 1);
 RPG.Items.Staff = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Staff.visual = { desc:"staff", image:"staff", color:"#960" };
 RPG.Items.Staff.prototype._dualHand = true;
-RPG.Items.Staff.prototype._hit = new RPG.Misc.RandomValue(4, 1);
-RPG.Items.Staff.prototype._damage = new RPG.Misc.RandomValue(4, 2);
+RPG.Items.Staff.prototype._hit = new RPG.RandomValue(4, 1);
+RPG.Items.Staff.prototype._damage = new RPG.RandomValue(4, 2);
 
 /**
  * @class Broom
@@ -104,8 +104,8 @@ RPG.Items.Staff.prototype._damage = new RPG.Misc.RandomValue(4, 2);
 RPG.Items.Broom = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Broom.visual = { desc:"broom", image:"broom", color:"#960" };
 RPG.Items.Broom.prototype._dualHand = true;
-RPG.Items.Broom.prototype._hit = new RPG.Misc.RandomValue(4, 1);
-RPG.Items.Broom.prototype._damage = new RPG.Misc.RandomValue(2, 4);
+RPG.Items.Broom.prototype._hit = new RPG.RandomValue(4, 1);
+RPG.Items.Broom.prototype._damage = new RPG.RandomValue(2, 4);
 
 /**
  * @class Torch
@@ -113,8 +113,8 @@ RPG.Items.Broom.prototype._damage = new RPG.Misc.RandomValue(2, 4);
  */
 RPG.Items.Torch = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.Torch.visual = { desc:"torch", descPlural:"torches", image:"torch", color:"#960" };
-RPG.Items.Torch.prototype._hit = new RPG.Misc.RandomValue(4, 2);
-RPG.Items.Torch.prototype._damage = new RPG.Misc.RandomValue(4, 3);
+RPG.Items.Torch.prototype._hit = new RPG.RandomValue(4, 2);
+RPG.Items.Torch.prototype._damage = new RPG.RandomValue(4, 3);
 RPG.Items.Torch.prototype.init = function() {
 	this.parent();
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 1;
@@ -128,8 +128,8 @@ RPG.Items.KlingonSword = OZ.Class().extend(RPG.Items.Weapon)
 RPG.Items.KlingonSword.factory.frequency = 0;
 RPG.Items.KlingonSword.visual = { desc:"Klingon ceremonial sword", image:"klingon-sword", color:"#fc0" };
 RPG.Items.KlingonSword.prototype._dualHand = true;
-RPG.Items.KlingonSword.prototype._hit = new RPG.Misc.RandomValue(10, 3);
-RPG.Items.KlingonSword.prototype._damage = new RPG.Misc.RandomValue(10, 3);
+RPG.Items.KlingonSword.prototype._hit = new RPG.RandomValue(10, 3);
+RPG.Items.KlingonSword.prototype._damage = new RPG.RandomValue(10, 3);
 RPG.Items.KlingonSword.prototype.init = function() {
 	this.parent();
 	this._modifiers[RPG.FEAT_DV] = 1;
@@ -154,8 +154,8 @@ RPG.Items.Bow.prototype.getRange = function() {
  */
 RPG.Items.ShortBow = OZ.Class().extend(RPG.Items.Bow);
 RPG.Items.ShortBow.visual = { desc:"short bow", image:"short-bow", ch:"}" };
-RPG.Items.ShortBow.prototype._hit = new RPG.Misc.RandomValue(3, 1);
-RPG.Items.ShortBow.prototype._damage = new RPG.Misc.RandomValue(3, 1);
+RPG.Items.ShortBow.prototype._hit = new RPG.RandomValue(3, 1);
+RPG.Items.ShortBow.prototype._damage = new RPG.RandomValue(3, 1);
 
 /**
  * @class Long bow
@@ -165,20 +165,20 @@ RPG.Items.LongBow = OZ.Class().extend(RPG.Items.Bow);
 RPG.Items.LongBow.factory.danger = 2;
 RPG.Items.LongBow.visual = { desc:"long bow", image:"long-bow", ch:"}" };
 RPG.Items.LongBow.prototype._range = 6;
-RPG.Items.LongBow.prototype._hit = new RPG.Misc.RandomValue(4, 2);
-RPG.Items.LongBow.prototype._damage = new RPG.Misc.RandomValue(5, 2);
+RPG.Items.LongBow.prototype._hit = new RPG.RandomValue(4, 2);
+RPG.Items.LongBow.prototype._damage = new RPG.RandomValue(5, 2);
 
 
 /**
  * @class Projectile weapon (arrow, rock, ...)
  * @augments RPG.Items.Weapon
- * @augments RPG.Misc.IProjectile
+ * @augments RPG.IProjectile
  * @augments RPG.Misc.IDamageDealer
  * Projectile weapon acts as a normal weapon item when wielded. However, when launched, this acts as a damage dealer.
  */
 RPG.Items.Projectile = OZ.Class()
 						.extend(RPG.Items.Weapon)
-						.implement(RPG.Misc.IProjectile)
+						.implement(RPG.IProjectile)
 						.implement(RPG.Misc.IDamageDealer);
 RPG.Items.Projectile.factory.frequency = 0;
 RPG.Items.Projectile.prototype._launcher = null; /* constructor of allowed launchers */
@@ -270,8 +270,8 @@ RPG.Items.Projectile.prototype._flightDone = function() {
  */
 RPG.Items.Rock = OZ.Class().extend(RPG.Items.Projectile);
 RPG.Items.Rock.visual = { ch:"*", image:"rock", color:"#999", desc:"rock" };
-RPG.Items.Rock.prototype._hit = new RPG.Misc.RandomValue(2, 1);
-RPG.Items.Rock.prototype._damage = new RPG.Misc.RandomValue(2, 1);
+RPG.Items.Rock.prototype._hit = new RPG.RandomValue(2, 1);
+RPG.Items.Rock.prototype._damage = new RPG.RandomValue(2, 1);
 RPG.Items.Rock.prototype.init = function() {
 	this.parent();
 
@@ -292,8 +292,8 @@ RPG.Items.Arrow.factory.method = function(danger) {
 	return new this(amount);
 }
 RPG.Items.Arrow.visual = { image:"arrow", ch:"/", color:"#960", desc:"arrow" };
-RPG.Items.Arrow.prototype._hit = new RPG.Misc.RandomValue(2, 1);
-RPG.Items.Arrow.prototype._damage = new RPG.Misc.RandomValue(2, 1);
+RPG.Items.Arrow.prototype._hit = new RPG.RandomValue(2, 1);
+RPG.Items.Arrow.prototype._damage = new RPG.RandomValue(2, 1);
 RPG.Items.Arrow.prototype._launcher = RPG.Items.Bow;
 RPG.Items.Arrow.prototype.init = function(amount) {
 	this.parent();

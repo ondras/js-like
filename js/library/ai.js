@@ -428,8 +428,8 @@ RPG.AI.Shopkeeper.prototype.init = function(being, shop) {
 	var c = shop.getDoor();
 	var corner1 = shop.getCorner1();
 	var corner2 = shop.getCorner2();
-	var c1 = new RPG.Misc.Coords(c.x-1, c.y-1);
-	var c2 = new RPG.Misc.Coords(c.x+1, c.y+1);
+	var c1 = new RPG.Coords(c.x-1, c.y-1);
+	var c2 = new RPG.Coords(c.x+1, c.y+1);
 	
 	if (c1.x == corner2.x) { c1.x++; }
 	if (c2.x == corner1.x) { c2.x--; }
@@ -442,7 +442,7 @@ RPG.AI.Shopkeeper.prototype.init = function(being, shop) {
 	/* fill with items */
 	var map = shop.getMap();
 	var danger = map.getDanger();
-	var c = new RPG.Misc.Coords(0, 0);
+	var c = new RPG.Coords(0, 0);
 	for (var i=corner1.x; i<=corner2.x; i++) {
 		for (var j=corner1.y; j<=corner2.y; j++) {
 			c.x = i;

@@ -24,7 +24,7 @@ RPG.Map.SmallVillage.prototype.init = function() {
 
 	var width = 35;
 	var height = str.length/width;
-	var size = new RPG.Misc.Coords(width, height);
+	var size = new RPG.Coords(width, height);
 	this.parent("A small village", size, 1);
 
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 3;
@@ -48,17 +48,17 @@ RPG.Map.SmallVillage.prototype.entering = function(being) {
 }
 
 RPG.Map.SmallVillage.prototype._buildFeatures = function() {
-    this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(12,3));
-    this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(21,7));
-    this.setFeature(new RPG.Features.Door().close(), new RPG.Misc.Coords(28,7));
+    this.setFeature(new RPG.Features.Door().close(), new RPG.Coords(12,3));
+    this.setFeature(new RPG.Features.Door().close(), new RPG.Coords(21,7));
+    this.setFeature(new RPG.Features.Door().close(), new RPG.Coords(28,7));
     
     /* define areas for buildings - to prevent trees inside them */
-    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(1, 6), new RPG.Misc.Coords(3, 10)));
-    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(9, 1), new RPG.Misc.Coords(12, 5)));
-    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(10, 7), new RPG.Misc.Coords(12, 9)));
-    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(18, 4), new RPG.Misc.Coords(22, 7)));
-    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(17, 10), new RPG.Misc.Coords(21, 14)));
-    this.addArea(new RPG.Areas.Room(new RPG.Misc.Coords(28, 4), new RPG.Misc.Coords(32, 10)));
+    this.addArea(new RPG.Areas.Room(new RPG.Coords(1, 6), new RPG.Coords(3, 10)));
+    this.addArea(new RPG.Areas.Room(new RPG.Coords(9, 1), new RPG.Coords(12, 5)));
+    this.addArea(new RPG.Areas.Room(new RPG.Coords(10, 7), new RPG.Coords(12, 9)));
+    this.addArea(new RPG.Areas.Room(new RPG.Coords(18, 4), new RPG.Coords(22, 7)));
+    this.addArea(new RPG.Areas.Room(new RPG.Coords(17, 10), new RPG.Coords(21, 14)));
+    this.addArea(new RPG.Areas.Room(new RPG.Coords(28, 4), new RPG.Coords(32, 10)));
 
     var trees = 8;
 	while (trees--) {

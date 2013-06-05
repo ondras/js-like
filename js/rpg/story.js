@@ -112,7 +112,7 @@ RPG.Story.prototype._death = function() {
 
 /**
  * Generate a map + starting coords
- * @returns {[RPG.Map, RPG.Misc.Coords]}
+ * @returns {[RPG.Map, RPG.Coords]}
  */
 RPG.Story.prototype._firstMap = function() {
 	return [null, null];

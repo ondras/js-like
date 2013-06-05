@@ -43,7 +43,7 @@ RPG.Map.Church.prototype.init = function() {
 	
 	var width = 65;
 	var height = str.length/width;
-	this.parent("Old church", new RPG.Misc.Coords(width, height), 1);
+	this.parent("Old church", new RPG.Coords(width, height), 1);
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 3;
 	
 	this._default.empty = RPG.Cells.Grass.getInstance();
@@ -63,21 +63,21 @@ RPG.Map.Church.prototype.init = function() {
 		
 		var x = i % width;
 		var y = Math.floor(i / width);
-		this.setFeature(new RPG.Features.Tombstone(), new RPG.Misc.Coords(x, y));
+		this.setFeature(new RPG.Features.Tombstone(), new RPG.Coords(x, y));
 	}
 	
 	
 	
 	var altars = [
-		new RPG.Misc.Coords(52, 7),
-		new RPG.Misc.Coords(46, 3),
-		new RPG.Misc.Coords(46, 12)
+		new RPG.Coords(52, 7),
+		new RPG.Coords(46, 3),
+		new RPG.Coords(46, 12)
 	];
 	for (var i=0;i<altars.length;i++) { this.setFeature(new RPG.Features.Altar(), altars[i]); }
 	
-	var benchStart = new RPG.Misc.Coords(19, 7);
+	var benchStart = new RPG.Coords(19, 7);
 	var benches = 13;
-	var c = new RPG.Misc.Coords(0, 0);
+	var c = new RPG.Coords(0, 0);
 	for (var i=0;i<benches;i++) {
 		c.x = benchStart.x + 2*i;
 		c.y = benchStart.y;
@@ -87,19 +87,19 @@ RPG.Map.Church.prototype.init = function() {
 	}
 	
 	var doors = [
-		new RPG.Misc.Coords(9, 7),
-		new RPG.Misc.Coords(9, 8),
-		new RPG.Misc.Coords(44, 5),
-		new RPG.Misc.Coords(45, 5),
-		new RPG.Misc.Coords(44, 10),
-		new RPG.Misc.Coords(45, 10)
+		new RPG.Coords(9, 7),
+		new RPG.Coords(9, 8),
+		new RPG.Coords(44, 5),
+		new RPG.Coords(45, 5),
+		new RPG.Coords(44, 10),
+		new RPG.Coords(45, 10)
 	];
 	for (var i=0;i<doors.length;i++) { this.setFeature(new RPG.Features.Door().close(), doors[i]); }	
 	
 	var windowLeft = 14;
 	var windowTop = [1, 14];
 	var windowCount = 6;
-	var c = new RPG.Misc.Coords(0, 0);
+	var c = new RPG.Coords(0, 0);
 	for (var i=0;i<windowCount;i++) {
 		for (var j=0;j<windowTop.length;j++) {
 			c.x = windowLeft + 6*i;
@@ -112,5 +112,5 @@ RPG.Map.Church.prototype.init = function() {
 	
 	var priest = new RPG.Beings.Priest();
 	priest.getAI().setDialogText("Do you know that you can upgrade your attributes when standing on an altar? Just bring enough money and press 'x'...");
-	this.setBeing(priest, new RPG.Misc.Coords(52, 7));
+	this.setBeing(priest, new RPG.Coords(52, 7));
 }

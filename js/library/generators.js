@@ -7,8 +7,8 @@ RPG.Generators.Arena = OZ.Singleton().extend(RPG.Generators.BaseGenerator);
 RPG.Generators.Arena.prototype.generate = function(id, size, danger, options) {
 	this.parent(id, size, danger, options);
 	
-	var c1 = new RPG.Misc.Coords(1, 1);
-	var c2 = new RPG.Misc.Coords(this._size.x-2, this._size.y-2);
+	var c1 = new RPG.Coords(1, 1);
+	var c2 = new RPG.Coords(this._size.x-2, this._size.y-2);
 	this._digRoom(c1, c2);
 
 	return this._convertToMap(id, danger);
@@ -157,7 +157,7 @@ RPG.Generators.Uniform.prototype._connectRooms = function(room1, room2) {
 		var corner = (wall2 == RPG.N || wall2 == RPG.W ? room2.getCorner1() : room2.getCorner2());
 		var x = (prop == "x" ? start[prop] : corner.x);
 		var y = (prop == "y" ? start[prop] : corner.y);
-		var end = new RPG.Misc.Coords(x, y);
+		var end = new RPG.Coords(x, y);
 		return this._digLine([start, end]);
 		
 	} else if (start[prop] < min-1 || start[prop] > max+1) { /* need to switch target wall (L-like) */
@@ -175,7 +175,7 @@ RPG.Generators.Uniform.prototype._connectRooms = function(room1, room2) {
 		
 		var end = this._placeInWall(room2, wall2);
 		if (!end) { return; }
-		var mid = new RPG.Misc.Coords(0, 0);
+		var mid = new RPG.Coords(0, 0);
 		mid[prop] = start[prop];
 		mid[minorProp] = end[minorProp];
 		return this._digLine([start, mid, end]);
@@ -186,8 +186,8 @@ RPG.Generators.Uniform.prototype._connectRooms = function(room1, room2) {
 		if (!end) { return; }
 		var mid = Math.round((end[minorProp] + start[minorProp])/2);
 
-		var mid1 = new RPG.Misc.Coords(0, 0);
-		var mid2 = new RPG.Misc.Coords(0, 0);
+		var mid1 = new RPG.Coords(0, 0);
+		var mid2 = new RPG.Coords(0, 0);
 		mid1[prop] = start[prop];
 		mid1[minorProp] = mid;
 		mid2[prop] = end[prop];
@@ -226,7 +226,7 @@ RPG.Generators.Uniform.prototype._placeInWall = function(room, wall) {
 		break;
 	}
 	
-	var result = new RPG.Misc.Coords(x, y);
+	var result = new RPG.Coords(x, y);
 	/* check if neighbors are not empty */
 	result[prop] -= 1;
 	if (this._isValid(result) && !this._boolArray[result.x][result.y]) { return null; }
@@ -393,7 +393,7 @@ RPG.Generators.Digger.prototype._firstRoom = function() {
 /**
  * This _always_ finds a suitable wall.
  * Suitable wall has 3 neighbor walls and 1 neighbor corridor.
- * @returns {RPG.Misc.Coords}
+ * @returns {RPG.Coords}
  */
 RPG.Generators.Digger.prototype._findWall = function() {
 	if (this._forcedWalls.length) {
@@ -443,7 +443,7 @@ RPG.Generators.Digger.prototype._getFeature = function() {
 RPG.Generators.Digger.prototype._featureRoom = function(wall) {
 	/* corridor vector */
 	var direction = this._emptyDirection(wall);
-	var normal = new RPG.Misc.Coords(direction.y, -direction.x);
+	var normal = new RPG.Coords(direction.y, -direction.x);
 
 	var diffX = this._maxWidth - this._minSize + 1;
 	var diffY = this._maxHeight - this._minSize + 1;
@@ -528,7 +528,7 @@ RPG.Generators.Digger.prototype._featureRoom = function(wall) {
 RPG.Generators.Digger.prototype._featureCorridor = function(wall) {
 	/* corridor vector */
 	var direction = this._emptyDirection(wall);
-	var normal = new RPG.Misc.Coords(direction.y, -direction.x);
+	var normal = new RPG.Coords(direction.y, -direction.x);
 	
 	/* wall length */
 	var availSpace = 0;
@@ -562,8 +562,8 @@ RPG.Generators.Digger.prototype._featureCorridor = function(wall) {
 	var top = Math.min(start.y + normal.y, start.y - normal.y, end.y + normal.y, end.y - normal.y);
 	var bottom = Math.max(start.y + normal.y, start.y - normal.y, end.y + normal.y, end.y - normal.y);
 	
-	var corner1 = new RPG.Misc.Coords(left, top);
-	var corner2 = new RPG.Misc.Coords(right, bottom);
+	var corner1 = new RPG.Coords(left, top);
+	var corner2 = new RPG.Coords(right, bottom);
 
 	var ok = this._freeSpace(corner1, corner2);
 	if (!ok) { return false; }
@@ -660,7 +660,7 @@ RPG.Generators.Digger.prototype._removeFreeWall = function(coords) {
  * Returns vector in "digging" direction, or false, if this does not exist (or is not unique)
  */
 RPG.Generators.Digger.prototype._emptyDirection = function(coords) {
-	var c = new RPG.Misc.Coords();
+	var c = new RPG.Coords();
 	var empty = null;
 	var deltas = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 	
@@ -681,14 +681,14 @@ RPG.Generators.Digger.prototype._emptyDirection = function(coords) {
 	/* no empty neighbor */
 	if (!empty) { return false; }
 	
-	return new RPG.Misc.Coords(coords.x - empty.x, coords.y - empty.y);
+	return new RPG.Coords(coords.x - empty.x, coords.y - empty.y);
 }
 
 /**
  * For a given rectangular area, adds all relevant surrounding walls to list of free walls
  */
 RPG.Generators.Digger.prototype._addSurroundingWalls = function(corner1, corner2) {
-	var c = new RPG.Misc.Coords(0, 0);
+	var c = new RPG.Coords(0, 0);
 	var left = corner1.x-1;
 	var right = corner2.x+1;
 	var top = corner1.y-1;

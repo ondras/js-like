@@ -1,11 +1,10 @@
 /**
  * @class Smith's trophy quest
- * @augments RPG.Misc.IDialog
+ * @augments RPG.IDialog
  * @augments RPG.Quests.Kill
  */
-RPG.Quests.SmithTrophy = OZ.Class()
-							.extend(RPG.Quests.Kill)
-							.implement(RPG.Misc.IDialog);
+RPG.Quests.SmithTrophy = OZ.Class().extend(RPG.Quests.Kill)
+				   .implement(RPG.IDialog);
 
 RPG.Quests.SmithTrophy.prototype.init = function(giver) {
 	var cl = RPG.Factories.npcs.getClass(1);
@@ -79,12 +78,11 @@ RPG.Quests.SmithTrophy.prototype.advanceDialog = function(optionIndex, being) {
 
 /**
  * @class Elder's enemy quest
- * @augments RPG.Misc.IDialog
+ * @augments RPG.IDialog
  * @augments RPG.Quests.Kill
  */
-RPG.Quests.ElderEnemy = OZ.Class()
-							.extend(RPG.Quests.Kill)
-							.implement(RPG.Misc.IDialog);
+RPG.Quests.ElderEnemy = OZ.Class().extend(RPG.Quests.Kill)
+				  .implement(RPG.IDialog);
 
 RPG.Quests.ElderEnemy.prototype.init = function(giver, being) {
 	this._GIVING = 1;
@@ -202,11 +200,11 @@ RPG.Quests.ElderEnemy.prototype.advanceDialog = function(optionIndex, being) {
 /**
  * @class Lost necklace quest
  * @augments RPG.Quests.Retrieve
- * @augments RPG.Misc.IDialog
+ * @augments RPG.IDialog
  */
-RPG.Quests.LostNecklace = OZ.Class()
-							.extend(RPG.Quests.Retrieve)
-							.implement(RPG.Misc.IDialog);
+RPG.Quests.LostNecklace = OZ.Class().extend(RPG.Quests.Retrieve)
+				    .implement(RPG.IDialog);
+
 RPG.Quests.LostNecklace.prototype.init = function(giver, item) {
 	this._REWARD_DEFENSIVE = 0;
 	this._REWARD_OFFENSIVE = 1;

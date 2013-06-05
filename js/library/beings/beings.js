@@ -97,7 +97,7 @@ RPG.Beings.Troll.prototype.init = function() {
 	this.setFeat(RPG.FEAT_MAGIC, 5);
 	this.setFeat(RPG.FEAT_PV, 5);
 
-	this.getSlot(RPG.SLOT_WEAPON).setHit(new RPG.Misc.RandomValue(10, 5));
+	this.getSlot(RPG.SLOT_WEAPON).setHit(new RPG.RandomValue(10, 5));
 
 	this.fullStats();
 }
@@ -110,7 +110,7 @@ RPG.Beings.God = OZ.Class().extend(RPG.Beings.PC);
 RPG.Beings.God.prototype._computeVisibleCoords = function() {
 	var all = {};
 	var size = this._map.getSize();
-	var c = new RPG.Misc.Coords(0, 0);
+	var c = new RPG.Coords(0, 0);
 	for (var i=0;i<size.x;i++) {
 		for (var j=0;j<size.y;j++) {
 			c.x = i;
@@ -203,7 +203,7 @@ RPG.Beings.Wolf.prototype.init = function() {
 	this.setFeat(RPG.FEAT_STRENGTH, 10);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 10);
 	this.setFeat(RPG.FEAT_DEXTERITY, 11);
-	this.getSlot(RPG.SLOT_WEAPON).setHit(new RPG.Misc.RandomValue(7, 4));
+	this.getSlot(RPG.SLOT_WEAPON).setHit(new RPG.RandomValue(7, 4));
 
 	this.fullStats();
 }
@@ -385,7 +385,7 @@ RPG.Beings.Ogre.prototype.init = function() {
 	this.setFeat(RPG.FEAT_DV, 3);
 	this.setFeat(RPG.FEAT_PV, 3);
 
-	this.getSlot(RPG.SLOT_WEAPON).setHit(new RPG.Misc.RandomValue(10, 5));
+	this.getSlot(RPG.SLOT_WEAPON).setHit(new RPG.RandomValue(10, 5));
 
 	if (Math.randomPercentage() < 81) {
 		var club = new RPG.Items.Club();

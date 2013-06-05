@@ -126,7 +126,7 @@ RPG.Features.Trap.Pit.visual = { desc:"pit trap", image:"trap-pit", color:"#963"
 
 RPG.Features.Trap.Pit.prototype.init = function() {
 	this.parent();
-	this._damage = new RPG.Misc.RandomValue(3, 1);
+	this._damage = new RPG.RandomValue(3, 1);
 }
 
 RPG.Features.Trap.Pit.prototype.setOff = function(being) {
@@ -172,9 +172,9 @@ RPG.Features.Trap.Flash.prototype.setOff = function(being) {
  * @augments RPG.Features.BaseFeature
  * @augments RPG.Features.IDamageReceiver
  */
-RPG.Features.Destroyable = OZ.Class()
-							.extend(RPG.Features.BaseFeature)
-							.implement(RPG.Misc.IDamageReceiver);
+RPG.Features.Destroyable = OZ.Class().extend(RPG.Features.BaseFeature)
+			 	     .implement(RPG.Misc.IDamageReceiver);
+
 RPG.Features.Destroyable.factory.frequency = 0;
 RPG.Features.Destroyable.prototype.damage = function(amount) {
 	this._hp -= amount;
@@ -293,14 +293,14 @@ RPG.Features.Door.prototype._destroy = function() {
  * @augments RPG.Features.IActor
  * @augments RPG.Features.IDamageDealer
  */
-RPG.Features.StainedGlassWindow = OZ.Class()
-									.extend(RPG.Features.Destroyable)
-									.implement(RPG.Misc.IActor)
-									.implement(RPG.Misc.IDamageDealer);
+RPG.Features.StainedGlassWindow = OZ.Class().extend(RPG.Features.Destroyable)
+					    .implement(RPG.IActor)
+					    .implement(RPG.Misc.IDamageDealer);
+
 RPG.Features.StainedGlassWindow.visual = { desc:"stained glass window", image:"stained-glass-window", ch:"=" };
 RPG.Features.StainedGlassWindow.prototype._blocks = RPG.BLOCKS_MOVEMENT;
-RPG.Features.StainedGlassWindow.prototype._hit = new RPG.Misc.RandomValue(8, 5);
-RPG.Features.StainedGlassWindow.prototype._damage = new RPG.Misc.RandomValue(2, 1);
+RPG.Features.StainedGlassWindow.prototype._hit = new RPG.RandomValue(8, 5);
+RPG.Features.StainedGlassWindow.prototype._damage = new RPG.RandomValue(2, 1);
 RPG.Features.StainedGlassWindow.prototype.init = function() { 
 	this.parent();
 	this._hp = 3;
@@ -314,13 +314,13 @@ RPG.Features.StainedGlassWindow.prototype._destroy = function() {
 	RPG.Game.getEngine().addActor(this);
 }
 /**
- * @see RPG.Misc.IActor#getSpeed
+ * @see RPG.IActor#getSpeed
  */
 RPG.Features.StainedGlassWindow.prototype.getSpeed = function() {
 	return 1/0;
 }
 /**
- * @see RPG.Misc.IActor#yourTurn
+ * @see RPG.IActor#yourTurn
  * Damage surrounding beings
  */
 RPG.Features.StainedGlassWindow.prototype.yourTurn = function() {
@@ -443,7 +443,7 @@ RPG.Areas.Tutorial.prototype.getCoords = function() {
 	var all = [];
 	for (var p in this._messages) { 
 		if (p in this._visited) { continue; }
-		all.push(RPG.Misc.Coords.fromString(p)); 
+		all.push(RPG.Coords.fromString(p)); 
 	}
 	return all;
 }
@@ -495,7 +495,7 @@ RPG.Areas.Shop.prototype.init = function(corner1, corner2) {
 RPG.Areas.Shop.prototype.setMap = function(map) {
 	this.parent(map);
 
-	var c = new RPG.Misc.Coords(0, 0);
+	var c = new RPG.Coords(0, 0);
 	for (var i=this._corner1.x-1; i<=this._corner2.x+1; i++) {
 		for (var j=this._corner1.y-1; j<=this._corner2.y+1; j++) {
 			if (i >= this._corner1.x && i <= this._corner2.x && j >= this._corner1.y && j <= this._corner2.y) { continue; }

@@ -57,8 +57,8 @@ RPG.Story.Village.prototype._buildMaps = function() {
 	var up = new RPG.Features.StaircaseUp();
 	down.setTarget(up);
 	up.setTarget(down);
-	cross.setFeature(down, new RPG.Misc.Coords(1, 6));
-	this._tutorial.setFeature(up, new RPG.Misc.Coords(49, 15));
+	cross.setFeature(down, new RPG.Coords(1, 6));
+	this._tutorial.setFeature(up, new RPG.Coords(49, 15));
 	cross.setFeature(new RPG.Features.Signpost("To beginner's cave"), down.getCoords().neighbor(RPG.S));
 
 	/* connect crossroads with village */
@@ -66,8 +66,8 @@ RPG.Story.Village.prototype._buildMaps = function() {
 	var up = new RPG.Features.RoadExit();
 	down.setTarget(up);
 	up.setTarget(down);
-	cross.setFeature(down, new RPG.Misc.Coords(7, 12));
-	this._village.setFeature(up, new RPG.Misc.Coords(19, 1));
+	cross.setFeature(down, new RPG.Coords(7, 12));
+	this._village.setFeature(up, new RPG.Coords(19, 1));
 	cross.setFeature(new RPG.Features.Signpost("To village"), down.getCoords().neighbor(RPG.NW)); 
 
 	/* connect crossroads with church */
@@ -76,19 +76,19 @@ RPG.Story.Village.prototype._buildMaps = function() {
 	var up = new RPG.Features.RoadExit();
 	down.setTarget(up);
 	up.setTarget(down);
-	cross.setFeature(down, new RPG.Misc.Coords(28, 1));
-	church.setFeature(up, new RPG.Misc.Coords(3, 9));
+	cross.setFeature(down, new RPG.Coords(28, 1));
+	church.setFeature(up, new RPG.Coords(3, 9));
 	cross.setFeature(new RPG.Features.Signpost("To the church"), down.getCoords().neighbor(RPG.N)); 
 
 	/* infinite dungeon */
 	var down = new RPG.Features.StaircaseDown();
-	cross.setFeature(down, new RPG.Misc.Coords(18, 1));
+	cross.setFeature(down, new RPG.Coords(18, 1));
     this._staircases["dungeon"] = down;
 	cross.setFeature(new RPG.Features.Signpost("To underground caves"), down.getCoords().neighbor(RPG.E)); 
 	
 	/* end game */
 	var away = new RPG.Features.RoadExit();
-	cross.setFeature(away, new RPG.Misc.Coords(28, 12));
+	cross.setFeature(away, new RPG.Coords(28, 12));
     this._staircases["end"] = away;
 	cross.setFeature(new RPG.Features.Signpost("Leave the game"), away.getCoords().neighbor(RPG.N)); 
 }
@@ -120,7 +120,7 @@ RPG.Story.Village.prototype._createPC = function(race, profession, name) {
 
 RPG.Story.Village.prototype._firstMap = function() {
 	this._buildMaps();
-	return [this._tutorial, new RPG.Misc.Coords(7, 17)];
+	return [this._tutorial, new RPG.Coords(7, 17)];
 }
 
 RPG.Story.Village.prototype._buildVillage = function() {
@@ -128,7 +128,7 @@ RPG.Story.Village.prototype._buildVillage = function() {
 
 	/* village elder */
 	var elder = new RPG.Beings.VillageElder();
-	this._village.setBeing(elder, new RPG.Misc.Coords(30, 5));
+	this._village.setBeing(elder, new RPG.Coords(30, 5));
 	elder.getAI().setDefaultTask(new RPG.AI.Wait());
 	
 	/* elder's enemy */
@@ -137,13 +137,13 @@ RPG.Story.Village.prototype._buildVillage = function() {
 
 	/* witch */
     var witch = new RPG.Beings.VillageWitch();
-    this._village.setBeing(witch, new RPG.Misc.Coords(2,7));
+    this._village.setBeing(witch, new RPG.Coords(2,7));
 	witch.getAI().setDefaultTask(new RPG.AI.Wait());
 
 	/* healer */
     var healer = new RPG.Beings.VillageHealer();
-    this._village.setBeing(healer, new RPG.Misc.Coords(11,3));
-    var task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(10, 2), new RPG.Misc.Coords(11, 4));
+    this._village.setBeing(healer, new RPG.Coords(11,3));
+    var task = new RPG.AI.WanderInArea(new RPG.Coords(10, 2), new RPG.Coords(11, 4));
 	healer.getAI().setDefaultTask(task);
 
 	/* healer's quest */
@@ -151,16 +151,16 @@ RPG.Story.Village.prototype._buildVillage = function() {
 	
 	/* smith */
     var smith = new RPG.Beings.VillageSmith();
-    this._village.setBeing(smith, new RPG.Misc.Coords(20,6));
-    var task = new RPG.AI.WanderInArea(new RPG.Misc.Coords(19, 5), new RPG.Misc.Coords(21, 6));
+    this._village.setBeing(smith, new RPG.Coords(20,6));
+    var task = new RPG.AI.WanderInArea(new RPG.Coords(19, 5), new RPG.Coords(21, 6));
 	smith.getAI().setDefaultTask(task);
 
 	/* smith's trophy */
 	new RPG.Quests.SmithTrophy(smith);
 	
 	/* shop + shopkeeper */
-	var shop1 = new RPG.Misc.Coords(18, 11);
-	var shop2 = new RPG.Misc.Coords(20, 13);
+	var shop1 = new RPG.Coords(18, 11);
+	var shop2 = new RPG.Coords(20, 13);
 	var shop = new RPG.Areas.Shop(shop1, shop2);
 	this._village.addArea(shop);
     var shopkeeper = new RPG.Beings.VillageShopkeeper();
@@ -168,11 +168,11 @@ RPG.Story.Village.prototype._buildVillage = function() {
 
 	/* guards */
     var guard = new RPG.Beings.VillageGuard();
-    this._village.setBeing(guard, new RPG.Misc.Coords(27,6));
+    this._village.setBeing(guard, new RPG.Coords(27,6));
 	guard.getAI().setDefaultTask(new RPG.AI.Wait());
 
     var guard = new RPG.Beings.VillageGuard();
-    this._village.setBeing(guard, new RPG.Misc.Coords(27,8));
+    this._village.setBeing(guard, new RPG.Coords(27,8));
 	guard.getAI().setDefaultTask(new RPG.AI.Wait());
 
 	/* villagers */
@@ -192,19 +192,19 @@ RPG.Story.Village.prototype._buildVillage = function() {
 
 RPG.Story.Village.prototype._showElderStaircase = function() {
     var staircase = new RPG.Features.StaircaseDown();
-    this._village.setFeature(staircase, new RPG.Misc.Coords(32, 14));
+    this._village.setFeature(staircase, new RPG.Coords(32, 14));
     this._staircases["elder"] = staircase;
 }
 
 RPG.Story.Village.prototype._showMazeStaircase = function() {
     var staircase = new RPG.Features.StaircaseDown();
-    this._village.setFeature(staircase, new RPG.Misc.Coords(1, 1));
+    this._village.setFeature(staircase, new RPG.Coords(1, 1));
     this._staircases["maze"] = staircase;
 }
 
 RPG.Story.Village.prototype._nextElderDungeon = function(staircase) {
 	this._elderDepth++;
-	var size = new RPG.Misc.Coords(60, 20);
+	var size = new RPG.Coords(60, 20);
 	var generator = (this._elderDepth % 2 ? RPG.Generators.Uniform : RPG.Generators.Digger);
 
 	var rooms = [];
@@ -284,7 +284,7 @@ RPG.Story.Village.prototype._nextMazeDungeon = function(staircase) {
 	this._mazeDepth++;
 
 	var generator = null;
-	var size = new RPG.Misc.Coords(59, 19);
+	var size = new RPG.Coords(59, 19);
 	switch (this._mazeDepth) {
 		case 1: generator = RPG.Generators.DividedMaze; break;
 		case 2: generator = RPG.Generators.IceyMaze; break;
@@ -340,7 +340,7 @@ RPG.Story.Village.prototype._nextGenericDungeon = function(staircase) {
 			level = 1;
 		}
 		var gen = RPG.Generators.Uniform.getInstance();
-		var map = gen.generate("Generic dungeon #" + level, new RPG.Misc.Coords(60, 20), level, {ctor:RPG.Map.RandomDungeon});
+		var map = gen.generate("Generic dungeon #" + level, new RPG.Coords(60, 20), level, {ctor:RPG.Map.RandomDungeon});
 		RPG.Decorators.Hidden.getInstance().decorate(map, 0.01);
 		
 		/* enemies */

@@ -22,7 +22,7 @@ RPG.Map.Crossroads.prototype.init = function() {
 	
 	var width = 30;
 	var height = str.length/width;
-	this.parent("Crossroads", new RPG.Misc.Coords(width, height), 1);
+	this.parent("Crossroads", new RPG.Coords(width, height), 1);
 	
 	this._welcome = "You come to a small crossroads.";
 	this._modifiers[RPG.FEAT_SIGHT_RANGE] = 3;

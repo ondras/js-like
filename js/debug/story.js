@@ -9,16 +9,16 @@ RPG.Story.Debug.prototype._firstMap = function() {
 	
 	if (r[1] == "church") {
 		var church = new RPG.Map.Church();
-		return [church, new RPG.Misc.Coords(3, 9)];
+		return [church, new RPG.Coords(3, 9)];
 	}
 
 	if (r[1] == "crossroads") {
 		var crossroads = new RPG.Map.Crossroads();
-		return [crossroads, new RPG.Misc.Coords(3, 9)];
+		return [crossroads, new RPG.Coords(3, 9)];
 	}
 
 	if (r[1] == "items") {
-		var arena = RPG.Generators.Arena.getInstance().generate("debug", new RPG.Misc.Coords(60, 20), 1);
+		var arena = RPG.Generators.Arena.getInstance().generate("debug", new RPG.Coords(60, 20), 1);
 		var items = RPG.Factories.items.getAllInstances();
 		for (var i=0;i<items.length;i++) {
 			var coords = this._indexToCoords(i);
@@ -26,11 +26,11 @@ RPG.Story.Debug.prototype._firstMap = function() {
 			coords.y++;
 			arena.addItem(items[i], coords);
 		}
-		return [arena, new RPG.Misc.Coords(1, 18)];
+		return [arena, new RPG.Coords(1, 18)];
 	}
 	
 	if (r[1] == "beings") {
-		var arena = RPG.Generators.Arena.getInstance().generate("debug", new RPG.Misc.Coords(60, 20), 1);
+		var arena = RPG.Generators.Arena.getInstance().generate("debug", new RPG.Coords(60, 20), 1);
 		var npcs = RPG.Factories.npcs.getAllInstances();
 		for (var i=0;i<npcs.length;i++) {
 			var coords = this._indexToCoords(i);
@@ -38,10 +38,10 @@ RPG.Story.Debug.prototype._firstMap = function() {
 			coords.y++;
 			arena.setBeing(npcs[i], coords);
 		}
-		return [arena, new RPG.Misc.Coords(1, 18)];
+		return [arena, new RPG.Coords(1, 18)];
 	}
 
-	var map = RPG.Generators.Uniform.getInstance().generate("debug", new RPG.Misc.Coords(60, 20), 1);
+	var map = RPG.Generators.Uniform.getInstance().generate("debug", new RPG.Coords(60, 20), 1);
 	return [map, map.getFreeCoords()];
 }
 
@@ -71,7 +71,7 @@ RPG.Story.Debug.prototype._createPC = function(race, profession, name) {
 }
 
 RPG.Story.Debug.prototype._indexToCoords = function(index) {
-	var result = new RPG.Misc.Coords(0, 0);
+	var result = new RPG.Coords(0, 0);
 	var num = Math.floor((-1 + Math.sqrt(1 + 8*(index)))/2); /* which diagonal (starting from 0) */
 	var maxPrev = num*(num+1)/2; /* first number on this diagonal */
 	result.x = index-maxPrev;

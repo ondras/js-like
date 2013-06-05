@@ -71,7 +71,7 @@ RPG.UI.BaseMap.prototype._getAvailableCharSize = function() {
 
 /**
  * Main drawing routine
- * @param {RPG.Misc.Coords} coords
+ * @param {RPG.Coords} coords
  * @param {RPG.Visual[]} visuals
  * @param {bool} memorized Memorized area?
  */
@@ -84,7 +84,7 @@ RPG.UI.BaseMap.prototype.setFocus = function(coords) {
 
 /**
  * Draw a projectile at a given coords
- * @param {RPG.Misc.Coords}
+ * @param {RPG.Coords}
  * @param {RPG.Visual.IVisual}
  */
 RPG.UI.BaseMap.prototype.addProjectile = function(coords, projectile) {
@@ -112,7 +112,7 @@ RPG.UI.ImageMap.prototype.init = function(container) {
 	this._dom.focus = OZ.DOM.elm("div", {className:"focus"});
 
 	this._nodes = [];
-	this._tileSize = new RPG.Misc.Coords(32, 32);
+	this._tileSize = new RPG.Coords(32, 32);
 	container.appendChild(this._dom.container);
 	this._dom.container.appendChild(this._dom.content);
 }
@@ -198,7 +198,7 @@ RPG.UI.ImageMap.prototype.addProjectile = function(coords, projectile) {
 
 RPG.UI.ImageMap.prototype.removeProjectiles = function() {
 	for (var id in this._projectiles) {
-		var coords = RPG.Misc.Coords.fromString(id);
+		var coords = RPG.Coords.fromString(id);
 		var index = this._coordsToIndex(coords);
 		var node = this._nodes[index];
 		var oldImage = this._projectiles[id][0];
@@ -349,7 +349,7 @@ RPG.UI.ASCIIMap.prototype.addProjectile = function(coords, projectile) {
 
 RPG.UI.ASCIIMap.prototype.removeProjectiles = function() {
 	for (var id in this._projectiles) {
-		var coords = RPG.Misc.Coords.fromString(id);
+		var coords = RPG.Coords.fromString(id);
 		var index = this._coordsToIndex(coords);
 		var span = this._nodes[index];
 		
@@ -415,7 +415,7 @@ RPG.UI.CanvasMap.prototype.syncSize = function() {
 	this._dom.container.style.marginBottom = Math.ceil((avail[1]-h)/2) + "px";
 
 	/* draw from cache */
-	for (var id in this._cache) { this._drawCache(RPG.Misc.Coords.fromString(id)); }
+	for (var id in this._cache) { this._drawCache(RPG.Coords.fromString(id)); }
 	if (this._focus) { this.setFocus(this._focus); } /* redraw focus */
 }
 
@@ -428,7 +428,7 @@ RPG.UI.CanvasMap.prototype.addProjectile = function(coords, projectile) {
 RPG.UI.CanvasMap.prototype.removeProjectiles = function() {
 	var allCoords = [];
 	for (var hash in this._projectiles) {
-		var coords = RPG.Misc.Coords.fromString(hash);
+		var coords = RPG.Coords.fromString(hash);
 		allCoords.push(coords);
 	}
 	this._projectiles = {};

@@ -147,13 +147,13 @@ RPG.Game._runStack = function(stack, readyStateChange) {
 }
 
 RPG.Game._initFactories = function() {
-	RPG.Factories.items = new RPG.Misc.Factory().add(RPG.Items.BaseItem);
-	RPG.Factories.gems = new RPG.Misc.Factory().add(RPG.Items.Gem);
-	RPG.Factories.npcs = new RPG.Misc.Factory().add(RPG.Beings.NPC);
-	RPG.Factories.undead = new RPG.Misc.Factory().add(RPG.Beings.Undead);
-	RPG.Factories.traps = new RPG.Misc.Factory().add(RPG.Features.Trap);
-	RPG.Factories.spells = new RPG.Misc.Factory().add(RPG.Spells.BaseSpell);
-	RPG.Factories.gold = new RPG.Misc.Factory().add(RPG.Items.Gold);
+	RPG.Factories.items = new RPG.Factory().add(RPG.Items.BaseItem);
+	RPG.Factories.gems = new RPG.Factory().add(RPG.Items.Gem);
+	RPG.Factories.npcs = new RPG.Factory().add(RPG.Beings.NPC);
+	RPG.Factories.undead = new RPG.Factory().add(RPG.Beings.Undead);
+	RPG.Factories.traps = new RPG.Factory().add(RPG.Features.Trap);
+	RPG.Factories.spells = new RPG.Factory().add(RPG.Spells.BaseSpell);
+	RPG.Factories.gold = new RPG.Factory().add(RPG.Items.Gold);
 }
 
 /**

@@ -19,12 +19,12 @@ RPG.Races.Humanoid.prototype.init = function() {
 	
 	var weapon = new RPG.Slots.Weapon("Weapon");
 	this._slots[RPG.SLOT_WEAPON] = weapon;
-	weapon.setHit(new RPG.Misc.RandomValue(3, 4));
-	weapon.setDamage(new RPG.Misc.RandomValue(2, 1));
+	weapon.setHit(new RPG.RandomValue(3, 4));
+	weapon.setDamage(new RPG.RandomValue(2, 1));
 	
 	var feet = new RPG.Slots.Kick("Feet");
-	feet.setHit(new RPG.Misc.RandomValue(3, 3));
-	feet.setDamage(new RPG.Misc.RandomValue(3, 1));
+	feet.setHit(new RPG.RandomValue(3, 3));
+	feet.setDamage(new RPG.RandomValue(3, 1));
 	this._slots[RPG.SLOT_FEET] = feet;
 }
 
@@ -97,7 +97,7 @@ RPG.Races.Animal.prototype.init = function() {
 	this._defaults[RPG.FEAT_MAGIC] -= 4;
 
 	var teeth = new RPG.Slots.Weapon("Teeth");
-	teeth.setHit(new RPG.Misc.RandomValue(5, 4));
-	teeth.setDamage(new RPG.Misc.RandomValue(2, 1));
+	teeth.setHit(new RPG.RandomValue(5, 4));
+	teeth.setDamage(new RPG.RandomValue(2, 1));
 	this._slots[RPG.SLOT_WEAPON] = teeth;
 }

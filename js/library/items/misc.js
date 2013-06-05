@@ -238,7 +238,7 @@ RPG.Items.RingOfAttribute.factory.method = function(danger) {
 RPG.Items.RingOfAttribute.prototype.init = function(attribute, amount) {
 	this.parent();
 	
-	var rv = new RPG.Misc.RandomValue(amount, 2*amount/3);
+	var rv = new RPG.RandomValue(amount, 2*amount/3);
 	this._modifiers[attribute] = rv.roll();
 
 	this._attribute = attribute;
