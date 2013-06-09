@@ -62,9 +62,11 @@ RPG.UI = {};
 /** @constant */
 RPG.BLOCKS_NOTHING		= 0;
 /** @constant */
-RPG.BLOCKS_MOVEMENT	 	= 1; /* can not be moved onto */
+RPG.BLOCKS_MOVEMENT	 	= 1; /* can not be moved onto (but lets light through) */
 /** @constant */
-RPG.BLOCKS_LIGHT 		= 2; /* can not be seen through, e.g. a wall */
+RPG.BLOCKS_ITEMS 		= 2; /* Items can not go here, either */
+/** @constant */
+RPG.BLOCKS_LIGHT 		= 3; /* can not be seen through, e.g. a wall */
 
 /* Being sexes */
 

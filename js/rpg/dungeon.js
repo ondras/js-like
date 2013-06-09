@@ -3,9 +3,9 @@
  * @augments RPG.IEnterable
  * @augments RPG.Visual.IVisual
  */
-RPG.Cells.BaseCell = OZ.Singleton()
-						.implement(RPG.Visual.IVisual)
-						.implement(RPG.IEnterable);
+RPG.Cells.BaseCell = OZ.Singleton().implement(RPG.Visual.IVisual)
+				   .implement(RPG.IEnterable);
+
 RPG.Cells.BaseCell.visual = { path:"cells" };
 RPG.Cells.BaseCell.prototype._blocks = RPG.BLOCKS_NOTHING;
 RPG.Cells.BaseCell.prototype.init = function() {
@@ -13,6 +13,7 @@ RPG.Cells.BaseCell.prototype.init = function() {
 	this._fake = false;
 	this._cell = null;
 	this._feature = null;
+	this._water = false;
 }
 
 RPG.Cells.BaseCell.prototype.revive = function() {
@@ -21,6 +22,10 @@ RPG.Cells.BaseCell.prototype.revive = function() {
 
 RPG.Cells.BaseCell.prototype.isFake = function() {
 	return this._fake;
+}
+
+RPG.Cells.BaseCell.prototype.isWater = function() {
+	return this._water;
 }
 
 RPG.Cells.BaseCell.prototype.blocks = function(what) {
@@ -47,8 +52,7 @@ RPG.Cells.BaseCell.prototype.reveal = function(map, coords) {
  * @class Area, a logical subset of map
  * @augments RPG.IEnterable
  */
-RPG.Areas.BaseArea = OZ.Class()
-						.implement(RPG.IEnterable);
+RPG.Areas.BaseArea = OZ.Class().implement(RPG.IEnterable);
 
 RPG.Areas.BaseArea.prototype.init = function() {
 	this._map = null;
@@ -126,9 +130,9 @@ RPG.Areas.Room.prototype.getCoords = function() {
  * @augments RPG.Visual.IVisual
  * @augments RPG.IEnterable
  */
-RPG.Features.BaseFeature = OZ.Class()
-							.implement(RPG.Visual.IVisual)
-							.implement(RPG.IEnterable);
+RPG.Features.BaseFeature = OZ.Class().implement(RPG.Visual.IVisual)
+				     .implement(RPG.IEnterable);
+
 RPG.Features.BaseFeature.visual = { path:"features" };
 RPG.Features.BaseFeature.prototype._blocks = RPG.BLOCKS_NOTHING;
 RPG.Features.BaseFeature.prototype.init = function() {

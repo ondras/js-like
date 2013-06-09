@@ -25,6 +25,30 @@ RPG.Cells.Grass.visual = { desc:"grass", ch:".", image:"grass", color:"#693" };
  */
 RPG.Cells.Water = OZ.Singleton().extend(RPG.Cells.BaseCell);
 RPG.Cells.Water.visual = { desc:"water", ch:"=", image:"water", color:"#009" };
+RPG.Cells.Water.prototype.init = function() {
+	this.parent();
+	this._water = true;
+}
+
+RPG.Cells.Water.prototype.entering = function(being) {
+	var canSee = RPG.Game.pc.canSee(being.getCoords());
+	if (canSee) {
+		var verb = RPG.Misc.verb("wade", being);
+		var s = RPG.Misc.format("Splash Splash! %A %s into the water.", being, verb);
+		RPG.UI.buffer.message(s);	
+	} else {
+		RPG.UI.buffer.message("You hear some splashing.");
+	}
+}
+
+/**
+ * @class Deep Water
+ * @augments RPG.Cells.BaseCell
+ */
+RPG.Cells.DeepWater = OZ.Singleton().extend(RPG.Cells.Water);
+RPG.Cells.DeepWater.visual = { desc:"deep water", ch:"~", image:"deepwater", color:"#009" };
+RPG.Cells.DeepWater.prototype._blocks = RPG.BLOCKS_MOVEMENT;
+
 
 /**
  * @class Wall
@@ -50,7 +74,7 @@ RPG.Cells.Wall.Fake.prototype.init = function() {
  */
 RPG.Features.Tree = OZ.Class().extend(RPG.Features.BaseFeature);
 RPG.Features.Tree.visual = { desc:"tree", ch:"T", image:"tree", color:"#093" }
-RPG.Features.Tree.prototype._blocks = RPG.BLOCKS_MOVEMENT;
+RPG.Features.Tree.prototype._blocks = RPG.BLOCKS_ITEMS;
 
 /**
  * @class Altar feature
@@ -328,7 +352,7 @@ RPG.Features.StainedGlassWindow.prototype.yourTurn = function() {
 	for (var i=0;i<coords.length;i++) {
 		var b = this._map.getBeing(coords[i]);
 		if (!b) { continue; }
-		var combat = new RPG.Misc.Combat(this, b).execute();
+		var combat = new RPG.Combat(this, b).execute();
 		
 		if (!combat.wasHit()) {
 			var verb = RPG.Misc.verb("evade", b);

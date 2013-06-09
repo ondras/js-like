@@ -1,4 +1,21 @@
 /**
+ * @class Villager
+ * @augments RPG.Beings.NPC
+ */
+RPG.Beings.Villager = OZ.Class().extend(RPG.Beings.NPC);
+RPG.Beings.Villager.factory.frequency = 0;
+RPG.Beings.Villager.visual = { desc:"villager", color:"#c93", image:"villager" };
+RPG.Beings.Villager.prototype.init = function() {
+	this.parent(RPG.Races.Humanoid);
+	this.randomGender();
+	this.setConfirm(RPG.CONFIRM_ASK);
+	this.setAlignment(RPG.ALIGNMENT_LAWFUL);
+	
+	this.fullStats();
+}
+
+
+/**
  * @class Village healer
  * @augments RPG.Beings.NPC
  */
@@ -10,7 +27,7 @@ RPG.Beings.VillageHealer.prototype.init = function() {
 
 	this.setGender(RPG.GENDER_MALE);
 	this.setConfirm(RPG.CONFIRM_ASK);
-	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	this.setAlignment(RPG.ALIGNMENT_LAWFUL);
 	this.setFeat(RPG.FEAT_DEXTERITY, 15);
 	this.setFeat(RPG.FEAT_MAGIC, 20);
 	this.setFeat(RPG.FEAT_DV, 10);
@@ -32,7 +49,7 @@ RPG.Beings.VillageShopkeeper.prototype.init = function() {
 
 	this.setGender(RPG.GENDER_FEMALE);
 	this.setConfirm(RPG.CONFIRM_ASK);
-	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	this.setAlignment(RPG.ALIGNMENT_LAWFUL);
 	this.setFeat(RPG.FEAT_SPEED, 200);
 	this.setFeat(RPG.FEAT_DV, 10);
 	this.setFeat(RPG.FEAT_PV, 10);
@@ -54,7 +71,7 @@ RPG.Beings.VillageWitch.prototype.init = function() {
 
 	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setGender(RPG.GENDER_FEMALE);
-	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	this.setAlignment(RPG.ALIGNMENT_LAWFUL);
 	this.setFeat(RPG.FEAT_MAGIC, 25);
 	this.setFeat(RPG.FEAT_MAX_HP, 20);
 
@@ -82,7 +99,7 @@ RPG.Beings.VillageGuard.prototype.init = function() {
 
 	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setGender(RPG.GENDER_MALE);
-	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	this.setAlignment(RPG.ALIGNMENT_LAWFUL);
 	this.setFeat(RPG.FEAT_STRENGTH, 20);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
 	this.setFeat(RPG.FEAT_DEXTERITY, 20);
@@ -117,7 +134,7 @@ RPG.Beings.VillageSmith.prototype.init = function() {
 
 	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setGender(RPG.GENDER_MALE);
-	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	this.setAlignment(RPG.ALIGNMENT_LAWFUL);
 	this.setFeat(RPG.FEAT_STRENGTH, 20);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
 	this.setFeat(RPG.FEAT_DEXTERITY, 20);
@@ -144,7 +161,7 @@ RPG.Beings.VillageElder.prototype.init = function() {
 
 	this.setConfirm(RPG.CONFIRM_ASK);
 	this.setGender(RPG.GENDER_MALE);
-	this.setAlignment(RPG.ALIGNMENT_NEUTRAL);
+	this.setAlignment(RPG.ALIGNMENT_LAWFUL);
 	this.setFeat(RPG.FEAT_STRENGTH, 20);
 	this.setFeat(RPG.FEAT_TOUGHNESS, 20);
 	this.setFeat(RPG.FEAT_DEXTERITY, 20);

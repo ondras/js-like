@@ -649,6 +649,7 @@ RPG.Beings.PC.prototype.kick = function(coords) {
 	var feature = this._map.getFeature(coords);
 	var being = this._map.getBeing(coords);
 	var items = this._map.getItems(coords);
+	var cell = this._map.getCell(coords);
 	
 	if (coords.equals(this._coords)) {
 		RPG.UI.buffer.message("You would not do that, would you?");
@@ -656,7 +657,7 @@ RPG.Beings.PC.prototype.kick = function(coords) {
 	}
 	
 	if (feature && feature.blocks(RPG.BLOCKS_MOVEMENT) && feature.constructor.implements(RPG.Misc.IDamageReceiver)) {
-		var combat = new RPG.Misc.Combat(this.getSlot(RPG.SLOT_FEET), feature).execute();
+		var combat = new RPG.Combat(this.getSlot(RPG.SLOT_FEET), feature).execute();
 		if (!combat.wasHit()) {
 			var s = RPG.Misc.format("You miss %the.", feature);
 			RPG.UI.buffer.message(s);
@@ -677,7 +678,7 @@ RPG.Beings.PC.prototype.kick = function(coords) {
 		return being.confirmAttack(yes.bind(this));
 	}
 
-	if (this._map.blocks(RPG.BLOCKS_MOVEMENT, coords)) {
+	if (this._map.blocks(RPG.BLOCKS_ITEMS, coords)) {
 		RPG.UI.buffer.message("Ouch! That hurts!");
 		return RPG.ACTION_TIME;
 	}
@@ -686,20 +687,29 @@ RPG.Beings.PC.prototype.kick = function(coords) {
 		var dir = this._coords.dirTo(coords);
 		var target = coords.neighbor(dir);
 		
-		if (!this._map.blocks(RPG.BLOCKS_MOVEMENT, target)) { /* kick topmost item */
+		if (!this._map.blocks(RPG.BLOCKS_ITEMS, target)) { /* kick topmost item */
 			var item = items[items.length-1];
 			this._map.removeItem(item, coords);
 			this._map.addItem(item, target);
 			
 			var s = RPG.Misc.format("You kick %the. It slides away.", item);
+			if(cell.isWater()) {
+				s = "Splash! " + s;
+			}
 			RPG.UI.buffer.message(s);
 			
 			return RPG.ACTION_TIME;
 		}
 	}
-	
+
+	if(cell.isWater()) {
+		RPG.UI.buffer.message("Splash! You kick at the water.");
+		return RPG.ACTION_TIME;
+	}
+
 	RPG.UI.buffer.message("You kick in empty air.");
 	return RPG.ACTION_TIME;
+
 }
 
 RPG.Beings.PC.prototype.open = function(door) {

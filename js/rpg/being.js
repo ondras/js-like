@@ -734,7 +734,7 @@ RPG.Beings.BaseBeing.prototype.launch = function(projectile, coords) {
  * Attack target being with a given slot
  */
 RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
-	var combat = new RPG.Misc.Combat(slot, being).execute();
+	var combat = new RPG.Combat(slot, being).execute();
 	this._describeMeleeCombat(combat);
 	
 	this.dispatch("attack-melee", {being:being});
@@ -742,7 +742,7 @@ RPG.Beings.BaseBeing.prototype.attackMelee = function(being, slot) {
 }
 
 RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
-	var combat = new RPG.Misc.Combat(projectile, being).execute();
+	var combat = new RPG.Combat(projectile, being).execute();
 	this._describeRangedCombat(combat);
 
 	var recovered = RPG.Rules.isProjectileRecovered(projectile);
@@ -764,7 +764,7 @@ RPG.Beings.BaseBeing.prototype.attackRanged = function(being, projectile) {
  * @param {RPG.Spells.Attack} spell
  */
 RPG.Beings.BaseBeing.prototype.attackMagic = function(being, spell) {
-	var combat = new RPG.Misc.Combat(spell, being).execute();
+	var combat = new RPG.Combat(spell, being).execute();
 	this._describeMagicCombat(combat);
 
 	this.dispatch("attack-magic", {being:being});
@@ -798,13 +798,13 @@ RPG.Beings.BaseBeing.prototype._describeLaunch = function(projectile, target) {
 }
 
 /**
- * @param {RPG.Misc.Combat}
+ * @param {RPG.Combat}
  */
 RPG.Beings.BaseBeing.prototype._describeMeleeCombat = function(combat) {
 }
 
 /**
- * @param {RPG.Misc.Combat}
+ * @param {RPG.Combat}
  */
 RPG.Beings.BaseBeing.prototype._describeRangedCombat = function(combat) {
 	var defender = combat.getDefender();
