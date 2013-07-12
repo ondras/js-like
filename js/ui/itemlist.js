@@ -219,7 +219,7 @@ RPG.UI.Itemlist.prototype._buildItem = function(item) {
 		btn.value = label;
 		td.appendChild(btn);
 
-		if (item.item.getAmount() > 1) {
+		if (item.item.getAmount && item.item.getAmount() > 1) {
 			var btn2 = item.buttonSome;
 			btn2.value = label.toUpperCase();
 			td.appendChild(btn2);
@@ -257,7 +257,7 @@ RPG.UI.Itemlist.prototype._toggleMax = function(obj) {
 }
 
 RPG.UI.Itemlist.prototype._toggleOnMax = function(obj) {
-	var max = obj.item.getAmount();
+	var max = (obj.item.getAmount ? obj.item.getAmount() : 1);
 	obj.amount = max;
 	obj.checkbox.checked = true;
 	obj.checkbox.indeterminate = false;
@@ -269,7 +269,7 @@ RPG.UI.Itemlist.prototype._toggleOnMax = function(obj) {
 
 RPG.UI.Itemlist.prototype._toggleOn = function(obj) {
 	var amount = 1;
-	var max = obj.item.getAmount();
+	var max = (obj.item.getAmount ? obj.item.getAmount() : 1);
 	if (!obj.checkbox.checked && this._pick == -1) {
 		/* ask for amount */
 		if (max > 1) {

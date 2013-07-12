@@ -55,7 +55,7 @@ var Loader = {
 		"js/library/spells/knock.js",
 		"js/library/spells/MagicBolt.js",
 		"js/library/spells/MagicExplosion.js",
-		"js/library/spells/Teleport.js",
+		"js/library/spells/teleport.js",
 		"js/library/items/armor.js",
 		"js/library/items/misc.js",
 		"js/library/items/weapons.js",
