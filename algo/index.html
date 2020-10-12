@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Dungeon-related algorithms</title>
+		<link rel="stylesheet" href="style.css" type="text/css" />
+		<script src="../js/oz.js"></script>
+		<script src="../js/oop.oz.js"></script>
+
+		<script src="../js/rpg/rpg.js"></script>
+		<script src="../js/rpg/visual.js"></script>
+		<script src="../js/rpg/Coords.js"></script>
+		<script src="../js/rpg/Feat.js"></script>
+		<script src="../js/rpg/RandomValue.js"></script>
+		<script src="../js/rpg/Combat.js"></script>
+		<script src="../js/rpg/IActor.js"></script>
+		<script src="../js/rpg/IModifier.js"></script>
+		<script src="../js/rpg/IEnterable.js"></script>
+		<script src="../js/rpg/IProjectile.js"></script>
+		<script src="../js/rpg/BaseEffect.js"></script>
+		<script src="../js/rpg/BaseRace.js"></script>
+		<script src="../js/rpg/BaseProfession.js"></script>
+		<script src="../js/rpg/Scheduler.js"></script>
+		<script src="../js/rpg/being.js"></script>
+		<script src="../js/rpg/dungeon.js"></script>
+		<script src="../js/rpg/pc.js"></script>
+		<script src="../js/rpg/npc.js"></script>
+		<script src="../js/rpg/item.js"></script>
+		
+		<script src="../js/library/dungeon.js"></script>
+		<script src="../js/library/generators.js"></script>
+		<script src="../js/library/decorators.js"></script>
+		<script src="../js/library/feats.js"></script>
+		<script src="../js/library/effects.js"></script>
+		<script src="../js/library/items/misc.js"></script>
+		<script src="../js/library/items/weapons.js"></script>
+
+	</head>
+
+	<body>
+		<h1>A collection of interesting dungeon-related algorithms</h1>
+		<p>I encountered/created all of these while implementing my JS roguelike game, <a href="http://code.google.com/p/js-like/">js-like</a>. Please note that a reasonably fast computer might be necessary for viewing this page, as it contains quite a lot of Javascript.</p>
+		
+		<h2>1. Dungeon generation</h2>
+		
+		<p>Creating a suitable dungeon layout is one of the primary roguelike tasks. Some dunegeons resemble mazes, while other look like a cavernous system, dugged out by a group of goblin dwellers. The brown slash sign (present on some of the maps below) represents (open) doors.</p>
+		
+		<hr/>
+		
+		<h3><em>Uniform</em> dungeon generator (<a href="#" id="uniform-refresh">refresh</a>)</h3>
+		<p>This algorithm works in two phases:</p>
+		<ol>
+			<li>A set of randomly sized and positioned rooms is generated</li>
+			<li>These rooms are connected with corridors of varying shapes (L-shaped, I-shaped and S-shaped)</li>
+		</ol>
+	
+		<div id="uniform" class="dungeon"></div>
+		
+		<hr/>
+
+		<h3><em>Digger</em> dungeon generator (<a href="#" id="digger-refresh">refresh</a>)</h3>
+		<p>The main goal of this algorithm is to mimic a living digger, who creates a system of interconnected tunnels and rooms. I use many ideas from an excellent article <a href="http://www.roguebasin.roguelikedevelopment.org/index.php?title=Dungeon-Building_Algorithm">Dungeon-Building Algorithm</a>, written by Mike Anderson.</p>
+		<div id="digger" class="dungeon"></div>
+		
+		<hr/>
+
+		<h3><em>Divided maze</em> dungeon generator (<a href="#" id="divided-refresh">refresh</a>)</h3>
+		<p>A fast and simple way to create a maze is to use a <a href="http://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_division_method">Recursive division</a> algorithm. It is best suited square mazes, but works pretty well with any rectangle.</p>
+		<div id="divided" class="dungeon"></div>
+
+		<hr/>
+
+		<h3><em>Icey's maze</em> dungeon generator (<a href="#" id="icey-refresh">refresh</a>)</h3>
+		<p>Cool mazes with configurable regularity can be created using this <a href="http://www.roguebasin.roguelikedevelopment.org/index.php?title=Simple_maze#Maze_Generator_in_Visual_Basic_6">algorithm</a>, taken from a Rogue Basin wiki.</p>
+		<div id="icey" class="dungeon"></div>
+
+		<hr/>
+
+		<h3><em>Perfect maze</em> dungeon generator (<a href="#" id="maze-refresh">refresh</a>)</h3>
+		<p>For a full explanation of this wonderful Eller's algorithm, please see <a href="http://homepages.cwi.nl/~tromp/maze.html">http://homepages.cwi.nl/~tromp/maze.html</a>. Not only it generates a <em>Perfect maze</em> (every two cells are connected by exactly one path), but it only requires 2*N memory to generate a maze of N*N size!</p>
+		<div id="maze" class="dungeon"></div>
+
+		<hr/>
+
+		<h2>2. Field of view</h2>
+		<p>Click on any non-empty cell in the map above to highlight the region visible from a given point. This area is computed using the <a href="http://code.google.com/p/js-like/wiki/DiscreteShadowcasting">Discrete Shadowcasting Algorithm</a>.</p>
+		
+		<hr/>
+
+		<h2>3. Timing (<a href="#" id="scheduler-refresh">refresh</a>)</h2>
+		<p>While roguelike games are not played in real-time, proper timing also must be taken care of. Individual beings, or <em>actors</em>, take turns in their actions. Every actor has a <em>speed</em> rating &ndash; a dimensionless relative value, which determines how frequently can the actor perform his duties. A speed of 200 means twice the amount of turns, when compared with speed of 100.</p>
+		<div id="scheduler"></div>
+		
+		<div id="footer">&copy; 2011 <a href="https://ondras.zarovi.cz/">Ondřej Žára</a></div>
+
+		<script src="algo.js"></script>
+	</body>
+</html>

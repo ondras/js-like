@@ -1,0 +1,51 @@
+body {
+	font-family: georgia;
+}
+
+.dungeon {
+	position: relative;
+	font-family: monospace;
+	font-size: 16px;
+	background-color: black;
+}
+
+.dungeon span {
+	cursor: pointer;
+}
+
+.dungeon .visible {
+	background-color: #333;
+}
+
+.dungeon .current {
+	background-color: #555;
+}
+
+#footer {
+	margin-top: 3em;
+	padding-top: 1em;
+	border-top: 1px solid gray;
+	font-size: small;
+	text-align: center;
+}
+
+.actor {
+	line-height: 30px;
+	height: 30px;
+}
+
+.actor .label {
+	display: inline-block;
+	width: 200px;
+	vertical-align: middle;
+}
+
+
+.actor .step {
+	display: inline-block;
+	margin-right: 3px;
+	width: 10px;
+	height: 90%;
+	background-color: blue;
+	vertical-align: middle;
+}
